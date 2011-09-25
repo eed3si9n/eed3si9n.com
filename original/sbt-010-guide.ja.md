@@ -119,7 +119,7 @@ sbt を build.sbt だけで立ち上げると、自動的にデフォルトプ�
 ## 基本的な概念 (スコープ)
 これまでで、コンフィギュレーションとプロジェクトの二つのスコープをみてきた。一般的に、スコープはキーに何らかの文脈を与え、キーやキー間の関係を再利用することを促進する。例えば、プロジェクトやコンフィギュレーションに関わらず `compile` は `sources` に依存する。
 
-sbt では合計四つの軸（axis）のスコープがあり、それらはプロジェクト、コンフィギュレーション、タスク、およびエクストラだ。ただし、エクストラ軸は現在の所未使用なので、実質プロジェクト、コンフィギュレーション、タスクの三軸だ。そう、タスクをつかってスコープ付けをすることができる！過去に僕は、コンフィギュレーションを使ったスコープ機構を一押ししてきたが、メーリングリストでの議論などを通じ、プラグインはコンフィギュレーション中立性を目指すべきで、タスク特定の設定値のスコープ付けに使うには間違った軸だという理解に達した。スコープ付けはプラグインのメインのタスクに設定値をスコープ付けすることが現在推奨されている。（[Plugins Best Practices][31] 参照）
+sbt では合計四つの軸（axis）のスコープがあり、それらはプロジェクト、コンフィギュレーション、タスク、およびエクストラだ。ただし、エクストラ軸は現在の所未使用なので、実質プロジェクト、コンフィギュレーション、タスクの三軸だ。そう、タスクをつかってスコープ付けをすることができる！過去に僕は、コンフィギュレーションを使ったスコープ機構を一押ししてきたが、メーリングリストでの議論などを通じ、プラグインはコンフィギュレーション中立性を目指すべきで、タスク特定の設定値のスコープ付けに使うには間違った軸だという理解に達した。スコープ付けはプラグインのメインのタスクに設定値をスコープ付けすることが現在推奨されている。（[Plugins Best Practices][31] 参照）しかしながら、既存の sbt のバグのため、場合によっては簡単な回避策を必要とするため、<a href="#per-task-keys">後の節を参照</a>してほしい。
 
 例えば、テストを走らせた後で実行可能な jar ファイルを作成する assembly というタスクを定義するとする。プラグインの定義では、こんな感じになる:
  
@@ -177,6 +177,21 @@ lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
 
 <scala>inConfig(Test)(baseCompileSettings)
 </scala>
+
+<a name="per-task-keys"></a>
+## キーをタスクの下にスコープ付けするときの注意
+sbt 0.10 における[既存のバグ][34]により、既存のキーをタスクの下で再利用するのには注意が必要だ。デフォルトのコンフィギュレーション優先順位である `Seq(Compile, Runtime, Test, Provided, Optional)` を仮定したときに、タスクにスコープ付けされたキーは、普通のコンフィギュレーションにスコープ付けられたタスクへの委譲を隠してしまう場合がある。
+
+その例として `test in Test` に委譲する `test` がある。 `test in assembly in Runtime` を配線すると、ビルドは `test` を `test:test` に委譲することができなくなってしまった。これは、スコープ無しのキーを提供して、元の委譲先へと委譲することで回避できる。この場合は `test` から `test in Test`。さらに、`or` を使うことで既にある値があれば保護できる。
+
+<scala>import AssemblyKeys._   
+lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = baseAssemblySettings
+lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
+  test <<= test or (test in Test).identity,
+  test in assembly <<= (test in Test).identity,
+)</scala>
+
+これでグローバルなコンフィギュレーションでも `Runtime` コンフィギュレーションでも使えるようになった。
 
 ## ドキュメントとソースを読む
 [公式の wiki][2] は役に立つ情報満載だ。ちょっと散漫な気もするが、欲しい情報が分かっていれば大抵見つけることが出来る。以下に役に立つページへのリンクを載せる:
@@ -477,4 +492,5 @@ trait の中。
   [31]: https://github.com/harrah/xsbt/wiki/Plugins-Best-Practices
   [32]: https://github.com/eed3si9n/eed3si9n.com/blob/master/original/sbt-010-guide.ja.md
   [33]: https://github.com/harrah/xsbt/wiki/Inspecting-Settings
+  [34]: https://github.com/harrah/xsbt/issues/202
   
