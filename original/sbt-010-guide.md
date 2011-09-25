@@ -119,7 +119,7 @@ This demonstrates that the task `compile` is scoped by the current project.
 ## the basic concepts (scope)
 So far we've seen two examples of key scoping, one by configuration, and the other by project. In general scopes provides a context to a key, and encourages reuse of keys and relationship between the keys. For instance `compile` depends on `sources`, regardless of the project or the configuration.
 
-In sbt, there are total of four axes (plural for "axis") of scope. They are project, configuration, task, and extra. So far, the extra axis has not been used, so practically we have project, configuration, and task. Yes, tasks can be used for scoping! In the past, I've advocated use of configuration as scoping mechanism, but through discussion on the mailing list, I've come to better understanding that plugins should strive to be configuration-neutral, and using it for tasks settings was the wrong axis of choice. The recommended approach is to scope settings into the main task of the plugin (See [Plugins Best Practices][31]). However, this approach does not always work due to an existing bug in sbt. See <a href="#per-task-keys">later section</a>.
+In sbt, there are total of four axes (plural for "axis") of scope. They are project, configuration, task, and extra. So far, the extra axis has not been used, so practically we have project, configuration, and task. Yes, tasks can be used for scoping! In the past, I've advocated use of configuration as scoping mechanism, but through discussion on the mailing list, I've come to better understanding that plugins should strive to be configuration-neutral, and using it for tasks settings was the wrong axis of choice. The recommended approach is to scope settings into the main task of the plugin (See [Plugins Best Practices][31]). However, this approach may require a minor workaround due to a bug in sbt. See <a href="#per-task-keys">later section</a>.
 
 Suppose you are defining a task called `assembly` that runs the test and creates an executable jar file. Here's how it could look in a plugin definition:
     
@@ -182,7 +182,16 @@ Similarly, we could also wire the settings for `Test`:
 ## notes on scoping keys under tasks
 Due to [an existing bug][34] in sbt 0.10, one should be careful when reusing existing keys and scoping it under a task. Given the default configurations `Seq(Compile, Runtime, Test, Provided, Optional)`, a key scoped under task can potentially mask normal delegation of a configuration-scoped key.
 
-An example I have encountered is `test`, which delegates to `test in Test`. When I wired `test in assembly in Runtime`, the build was unable to resolve `test` as `test:test`. Current workaround likely is to define a custom configuration extending `Runtime`.
+An example I have encountered is `test`, which delegates to `test in Test`. When I wired `test in assembly in Runtime`, the build was unable to resolve `test` as `test:test`. This could be worked around by providing an unscoped key that delegates to the natural delegation (in this case from `test` to `test:test`). Use `or` to avoid overwriting.
+
+<scala>import AssemblyKeys._   
+lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = baseAssemblySettings
+lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
+  test <<= test or (test in Test).identity,
+  test in assembly <<= (test in Test).identity,
+)</scala>
+
+Now this could be used in the global configuration, or `Runtime` configuration.
 
 ## read the documents, source, and other's source
 The [the official wiki][2] is full of useful information. It feels a bit scattered, but you can usually find information if you know what you're looking for. Here are links to some useful pages:
