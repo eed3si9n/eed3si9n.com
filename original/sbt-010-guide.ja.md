@@ -191,6 +191,22 @@ lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
   test in assembly <<= (test in Test).identity,
 )</scala>
 
+この回避策は、別のバグにより 0.11.0 ではうまくいかないが、そのバグは既に master では修正されている。0.11.1 まで待つか、`orr` としてモンキーパッチしてしまうこともできる:
+
+<scala>import AssemblyKeys._   
+lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = baseAssemblySettings
+
+implicit def wrapTaskKey[T](key: TaskKey[T]): WrappedTaskKey[T] = WrappedTaskKey(key) 
+case class WrappedTaskKey[A](key: TaskKey[A]) {
+  def orr[T >: A](rhs: Initialize[Task[T]]): Initialize[Task[T]] =
+    (key.? zipWith rhs)( (x,y) => (x :^: y :^: KNil) map Scoped.hf2( _ getOrElse _ ))
+}
+
+lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
+  test <<= test orr (test in Test).identity,
+  test in assembly <<= (test in Test).identity,
+)</scala>
+
 これでグローバルなコンフィギュレーションでも `Runtime` コンフィギュレーションでも使えるようになった。
 
 ## ドキュメントとソースを読む
