@@ -19,7 +19,7 @@ scripted-plugin はプラグインをローカルに publish するため、ま�
     resolvers += Resolver.url("Typesafe repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-releases/"))(Resolver.defaultIvyPatterns)
 
     libraryDependencies <+= (sbtVersion) { sv =>
-      "org.scala-tools.sbt" %% "scripted-plugin" % sv)
+      "org.scala-tools.sbt" %% "scripted-plugin" % sv
     }
 
 以下を `build.sbt` に加える:
