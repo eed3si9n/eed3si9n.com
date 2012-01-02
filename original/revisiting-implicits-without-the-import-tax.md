@@ -7,7 +7,7 @@
   [7]: http://www.scala-lang.org/docu/files/ScalaReference.pdf
   [8]: http://www.manning.com/suereth/
   
-[Northeast Scala Symposium 2012][2] is coming up in a few months, but I want to revisit a talk from this year's nescala to wrap up 2011. One after the other, nescala had amazingly high quality of talks. [You can check them all out here][3]. With Daniel's Functional Data Structure and Jonas's Akka each having an hour-long key notes, the symposium left an impression on me that actors and FP are two major forces within Scala community. (Paul declaring that sending messages to actors is not referentially transparent was a hint too, I guess) There were also earlier signs of how the year turned out, like Mark's sbt 0.9 presentation and Nermin's Scala performance consideration. One talk that stood out in terms of immediate impact to change my code was Josh's talk: Implicits without import tax: How to make clean APIs with implicits.
+[Northeast Scala Symposium 2012][2] is coming up in a few months, but I want to revisit a talk from this year's nescala to wrap up 2011. One after the other, nescala had amazingly high quality of talks. [You can check them all out here][3]. With Daniel's Functional Data Structure and Jonas's Akka each having an hour-long key notes, the symposium left an impression on me that actors and FP are two major forces within Scala community. (Paul declaring that sending messages to actors is not referentially transparent was a hint too, I guess) There were also earlier signs of how the year turned out, like Mark's sbt 0.9 presentation and Nermin's Scala performance consideration. One talk that stood out in terms of immediate impact to change my code was Josh's talk: Implicits without the import tax: How to make clean APIs with implicits.
 
 - [video][4]
 - [slides][1]
@@ -80,7 +80,7 @@ We will look at the ordering for the static overloading resolution. But this pas
 
 ## static overloading resolution
 
-The rule is long and winding, so I'll excerpt　the main part:
+The rule is long and winding, so I'll excerpt the main part:
 
 > The *relative weight* of an alternative *A* over an alternative *B* is a number from 0 to 2, defined as the sum of
 > - 1 if *A* is as specific as *B*, 0 otherwise, and
