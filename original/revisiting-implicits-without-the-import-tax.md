@@ -6,6 +6,7 @@
   [6]: https://twitter.com/#!/coda/status/93049114106920961
   [7]: http://www.scala-lang.org/docu/files/ScalaReference.pdf
   [8]: http://www.manning.com/suereth/
+  [github]: https://github.com/eed3si9n/eed3si9n.com/commits/master/original/revisiting-implicits-without-the-import-tax.md
   
 [Northeast Scala Symposium 2012][2] is coming up in a few months, but I want to revisit a talk from this year's nescala to wrap up 2011. One after the other, nescala had amazingly high quality of talks. [You can check them all out here][3]. With Daniel's Functional Data Structure and Jonas's Akka each having an hour-long key notes, the symposium left an impression on me that actors and FP are two major forces within Scala community. (Paul declaring that sending messages to actors is not referentially transparent was a hint too, I guess) There were also earlier signs of how the year turned out, like Mark's sbt 0.9 presentation and Nermin's Scala performance consideration. One talk that stood out in terms of immediate impact to change my code was Josh's talk: Implicits without the import tax: How to make clean APIs with implicits.
 
@@ -480,53 +481,9 @@ println(Main.test)
 
 As expected, `localIntToBar` wins over `localAnyToBar` because it's the most specific based on specificity clause 1.
 
-### object vs parent object
-
-Next, let's see if the how inheritance hierarchy affects the precedence.
-
-<scala>
-trait CanFoo[A] {
-  def foos(x: A): String
-}
-object Def {
-  implicit val importIntFoo = new CanFoo[Int] {
-    def foos(x: Int) = "importIntFoo:" + x.toString
-  }
-}
-object ExtendedDef extends Def {
-  implicit val extendedImportIntFoo = new CanFoo[Int] {
-    def foos(x: Int) = "extendedImportIntFoo:" + x.toString
-  }
-}
-
-object Main {
-  def test(): String = {
-    import Def.importIntFoo
-    import ExtendedDef.extendedImportIntFoo
-    
-    foo(1)
-  }
-  
-  def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
-}
-
-println(Main.test)
-</scala>
-
-    $ scala test.scala
-    test.scala:20: error: ambiguous implicit values:
-     both value importIntFoo in object Def of type => Object with this.CanFoo[Int]
-     and value extendedImportIntFoo in object ExtendedDef of type => Object with this.CanFoo[Int]
-     match expected type this.CanFoo[Int]
-        foo(1)
-           ^
-    one error found
-
-It almost seems as if `ExtendedDef` is not recognized as a subtype of `Def`. (I am guessing this is a scala bug)
-
 ### object vs parent trait
 
-Let's make that clearer for the compiler by introducing a trait.
+Next, let's see if the how inheritance hierarchy affects the precedence.
 
 <scala>
 trait CanFoo[A] {
@@ -1082,4 +1039,4 @@ Typeclass pattern is useful when you want to extend a type without using class i
 
 ### feedback
 
-I don't claim to know this material perfectly. In fact, my motivation to write this up is to get more feedback for the correct knowledge. Please comment!
+I don't claim to know this material perfectly. In fact, my motivation to write this up is to get more feedback for the correct knowledge. Please comment! The post is already pretty long, so I will be editing the post in-place and [push the changes to github if you want to see the history][github].
