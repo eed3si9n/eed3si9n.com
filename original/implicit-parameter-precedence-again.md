@@ -2,7 +2,7 @@
   [2]: http://www.scala-lang.org/node/212/distributions
   [3]: http://eed3si9n.com/revisiting-implicits-without-import-tax
 
-Scala the language is one of the most elegant, expressive, consistent, and pragmatic languages. From pattern matching to the universal access principle, it got so many things right. And Scala the ecosystem and Scala the community only makes it better.
+Scala the language is one of the most elegant, expressive, consistent, and pragmatic languages. From pattern matching to the uniform access principle, it got so many things right. And Scala the ecosystem and Scala the community only makes it better.
 
 In Scala 2.9.1, locally declared implicits are preferred over imported ones. The problem is that the spec does not cover such behavior. My original hypothesis was that either I did not understand the spec correctly, or the spec was wrong. Based on the assumptions, I set out to explore [the implicits resolution precedence last week][3]. Like MythBusters say, the best kind of result is when you get something totally unexpected. It turns out that both of the hypotheses were wrong.
 
