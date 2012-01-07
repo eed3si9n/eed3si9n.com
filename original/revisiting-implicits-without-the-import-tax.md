@@ -7,6 +7,7 @@
   [7]: http://www.scala-lang.org/docu/files/ScalaReference.pdf
   [8]: http://www.manning.com/suereth/
   [github]: https://github.com/eed3si9n/eed3si9n.com/commits/master/original/revisiting-implicits-without-the-import-tax.md
+  [next]: http://eed3si9n.com/implicit-parameter-precedence-again
   
 [Northeast Scala Symposium 2012][2] is coming up in a few months, but I want to revisit a talk from this year's nescala to wrap up 2011. One after the other, nescala had amazingly high quality of talks. [You can check them all out here][3]. With Daniel's Functional Data Structure and Jonas's Akka each having an hour-long key notes, the symposium left an impression on me that actors and FP are two major forces within Scala community. (Paul declaring that sending messages to actors is not referentially transparent was a hint too, I guess) There were also earlier signs of how the year turned out, like Mark's sbt 0.9 presentation and Nermin's Scala performance consideration. One talk that stood out in terms of immediate impact to change my code was Josh's talk: Implicits without the import tax: How to make clean APIs with implicits.
 
@@ -16,32 +17,12 @@
 ## implicit parameter resolution
 A major point of Josh's talk was that implicit parameters are resolved by looking through many layers in order, and because wildcard `import` sits high in the resolution precedence, libraries deprive the users the chance to override them. 
 
-In this post, I'm going to explore the implicit resolution ordering by reading SLS and trying it out in code. For the impatient, here's the final precedence:
+In this post and [next][next], I'm going to explore the implicit resolution ordering by reading SLS and trying it out in code. For the impatient, here's the final precedence:
 
-- 1) Implicits with type *T* defined in current scope. (relative weight: 3)
-- 2) Less specific but compatible view of type *U* defined in current scope. (relative weight: 2)
-- 2-b) Implicits with type *T* defined in current class *X*'s parent trait or class *X*<sub>2</sub>. (relative weight: 2)
- - 3-b) Implicits with type *T* defined in *X*<sub>2</sub>'s parent trait or class *X*<sub>3</sub>. (relative weight vs 2-b: 1)
-- 2-c) Implicits with type *T* defined in outer scope, explicit imports, wildcard imports, and implicits in package object *Y*. (relative weight: 2)
- - 3-c) Implicits with type *T* defined in the package object's parent trait or class *Y*<sub>2</sub>. (relative weight vs 2-c: 1)
-- 3-d) Less specific but compatible view of type *U* defined in parent trait or class *Z*. (relative weight: 1)
- - 4-d) Less specific but compatible view of type *U* defined in *Z*'s parent trait or class *Z*<sub>2</sub>. (relative weight vs 3-d: 0)
-- 3-e) Less specific but compatible view of type *U* defined in outer scope, explicit imports, wildcard imports, and implicits in package object *W*. (relative weight: 1)
- - 4-e) Less specific but compatible view of type *U* defined in package object *W*'s parent class *W*<sub>2</sub>. (relative weight vs 3-e: 0)
-- 5) Implicits with type *T* defined in the package object of *T*.
- - 6) Implicits with type *T* defined in the parent trait *Q*<sub>2</sub> of package object of *T*.
-- 5) Implicits with type *T* defined in the companion object of *T*.
- - 6) Implicits with type *T* defined in companion object of *T*'s parent trait or class *T*<sub>2</sub>.
-- 5) Implicits with type *T* defined in the companion object of type constructor *M[_]*.
- - 6) Implicits with type *T* defined in companion object of *M[_]*'s parent trait or class *M*<sub>2</sub>.
-- 5) Implicits with type *T* defined in the companion object of type parameter *A*.
- - 6) Implicits with type *T* defined in companion object of *A*'s parent trait or class *A*<sub>2</sub>.
-- 5) Implicits with type *T* defined in the companion object of compound parts *R*.
- - 6) Implicits with type *T* defined in companion object of *R*'s parent trait or class *R*<sub>2</sub>.
-- 5) Implicits with type *T* defined in the companion object of outer type *p* for singleton types *p*`.type`.
- - 6) Implicits with type *T* defined in companion object of *p*'s parent trait or class *p*<sub>2</sub>.
-- 5) Implicits with type *T* defined in the companion object of outer type *S* of type projections *S*`#`*U*.
- - 6) Implicits with type *T* defined in companion object of *S*'s parent trait or class *S*<sub>2</sub>.
+- 1) implicits visible to current invocation scope via local declaration, imports, outer scope, inheritance, package object that are accessible without prefix.
+- 2) *implicit scope*, which contains all sort of companion objects and package object that bear some relation to the implicit's type which we search for (i.e. package object of the type, companion object of the type itself, of its type constructor if any, of its parameters if any, and also of its supertype and supertraits).
+
+If at either stage we find more than one implicit, static overloading rule is used to resolve it.
 
 ### the Scala Language Specification
 
@@ -671,6 +652,9 @@ The following is my attempt to merge the rules into a single list:
 
 Note that I was not able to make it into a linear list. Something from higher precedence may not be able to beat some other things categorized in lower precedence because the relative weight may not affect transitively. For example, defining anything in the parent trait drops precedence compared to local or member scope due to specificity clause 2; similarly, defining implicits in the package object drops precedence compared to the local scope; however, implicits defined in the parent trait and parent trait of a package object are in the same precedence because being in the package object (or its parent trait) cancels out the effect of going out to the parent trait of the current object.
 
+
+**Edit**: The above list is not correct. See [next post][next] for the corrected version.
+
 ## implicit scope
 
 Given that no candidates were found in Category 1, compiler moves on to Category 2, which is called *implicit scope*.
@@ -936,6 +920,8 @@ Since Category 2 will always have lower precedence than Category 1, we can just 
 
 This looks somewhat different from Josh's list, but it really doesn't take away the significance of his talk. Until "Implicits without the import tax" no one thought about using the other levels for the libraries! We should all buy him beer and [buy his book][8].
 
+**Edit**: The above list is not correct. See [next post][next] for the corrected version.
+
 ### OO and typeclass pattern
 
 There's an interesting aspect of Scala's typeclass pattern that's often overlooked. That is the OO aspect of it.
@@ -1040,3 +1026,5 @@ Typeclass pattern is useful when you want to extend a type without using class i
 ### feedback
 
 I don't claim to know this material perfectly. In fact, my motivation to write this up is to get more feedback for the correct knowledge. Please comment! The post is already pretty long, so I will be editing the post in-place and [push the changes to github if you want to see the history][github].
+
+Next, [implicit parameter precedence again][next].
