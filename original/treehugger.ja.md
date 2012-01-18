@@ -24,11 +24,10 @@ treehugger DSL は scalac の `TreeDSL` の拡張版だ。具体例を見てい�
 ### Hello world
 
 <scala>
-lazy val universe = new treehugger.Universe
-import universe._
+import treehugger._
 import definitions._
-import CODE._
-import Flags.{PRIVATE, ABSTRACT, IMPLICIT}
+import treehuggerDSL._
+import treehugger.Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
 
 object sym {
   val println = ScalaPackageClass.newMethod("println")
@@ -99,8 +98,8 @@ for (i <- 0 to 2)
 val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
 
 CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
-  DEF("get", IntClass).empty,
-  DEF("put", UnitClass) withParams(VAL("x", IntClass).empty) empty
+  DEF("get", IntClass),
+  DEF("put", UnitClass) withParams(VAL("x", IntClass))
 )
 </scala>
 
@@ -123,7 +122,7 @@ val T = maxListUpBound.newTypeParameter("T".toTypeName)
 val upperboundT = TypeBounds.upper(orderedType(T.toType))
 
 DEF(maxListUpBound.name, T)
-    withTypeParams(TypeDef(T, TypeTree(upperboundT))) withParams(VAL("elements", listType(T.toType)).empty) :=
+    withTypeParams(TYPE(T) := upperboundT) withParams(VAL("elements", listType(T.toType))) :=
   REF("elements") MATCH(
     CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
     CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
