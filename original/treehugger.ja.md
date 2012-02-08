@@ -24,10 +24,9 @@ treehugger DSL は scalac の `TreeDSL` の拡張版だ。具体例を見てい�
 ### Hello world
 
 <scala>
-import treehugger._
+import treehugger.forest._
 import definitions._
 import treehuggerDSL._
-import treehugger.Flags.{PRIVATE, ABSTRACT, IMPLICIT, OVERRIDE}
 
 object sym {
   val println = ScalaPackageClass.newMethod("println")
@@ -79,7 +78,7 @@ for 式と中置適用は scalac の tree には一切入っていなかった�
 
 <scala>
 val greetStrings = RootClass.newValue("greetStrings")
-FOR(VALFROM("i") := LIT(0) INFIX (sym.to, LIT(2))) DO
+FOR(VALFROM("i") := LIT(0) INT_TO LIT(2)) DO
   (sym.print APPLY (greetStrings APPLY REF("i")))
 </scala>
 
@@ -95,11 +94,11 @@ for (i <- 0 to 2)
 クラス、トレイト、オブジェクト、パッケージの宣言は、treehugger DSL で新たに加わった:
 
 <scala>
-val IntQueue: ClassSymbol = RootClass.newClass("IntQueue".toTypeName)
+val IntQueue: ClassSymbol = RootClass.newClass("IntQueue")
 
-CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
+CLASSDEF(IntQueue) withFlags(Flags.ABSTRACT) := BLOCK(
   DEF("get", IntClass),
-  DEF("put", UnitClass) withParams(VAL("x", IntClass))
+  DEF("put") withParams(PARAM("x", IntClass))
 )
 </scala>
 
@@ -108,7 +107,7 @@ CLASSDEF(IntQueue) withFlags(ABSTRACT) := BLOCK(
 <scala>
 abstract class IntQueue {
   def get(): Int
-  def put(x: Int): Unit
+  def put(x: Int)
 }
 </scala>
 
@@ -118,17 +117,16 @@ abstract class IntQueue {
 
 <scala>
 val maxListUpBound = RootClass.newMethod("maxListUpBound")
-val T = maxListUpBound.newTypeParameter("T".toTypeName)
-val upperboundT = TypeBounds.upper(orderedType(T.toType))
+val T = maxListUpBound.newTypeParameter("T")
 
 DEF(maxListUpBound.name, T)
-    withTypeParams(TYPE(T) := upperboundT) withParams(VAL("elements", listType(T.toType))) :=
+    withTypeParams(TYPE(T) UPPER orderedType(T)) withParams(PARAM("elements", listType(T))) :=
   REF("elements") MATCH(
     CASE(ListClass UNAPPLY()) ==> THROW(IllegalArgumentExceptionClass, "empty list!"),
     CASE(ListClass UNAPPLY(ID("x"))) ==> REF("x"),
-    CASE(ID("x") INFIXUNAPPLY("::", ID("rest"))) ==> BLOCK(
+    CASE(ID("x") LIST_:: ID("rest")) ==> BLOCK(
       VAL("maxRest") := maxListUpBound APPLY(REF("rest")),
-      IF(REF("x") INFIX (">", REF("maxRest"))) THEN REF("x")
+      IF(REF("x") INT_> REF("maxRest")) THEN REF("x")
       ELSE REF("maxRest") 
     )
   )
