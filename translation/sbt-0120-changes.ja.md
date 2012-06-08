@@ -71,69 +71,69 @@
 
 ## 大きな変更の詳細点
 
-## Plugin configuration directory
+## ブラグインの設定ディレクトリ
 
-In 0.11.0, plugin configuration moved from `project/plugins/` to just `project/`, with `project/plugins/` being deprecated.  Only 0.11.2 had a deprecation message, but in all of 0.11.x, the presence of the old style `project/plugins/` directory took precedence over the new style.  In 0.12.0, the new style takes precedence.  Support for the old style won't be removed until 0.13.0.
+0.11.0 においてプラグインの設定ディレクトリは <code>project/plugins/</code> からただの <code>project/</code> へと移行し、<code>project/plugins/</code> は非推奨となった。0.11.2 において非推奨のメッセージが表示されたが、全ての 0.11.x においては旧スタイルの <code>project/plugins/</code> が新しいスタイルよりも高い優先された。0.12.0 では新しいスタイルが優先される。旧スタイルのサポートは 0.13.0 が出るまで廃止されない。
 
-  1. Ideally, a project should ensure there is never a conflict.  Both styles are still supported, only the behavior when there is a conflict has changed.  
-  2. In practice, switching from an older branch of a project to a new branch would often leave an empty `project/plugins/` directory that would cause the old style to be used, despite there being no configuration there.
-  3. Therefore, the intention is that this change is strictly an improvement for projects transitioning to the new style and isn't noticed by other projects.
+  1. 理想的には、プロジェクトは設定の衝突がないことを保証すべきだ。両方のスタイルがサポートされているため、設定に衝突がある場合の振る舞いのみが変更されることになる。
+  2. 実際にこれが起こりえる状況としては、古いブランチから新しいブランチに切り替えた場合に空の <code>project/plugins/</code> が残ってしまい何も設定が無いにも関わらず旧スタイルが使われてしまうということがある。
+  3. そのため、この変更は飽くまで新スタイルへ移行中のプロジェクトのための改善であり、他のプロジェクトには気付かれないことを意図している。
 
 ## JLine
 
-Move to jline 1.0.  This is a (relatively) recent release that fixes several outstanding issues with jline but, as far as I can tell, remains binary compatible with 0.9.94, the version previously used. In particular:
+JLine 1.0 への移行。これはいくつかの顕著な修正を含む比較的新しいリリースだが、見たところ今まで使われていた 0.9.94 とバイナリ互換がある。具体的には、
 
-  1. Properly closes streams when forking stty on unix.
-  2. Delete key works on linux.  Please check that this works for your environment as well.
-  3. Line wrapping seems correct.
+  1. Unix 上で stty へフォークしたストリームを正しく閉じる。
+  2. Linux での Delete キーへの対応。これが実際に動作するかは各自確認して欲しい。
+  3. 行の折り返しが正しくなっているように思える。
 
-## Parsing task axis
+## タスク軸のパーシング
 
-There is an important change related to parsing the task axis for settings and tasks that fixes [#202](https://github.com/harrah/xsbt/issues/202)
+セッティングやタスクのタスク軸のパーシングに関して重要な変更が行われた。 [#202](https://github.com/harrah/xsbt/issues/202)
 
-  1. The syntax before 0.12 has been `{build}project/config:key(for task)`
-  2. The proposed (and implemented) change for 0.12 is `{build}project/config:task::key`
-  3. By moving the task axis before the key, it allows for easier discovery (via tab completion) of keys in plugins.
-  4. It is not planned to support the old syntax.  It would be ideal to deprecate it first, but this would take too much time to implement.
+  1. 0.12 以前の構文は <code>{build}project/config:key(for task)</code> だった。
+  2. 提案され（採用された）0.12 からの構文は <code>{build}project/config:task::key</code> だ。
+  3. タスク軸をキーの前に移動することで特にプラグインからの（タブ補完を用いた）キーの発見が容易にする。
+  4. 旧構文はサポートされない予定だ。理想的は非推奨に一度すべきだが、その実装に手間がかかりすぎる。
+  
+## 集約
 
-## Aggregation
+集約がより柔軟になった。これは過去にメーリングリストで議論されたのと同様の方向だ:
 
-Aggregation has been made more flexible.  This is along the direction that has been previously discussed on the mailing list.
+  1. 0.12 以前は、セッティングは現行プロジェクトに基づいてパースされ、全く同様のセッティングのみが集約された。
+  2. タブ補完は集約を考慮に入れていなかった。
+  3. これは、セッティングもしくはタスクが現行プロジェクトに無かった場合は集約されたプロジェクトにそのセッティング/タスクがあったとしてもパーシングが失敗することになった。
+  4. また、現行プロジェクトに compile:package があり、集約されたプロジェクトに *:package があり、ユーザが (コンフィギュレーション無しで) <code>package</code> を実行した場合 (compile:package じゃないため) *:package が集約されたプロジェクトで実行されなかった。
+  5. 0.12 ではこのような状況において集約されたセッティングが選択されるようになった。具体的には、
+    1. <code>root</code> というプロジェクトが子プロジェクトの <code>sub</code> を集約すると仮定する。
+    2. <code>root</code> は <code>*:package</code> を定義する。
+    3. <code>sub</code> は <code>compile:package</code> と <code>compile:package</code> を定義する。
+    4. <code>root/package</code> を実行すると <code>root/*:package</code> と <code>sub/compile:package</code> が実行される。
+    5. <code>root/compile</code> を実行すると <code>sub/compile:compile</code> が実行される。
+  6. この変更点はタスク軸のパーシングの変更に依存する。
+  
+## 並列実行
 
-  1. Before 0.12, a setting was parsed according to the current project and only the exact setting parsed was aggregated.
-  2. Also, tab completion did not account for aggregation.
-  3. This meant that if the setting/task didn't exist on the current project, parsing failed even if an aggregated project contained the setting/task.
-  4. Additionally, if compile:package existed for the current project, *:package existed for an aggregated project, and the user requested 'package' run (without specifying the configuration) *:package wouldn't be run on the aggregated project (it isn't the same as the compile:package key that existed on the current).
-  5. In 0.12, both of these situations result in the aggregated settings being selected.  For example,
-    1. Consider a project `root` that aggregates a subproject `sub`.
-    2. `root` defines `*:package`.
-    3. `sub` defines `compile:package` and `compile:compile`.
-    4. Running `root/package` will run `root/*:package` and `sub/compile:package`
-    5. Running `root/compile` will run `sub/compile:compile`
-  6. This change depends on the change to parsing the task axis.
+並列実行の細かい制御がサポートされる。詳細は [Parallel Execution](https://github.com/harrah/xsbt/wiki/Parallel-Execution) 参照。
 
-## Parallel Execution
+  1. デフォルトの振る舞いは、<code>parallelExecution</code> のセッティングも含め以前と同じ。
+  2. このシステムの新しい機能は実験段階だと考えるべき。
+  3. そのため <code>parallelExecution</code> は現段階では非推奨ではない。
 
-Fine control over parallel execution is supported as described here: https://github.com/harrah/xsbt/wiki/Parallel-Execution
+## ソース依存性
 
-  1. The default behavior should be the same as before, including the `parallelExecution` settings.
-  2. The new capabilities of the system should otherwise be considered experimental.
-  3. Therefore, `parallelExecution` won't be deprecated at this time.
+[#329](https://github.com/harrah/xsbt/issues/329) に対する修正が含まれた。この修正により前プロジェクトに渡ってプラグイン一つにつき唯一のバージョンのみが読み込まれることが保証されるようになった。これは、二部に分かれる。
 
-## Source dependencies
+  1. プラグインのバージョンは最初に読み込んだビルドに確定する。特に、(sbt が起動した) ルートのビルドで使われたプラグインのバージョンは依存性により使われるものよりも常に優先される。
+  2. 全てのビルドのプラグインは同一のクラスローダにより読み込まれる。
 
-A fix for issue [#329](https://github.com/harrah/xsbt/issues/329) is included.  This fix ensures that only one version of a plugin is loaded across all projects.  There are two parts to this.
+さらに Sanjin のパッチにより hg と svn の URI へのサポートが追加された。
 
-  1. The version of a plugin is fixed by the first build to load it.  In particular, the plugin version used in the root build (the one in which sbt is started in) always overrides the version used in dependencies.
-  2. Plugins from all builds are loaded in the same class loader.
+  1. sbt は <code>svn</code> もしくは <code>svn+ssh</code> から始まる URI を subversion を用いて取得する。省略可能なフラグメントにより特定のリビジョンを指定できる。
+  2. Mercurial は特定のスキームを持たないため、sbt は Mercurial のリポジトリの URI に <code>hg:</code> をプレフィックスとして付けることを要求する。
+  3. <code>.git</code> で終わる URI の処理が修正された。
 
-Additionally, Sanjin's patches to add support for hg and svn URIs are included.
-
-  1. sbt uses subversion to retrieve URIs beginning with `svn` or `svn+ssh`.  An optional fragment identifies a specific revision to checkout.
-  2. Because a URI for mercurial doesn't have a mercurial-specific scheme, sbt requires the URI to be prefixed with `hg:` to identify it as a mercurial repository.
-  3. Also, URIs that end with `.git` are now handled properly.
-
-## Cross building
+## クロスビルド
 
 The cross version suffix is shortened to only include the major and minor version for Scala versions starting with the 2.10 series and for sbt versions starting with the 0.12 series.  For example, `sbinary_2.10` for a normal library or `sbt-plugin_2.10_0.12` for an sbt plugin.  This requires forward and backward binary compatibility across incremental releases for both Scala and sbt.
 
@@ -186,7 +186,7 @@ This uses a custom function to determine the Scala version to use based on the f
 
 Using a custom function is used when cross-building and a dependency isn't available for all Scala versions.  This feature should be less necessary with the move to using a binary version.
 
-### Binary sbt plugin dependency declarations in 0.12.0-M2
+### 0.12.0-M2 sbt プラグインへのバイナリ依存性
 
 Declaring sbt plugin dependencies, as declared in sbt 0.11.2, will not work 0.12.0-M2. Instead of declaring a binary sbt plugin dependency within your plugin definition with:
 
