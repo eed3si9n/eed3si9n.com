@@ -26,51 +26,50 @@
 
 ## 0.11.2 から 0.12.0 までの変更点
 
- * Plugin configuration directory precedence (see details below)
- * JLine 1.0 (details below)
- * Fixed source dependencies (details below)
- * Enhanced control over parallel execution (details below)
- * The cross building convention has changed for sbt 0.12 and Scala 2.10 and later (details below)
- * Aggregation has changed to be more flexible (details below)
- * Task axis syntax has changed from key(for task) to task::key (details below)
- * The organization for sbt has to changed to `org.scala-sbt` (was: org.scala-tools.sbt).  This affects users of the scripted plugin in particular.
- * `test-quick` ([#393]) runs the tests specified as arguments (or all tests if no arguments are given) that:
-  1. have not been run yet OR
-  2. failed the last time they were run
-  3. had any transitive dependencies recompiled since the last successful run OR
- * Argument quoting ([#396])
-  * `> command "arg with spaces,\n escapes interpreted"`
-  * `> command """arg with spaces,\n escapes not interpreted"""` 
-  *  For the first variant, note that paths on Windows use backslashes and need to be escaped (`\\`).  Alternatively, use the second variant, which does not interpret escapes.
-  * For using either variant in batch mode, note that a shell will generally require the double quotes themselves to be escaped.
- * The `help` command now accepts a regular expression to use to search the help.  See `help help` for details.
- * The sbt plugins repository is added by default for plugins and plugin definitions. [#380]
- * Properly resets JLine after being stopped by Ctrl+z (unix only). [#394]
- * `session save` overwrites settings in `build.sbt` (when appropriate). [#369]
- * other fixes/improvements: [#368], [#377], [#378], [#386], [#387], [#388], [#389]
- * Support for forking tests ([#415])
- * force 'update' to run when invoked directly ([#335])
- * `projects add/remove <URI>` for temporarily working with other builds
- * added `print-warnings` task that will print unchecked and deprecation warnings from the previous compilation without needing to recompile (Scala 2.10+ only)
- * various improvements to `help` and `tasks` commands as well as new `settings` command ([#315])
- * fix detection of ancestors for java sources
- * fix the resolvers used for `update-sbt-classifiers` ([#304])
- * fix auto-imports of plugins ([#412]) 
- * poms for most artifacts available via a virtual repository on repo.typesafe.com ([#420])
- * bump jsch version to 0.1.46. ([#403])
- * Added support for loading an ivy settings file from a URL.
-  * Support globally overriding repositories ([#472]).  Define the repositories to use by putting a standalone `[repositories]` section (see the [Launcher] page) in `~/.sbt/repositories` and pass `-Dsbt.override.build.repos=true` to sbt.  Only the repositories in that file will be used by the launcher for retrieving sbt and Scala and by sbt when retrieving project dependencies.  (@jsuereth)
- * The launcher can launch all released sbt versions back to 0.7.0.
- * A more refined hint to run 'last' is given when a stack trace is suppressed.
- * Use java 7 Redirect.INHERIT to inherit input stream of subprocess ([#462],[#327]).  This should fix issues when forking interactive programs. (@vigdorchik)
- * Delete a symlink and not its contents when recursively deleting a directory.
- * The [Howto pages](http://www.scala-sbt.org/howto.html) on the [new site](http://www.scala-sbt.org) are at least readable now.  There is more content to write and more formatting improvements are needed, so [pull requests are welcome](https://github.com/sbt/sbt.github.com).
- * Use the binary version for cross-versioning even for snapshots and milestones.
-Rely instead on users not publishing the same stable version against both stable Scala or sbt releases and snapshots/milestones.
- * API for embedding incremental compilation.  This interface is subject to change, but already being used in [a branch of the scala-maven-plugin](https://github.com/davidB/scala-maven-plugin/tree/feature/sbt-inc).
- * Experimental support for keeping the Scala compiler resident.  Enable by passing `-Dsbt.resident.limit=n` to sbt, where `n` is an integer indicating the maximum number of compilers to keep around.
+ * プラグイン設定ディレクトリの優先順位。 (詳細は以下の項目)
+ * JLine 1.0 (詳細は以下の項目)
+ * ソース依存性の修正。 (詳細は以下の項目)
+ * 並列実行の制御の改善。 (詳細は以下の項目)
+ * sbt 0.12 以降と Scala 2.10 以降のクロスビルド規約の変更。 (詳細は以下の項目)
+ * 集約がより柔軟になった。 (詳細は以下の項目)
+ * タスク軸の構文が <code>key(for task)</code> から <code>task::key</code> へと変更された。 (詳細は以下の項目)
+ * sbt の organization が <code>org.scala-sbt</code> へと変更された。(元は、org.scala-tools.sbt) 特に、scripted プラグインのユーザはこの影響を受ける。
+ * <code>test-quick</code> ([#393]) は引数で指定されたテスト（引数がない場合は全てのテスト）のうち以下の条件を一つでも満たすものを実行する:
+  1. まだ実行されていない。
+  2. 前回実行時に失敗した。
+  3. 最後に成功した後で間接的にでも依存するコードが再コンパイルされた場合。
+ * 引数のクオート ([#396])
+  * <code>> command "空白 のある 引数\n エスケープは解釈される"</code>
+  * <code>> command """空白 のある 引数\n エスケープは解釈されない"""</code>
+  *  最初のリテラルは Windows のパス記号であるバックスラッシュをエスケープ (<code>\\</code>) する必要があることに注意。2つ目のリテラルを使えばその必要は無い。
+  * バッチモードから使う場合は、ダブルクオートそのものをシェルからエスケープする必要がある。
+ * <code>help</code> コマンドは正規表現を受け付け、ヘルプの検索を行うことができるようになった。詳細は <code>help help</code> を参照。
+ * sbt プラグインリポジトリがプラグインとプラグインの定義にデフォルトで加わった。 [#380]
+ * Ctrl+Z で停止した後 JLine を正しくリセットするようにした。(Unix のみ) [#394]
+ * <code>session save</code> は <code>build.sbt</sbt> 内の設定を（適切な時に）上書きするようにした。[#369]
+ * その他の修正および機能改善: [#368], [#377], [#378], [#386], [#387], [#388], [#389]
+ * テストのフォークのサポート。 ([#415])
+ * 直接実行された場合、強制的に <code>update</code> を実行するようにした。 ([#335])
+ * 一時的に他のビルドと作業したい時は <code>projects add/remove <URI></code>。
+ * 再コンパイルをせずに unchecked と deprecation の警告を表示する <code>print-warnings</code> タスクを追加した。(Scala 2.10+ のみ)
+ * <code>help</code> と <code>task</code> コマンドの様々な改善、および新たな <code>settings</code> コマンド。([#315])
+ * Java ソースの親の検知の修正。
+ * `update-sbt-classifiers` に用いられる resolver の修正。([#304])
+ * プラグインの自動インポートの修正。([#412]) 
+ * 多くのアーティファクトの POM が repo.typesafe.com の仮想リポジトリから入手できるようになった。 ([#420])
+ * jsch バージョンを 0.1.46 へと更新。 ([#403])
+ * Ivy 設定ファイルを URL から読み込めるようにした。
+ * リポジトリ設定のグローバルなオーバライドをサポートした。 ([#472]) <code>[repositories]</code> 項目を <code>~/.sbt/repositoreies</code> に書いて、sbt に <code>-Dsbt.override.build.repos=true</code> を渡すことでリポジトリを定義する。([Launcher] のページを参照) ランチャーが sbt と Scala を取得し、sbt がプロジェクトの依存性を取得するのにファイルで指定されたリポジトリが使われるようになる。 (@jsuereth)
+ * ランチャーが 0.7.0 以降全ての sbt を起動できるようになった。
+ * スタックトレースが抑制された場合、`last` を呼ぶようにより洗練されたヒントが表示されるようになった。
+ * Java 7 の Redirect.INHERIT を用いて子プロセスの入力ストリームを継承するようになった。 ([#462],[#327]). これでインタラクティブなプログラムをフォークした場合に起こる問題が解決されるはず。 (@vigdorchik)
+ * 再帰的にディレクトリを削除するときに、シンボリックリンクが指す先のコンテンツを削除しないようにした。
+ * [新サイト](http://www.scala-sbt.org/)の [howto](http://www.scala-sbt.org/howto.html) ページを読みやすくした。
+ * スナップショットやマイルストーンにもクロスビルドにはバイナリバージョンを用いることになった。ユーザが Scala もしくは sbt リリースの安定版とスナップショットに対して同じ安定版を publish しないことを当てにする。
+ * 差分コンパイルを組み込むための API。このインターフェイスは今後変更する可能性があるが、既に [scala-maven-plugin のブランチ](https://github.com/davidB/scala-maven-plugin/tree/feature/sbt-inc)で利用されている。
+ * Scala コンパイラの常駐の実験的サポート。 sbt に <code>-Dsbt.resident.limit=n</code> を渡すことで設定を行う。<code>n</code> は常駐させるコンパイラの最大数。
 
-## Details of major changes from 0.11.2 to 0.12.0
+## 大きな変更の詳細点
 
 ## Plugin configuration directory
 
