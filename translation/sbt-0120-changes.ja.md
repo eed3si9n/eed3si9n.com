@@ -22,45 +22,18 @@
 [#472]: https://github.com/harrah/xsbt/pull/472
 [Launcher]: https://github.com/harrah/xsbt/wiki/Launcher
 
-# Plan for 0.12.0
+# sbt 0.12 の変更点
 
-## Changes from 0.12.0-Beta2 to 0.12.0-RC1
+## 0.11.2 から 0.12.0 までの変更点
 
- * Support globally overriding repositories ([#472]).  Define the repositories to use by putting a standalone `[repositories]` section (see the [Launcher] page) in `~/.sbt/repositories` and pass `-Dsbt.override.build.repos=true` to sbt.  Only the repositories in that file will be used by the launcher for retrieving sbt and Scala and by sbt when retrieving project dependencies.  (@jsuereth)
-
- * The launcher can launch all released sbt versions back to 0.7.0.
-
- * A more refined hint to run 'last' is given when a stack trace is suppressed.
-
- * Use java 7 Redirect.INHERIT to inherit input stream of subprocess ([#462],[#327]).  This should fix issues when forking interactive programs. (@vigdorchik)
-
- * Delete a symlink and not its contents when recursively deleting a directory.
-
- * The [Howto pages](http://www.scala-sbt.org/howto.html) on the [new site](http://www.scala-sbt.org) are at least readable now.  There is more content to write and more formatting improvements are needed, so [pull requests are welcome](https://github.com/sbt/sbt.github.com).
-
- * Use the binary version for cross-versioning even for snapshots and milestones.
-Rely instead on users not publishing the same stable version against both stable Scala or sbt releases and snapshots/milestones.
-
- * API for embedding incremental compilation.  This interface is subject to change, but already being used in [a branch of the scala-maven-plugin](https://github.com/davidB/scala-maven-plugin/tree/feature/sbt-inc).
-
- * Experimental support for keeping the Scala compiler resident.  Enable by passing `-Dsbt.resident.limit=n` to sbt, where `n` is an integer indicating the maximum number of compilers to keep around.
-
-## Changes from 0.12.0-M2 to 0.12.0-Beta2
-
- * Support for forking tests ([#415])
- * force 'update' to run when invoked directly ([#335])
- * `projects add/remove <URI>` for temporarily working with other builds
- * added `print-warnings` task that will print unchecked and deprecation warnings from the previous compilation without needing to recompile (Scala 2.10+ only)
- * various improvements to `help` and `tasks` commands as well as new `settings` command ([#315])
- * fix detection of ancestors for java sources
- * fix the resolvers used for `update-sbt-classifiers` ([#304])
- * fix auto-imports of plugins ([#412]) 
- * poms for most artifacts available via a virtual repository on repo.typesafe.com ([#420])
- * bump jsch version to 0.1.46. ([#403])
- * Added support for loading an ivy settings file from a URL.
-
-## Changes from 0.12.0-M1 to M2
-
+ * Plugin configuration directory precedence (see details below)
+ * JLine 1.0 (details below)
+ * Fixed source dependencies (details below)
+ * Enhanced control over parallel execution (details below)
+ * The cross building convention has changed for sbt 0.12 and Scala 2.10 and later (details below)
+ * Aggregation has changed to be more flexible (details below)
+ * Task axis syntax has changed from key(for task) to task::key (details below)
+ * The organization for sbt has to changed to `org.scala-sbt` (was: org.scala-tools.sbt).  This affects users of the scripted plugin in particular.
  * `test-quick` ([#393]) runs the tests specified as arguments (or all tests if no arguments are given) that:
   1. have not been run yet OR
   2. failed the last time they were run
@@ -75,41 +48,27 @@ Rely instead on users not publishing the same stable version against both stable
  * Properly resets JLine after being stopped by Ctrl+z (unix only). [#394]
  * `session save` overwrites settings in `build.sbt` (when appropriate). [#369]
  * other fixes/improvements: [#368], [#377], [#378], [#386], [#387], [#388], [#389]
-
-### Binary sbt plugin dependency declarations in 0.12.0-M2
-
-Declaring sbt plugin dependencies, as declared in sbt 0.11.2, will not work 0.12.0-M2. Instead of declaring a binary sbt plugin dependency within your plugin definition with:
-
-```scala
-  addSbtPlugin("a" % "b" % "1.0")
-```
-
-You instead want to declare that binary plugin dependency with:
-
-```scala
-libraryDependencies +=
-  Defaults.sbtPluginExtra("a" % "b" % "1.0, "0.12.0-M2", "2.9.1")
-```
-
-This will only be an issue with binary plugin dependencies published for milestone releases of sbt going forward.
-
-For convenience in future releases, a variant of `addSbtPlugin` will be added to support a specific sbt version with
-
-```scala
-  addSbtPlugin("a" % "b" % "1.0", sbtVersion = "0.12.0-M2")
-```
-
-
-## Changes from 0.11.2 to 0.12.0-M1
-
- * Plugin configuration directory precedence (see details below)
- * JLine 1.0 (details below)
- * Fixed source dependencies (details below)
- * Enhanced control over parallel execution (details below)
- * The cross building convention has changed for sbt 0.12 and Scala 2.10 and later (details below)
- * Aggregation has changed to be more flexible (details below)
- * Task axis syntax has changed from key(for task) to task::key (details below)
- * The organization for sbt has to changed to `org.scala-sbt` (was: org.scala-tools.sbt).  This affects users of the scripted plugin in particular.
+ * Support for forking tests ([#415])
+ * force 'update' to run when invoked directly ([#335])
+ * `projects add/remove <URI>` for temporarily working with other builds
+ * added `print-warnings` task that will print unchecked and deprecation warnings from the previous compilation without needing to recompile (Scala 2.10+ only)
+ * various improvements to `help` and `tasks` commands as well as new `settings` command ([#315])
+ * fix detection of ancestors for java sources
+ * fix the resolvers used for `update-sbt-classifiers` ([#304])
+ * fix auto-imports of plugins ([#412]) 
+ * poms for most artifacts available via a virtual repository on repo.typesafe.com ([#420])
+ * bump jsch version to 0.1.46. ([#403])
+ * Added support for loading an ivy settings file from a URL.
+  * Support globally overriding repositories ([#472]).  Define the repositories to use by putting a standalone `[repositories]` section (see the [Launcher] page) in `~/.sbt/repositories` and pass `-Dsbt.override.build.repos=true` to sbt.  Only the repositories in that file will be used by the launcher for retrieving sbt and Scala and by sbt when retrieving project dependencies.  (@jsuereth)
+ * The launcher can launch all released sbt versions back to 0.7.0.
+ * A more refined hint to run 'last' is given when a stack trace is suppressed.
+ * Use java 7 Redirect.INHERIT to inherit input stream of subprocess ([#462],[#327]).  This should fix issues when forking interactive programs. (@vigdorchik)
+ * Delete a symlink and not its contents when recursively deleting a directory.
+ * The [Howto pages](http://www.scala-sbt.org/howto.html) on the [new site](http://www.scala-sbt.org) are at least readable now.  There is more content to write and more formatting improvements are needed, so [pull requests are welcome](https://github.com/sbt/sbt.github.com).
+ * Use the binary version for cross-versioning even for snapshots and milestones.
+Rely instead on users not publishing the same stable version against both stable Scala or sbt releases and snapshots/milestones.
+ * API for embedding incremental compilation.  This interface is subject to change, but already being used in [a branch of the scala-maven-plugin](https://github.com/davidB/scala-maven-plugin/tree/feature/sbt-inc).
+ * Experimental support for keeping the Scala compiler resident.  Enable by passing `-Dsbt.resident.limit=n` to sbt, where `n` is an integer indicating the maximum number of compilers to keep around.
 
 ## Details of major changes from 0.11.2 to 0.12.0
 
@@ -227,3 +186,26 @@ This uses a custom function to determine the Scala version to use based on the f
 ```
 
 Using a custom function is used when cross-building and a dependency isn't available for all Scala versions.  This feature should be less necessary with the move to using a binary version.
+
+### Binary sbt plugin dependency declarations in 0.12.0-M2
+
+Declaring sbt plugin dependencies, as declared in sbt 0.11.2, will not work 0.12.0-M2. Instead of declaring a binary sbt plugin dependency within your plugin definition with:
+
+```scala
+  addSbtPlugin("a" % "b" % "1.0")
+```
+
+You instead want to declare that binary plugin dependency with:
+
+```scala
+libraryDependencies +=
+  Defaults.sbtPluginExtra("a" % "b" % "1.0, "0.12.0-M2", "2.9.1")
+```
+
+This will only be an issue with binary plugin dependencies published for milestone releases of sbt going forward.
+
+For convenience in future releases, a variant of `addSbtPlugin` will be added to support a specific sbt version with
+
+```scala
+  addSbtPlugin("a" % "b" % "1.0", sbtVersion = "0.12.0-M2")
+```
