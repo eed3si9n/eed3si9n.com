@@ -135,76 +135,75 @@ JLine 1.0 への移行。これはいくつかの顕著な修正を含む比較�
 
 ## クロスビルド
 
-The cross version suffix is shortened to only include the major and minor version for Scala versions starting with the 2.10 series and for sbt versions starting with the 0.12 series.  For example, `sbinary_2.10` for a normal library or `sbt-plugin_2.10_0.12` for an sbt plugin.  This requires forward and backward binary compatibility across incremental releases for both Scala and sbt.
+Scala のバージョン 2.10 シリーズと sbt のバージョン 0.12 シリーズ以降に関して、クロスバージョンのサフィックスがメジャー番号とマイナー番号のみに短縮された。具体的には、普通のライブラリだと <code>sbinary_2.10</code>、sbt プラグインだと <code>sbt-plugin_2.10_0.12</code> のようになる。これは Scala と sbt がその中間リリースにおいて前方互換性と後方互換性を維持することを前提とする。
 
-  1. This change has been a long time coming, but it requires everyone publishing an open source project to switch to 0.12 to publish for 2.10 or adjust the cross versioned prefix in their builds appropriately.
-  2. Obviously, using 0.12 to publish a library for 2.10 requires 0.12.0 to be released before projects publish for 2.10.
-  3. At the same time, sbt 0.12.0 itself should be published against 2.10.0 or else it will be stuck in 2.9.x for the 0.12.x series.
-  4. There is now the concept of a binary version.  This is a subset of the full version string that represents binary compatibility.  That is, equal binary versions implies binary compatibility.  All Scala versions prior to 2.10 use the full version for the binary version to reflect previous sbt behavior.  For 2.10 and later, the binary version is `<major>.<minor>`.
-  5. The cross version behavior for published artifacts is configured by the crossVersion setting.  It can be configured for dependencies by using the `cross` method on `ModuleID` or by the traditional %% dependency construction variant.  By default, a dependency has cross versioning disabled when constructed with a single % and uses the binary Scala version when constructed with %%.
-  6. For snapshot/milestone versions of Scala or sbt (as determined by the presence of a '-' in the full version), dependencies use the binary Scala version by default, but any published artifacts use the full version.  The purpose here is to ensure that versions published against a snapshot or milestone do not accidentally pollute the compatible universe.  Note that this means that declaring a dependency on a version published against a milestone requires an explicit change to the dependency definition.
-  7. The artifactName function now accepts a type ScalaVersion as its first argument instead of a String.  The full type is now `(ScalaVersion, ModuleID, Artifact) => String`.  ScalaVersion contains both the full Scala version (such as 2.10.0) as well as the binary Scala version (such as 2.10).
-  8. The flexible version mapping added by Indrajit has been merged into the `cross` method and the %% variants accepting more than one argument have been deprecated.  Some examples follow.
+  1. これは待ちわびていた変更だが、これはオープンソースプロジェクト作者の皆が Scala 2.10 向けのものを公開する前に 0.12 に切り替えるか、ビルドのクロスバージョンのサフィックスを適宜変更することを必要とする。
+  2. 0.12 を用いて Scala 2.10 向けのライブラリを公開するには、0.12.0 が Scala 2.10 よりも前にリリースされることが求められる。
+  3. 同時に、sbt 0.12.0 が Scala 2.10.0 向けに公開されなければ 0.12.x シリーズに渡って Scala 2.9.x を使わなければいけないことになる。
+  4. バイナリバージョン (binary version) という新しい概念を導入する。これはフルバージョン (full version) 文字列のサブセットで、バイナリ互換性を表す。つまり、同じバイナリバージョンはバイナリ互換性を意味する。以前の sbt の振る舞いに合わせて 2.10 以前の全ての Scala バージョンはフルバージョンをもってバイナリバージョンとする。Scala 2.10 以降はバイナリバージョンは <code><major>.<minor></code> だ。
+  5. 公開されるアーティファクトのクロスバージョンの振る舞いは <code>crossVersion</code> セッティングで設定される。<code>ModuleID</code> に対して <code>cross</code> メソッドを用いるか、今まで通りの依存性構築子である %% を用いて依存ライブラリごとに設定を変えることができる。デフォルトでは、単一の % を使った場合は依存性のクロスバージョンは無効にされ、%% を使った場合は Scala のバイナリバージョンを用いる。
+  7. <code>artifactName</code> 関数は第一引数として <code>ScalaVersion</code> を受け取るようになった。型は <code>(ScalaVersion, ModuleID, Artifact) => String</code> となった。<code>ScalaVersion</code> は Scala のフルバージョン (例: 2.10.0) とバイナリバージョン (例： 2.10) を保持する。
+  8. Indrajit により追加された柔軟なバージョンのマッピングが <code>cross</code> メソッドに追加され、複数の引数を取る %% の変種は非推奨となった。以下に具体例で説明する。
 
-These are equivalent:
+以下は等価だ:
 
-```scala
+<scala>
 "a" % "b" % "1.0"
 "a" % "b" % "1.0" cross CrossVersion.Disabled
-```
+</scala>
 
-These are equivalent:
+以下は等価だ:
 
-```scala
+<scala>
 "a" %% "b" % "1.0"
 "a" % "b" % "1.0" cross CrossVersion.binary
-```
+</scala>
 
-This uses the full Scala version instead of the binary Scala version:
+これは、Scala のバイナリバージョンの代わりにフルバージョンを使う:
 
-```scala
+<scala>
 "a" % "b" % "1.0" cross CrossVersion.full
-```
+</scala>
 
-This uses a custom function to determine the Scala version to use based on the binary Scala version:
+これは Scala のバイナリバージョンを元にカスタム関数を使って Scala バージョンを決定する:
 
-```scala
+<scala>
 "a" % "b" % "1.0" cross CrossVersion.binaryMapped {
-  case "2.9.1" => "2.9.0" // remember that pre-2.10, binary=full
+  case "2.9.1" => "2.9.0" // 2.10 以前なのでバイナリ==フル
   case x => x
 }
-```
+</scala>
 
-This uses a custom function to determine the Scala version to use based on the full Scala version:
+これは Scala のフルバージョンを元にカスタム関数を使って Scala バージョンを決定する:
 
-```scala
+<scala>
 "a" % "b" % "1.0" cross CrossVersion.fullMapped {
   case "2.9.1" => "2.9.0"
   case x => x
 }
-```
+</scala>
 
-Using a custom function is used when cross-building and a dependency isn't available for all Scala versions.  This feature should be less necessary with the move to using a binary version.
+全ての Scala バージョンに対して公開されていない依存ライブラリを用いてクロスビルドするときにカスタム関数を使うことができる。バイナリバージョンに以降することで、この機能の必要性が徐々に減っていくはずだ。
 
 ### 0.12.0-M2 sbt プラグインへのバイナリ依存性
 
-Declaring sbt plugin dependencies, as declared in sbt 0.11.2, will not work 0.12.0-M2. Instead of declaring a binary sbt plugin dependency within your plugin definition with:
+0.12.0-M2 を使用する場合、sbt プラグインへの依存性の宣言が sbt 0.11.2 でのような書き方では動作しなくなった。通常は以下のように sbt プラグインへのバイナリ依存性を宣言する:
 
-```scala
+<scala>
   addSbtPlugin("a" % "b" % "1.0")
-```
+</scala>
 
-You instead want to declare that binary plugin dependency with:
+しかし、0.12.0-M2 に関しては以下のように sbt プラグインへのバイナリ依存性を宣言する必要がある:
 
-```scala
+<scala>
 libraryDependencies +=
   Defaults.sbtPluginExtra("a" % "b" % "1.0, "0.12.0-M2", "2.9.1")
-```
+</scala>
 
-This will only be an issue with binary plugin dependencies published for milestone releases of sbt going forward.
+これは、sbt のマイルストーン向けに公開されたプラグインへのバイナリ依存性の問題なので、一時的なものだ。
 
-For convenience in future releases, a variant of `addSbtPlugin` will be added to support a specific sbt version with
+便宜性のため、将来的には以下のような <code>addSbtPlugin</code> の変種を導入する:
 
-```scala
+<scala>
   addSbtPlugin("a" % "b" % "1.0", sbtVersion = "0.12.0-M2")
-```
+</scala>
