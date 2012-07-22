@@ -1,68 +1,69 @@
-[#304]: https://github.com/harrah/xsbt/issues/304
-[#315]: https://github.com/harrah/xsbt/issues/315
-[#327]: https://github.com/harrah/xsbt/issues/327
-[#335]: https://github.com/harrah/xsbt/issues/335
-[#393]: https://github.com/harrah/xsbt/issues/393
-[#396]: https://github.com/harrah/xsbt/issues/396
-[#380]: https://github.com/harrah/xsbt/issues/380
-[#389]: https://github.com/harrah/xsbt/issues/389
-[#388]: https://github.com/harrah/xsbt/issues/388
-[#387]: https://github.com/harrah/xsbt/issues/387
-[#386]: https://github.com/harrah/xsbt/issues/386
-[#378]: https://github.com/harrah/xsbt/issues/378
-[#377]: https://github.com/harrah/xsbt/issues/377
-[#368]: https://github.com/harrah/xsbt/issues/368
-[#394]: https://github.com/harrah/xsbt/issues/394
-[#369]: https://github.com/harrah/xsbt/issues/369
-[#403]: https://github.com/harrah/xsbt/issues/403
-[#412]: https://github.com/harrah/xsbt/issues/412
-[#415]: https://github.com/harrah/xsbt/issues/415
-[#420]: https://github.com/harrah/xsbt/issues/420
-[#462]: https://github.com/harrah/xsbt/pull/462
-[#472]: https://github.com/harrah/xsbt/pull/472
-[Launcher]: https://github.com/harrah/xsbt/wiki/Launcher
+  [#304]: https://github.com/harrah/xsbt/issues/304
+  [#315]: https://github.com/harrah/xsbt/issues/315
+  [#327]: https://github.com/harrah/xsbt/issues/327
+  [#335]: https://github.com/harrah/xsbt/issues/335
+  [#393]: https://github.com/harrah/xsbt/issues/393
+  [#396]: https://github.com/harrah/xsbt/issues/396
+  [#380]: https://github.com/harrah/xsbt/issues/380
+  [#389]: https://github.com/harrah/xsbt/issues/389
+  [#388]: https://github.com/harrah/xsbt/issues/388
+  [#387]: https://github.com/harrah/xsbt/issues/387
+  [#386]: https://github.com/harrah/xsbt/issues/386
+  [#378]: https://github.com/harrah/xsbt/issues/378
+  [#377]: https://github.com/harrah/xsbt/issues/377
+  [#368]: https://github.com/harrah/xsbt/issues/368
+  [#394]: https://github.com/harrah/xsbt/issues/394
+  [#369]: https://github.com/harrah/xsbt/issues/369
+  [#403]: https://github.com/harrah/xsbt/issues/403
+  [#412]: https://github.com/harrah/xsbt/issues/412
+  [#415]: https://github.com/harrah/xsbt/issues/415
+  [#420]: https://github.com/harrah/xsbt/issues/420
+  [#462]: https://github.com/harrah/xsbt/pull/462
+  [#472]: https://github.com/harrah/xsbt/pull/472
+  [Launcher]: https://github.com/harrah/xsbt/wiki/Launcher
 
-# sbt 0.12 の変更点
+> 先日 0.12.0-RC1 がリリースされ、本リリースも近づいてきた sbt 0.12.0 の[現在の変更点(予定)](https://github.com/harrah/xsbt/wiki/ChangeSummary_0.12.0)を訳しました。
+> バイナリバージョンという概念が導入されることで、Scala 2.9.0 で入ったけどあまり活用されていない Scala の後方バイナリ互換性がより正面に出てくるキッカケとなると思います。
 
 ## 0.11.2 から 0.12.0 までの変更点
 
- * プラグイン設定ディレクトリの優先順位。 (詳細は以下の項目)
- * JLine 1.0 (詳細は以下の項目)
- * ソース依存性の修正。 (詳細は以下の項目)
- * 並列実行の制御の改善。 (詳細は以下の項目)
- * sbt 0.12 以降と Scala 2.10 以降のクロスビルド規約の変更。 (詳細は以下の項目)
- * 集約がより柔軟になった。 (詳細は以下の項目)
- * タスク軸の構文が <code>key(for task)</code> から <code>task::key</code> へと変更された。 (詳細は以下の項目)
+ * プラグイン設定ディレクトリの優先順位。 (詳細は[以下の項目](#plugin_dir) )
+ * JLine 1.0 (詳細は[以下の項目](#jline) )
+ * ソース依存性の修正。 (詳細は[以下の項目](#source_dependencies) )
+ * 並列実行の制御の改善。 (詳細は[以下の項目](#parallel_execution) )
+ * sbt 0.12 以降と Scala 2.10 以降のクロスビルド規約の変更。 (詳細は[以下の項目](#cross_building) )
+ * 集約がより柔軟になった。 (詳細は[以下の項目](#aggregation) )
+ * タスク軸の構文が <code>key(for task)</code> から <code>task::key</code> へと変更された。 (詳細は[以下の項目](#task_axis) )
  * sbt の organization が <code>org.scala-sbt</code> へと変更された。(元は、org.scala-tools.sbt) 特に、scripted プラグインのユーザはこの影響を受ける。
- * <code>test-quick</code> ([#393]) は引数で指定されたテスト（引数がない場合は全てのテスト）のうち以下の条件を一つでも満たすものを実行する:
+ * <code>test-quick</code> ([#393][#393]) は引数で指定されたテスト（引数がない場合は全てのテスト）のうち以下の条件を一つでも満たすものを実行する:
   1. まだ実行されていない。
   2. 前回実行時に失敗した。
   3. 最後に成功した後で間接的にでも依存するコードが再コンパイルされた場合。
- * 引数のクオート ([#396])
+ * 引数のクオート [#396][#396]
   * <code>> command "空白 のある 引数\n エスケープは解釈される"</code>
   * <code>> command """空白 のある 引数\n エスケープは解釈されない"""</code>
   *  最初のリテラルは Windows のパス記号であるバックスラッシュをエスケープ (<code>\\</code>) する必要があることに注意。2つ目のリテラルを使えばその必要は無い。
   * バッチモードから使う場合は、ダブルクオートそのものをシェルからエスケープする必要がある。
  * <code>help</code> コマンドは正規表現を受け付け、ヘルプの検索を行うことができるようになった。詳細は <code>help help</code> を参照。
- * sbt プラグインリポジトリがプラグインとプラグインの定義にデフォルトで加わった。 [#380]
- * Ctrl+Z で停止した後 JLine を正しくリセットするようにした。(Unix のみ) [#394]
- * <code>session save</code> は <code>build.sbt</sbt> 内の設定を（適切な時に）上書きするようにした。[#369]
- * その他の修正および機能改善: [#368], [#377], [#378], [#386], [#387], [#388], [#389]
- * テストのフォークのサポート。 ([#415])
- * 直接実行された場合、強制的に <code>update</code> を実行するようにした。 ([#335])
+ * sbt プラグインリポジトリがプラグインとプラグインの定義にデフォルトで加わった。 [#380][#380]
+ * Ctrl+Z で停止した後 JLine を正しくリセットするようにした。(Unix のみ) [#394][#394]
+ * <code>session save</code> は <code>build.sbt</code> 内の設定を（適切な時に）上書きするようにした。[#369][#369]
+ * その他の修正および機能改善: [#368][#368], [#377][#377], [#378][#378], [#386][#386], [#387][#387], [#388][#388], [#389][#389]
+ * テストのフォークのサポート。 [#415][#415]
+ * 直接実行された場合、強制的に <code>update</code> を実行するようにした。 [#335][#335]
  * 一時的に他のビルドと作業したい時は <code>projects add/remove <URI></code>。
  * 再コンパイルをせずに unchecked と deprecation の警告を表示する <code>print-warnings</code> タスクを追加した。(Scala 2.10+ のみ)
- * <code>help</code> と <code>task</code> コマンドの様々な改善、および新たな <code>settings</code> コマンド。([#315])
+ * <code>help</code> と <code>task</code> コマンドの様々な改善、および新たな <code>settings</code> コマンド。[#315][#315]
  * Java ソースの親の検知の修正。
- * `update-sbt-classifiers` に用いられる resolver の修正。([#304])
- * プラグインの自動インポートの修正。([#412]) 
- * 多くのアーティファクトの POM が repo.typesafe.com の仮想リポジトリから入手できるようになった。 ([#420])
- * jsch バージョンを 0.1.46 へと更新。 ([#403])
+ * `update-sbt-classifiers` に用いられる resolver の修正。[#304][#304]
+ * プラグインの自動インポートの修正。[#412][#412] 
+ * 多くのアーティファクトの POM が repo.typesafe.com の仮想リポジトリから入手できるようになった。 [#420][#420]
+ * jsch バージョンを 0.1.46 へと更新。 [#403][#403]
  * Ivy 設定ファイルを URL から読み込めるようにした。
- * リポジトリ設定のグローバルなオーバライドをサポートした。 ([#472]) <code>[repositories]</code> 項目を <code>~/.sbt/repositoreies</code> に書いて、sbt に <code>-Dsbt.override.build.repos=true</code> を渡すことでリポジトリを定義する。([Launcher] のページを参照) ランチャーが sbt と Scala を取得し、sbt がプロジェクトの依存性を取得するのにファイルで指定されたリポジトリが使われるようになる。 (@jsuereth)
+ * リポジトリ設定のグローバルなオーバライドをサポートした。 [#472][#472] <code>[repositories]</code> 項目を <code>~/.sbt/repositoreies</code> に書いて、sbt に <code>-Dsbt.override.build.repos=true</code> を渡すことでリポジトリを定義する。([Launcher] のページを参照) ランチャーが sbt と Scala を取得し、sbt がプロジェクトの依存性を取得するのにファイルで指定されたリポジトリが使われるようになる。 (@jsuereth)
  * ランチャーが 0.7.0 以降全ての sbt を起動できるようになった。
  * スタックトレースが抑制された場合、`last` を呼ぶようにより洗練されたヒントが表示されるようになった。
- * Java 7 の Redirect.INHERIT を用いて子プロセスの入力ストリームを継承するようになった。 ([#462],[#327]). これでインタラクティブなプログラムをフォークした場合に起こる問題が解決されるはず。 (@vigdorchik)
+ * Java 7 の Redirect.INHERIT を用いて子プロセスの入力ストリームを継承するようになった。 [#462][#462], [#327][#327] これでインタラクティブなプログラムをフォークした場合に起こる問題が解決されるはず。 (@vigdorchik)
  * 再帰的にディレクトリを削除するときに、シンボリックリンクが指す先のコンテンツを削除しないようにした。
  * [新サイト](http://www.scala-sbt.org/)の [howto](http://www.scala-sbt.org/howto.html) ページを読みやすくした。
  * スナップショットやマイルストーンにもクロスビルドにはバイナリバージョンを用いることになった。ユーザが Scala もしくは sbt リリースの安定版とスナップショットに対して同じ安定版を publish しないことを当てにする。
@@ -71,7 +72,8 @@
 
 ## 大きな変更の詳細点
 
-## ブラグインの設定ディレクトリ
+<a id="plugin_dir"/>
+## プラグインの設定ディレクトリ
 
 0.11.0 においてプラグインの設定ディレクトリは <code>project/plugins/</code> からただの <code>project/</code> へと移行し、<code>project/plugins/</code> は非推奨となった。0.11.2 において非推奨のメッセージが表示されたが、全ての 0.11.x においては旧スタイルの <code>project/plugins/</code> が新しいスタイルよりも高い優先された。0.12.0 では新しいスタイルが優先される。旧スタイルのサポートは 0.13.0 が出るまで廃止されない。
 
@@ -79,6 +81,7 @@
   2. 実際にこれが起こりえる状況としては、古いブランチから新しいブランチに切り替えた場合に空の <code>project/plugins/</code> が残ってしまい何も設定が無いにも関わらず旧スタイルが使われてしまうということがある。
   3. そのため、この変更は飽くまで新スタイルへ移行中のプロジェクトのための改善であり、他のプロジェクトには気付かれないことを意図している。
 
+<a id="jline"/>
 ## JLine
 
 JLine 1.0 への移行。これはいくつかの顕著な修正を含む比較的新しいリリースだが、見たところ今まで使われていた 0.9.94 とバイナリ互換がある。具体的には、
@@ -87,6 +90,7 @@ JLine 1.0 への移行。これはいくつかの顕著な修正を含む比較�
   2. Linux での Delete キーへの対応。これが実際に動作するかは各自確認して欲しい。
   3. 行の折り返しが正しくなっているように思える。
 
+<a id="task_axis"/>
 ## タスク軸のパーシング
 
 セッティングやタスクのタスク軸のパーシングに関して重要な変更が行われた。 [#202](https://github.com/harrah/xsbt/issues/202)
@@ -95,7 +99,8 @@ JLine 1.0 への移行。これはいくつかの顕著な修正を含む比較�
   2. 提案され（採用された）0.12 からの構文は <code>{build}project/config:task::key</code> だ。
   3. タスク軸をキーの前に移動することで特にプラグインからの（タブ補完を用いた）キーの発見が容易にする。
   4. 旧構文はサポートされない予定だ。理想的は非推奨に一度すべきだが、その実装に手間がかかりすぎる。
-  
+
+<a id="aggregation"/>
 ## 集約
 
 集約がより柔軟になった。これは過去にメーリングリストで議論されたのと同様の方向だ:
@@ -111,7 +116,8 @@ JLine 1.0 への移行。これはいくつかの顕著な修正を含む比較�
     4. <code>root/package</code> を実行すると <code>root/*:package</code> と <code>sub/compile:package</code> が実行される。
     5. <code>root/compile</code> を実行すると <code>sub/compile:compile</code> が実行される。
   6. この変更点はタスク軸のパーシングの変更に依存する。
-  
+
+<a id="parallel_execution"/>
 ## 並列実行
 
 並列実行の細かい制御がサポートされる。詳細は [Parallel Execution](https://github.com/harrah/xsbt/wiki/Parallel-Execution) 参照。
@@ -120,6 +126,7 @@ JLine 1.0 への移行。これはいくつかの顕著な修正を含む比較�
   2. このシステムの新しい機能は実験段階だと考えるべき。
   3. そのため <code>parallelExecution</code> は現段階では非推奨ではない。
 
+<a id="source_dependencies"/>
 ## ソース依存性
 
 [#329](https://github.com/harrah/xsbt/issues/329) に対する修正が含まれた。この修正により前プロジェクトに渡ってプラグイン一つにつき唯一のバージョンのみが読み込まれることが保証されるようになった。これは、二部に分かれる。
@@ -133,6 +140,7 @@ JLine 1.0 への移行。これはいくつかの顕著な修正を含む比較�
   2. Mercurial は特定のスキームを持たないため、sbt は Mercurial のリポジトリの URI に <code>hg:</code> をプレフィックスとして付けることを要求する。
   3. <code>.git</code> で終わる URI の処理が修正された。
 
+<a id="cross_building"/>
 ## クロスビルド
 
 Scala のバージョン 2.10 シリーズと sbt のバージョン 0.12 シリーズ以降に関して、クロスバージョンのサフィックスがメジャー番号とマイナー番号のみに短縮された。具体的には、普通のライブラリだと <code>sbinary_2.10</code>、sbt プラグインだと <code>sbt-plugin_2.10_0.12</code> のようになる。これは Scala と sbt がその中間リリースにおいて前方互換性と後方互換性を維持することを前提とする。
@@ -183,8 +191,9 @@ Scala のバージョン 2.10 シリーズと sbt のバージョン 0.12 シリ
 }
 </scala>
 
-全ての Scala バージョンに対して公開されていない依存ライブラリを用いてクロスビルドするときにカスタム関数を使うことができる。バイナリバージョンに以降することで、この機能の必要性が徐々に減っていくはずだ。
+全ての Scala バージョンに対して公開されていない依存ライブラリを用いてクロスビルドするときにカスタム関数を使うことができる。バイナリバージョンに移行することで、この機能の必要性が徐々に減っていくはずだ。
 
+<a id="addsbtplugin"/>
 ### 0.12.0-M2 sbt プラグインへのバイナリ依存性
 
 0.12.0-M2 を使用する場合、sbt プラグインへの依存性の宣言が sbt 0.11.2 でのような書き方では動作しなくなった。通常は以下のように sbt プラグインへのバイナリ依存性を宣言する:
