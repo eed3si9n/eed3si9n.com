@@ -14,7 +14,7 @@ sbt は、[scripted test framework](http://code.google.com/p/simple-build-tool/w
 scripted-plugin はプラグインをローカルに publish するため、まずは version を **-SNAPSHOT** なものに設定しよう。
 
 ## ステップ 2: scripted-plugin
-次に、scripted-plugin をプラグインのビルドに加える。`project/plugins/build.sbt` (0.10 用):
+次に、scripted-plugin をプラグインのビルドに加える。`project/plugins.sbt` (0.11 用):
 
     resolvers += Resolver.url("Typesafe repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-releases/"))(Resolver.defaultIvyPatterns)
 
@@ -24,7 +24,7 @@ scripted-plugin はプラグインをローカルに publish するため、ま�
 
 以下を `build.sbt` に加える:
 
-    seq(ScriptedPlugin.scriptedSettings: _*)
+    ScriptedPlugin.scriptedSettings
 
 ## ステップ 3: `src/sbt-test`
 `src/sbt-test/<テストグループ>/<テスト名>` というディレクトリ構造を作る。とりあえず、`src/sbt-test/<プラグイン名>/simple` から始めるとする。

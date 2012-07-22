@@ -14,7 +14,7 @@ To be precise, for 0.10, the framework is made available via scripted-plugin por
 Before you start, set your version to a **-SNAPSHOT** one because scripted-plugin will publish your plugin locally.
 
 ## step 2: scripted-plugin
-Add scripted-plugin to your plugin build. `project/plugins/build.sbt` (for 0.10):
+Add scripted-plugin to your plugin build. `project/plugins.sbt` (for 0.11):
 
     resolvers += Resolver.url("Typesafe repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-releases/"))(Resolver.defaultIvyPatterns)
 
@@ -24,7 +24,7 @@ Add scripted-plugin to your plugin build. `project/plugins/build.sbt` (for 0.10)
 
 Then add the following to `build.sbt`:
 
-    seq(ScriptedPlugin.scriptedSettings: _*)
+    ScriptedPlugin.scriptedSettings
 
 ## step 3: `src/sbt-test`
 Make dir structure `src/sbt-test/<test-group>/<test-name>`. For starters, try something like `src/sbt-test/<your-plugin-name>/simple`.
