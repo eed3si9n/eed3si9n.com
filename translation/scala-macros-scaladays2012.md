@@ -86,7 +86,7 @@ Scala リフレクションはコンパイラの cake の一切れを提供す�
 
 <img src="/images/scala-macros-macro-body.png"/>
 
-## マクロ拡張の結果
+## マクロ展開の結果
 
 <img src="/images/scala-macros-macro-expansion.png"/>
 
