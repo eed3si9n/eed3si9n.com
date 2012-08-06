@@ -1,5 +1,5 @@
   [1]: https://github.com/scala/scala/blob/master/src/compiler/scala/tools/nsc/settings/ScalaSettings.scala
-  [2]: http://scalamacros.org/talks/2012-04-28-MetaprogrammingInScala210.pdf
+  [2]: http://eed3si9n.com/ja/metaprogramming-in-scala-210
   [3]: http://scalamacros.org/documentation/specification.html
   [4]: http://scalamacros.org/documentation/reference.html
   [5]: http://groups.google.com/group/scala-user
@@ -65,7 +65,7 @@ object Macros {
     // ここからコンパイラに突入する。
     // すぐ下のコードでは一時的な val を作ってフォーマットされる式を事前に計算する。
     // 動的な Scala コードの生成に関してより詳しく知りたい場合は以下のスライドを参照:
-    // http://scalamacros.org/talks/2012-04-28-MetaprogrammingInScala210.pdf
+    // http://eed3si9n.com/ja/metaprogramming-in-scala-210
     val evals = ListBuffer[ValDef]()
     def precompute(value: Tree, tpe: Type): Ident = {
       val freshName = newTermName(c.fresh("eval$"))
