@@ -1,3 +1,4 @@
+  [#274]: https://github.com/harrah/xsbt/issues/274
   [#304]: https://github.com/harrah/xsbt/issues/304
   [#315]: https://github.com/harrah/xsbt/issues/315
   [#327]: https://github.com/harrah/xsbt/issues/327
@@ -48,6 +49,7 @@
  * Ivy 設定ファイルを URL から読み込めるようにした。
  * <code>projects add/remove <URI></code> で一時的に他のビルドと作業できるようになった。
  * 並列実行の制御の改善。 (詳細は[以下の項目](#parallel_execution) )
+ * <code>inspect tree <key></code> で <code>inspect</code> を再帰的に呼べるようになった。[#274][#274]
 
 ## バグ修正
 
