@@ -1,5 +1,6 @@
 
   [meta]: http://scalamacros.org/talks/2012-04-28-MetaprogrammingInScala210.pdf
+  [odersky]: http://channel9.msdn.com/Events/Lang-NEXT/Lang-NEXT-2012/Reflection-and-Compilers
   [sausage]: http://skillsmatter.com/podcast/scala/scalac-internals
   [trees]: https://github.com/scala/scala/blob/master/src/library/scala/reflect/base/Trees.scala
   [trees2]: https://github.com/scala/scala/blob/master/src/reflect/scala/reflect/api/Trees.scala
@@ -43,7 +44,7 @@
 
 先日行われた Martin Odersky 先生による講演にてリフレクション API の設計が詳しく説明されている:
 
-- [http://channel9.msdn.com/Lang-NEXT-2012/Reflection-and-Compilers]([http://channel9.msdn.com/Lang-NEXT-2012/Reflection-and-Compilers])
+- [http://channel9.msdn.com/Events/Lang-NEXT/Lang-NEXT-2012/Reflection-and-Compilers][odersky]
 
 #### 実習
 
