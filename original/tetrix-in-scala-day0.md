@@ -167,6 +167,6 @@ To run this on your machine,
 <code>
 $ git clone https://github.com/eed3si9n/tetrix.scala.git
 $ cd tetrix.scala
-$ git co day0
+$ git co day0 -b try/day0
 $ sbt "project swing" run
 </code>
