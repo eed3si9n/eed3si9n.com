@@ -287,7 +287,7 @@ Now the agent started to pick moves other than `MoveLeft`, but it's preferring t
 
 <img src="/images/tetrix-in-scala-day7b.png"/>
 
-Deepening the search tree should hopefully make things better. We'll get back to this tomorrow.
+Deepening the search tree should hopefully make things better. We'll get back to this [tomorrow](http://eed3si9n.com/tetrix-in-scala-day8).
 
 <code>
 $ git fetch origin

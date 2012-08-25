@@ -382,7 +382,7 @@ The obvious issue here is that the bottom row is not clearing. Here's a spec tha
     ).only.inOrder 
 </scala>
 
-We'll get back to this tomorrow.
+We'll get back to this [tomorrow](http://eed3si9n.com/tetrix-in-scala-day3).
 
 <code>
 $ git fetch origin

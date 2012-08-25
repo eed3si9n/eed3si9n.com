@@ -157,3 +157,5 @@ $ git fetch origin
 $ git co day5 -b try/day5
 $ sbt "project swing" run
 </code>
+
+[6日目](http://eed3si9n.com/ja/tetrix-in-scala-day6)へ続く。

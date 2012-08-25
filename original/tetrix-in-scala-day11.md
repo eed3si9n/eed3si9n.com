@@ -306,7 +306,7 @@ The I bar is going to eliminate bottom 4 rows, creating 3 attacks.
 
 <img src="/images/tetrix-in-scala-day11d.png"/>
 
-We'll pick it up from here tomorrow.
+We'll pick it up from here [tomorrow](http://eed3si9n.com/tetrix-in-scala-day12).
 
 <code>
 $ git fetch origin

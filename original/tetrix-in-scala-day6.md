@@ -239,7 +239,7 @@ This fails the test as expected.
 [error]    'MoveLeft' is not equal to 'Drop' (AgentSpec.scala:13)
 </code>
 
-We'll get back to this tomorrow.
+We'll get back to this [tomorrow](http://eed3si9n.com/tetrix-in-scala-day7).
 
 <code>
 $ git fetch origin

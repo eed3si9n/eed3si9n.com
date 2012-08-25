@@ -239,7 +239,7 @@ As expected, this test fails:
 [error]    '(0,0), (-1,17), (0,17), (1,17), (0,18)' doesn't contain in order '(0,0), (0,17), (1,17), (2,17), (1,18)' (StageSpec.scala:8)
 </code>
 
-We'll get back to this tomorrow.
+We'll get back to this [tomorrow](http://eed3si9n.com/tetrix-in-scala-day2).
 
 <code>
 $ git fetch origin

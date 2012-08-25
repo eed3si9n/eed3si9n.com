@@ -230,7 +230,7 @@ Let's see how it plays:
 
 <img src="/images/tetrix-in-scala-day9c.png"/>
 
-The cavity avoidance is working, but almost too well. Maybe we should reinstate the gap penalty tomorrow.
+The cavity avoidance is working, but almost too well. Maybe we should reinstate the gap penalty [tomorrow](http://eed3si9n.com/tetrix-in-scala-day10).
 
 <code>
 $ git fetch origin

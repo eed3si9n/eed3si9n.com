@@ -286,7 +286,7 @@ res5: Int = 36
 
 <img src="/images/tetrix-in-scala-day7b.png"/>
 
-探索木を深くすればましになってくれると思う。続きはまた明日。
+探索木を深くすればましになってくれると思う。続きはまた[明日](http://eed3si9n.com/ja/tetrix-in-scala-day8)。
 
 <code>
 $ git fetch origin

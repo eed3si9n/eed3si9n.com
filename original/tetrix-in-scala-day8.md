@@ -315,7 +315,7 @@ All green. Now let's run the swing UI to see how it looks:
 [info] selected List() 1.4108824377664941
 </code>
 
-It is rather short-sighted in its moves, but I am starting to see the glimpse of rationality. We'll pick it up from here tomorrow.
+It is rather short-sighted in its moves, but I am starting to see the glimpse of rationality. We'll pick it up from here [tomorrow](http://eed3si9n.com/tetrix-in-scala-day9).
 
 <code>
 $ git fetch origin

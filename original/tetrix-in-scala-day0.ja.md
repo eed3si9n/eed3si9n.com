@@ -1,4 +1,3 @@
-  [swing]: http://www.scala-lang.org/sites/default/files/sids/imaier/Mon,%202009-11-02,%2008:55/scala-swing-design.pdf
   [sbt]: http://scalajp.github.com/sbt-getting-started-guide-ja/multi-project/
   [amazon]: http://www.amazon.co.jp/dp/4798125415
 
@@ -110,7 +109,7 @@ object Main extends SimpleSwingApplication {
 }
 </scala>
 
-[The scala.swing package][swing] もちらっと見たけど、上はだいたい前に書いた Tetrix の実装からもらってきた。
+[The scala.swing package](http://www.scala-lang.org/sites/default/files/sids/imaier/Mon,%202009-11-02,%2008:55/scala-swing-design.pdf) もちらっと見たけど、上はだいたい前に書いた Tetrix の実装からもらってきた。
 scala swing はセッターメソッド (`x_=`) をいくつも定義しているため、クラスの本体に直接 `x = "foo"` のように書くことができる。すがすがしいぐらいに可変 (mutable) なフレームワークだ。UI は全部副作用なので、これはうまくいっていると思う。
 
 ### 抽象 UI
@@ -171,6 +170,8 @@ class AbstractUI {
 <code>
 $ git clone https://github.com/eed3si9n/tetrix.scala.git
 $ cd tetrix.scala
-$ git co day0
+$ git co day0 -b try/day0
 $ sbt "project swing" run
 </code>
+
+[1日目](http://eed3si9n.com/ja/tetrix-in-scala-day1)へ続く。

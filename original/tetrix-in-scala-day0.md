@@ -1,5 +1,3 @@
-  [swing]: http://www.scala-lang.org/sites/default/files/sids/imaier/Mon,%202009-11-02,%2008:55/scala-swing-design.pdf
-
 Every now and then I get an urge to explore a new platform, new ways of thinking, even a new programming language. The first thing I try to implement is always the same: a clone of the famous falling block game. I've implemented them in I think eight languages, Palm V that I borrowed, and on Android. Probably the first Scala program I wrote was Tetrix too. Some had network capability so two players could play against each other, and C# one had AI that kept playing on its own.
 
 I feel like writing Tetrix again. It's non-trivial enough that it lends itself well as an example application. The looping and similar-but-different operations allows languages to showcase lambda or point-free style. The UI and event handling may reveal lack of native support for basic things.
@@ -106,7 +104,7 @@ object Main extends SimpleSwingApplication {
 }
 </scala>
 
-I did glance a bit of [The scala.swing package][swing], but I took most of the above from my first Tetrix implemention.
+I did glance a bit of [The scala.swing package](http://www.scala-lang.org/sites/default/files/sids/imaier/Mon,%202009-11-02,%2008:55/scala-swing-design.pdf), but I took most of the above from my first Tetrix implemention.
 scala swing implements a bunch of setter methods (`x_=`) so we can write `x = "foo"` strait in class body. It's almost refershing to see how proudly mutable this framework is, and I think it works here since UI is one big side effect anyway. 
 
 ### abstract UI
@@ -170,3 +168,5 @@ $ cd tetrix.scala
 $ git co day0 -b try/day0
 $ sbt "project swing" run
 </code>
+
+Continue to [day1](http://eed3si9n.com/tetrix-in-scala-day1).

@@ -380,7 +380,7 @@ The good old swing UI still works, and it plays nicely:
 
 <img src="/images/tetrix-in-scala-day10.png"/>
 
-We'll continue from here tomorrow. As always, the code is up on github.
+We'll continue from here [tomorrow](http://eed3si9n.com/tetrix-in-scala-day11). As always, the code is up on github.
 
 <code>
 $ git fetch origin

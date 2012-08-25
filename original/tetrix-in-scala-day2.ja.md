@@ -383,7 +383,7 @@ case class GameState(blocks: Seq[Block], gridSize: (Int, Int), currentPiece: Pie
     ).only.inOrder 
 </scala>
 
-続きはまた明日。
+続きはまた[明日](http://eed3si9n.com/ja/tetrix-in-scala-day3)。
 
 <code>
 $ git fetch origin

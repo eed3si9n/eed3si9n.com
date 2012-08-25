@@ -315,7 +315,7 @@ res0: Seq[Seq[com.eed3si9n.tetrix.StageMessage]] = Vector(List(MoveLeft), List(M
 [info] selected List() 1.4108824377664941
 </code>
 
-動作がまだ近視眼的だけど、合理性の鱗片が見えてきたと思う。続きはまた明日。
+動作がまだ近視眼的だけど、合理性の鱗片が見えてきたと思う。続きはまた[明日](http://eed3si9n.com/ja/tetrix-in-scala-day9)。
 
 <code>
 $ git fetch origin

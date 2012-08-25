@@ -240,7 +240,7 @@ class StageSpec extends Specification { def is = sequential  ^
 [error]    '(0,0), (-1,17), (0,17), (1,17), (0,18)' doesn't contain in order '(0,0), (0,17), (1,17), (2,17), (1,18)' (StageSpec.scala:8)
 </code>
 
-続きはまた明日。
+続きはまた[明日](http://eed3si9n.com/ja/tetrix-in-scala-day2)。
 
 <code>
 $ git fetch origin

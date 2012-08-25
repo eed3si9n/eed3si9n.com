@@ -230,7 +230,7 @@ coverups: scala.collection.immutable.Iterable[Int] = List(2, 2)
 
 <img src="/images/tetrix-in-scala-day9c.png"/>
 
-虫歯の回避はうまくいったが、効きすぎているかもしれない。明日に段差のペナルティを再び導入する必要があるかもしれない。
+虫歯の回避はうまくいったが、効きすぎているかもしれない。[明日](http://eed3si9n.com/ja/tetrix-in-scala-day10)に段差のペナルティを再び導入する必要があるかもしれない。
 
 <code>
 $ git fetch origin

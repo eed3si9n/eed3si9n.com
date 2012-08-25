@@ -307,7 +307,7 @@ I字のバーが下の 4行を消して、3回の攻撃を行う。
 
 <img src="/images/tetrix-in-scala-day11d.png"/>
 
-続きはまた明日。
+続きはまた[明日](http://eed3si9n.com/ja/tetrix-in-scala-day12)。
 
 <code>
 $ git fetch origin

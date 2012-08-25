@@ -380,7 +380,7 @@ swing UI も健在で、なかなか良いゲームを見せてくれるよう�
 
 <img src="/images/tetrix-in-scala-day10.png"/>
 
-また明日ここから続けよう。いつもどおりコードは github に置いてある。
+また[明日](http://eed3si9n.com/ja/tetrix-in-scala-day11)ここから続けよう。いつもどおりコードは github に置いてある。
 
 <code>
 $ git fetch origin
