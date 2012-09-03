@@ -73,6 +73,7 @@ List(1, 2, 3).fpair assert_=== List((1,1), (2,2), (3,3))
 List(1, 2, 3).strengthL("x") assert_=== List(("x",1), ("x",2), ("x",3))
 List(1, 2, 3).strengthR("x") assert_=== List((1,"x"), (2,"x"), (3,"x"))
 List(1, 2, 3).void assert_=== List((), (), ())
+Functor[List].lift {(_: Int) * 2} (List(1, 2, 3)) assert_=== List(2, 4, 6)
 </scala>
 </div>
 
@@ -93,6 +94,7 @@ none <*> 2.some assert_=== None
 1.some <* 2.some assert_=== Some(1)
 1.some *> 2.some assert_=== Some(2)
 Apply[Option].ap(9.some) {{(_: Int) + 3}.some} assert_=== Some(12)
+Apply[List].lift2 {(_: Int) * (_: Int)} (List(1, 2), List(3, 4)) assert_=== List(3, 4, 6, 8)
 ^(3.some, 5.some) {_ + _} assert_=== Some(8)
 </scala>
 </div>
