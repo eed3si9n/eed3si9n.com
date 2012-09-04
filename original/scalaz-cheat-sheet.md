@@ -127,15 +127,29 @@ List(1, 2) mappend List(3) assert_=== List(1, 2, 3)
 (Tags.Disjunction(true) |+| Tags.Disjunction(false): Boolean) assert_=== true
 (Tags.Conjunction(true) |+| Tags.Conjunction(false): Boolean) assert_=== false
 (Ordering.LT: Ordering) |+| (Ordering.GT: Ordering) assert_=== Ordering.LT
+(none: Option[String]) |+| "andy".some assert_=== "andy".some
+(Tags.First('a'.some) |+| Tags.First('b'.some): Option[Char]) assert_=== 'a'.some
+(Tags.Last('a'.some) |+| Tags.Last(none: Option[Char]): Option[Char]) assert_=== 'a'.some
 </scala>
 </div>
-
 
 <div markdown="1" class="cheatsheet">
 ### Monoid[A] extends Semigroup[A]
 <scala>
 def zero: A
 Monoid[List[Int]].zero assert_=== Nil
+</scala>
+</div>
+
+
+<div markdown="1" class="cheatsheet">
+### Foldable[F[_]]
+<scala>
+def foldMap[A,B](fa: F[A])(f: A => B)(implicit F: Monoid[B]): B
+def foldRight[A, B](fa: F[A], z: => B)(f: (A, => B) => B): B
+List(1, 2, 3).foldRight (0) {_ + _} assert_=== 6
+List(1, 2, 3).foldLeft (0) {_ + _} assert_=== 6
+(List(1, 2, 3) foldMap {Tags.Multiplication}: Int) assert_=== 6
 </scala>
 </div>
 
