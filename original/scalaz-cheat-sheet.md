@@ -58,9 +58,6 @@ Enum[Int].max assert_=== Some(2147483647)
 </scala>
 </div>
 
-</td>
-<td width="50%" valign="top">
-
 <div markdown="1" class="cheatsheet">
 ### Functor[F[_]]
 <scala>
@@ -103,6 +100,42 @@ Apply[List].lift2 {(_: Int) * (_: Int)} (List(1, 2), List(3, 4)) assert_=== List
 ### Applicative[F[_]] extends Apply[F] with Pointed[F]
 <scala>
 // no contract function
+</scala>
+</div>
+
+</td>
+<td width="50%" valign="top">
+
+<div markdown="1" class="cheatsheet">
+### Tagged[A]
+<scala>
+sealed trait KiloGram
+def KiloGram[A](a: A): A @@ KiloGram = Tag[A, KiloGram](a)
+def f[A](mass: A @@ KiloGram): A @@ KiloGram
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Semigroup[A]
+<scala>
+def append(a1: A, a2: => A): A
+List(1, 2) |+| List(3) assert_=== List(1, 2, 3)
+List(1, 2) mappend List(3) assert_=== List(1, 2, 3)
+1 |+| 2 assert_=== 3
+(Tags.Multiplication(2) |+| Tags.Multiplication(3): Int) assert_=== 6
+// Tags.Disjunction (||), Tags.Conjunction (&&)
+(Tags.Disjunction(true) |+| Tags.Disjunction(false): Boolean) assert_=== true
+(Tags.Conjunction(true) |+| Tags.Conjunction(false): Boolean) assert_=== false
+(Ordering.LT: Ordering) |+| (Ordering.GT: Ordering) assert_=== Ordering.LT
+</scala>
+</div>
+
+
+<div markdown="1" class="cheatsheet">
+### Monoid[A] extends Semigroup[A]
+<scala>
+def zero: A
+Monoid[List[Int]].zero assert_=== Nil
 </scala>
 </div>
 

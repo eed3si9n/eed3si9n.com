@@ -13,9 +13,10 @@ One section I should've covered yesterday from [Making Our Own Types and Typecla
 > ...
 > What are kinds and what are they good for? Well, let's examine the kind of a type by using the :k command in GHCI.
 
-I did not find `:k` command for Scala REPL so I wrote one for Scala 2.10.0-M7. Unlike Haskell's version, it only accepts proper type as input but it's better than nothing!
+I did not find `:k` command for Scala REPL so I wrote one for Scala 2.10.0-M7. <s>Unlike Haskell's version, it only accepts proper type as input but it's better than nothing!</s> For type constructors, pass in the companion type. (Thanks paulp for the suggestion)
 
 <scala>
+// requires Scala 2.10.0-M7
 def kind[A: scala.reflect.TypeTag]: String = {
   import scala.reflect.runtime.universe._
   def typeKind(sig: Type): String = sig match {
@@ -28,10 +29,12 @@ def kind[A: scala.reflect.TypeTag]: String = {
       }).mkString(" -> ") + " -> *"
     case _ => "*"
   }
-  val sig = typeOf[A] match {
+  def typeSig(tpe: Type): Type = tpe match {
+    case SingleType(pre, sym) => sym.companionSymbol.typeSignature
     case ExistentialType(q, TypeRef(pre, sym, args)) => sym.typeSignature
     case TypeRef(pre, sym, args) => sym.typeSignature
   }
+  val sig = typeSig(typeOf[A])
   val s = typeKind(sig)
   sig.typeSymbol.name + "'s kind is " + s + ". " + (s match {
     case "*" =>
@@ -50,16 +53,16 @@ Run `sbt console` using `build.sbt` that I posted on day 1, and copy paste the a
 scala> kind[Int]
 res0: String = Int's kind is *. This is a proper type.
 
-scala> kind[Option[_]]
+scala> kind[Option.type]
 res1: String = Option's kind is * -> *. This is a type constructor: a 1st-order-kinded type.
 
-scala> kind[Either[_, _]]
+scala> kind[Either.type]
 res2: String = Either's kind is * -> * -> *. This is a type constructor: a 1st-order-kinded type.
 
-scala> kind[Equal[_]]
+scala> kind[Equal.type]
 res3: String = Equal's kind is * -> *. This is a type constructor: a 1st-order-kinded type.
 
-scala> kind[Functor[List]]
+scala> kind[Functor.type]
 res4: String = Functor's kind is (* -> *) -> *. This is a type constructor that takes type constructor(s): a higher-kinded type.
 </code>
 
