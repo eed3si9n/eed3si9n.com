@@ -6,7 +6,7 @@
 <scala>
 def equal(a1: A, a2: A): Boolean
 (1 === 2) assert_=== false
-(2 /== 1) assert_=== true
+(2 =/= 1) assert_=== true
 </scala>
 </div>
 
@@ -59,54 +59,6 @@ Enum[Int].max assert_=== Some(2147483647)
 </div>
 
 <div markdown="1" class="cheatsheet">
-### Functor[F[_]]
-<scala>
-def map[A, B](fa: F[A])(f: A => B): F[B]
-List(1, 2, 3) map {_ + 1} assert_=== List(2, 3, 4)
-List(1, 2, 3) ∘ {_ + 1} assert_=== List(2, 3, 4)
-List(1, 2, 3) >| "x" assert_=== List("x", "x", "x")
-List(1, 2, 3) as "x" assert_=== List("x", "x", "x")
-List(1, 2, 3).fpair assert_=== List((1,1), (2,2), (3,3))
-List(1, 2, 3).strengthL("x") assert_=== List(("x",1), ("x",2), ("x",3))
-List(1, 2, 3).strengthR("x") assert_=== List((1,"x"), (2,"x"), (3,"x"))
-List(1, 2, 3).void assert_=== List((), (), ())
-Functor[List].lift {(_: Int) * 2} (List(1, 2, 3)) assert_=== List(2, 4, 6)
-</scala>
-</div>
-
-<div markdown="1" class="cheatsheet">
-### Pointed[F[_]] extends Functor[F]
-<scala>
-def point[A](a: => A): F[A]
-Pointed[List].point(1) assert_=== List(1)
-</scala>
-</div>
-
-<div markdown="1" class="cheatsheet">
-### Apply[F[_]] extends Functor[F]
-<scala>
-def ap[A,B](fa: => F[A])(f: => F[A => B]): F[B]
-1.some <*> 2.some assert_=== Some((1,2))
-none <*> 2.some assert_=== None
-1.some <* 2.some assert_=== Some(1)
-1.some *> 2.some assert_=== Some(2)
-Apply[Option].ap(9.some) {{(_: Int) + 3}.some} assert_=== Some(12)
-Apply[List].lift2 {(_: Int) * (_: Int)} (List(1, 2), List(3, 4)) assert_=== List(3, 4, 6, 8)
-^(3.some, 5.some) {_ + _} assert_=== Some(8)
-</scala>
-</div>
-
-<div markdown="1" class="cheatsheet">
-### Applicative[F[_]] extends Apply[F] with Pointed[F]
-<scala>
-// no contract function
-</scala>
-</div>
-
-</td>
-<td width="50%" valign="top">
-
-<div markdown="1" class="cheatsheet">
 ### Tagged[A]
 <scala>
 sealed trait KiloGram
@@ -150,6 +102,104 @@ def foldRight[A, B](fa: F[A], z: => B)(f: (A, => B) => B): B
 List(1, 2, 3).foldRight (0) {_ + _} assert_=== 6
 List(1, 2, 3).foldLeft (0) {_ + _} assert_=== 6
 (List(1, 2, 3) foldMap {Tags.Multiplication}: Int) assert_=== 6
+</scala>
+</div>
+
+</td>
+<td width="50%" valign="top">
+
+
+<div markdown="1" class="cheatsheet">
+### Functor[F[_]]
+<scala>
+def map[A, B](fa: F[A])(f: A => B): F[B]
+List(1, 2, 3) map {_ + 1} assert_=== List(2, 3, 4)
+List(1, 2, 3) ∘ {_ + 1} assert_=== List(2, 3, 4)
+List(1, 2, 3) >| "x" assert_=== List("x", "x", "x")
+List(1, 2, 3) as "x" assert_=== List("x", "x", "x")
+List(1, 2, 3).fpair assert_=== List((1,1), (2,2), (3,3))
+List(1, 2, 3).strengthL("x") assert_=== List(("x",1), ("x",2), ("x",3))
+List(1, 2, 3).strengthR("x") assert_=== List((1,"x"), (2,"x"), (3,"x"))
+List(1, 2, 3).void assert_=== List((), (), ())
+Functor[List].lift {(_: Int) * 2} (List(1, 2, 3)) assert_=== List(2, 4, 6)
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Pointed[F[_]] extends Functor[F]
+<scala>
+def point[A](a: => A): F[A]
+Pointed[List].point(1) assert_=== List(1)
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Apply[F[_]] extends Functor[F]
+<scala>
+def ap[A,B](fa: => F[A])(f: => F[A => B]): F[B]
+1.some <*> 2.some assert_=== Some((1,2))
+(none: Option[Int]) <*> 2.some assert_=== none
+1.some <* 2.some assert_=== 1.some
+1.some *> 2.some assert_=== 2.some
+Apply[Option].ap(9.some) {{(_: Int) + 3}.some} assert_=== 12.some
+Apply[List].lift2 {(_: Int) * (_: Int)} (List(1, 2), List(3, 4)) assert_=== List(3, 4, 6, 8)
+^(3.some, 5.some) {_ + _} assert_=== 8.some
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Applicative[F[_]] extends Apply[F] with Pointed[F]
+<scala>
+// no contract function
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Bind[F[_]] extends Apply[F]
+<scala>
+def bind[A, B](fa: F[A])(f: A => F[B]): F[B]
+3.some flatMap { x => (x + 1).some } assert_=== 4.some
+(3.some >>= { x => (x + 1).some }) assert_=== 4.some 
+3.some >> 4.some assert_=== 4.some
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Monad[F[_]] extends Applicative[F] with Bind[F]
+<scala>
+// no contract function
+(for {(x :: xs) <- "".toList.some} yield x) assert_=== none
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Plus[F[_]]
+<scala>
+def plus[A](a: F[A], b: => F[A]): F[A]
+List(1, 2) <+> List(3, 4) assert_=== List(1, 2, 3, 4)
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### PlusEmpty[F[_]] extends Plus[F]
+<scala>
+def empty[A]: F[A]
+(PlusEmpty[List].empty: List[Int]) assert_=== Nil
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### ApplicativePlus[F[_]] extends Applicative[F] with PlusEmpty[F]
+<scala>
+// no contract function
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### MonadPlus[F[_]] extends Monad[F] with ApplicativePlus[F]
+<scala>
+// no contract function
+List(1, 2, 3) filter {_ > 2} assert_=== List(3)
 </scala>
 </div>
 
