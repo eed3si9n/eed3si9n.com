@@ -82,14 +82,34 @@ scala> 1 == "foo"
                 ^
 res2: Boolean = false
 
-scala> 1.some /== 2.some
+scala> 1.some =/= 2.some
 res3: Boolean = true
 
 scala> 1 assert_=== 2
 java.lang.RuntimeException: 1 ≠ 2
 </code>
 
-標準の `==` のかわりに、`Equal` は `equal` メソッドを宣言することで `===`、`/==`、と `assert_===` 演算を可能とする。主な違いは `Int` と `String` と比較すると `===` はコンパイルに失敗することだ。
+標準の `==` のかわりに、`Equal` は `equal` メソッドを宣言することで `===`、`=/=`、と `assert_===` 演算を可能とする。主な違いは `Int` と `String` と比較すると `===` はコンパイルに失敗することだ。
+
+注意: 初出ではここで `=/=` じゃなくて `/==` を使っていたけども、[Eiríkr Åsheim さん (@d6)](http://twitter.com/d6/status/243557748091011074) に以下の通り教えてもらった:
+> you should encourage people to use =/= and not /== since the latter has bad precedence.
+>
+> /== は優先順位壊れてるから =/= を推奨すべき。
+
+通常、`!=` のような比較演算子は `&&` や通常の文字列などに比べて高い優先順位を持つ。ところが、`/==` は `=` で終わるが `=` で始まらないため代入演算子のための特殊ルールが発動し、優先順位の最底辺に落ちてしまう:
+
+<scala>
+scala> 1 != 2 && false
+res4: Boolean = false
+
+scala> 1 /== 2 && false
+<console>:14: error: value && is not a member of Int
+              1 /== 2 && false
+                      ^
+
+scala> 1 =/= 2 && false
+res6: Boolean = false
+</scala>
 
 ### Order
 

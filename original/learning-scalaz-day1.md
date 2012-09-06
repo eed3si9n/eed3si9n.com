@@ -80,14 +80,32 @@ scala> 1 == "foo"
                 ^
 res2: Boolean = false
 
-scala> 1.some /== 2.some
+scala> 1.some =/= 2.some
 res3: Boolean = true
 
 scala> 1 assert_=== 2
 java.lang.RuntimeException: 1 ≠ 2
 </code>
 
-Instead of the standard `==`, `Equal` enables `===`, `/==`, and `assert_===` syntax by declaring `equal` method. The main difference is that `===` would fail compilation if you tried to compare `Int` and `String`.
+Instead of the standard `==`, `Equal` enables `===`, `=/=`, and `assert_===` syntax by declaring `equal` method. The main difference is that `===` would fail compilation if you tried to compare `Int` and `String`.
+
+Note: I originally had `/==` instead of `=/=`, but [Eiríkr Åsheim (@d6)](http://twitter.com/d6/status/243557748091011074) pointed out to me:
+> you should encourage people to use =/= and not /== since the latter has bad precedence.
+
+Normally comparison operators like `!=` have lower higher precedence than `&&`, all letters, etc. Due to special precedence rule `/==` is recognized as an assignment operator because it ends with `=` and does not start with `=`, which drops to the bottom of the precedence:
+
+<scala>
+scala> 1 != 2 && false
+res4: Boolean = false
+
+scala> 1 /== 2 && false
+<console>:14: error: value && is not a member of Int
+              1 /== 2 && false
+                      ^
+
+scala> 1 =/= 2 && false
+res6: Boolean = false
+</scala>
 
 ### Order
 
