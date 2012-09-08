@@ -129,7 +129,8 @@ Functor[List].lift {(_: Int) * 2} (List(1, 2, 3)) assert_=== List(2, 4, 6)
 ### Pointed[F[_]] extends Functor[F]
 <scala>
 def point[A](a: => A): F[A]
-Pointed[List].point(1) assert_=== List(1)
+1.point[List] assert_=== List(1)
+1.η[List] assert_=== List(1)
 </scala>
 </div>
 
@@ -168,7 +169,13 @@ def bind[A, B](fa: F[A])(f: A => F[B]): F[B]
 ### Monad[F[_]] extends Applicative[F] with Bind[F]
 <scala>
 // no contract function
+// failed pattern matching produces None
 (for {(x :: xs) <- "".toList.some} yield x) assert_=== none
+(for { n <- List(1, 2); ch <- List('a', 'b') } yield (n, ch)) assert_=== List((1, 'a'), (1, 'b'), (2, 'a'), (2, 'b'))
+(for { x <- 1.set("log1"); _ <- "log2".tell } yield (x)).run assert_=== ("log1log2", 1)
+import std.vector._
+MonadWriter[Writer, Vector[String]].point(1).run assert_=== (Vector(), 1)
+(for { a <- (_: Int) * 2; b <- (_: Int) + 10 } yield a + b)(3) assert_=== 19
 </scala>
 </div>
 
