@@ -208,19 +208,19 @@ trait Pointed[F[_]] extends Functor[F] { self =>
 }
 </scala>
 
-Scalaz likes the name `point` instead of `pure`, and it seems like it's basically a constructor that takes value `A` and returns `F[A]`. It doesn't introduce an operator, but remember it extends `Functor` so we have `map` etc.
+Scalaz likes the name `point` instead of `pure`, and it seems like it's basically a constructor that takes value `A` and returns `F[A]`. It doesn't introduce an operator, but it intoduces `point` method and its symbolic alias `η` to all data types.
 
 <scala>
-scala> Pointed[List].point(1)
+scala> 1.point[List]
 res14: List[Int] = List(1)
 
-scala> Pointed[Option].point(1)
+scala> 1.point[Option]
 res15: Option[Int] = Some(1)
 
-scala> Pointed[Option].point(1) map {_ + 2}
+scala> 1.point[Option] map {_ + 2}
 res16: Option[Int] = Some(3)
 
-scala> Pointed[List].point(1) map {_ + 2}
+scala> 1.point[List] map {_ + 2}
 res17: List[Int] = List(3)
 </scala>
 
@@ -238,25 +238,21 @@ trait Apply[F[_]] extends Functor[F] { self =>
 }
 </scala>
 
-Using `ap`, `Apply` enables `<*>`, `tuple`, `*>`, and `<*` operator.
+Using `ap`, `Apply` enables `<*>`, `*>`, and `<*` operator.
 
 <scala>
 scala> 9.some <*> {(_: Int) + 3}.some
 res20: Option[(Int, Int => Int)] = Some((9,<function1>))
 </scala>
 
-I was hoping for `Some(12)` here, but apparently Scalaz 7's `<*>` actually is a tuple creator that returns `None` if either side is `Nil`, `None`, or `Left`. `tuple` is just an alias.
+I was hoping for `Some(12)` here. Scalaz 7.0.0-M3 creates a tuple in `Some`. I've asked the authors and it looks like it will be changed back to the same behavior as Haskell, Scalaz 6 and Scalaz 7.0.0-M2. Let's run it again using 7.0.0-M2:
 
 <scala>
-scala> 1.some <*> 2.some
-res31: Option[(Int, Int)] = Some((1,2))
-
-scala> none <*> 2.some
-res32: Option[(Nothing, Int)] = None
-
-scala> 1.some <*> none
-res33: Option[(Int, Nothing)] = None
+scala>  9.some <*> {(_: Int) + 3}.some
+res20: Option[Int] = Some(12)
 </scala>
+
+This is much better.
 
 `*>` and `<*` are variations that returns only the rhs or lhs.
 
@@ -276,19 +272,19 @@ res39: Option[Int] = None
 
 ### Option as Apply
 
-Thanks, but what happened to the `<*>` that can extract functions out of containers, and apply the extracted values to it? Then it occured to me that I can just use `ap` for that:
+<s>Thanks, but what happened to the `<*>` that can extract functions out of containers, and apply the extracted values to it?</s> We can use `<*>` in 7.0.0-M2:
 
 <scala>
-scala> Apply[Option].ap(9.some) {{(_: Int) + 3}.some}
+scala> 9.some <*> {(_: Int) + 3}.some
 res57: Option[Int] = Some(12)
 
-scala> Apply[Option].ap(9.some, 3.some) {{(_: Int) + (_: Int)}.some}
+scala> 3.some <*> { 9.some <*> {(_: Int) + (_: Int)}.curried.some }
 res58: Option[Int] = Some(12)
 </scala>
 
 ### Applicative Style
 
-Another thing I found is a new notation that extracts values from containers and apply them to a single function:
+Another thing I found in 7.0.0-M3 is a new notation that extracts values from containers and apply them to a single function:
 
 <scala>
 scala> ^(3.some, 5.some) {_ + _}
@@ -300,22 +296,33 @@ res60: Option[Int] = None
 
 This is actually useful because for one-function case, we no longer need to put it into the container. I am guessing that this is why Scalaz 7 does not introduce any operator from `Applicative` itself. Whatever the case, it seems like we no longer need `Pointed` or `<$>`.
 
+The new `^(f1, f2) {...}` style is not without the problem though. It doesn't seem to handle Applicatives that takes two type parameters like `Function1`, `Writer`, and `Validation`. There's another way called Applicative Builder, which apparently was the way it worked in Scalaz 6, got deprecated in M3, but will be vindicated again because of `^(f1, f2) {...}`'s issues.
+
+Here's how it looks:
+
+<scala>
+scala> (3.some |@| 5.some) {_ + _}
+res18: Option[Int] = Some(8)
+</scala>
+
+We will use `|@|` style for now.
+
 ### Lists as Apply
 
 LYAHFGG:
 
 > Lists (actually the list type constructor, `[]`) are applicative functors. What a surprise!
 
-Let's see if we can use `Apply[List].ap` like `<*>`, and `^` like `<$>`:
+Let's see if we can use `<*>` and `|@|`:
 
 <scala>
-scala> Apply[List].ap(List(1, 2, 3)) {List((_: Int) * 0, (_: Int) + 100, (x: Int) => x * x)}
+scala> List(1, 2, 3) <*> List((_: Int) * 0, (_: Int) + 100, (x: Int) => x * x)
 res61: List[Int] = List(0, 0, 0, 101, 102, 103, 1, 4, 9)
 
-scala> Apply[List].ap(List(1, 2), List(3, 4)) {List((_: Int) + (_: Int), (_: Int) * (_: Int))}
+scala> List(3, 4) <*> { List(1, 2) <*> List({(_: Int) + (_: Int)}.curried, {(_: Int) * (_: Int)}.curried) }
 res62: List[Int] = List(4, 5, 5, 6, 3, 4, 6, 8)
 
-scala> ^(List("ha", "heh", "hmm"), List("?", "!", ".")) {_ + _}
+scala> (List("ha", "heh", "hmm") |@| List("?", "!", ".")) {_ + _}
 res63: List[String] = List(ha?, ha!, ha., heh?, heh!, heh., hmm?, hmm!, hmm.)
 </scala>
 
@@ -360,48 +367,23 @@ sequenceA (x:xs) = (:) <$> x <*> sequenceA xs
 Let's try implementing this in Scalaz!
 
 <scala>
-scala> def sequenceA[F[_]: Applicative, A]: List[F[A]] => F[List[A]] = {
-         case Nil     => Pointed[F].point(Nil: List[A])
-         case x :: xs => ^(x, sequenceA(xs)) {_ :: _} 
+scala> def sequenceA[F[_]: Applicative, A](list: List[F[A]]): F[List[A]] = list match {
+         case Nil     => (Nil: List[A]).point[F]
+         case x :: xs => (x |@| sequenceA(xs)) {_ :: _} 
        }
-<console>:16: error: type mismatch;
- found   : List[F[A]]
- required: scalaz.Applicative[?]
-         case x :: xs => ^(x, sequenceA(xs)) {_ :: _} 
-                                        ^
-
+sequenceA: [F[_], A](list: List[F[A]])(implicit evidence$1: scalaz.Applicative[F])F[List[A]]
 </scala>
 
-This error message does not make sense. I am passing in `List[F[A]]`. Let's try making the implicit parameter more explicit.
-
-<scala>
-scala> def sequenceA[F[_], A](implicit ev: Applicative[F]): List[F[A]] => F[List[A]] = {
-         case Nil     => Pointed[F].point(Nil: List[A])
-         case x :: xs => ^(x, sequenceA(ev)(xs)) {_ :: _} 
-       }
-sequenceA: [F[_], A](implicit ev: scalaz.Applicative[F])List[F[A]] => F[List[A]]
-</scala>
-
-That compiled at least. Let's test it:
+Let's test it:
 
 <scala>
 scala> sequenceA(List(1.some, 2.some))
-<console>:15: error: type mismatch;
- found   : List[Option[Int]]
- required: scalaz.Applicative[?]
-              sequenceA(List(1.some, 2.some))
-</scala>
-
-It seems like we need to pass in the implicits explicitly here.
-
-<scala>
-scala> sequenceA(Applicative[Option])(List(1.some, 2.some))
 res82: Option[List[Int]] = Some(List(1, 2))
 
-scala> sequenceA(Applicative[Option])(List(3.some, none, 1.some))
+scala> sequenceA(List(3.some, none, 1.some))
 res85: Option[List[Int]] = None
 
-scala> sequenceA(Applicative[List])(List(List(1, 2, 3), List(4, 5, 6)))
+scala> sequenceA(List(List(1, 2, 3), List(4, 5, 6)))
 res86: List[List[Int]] = List(List(1, 4), List(1, 5), List(1, 6), List(2, 4), List(2, 5), List(2, 6), List(3, 4), List(3, 5), List(3, 6))
 </scala>
 
@@ -413,7 +395,7 @@ For `Function1` with `Int` fixed example, we have to unfortunately invoke a dark
 scala> type Function1Int[A] = ({type l[A]=Function1[Int, A]})#l[A]
 defined type alias Function1Int
 
-scala> sequenceA(Applicative[Function1Int])(List((_: Int) + 3, (_: Int) + 2, (_: Int) + 1))
+scala> sequenceA(List((_: Int) + 3, (_: Int) + 2, (_: Int) + 1): List[Function1Int[Int]])
 res1: Int => List[Int] = <function1>
 
 scala> res1(3)

@@ -208,19 +208,19 @@ trait Pointed[F[_]] extends Functor[F] { self =>
 }
 </scala>
 
-Scalaz は `pure` のかわりに `point` という名前が好きみたいだ。見たところ `A` の値を受け取り `F[A]` を返すコンストラクタみたいだ。これは演算子こそは導入しないけど、`Functor` を継承してるから `map` その他は使える:
+Scalaz は `pure` のかわりに `point` という名前が好きみたいだ。見たところ `A` の値を受け取り `F[A]` を返すコンストラクタみたいだ。これは演算子こそは導入しないけど、全てのデータ型に `point` メソッドとシンボルを使ったエイリアス `η` を導入する。
 
 <scala>
-scala> Pointed[List].point(1)
+scala> 1.point[List]
 res14: List[Int] = List(1)
 
-scala> Pointed[Option].point(1)
+scala> 1.point[Option]
 res15: Option[Int] = Some(1)
 
-scala> Pointed[Option].point(1) map {_ + 2}
+scala> 1.point[Option] map {_ + 2}
 res16: Option[Int] = Some(3)
 
-scala> Pointed[List].point(1) map {_ + 2}
+scala> 1.point[List] map {_ + 2}
 res17: List[Int] = List(3)
 </scala>
 
@@ -238,25 +238,21 @@ trait Apply[F[_]] extends Functor[F] { self =>
 }
 </scala>
 
-`ap` を使って `Apply` は `<*>`、`tuple`、`*>`、`<*` 演算子を可能とする。
+`ap` を使って `Apply` は `<*>`、`*>`、`<*` 演算子を可能とする。
 
 <scala>
 scala> 9.some <*> {(_: Int) + 3}.some
 res20: Option[(Int, Int => Int)] = Some((9,<function1>))
 </scala>
 
-`Some(12)` という結果を期待していたんだけど、Scalaz 7 の `<*>` はどちらかが `Nil`、`None`、か `Left` ならそれを返すタプル構築子みたいだ。`tuple` というエイリアスまである。
+`Some(12)` という結果を期待していたんだけど。Scalaz 7.0.0-M3 はタプルを `Some` に入れて返すみたいだ。これに関して作者らに問い合わせた所、Haskell、Scalaz 6、Scalaz 7.0.0-M2 同様の振る舞いに戻るらしい。これを 7.0.0-M2 で実行してみよう:
 
 <scala>
-scala> 1.some <*> 2.some
-res31: Option[(Int, Int)] = Some((1,2))
-
-scala> none <*> 2.some
-res32: Option[(Nothing, Int)] = None
-
-scala> 1.some <*> none
-res33: Option[(Int, Nothing)] = None
+scala>  9.some <*> {(_: Int) + 3}.some
+res20: Option[Int] = Some(12)
 </scala>
+
+これはうまくいった。
 
 `*>` と `<*` は左辺項か右辺項のみ返すバリエーションだ。
 
@@ -276,13 +272,13 @@ res39: Option[Int] = None
 
 ### Apply としての Option
 
-それはありがたいんだけど、コンテナから関数を抽出して、別に抽出した値を適用する `<*>` はどうなったのかな? 気付いたのは `ap` を直接使ってしまえばいいということだ:
+<s>それはありがたいんだけど、コンテナから関数を抽出して、別に抽出した値を適用する `<*>` はどうなったのかな?</s> 7.0.0-M2 の `<*>` を使えばいい。
 
 <scala>
-scala> Apply[Option].ap(9.some) {{(_: Int) + 3}.some}
+scala> 9.some <*> {(_: Int) + 3}.some
 res57: Option[Int] = Some(12)
 
-scala> Apply[Option].ap(9.some, 3.some) {{(_: Int) + (_: Int)}.some}
+scala> 3.some <*> { 9.some <*> {(_: Int) + (_: Int)}.curried.some }
 res58: Option[Int] = Some(12)
 </scala>
 
@@ -300,22 +296,33 @@ res60: Option[Int] = None
 
 これは 1関数の場合はいちいちコンテナに入れなくてもいいから便利そうだ。これは推測だけど、これのお陰で Scalaz 7 は `Applicative` そのものでは何も演算子を導入していないんだと思う。実際どうなのかはともかく、`Pointed` も `<$>` もいらないみたいだ。
 
+だけど、`^(f1, f2) {...}` スタイルに問題が無いわけではない。どうやら `Function1`、`Writer`、`Validation` のような 2つの型パラメータを取る Applicative を処理できないようだ。もう 1つ Applicative Builder という Scalaz 6 から使われていたらしい方法がある。 M3 で deprecated になったけど、`^(f1, f2) {...}` の問題のため、近い将来名誉挽回となるらしい。
+
+こう使う:
+
+<scala>
+scala> (3.some |@| 5.some) {_ + _}
+res18: Option[Int] = Some(8)
+</scala>
+
+今の所は `|@|` スタイルを使おう。
+
 ### Apply としての List
 
 LYAHFGG:
 
 > Lists (actually the list type constructor, `[]`) are applicative functors. What a surprise!
 
-`Apply[List].ap` を `<*>` みたいに、`^` を `<$>` みたいに使えるかみてみよう:
+`<*>` と `|@|` が使えるかみてみよう:
 
 <scala>
-scala> Apply[List].ap(List(1, 2, 3)) {List((_: Int) * 0, (_: Int) + 100, (x: Int) => x * x)}
+scala> List(1, 2, 3) <*> List((_: Int) * 0, (_: Int) + 100, (x: Int) => x * x)
 res61: List[Int] = List(0, 0, 0, 101, 102, 103, 1, 4, 9)
 
-scala> Apply[List].ap(List(1, 2), List(3, 4)) {List((_: Int) + (_: Int), (_: Int) * (_: Int))}
+scala> List(3, 4) <*> { List(1, 2) <*> List({(_: Int) + (_: Int)}.curried, {(_: Int) * (_: Int)}.curried) }
 res62: List[Int] = List(4, 5, 5, 6, 3, 4, 6, 8)
 
-scala> ^(List("ha", "heh", "hmm"), List("?", "!", ".")) {_ + _}
+scala> (List("ha", "heh", "hmm") |@| List("?", "!", ".")) {_ + _}
 res63: List[String] = List(ha?, ha!, ha., heh?, heh!, heh., hmm?, hmm!, hmm.)
 </scala>
 
@@ -360,48 +367,23 @@ sequenceA (x:xs) = (:) <$> x <*> sequenceA xs
 これを Scalaz でも実装できるか試してみよう!
 
 <scala>
-scala> def sequenceA[F[_]: Applicative, A]: List[F[A]] => F[List[A]] = {
-         case Nil     => Pointed[F].point(Nil: List[A])
-         case x :: xs => ^(x, sequenceA(xs)) {_ :: _} 
+scala> def sequenceA[F[_]: Applicative, A](list: List[F[A]]): F[List[A]] = list match {
+         case Nil     => (Nil: List[A]).point[F]
+         case x :: xs => (x |@| sequenceA(xs)) {_ :: _} 
        }
-<console>:16: error: type mismatch;
- found   : List[F[A]]
- required: scalaz.Applicative[?]
-         case x :: xs => ^(x, sequenceA(xs)) {_ :: _} 
-                                        ^
-
+sequenceA: [F[_], A](list: List[F[A]])(implicit evidence$1: scalaz.Applicative[F])F[List[A]]
 </scala>
 
-このエラーはおかしいと思う。`List[F[A]]` を渡してるのに。暗黙のパラメータをもう少し明示的にしてみよう。
-
-<scala>
-scala> def sequenceA[F[_], A](implicit ev: Applicative[F]): List[F[A]] => F[List[A]] = {
-         case Nil     => Pointed[F].point(Nil: List[A])
-         case x :: xs => ^(x, sequenceA(ev)(xs)) {_ :: _} 
-       }
-sequenceA: [F[_], A](implicit ev: scalaz.Applicative[F])List[F[A]] => F[List[A]]
-</scala>
-
-これでコンパイルは通った。テストしてみよう:
+テストしてみよう:
 
 <scala>
 scala> sequenceA(List(1.some, 2.some))
-<console>:15: error: type mismatch;
- found   : List[Option[Int]]
- required: scalaz.Applicative[?]
-              sequenceA(List(1.some, 2.some))
-</scala>
-
-明示的に暗黙のパラメータを渡す必要があるみたいだ。
-
-<scala>
-scala> sequenceA(Applicative[Option])(List(1.some, 2.some))
 res82: Option[List[Int]] = Some(List(1, 2))
 
-scala> sequenceA(Applicative[Option])(List(3.some, none, 1.some))
+scala> sequenceA(List(3.some, none, 1.some))
 res85: Option[List[Int]] = None
 
-scala> sequenceA(Applicative[List])(List(List(1, 2, 3), List(4, 5, 6)))
+scala> sequenceA(List(List(1, 2, 3), List(4, 5, 6)))
 res86: List[List[Int]] = List(List(1, 4), List(1, 5), List(1, 6), List(2, 4), List(2, 5), List(2, 6), List(3, 4), List(3, 5), List(3, 6))
 </scala>
 
@@ -413,7 +395,7 @@ res86: List[List[Int]] = List(List(1, 4), List(1, 5), List(1, 6), List(2, 4), Li
 scala> type Function1Int[A] = ({type l[A]=Function1[Int, A]})#l[A]
 defined type alias Function1Int
 
-scala> sequenceA(Applicative[Function1Int])(List((_: Int) + 3, (_: Int) + 2, (_: Int) + 1))
+scala> sequenceA(List((_: Int) + 3, (_: Int) + 2, (_: Int) + 1): List[Function1Int[Int]])
 res1: Int => List[Int] = <function1>
 
 scala> res1(3)
