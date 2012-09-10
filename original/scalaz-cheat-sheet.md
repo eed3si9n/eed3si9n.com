@@ -138,13 +138,14 @@ def point[A](a: => A): F[A]
 ### Apply[F[_]] extends Functor[F]
 <scala>
 def ap[A,B](fa: => F[A])(f: => F[A => B]): F[B]
-1.some <*> 2.some assert_=== Some((1,2))
-(none: Option[Int]) <*> 2.some assert_=== none
+1.some <*> {(_: Int) + 2}.some assert_=== Some(3) // except in 7.0.0-M3
+1.some <*> { 2.some <*> {(_: Int) + (_: Int)}.curried.some } assert_=== 3.some
 1.some <* 2.some assert_=== 1.some
 1.some *> 2.some assert_=== 2.some
 Apply[Option].ap(9.some) {{(_: Int) + 3}.some} assert_=== 12.some
 Apply[List].lift2 {(_: Int) * (_: Int)} (List(1, 2), List(3, 4)) assert_=== List(3, 4, 6, 8)
-^(3.some, 5.some) {_ + _} assert_=== 8.some
+(3.some |@| 5.some) {_ + _} assert_=== 8.some
+// ^(3.some, 5.some) {_ + _} assert_=== 8.some
 </scala>
 </div>
 
@@ -152,6 +153,14 @@ Apply[List].lift2 {(_: Int) * (_: Int)} (List(1, 2), List(3, 4)) assert_=== List
 ### Applicative[F[_]] extends Apply[F] with Pointed[F]
 <scala>
 // no contract function
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Validation
+<scala>
+(1.success[String] |@| "boom".failure[Int] |@| "boom".failure[Int]) {_ |+| _ |+| _} assert_=== "boomboom".failure[Int]
+(1.successNel[String] |@| "boom".failureNel[Int] |@| "boom".failureNel[Int]) {_ |+| _ |+| _} assert_=== NonEmptyList("boom", "boom").failure[Int]
 </scala>
 </div>
 
@@ -172,10 +181,36 @@ def bind[A, B](fa: F[A])(f: A => F[B]): F[B]
 // failed pattern matching produces None
 (for {(x :: xs) <- "".toList.some} yield x) assert_=== none
 (for { n <- List(1, 2); ch <- List('a', 'b') } yield (n, ch)) assert_=== List((1, 'a'), (1, 'b'), (2, 'a'), (2, 'b'))
+(for { a <- (_: Int) * 2; b <- (_: Int) + 10 } yield a + b)(3) assert_=== 19
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Writer
+<scala>
 (for { x <- 1.set("log1"); _ <- "log2".tell } yield (x)).run assert_=== ("log1log2", 1)
 import std.vector._
 MonadWriter[Writer, Vector[String]].point(1).run assert_=== (Vector(), 1)
-(for { a <- (_: Int) * 2; b <- (_: Int) + 10 } yield a + b)(3) assert_=== 19
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### State
+<scala>
+State[List[Int], Int] { case x :: xs => (xs, x) }.run(1 :: Nil) assert_=== (Nil, 1)
+(for { xs <- get[List[Int]]; _ <- put(xs.tail) } yield xs.head).run(1 :: Nil) assert_=== (Nil, 1)
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### \/
+<scala>
+1.right[String].isRight assert_=== true
+1.right[String].isLeft assert_=== false
+1.right[String] | 0 assert_=== 1  // getOrElse
+("boom".left ||| 2.right) assert_=== 2.right // orElse
+("boom".left[Int] >>= { x => (x + 1).right }) assert_=== "boom".left[Int]
+(for { e1 <- 1.right; e2 <- "boom".left[Int] } yield (e1 |+| e2)) assert_=== "boom".left[Int]
 </scala>
 </div>
 
