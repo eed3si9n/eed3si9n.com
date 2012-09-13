@@ -93,18 +93,6 @@ Monoid[List[Int]].zero assert_=== Nil
 </scala>
 </div>
 
-
-<div markdown="1" class="cheatsheet">
-### Foldable[F[_]]
-<scala>
-def foldMap[A,B](fa: F[A])(f: A => B)(implicit F: Monoid[B]): B
-def foldRight[A, B](fa: F[A], z: => B)(f: (A, => B) => B): B
-List(1, 2, 3).foldRight (0) {_ + _} assert_=== 6
-List(1, 2, 3).foldLeft (0) {_ + _} assert_=== 6
-(List(1, 2, 3) foldMap {Tags.Multiplication}: Int) assert_=== 6
-</scala>
-</div>
-
 </td>
 <td width="50%" valign="top">
 
@@ -161,6 +149,7 @@ Apply[List].lift2 {(_: Int) * (_: Int)} (List(1, 2), List(3, 4)) assert_=== List
 <scala>
 (1.success[String] |@| "boom".failure[Int] |@| "boom".failure[Int]) {_ |+| _ |+| _} assert_=== "boomboom".failure[Int]
 (1.successNel[String] |@| "boom".failureNel[Int] |@| "boom".failureNel[Int]) {_ |+| _ |+| _} assert_=== NonEmptyList("boom", "boom").failure[Int]
+"1".parseInt.toOption assert_=== 1.some
 </scala>
 </div>
 
@@ -171,6 +160,7 @@ def bind[A, B](fa: F[A])(f: A => F[B]): F[B]
 3.some flatMap { x => (x + 1).some } assert_=== 4.some
 (3.some >>= { x => (x + 1).some }) assert_=== 4.some 
 3.some >> 4.some assert_=== 4.some
+List(List(1, 2), List(3, 4)).join assert_=== List(1, 2, 3, 4)
 </scala>
 </div>
 
@@ -182,6 +172,7 @@ def bind[A, B](fa: F[A])(f: A => F[B]): F[B]
 (for {(x :: xs) <- "".toList.some} yield x) assert_=== none
 (for { n <- List(1, 2); ch <- List('a', 'b') } yield (n, ch)) assert_=== List((1, 'a'), (1, 'b'), (2, 'a'), (2, 'b'))
 (for { a <- (_: Int) * 2; b <- (_: Int) + 10 } yield a + b)(3) assert_=== 19
+List(1, 2) filterM { x => List(true, false) } assert_=== List(List(1, 2), List(1), List(2), List())
 </scala>
 </div>
 
@@ -215,6 +206,25 @@ state[List[Int], Int] { case x :: xs => (xs, x) }.run(1 :: Nil) assert_=== (Nil,
 </div>
 
 <div markdown="1" class="cheatsheet">
+### Kleisli[M[+_], -A, +B]
+<scala>
+val k1 = Kleisli { (x: Int) => (x + 1).some }
+val k2 = Kleisli { (x: Int) => (x * 100).some }
+(4.some >>= k1 compose k2) assert_=== 401.some
+(4.some >>= k1 <=< k2) assert_=== 401.some
+(4.some >>= k1 andThen k2) assert_=== 500.some
+(4.some >>= k1 >=> k2) assert_=== 500.some
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Reader[E, A] = Kleisli[Id, E, A]
+<scala>
+Reader { (_: Int) + 1 }
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
 ### Plus[F[_]]
 <scala>
 def plus[A](a: F[A], b: => F[A]): F[A]
@@ -242,6 +252,18 @@ def empty[A]: F[A]
 <scala>
 // no contract function
 List(1, 2, 3) filter {_ > 2} assert_=== List(3)
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Foldable[F[_]]
+<scala>
+def foldMap[A,B](fa: F[A])(f: A => B)(implicit F: Monoid[B]): B
+def foldRight[A, B](fa: F[A], z: => B)(f: (A, => B) => B): B
+List(1, 2, 3).foldRight (0) {_ + _} assert_=== 6
+List(1, 2, 3).foldLeft (0) {_ + _} assert_=== 6
+(List(1, 2, 3) foldMap {Tags.Multiplication}: Int) assert_=== 6
+List(1, 2, 3).foldLeftM(0) { (acc, x) => (acc + x).some } assert_=== 6.some
 </scala>
 </div>
 
