@@ -86,10 +86,10 @@ trait StateT[F[+_], S, +A] { self =>
 }
 </scala>
 
-新しい状態は `state` 関数を使って構築する:
+新しい状態は `State` シングルトンを使って構築する:
 
 <scala>
-scala> state[List[Int], Int] { case x :: xs => (xs, x) }
+scala> State[List[Int], Int] { case x :: xs => (xs, x) }
 res1: scalaz.State[List[Int],Int] = scalaz.package$State$$anon$1@19f58949
 </scala>
 
@@ -99,12 +99,12 @@ res1: scalaz.State[List[Int],Int] = scalaz.package$State$$anon$1@19f58949
 scala> type Stack = List[Int]
 defined type alias Stack
 
-scala> val pop = state[Stack, Int] {
+scala> val pop = State[Stack, Int] {
          case x :: xs => (xs, x)
        }
 pop: scalaz.State[Stack,Int]
 
-scala> def push(a: Int) = state[Stack, Unit] {
+scala> def push(a: Int) = State[Stack, Unit] {
          case xs => (a :: xs, ())
        }
 push: (a: Int)scalaz.State[Stack,Unit]
@@ -120,7 +120,7 @@ scala> stackManip(List(5, 8, 2, 1))
 res2: (Stack, Int) = (List(8, 2, 1),5)
 </scala>
 
-`state[List[Int], Int] {...}` を用いて「状態を抽出して、値と状態を返す」というコードの部分を抽象化することができた。強力なのは `for` 構文を使ってぞれぞれの演算を `State` を引き回さずにモナディックに連鎖できることだ。上の `stackManip` がそのいい例だ。
+`State[List[Int], Int] {...}` を用いて「状態を抽出して、値と状態を返す」というコードの部分を抽象化することができた。強力なのは `for` 構文を使ってぞれぞれの演算を `State` を引き回さずにモナディックに連鎖できることだ。上の `stackManip` がそのいい例だ。
 
 ### 状態の取得と設定
 

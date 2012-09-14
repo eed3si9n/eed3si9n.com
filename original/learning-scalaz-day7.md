@@ -86,10 +86,10 @@ trait StateT[F[+_], S, +A] { self =>
 }
 </scala>
 
-We can construct a new state using `state` function:
+We can construct a new state using `State` singleton:
 
 <scala>
-scala> state[List[Int], Int] { case x :: xs => (xs, x) }
+scala> State[List[Int], Int] { case x :: xs => (xs, x) }
 res1: scalaz.State[List[Int],Int] = scalaz.package$State$$anon$1@19f58949
 </scala>
 
@@ -99,12 +99,12 @@ Let's try implementing the stack using `State`:
 scala> type Stack = List[Int]
 defined type alias Stack
 
-scala> val pop = state[Stack, Int] {
+scala> val pop = State[Stack, Int] {
          case x :: xs => (xs, x)
        }
 pop: scalaz.State[Stack,Int]
 
-scala> def push(a: Int) = state[Stack, Unit] {
+scala> def push(a: Int) = State[Stack, Unit] {
          case xs => (a :: xs, ())
        }
 push: (a: Int)scalaz.State[Stack,Unit]
@@ -120,7 +120,7 @@ scala> stackManip(List(5, 8, 2, 1))
 res2: (Stack, Int) = (List(8, 2, 1),5)
 </scala>
 
-Using `state[List[Int], Int] {...}` we were able to abstract out the "extract state, and return value with a state" portion of the code. The powerful part is the fact that we can monadically chain each operations using `for` syntax without manually passing around the `Stack` values as demonstrated in `stackManip` above.
+Using `State[List[Int], Int] {...}` we were able to abstract out the "extract state, and return value with a state" portion of the code. The powerful part is the fact that we can monadically chain each operations using `for` syntax without manually passing around the `Stack` values as demonstrated in `stackManip` above.
 
 ### Getting and setting state
 
