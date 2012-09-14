@@ -93,6 +93,33 @@ Monoid[List[Int]].zero assert_=== Nil
 </scala>
 </div>
 
+<div markdown="1" class="cheatsheet">
+### Id[+A] = A
+<scala>
+// no contract function
+1 + 2 + 3 |> {_ * 6}
+1 visit { case x@(2|3) => List(x * 2) }
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Tree[A]/TreeLoc[A]
+<scala>
+val tree = 'A'.node('B'.leaf, 'C'.node('D'.leaf), 'E'.leaf)
+(tree.loc.getChild(2) >>= {_.getChild(1)} >>= {_.getLabel.some}) assert_=== 'D'.some
+(tree.loc.getChild(2) map {_.modifyLabel({_ => 'Z'})}).get.toTree.drawTree assert_=== 'A'.node('B'.leaf, 'Z'.node('D'.leaf), 'E'.leaf).drawTree
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Stream[A]/Zipper[A]
+<scala>
+(Stream(1, 2, 3, 4).toZipper >>= {_.next} >>= {_.focus.some}) assert_=== 2.some
+(Stream(1, 2, 3, 4).zipperEnd >>= {_.previous} >>= {_.focus.some}) assert_=== 3.some
+(for { z <- Stream(1, 2, 3, 4).toZipper; n1 <- z.next } yield { n1.modify {_ => 7} }) map { _.toStream.toList } getOrElse Nil assert_=== List(1, 7, 3, 4)
+</scala>
+</div>
+
 </td>
 <td width="50%" valign="top">
 
@@ -145,7 +172,7 @@ Apply[List].lift2 {(_: Int) * (_: Int)} (List(1, 2), List(3, 4)) assert_=== List
 </div>
 
 <div markdown="1" class="cheatsheet">
-### Validation
+### Validation[+E, +A]
 <scala>
 (1.success[String] |@| "boom".failure[Int] |@| "boom".failure[Int]) {_ |+| _ |+| _} assert_=== "boomboom".failure[Int]
 (1.successNel[String] |@| "boom".failureNel[Int] |@| "boom".failureNel[Int]) {_ |+| _ |+| _} assert_=== NonEmptyList("boom", "boom").failure[Int]
@@ -177,7 +204,7 @@ List(1, 2) filterM { x => List(true, false) } assert_=== List(List(1, 2), List(1
 </div>
 
 <div markdown="1" class="cheatsheet">
-### Writer
+### Writer[+W, +A]
 <scala>
 (for { x <- 1.set("log1"); _ <- "log2".tell } yield (x)).run assert_=== ("log1log2", 1)
 import std.vector._
@@ -186,15 +213,15 @@ MonadWriter[Writer, Vector[String]].point(1).run assert_=== (Vector(), 1)
 </div>
 
 <div markdown="1" class="cheatsheet">
-### State
+### State[S, +A]
 <scala>
-state[List[Int], Int] { case x :: xs => (xs, x) }.run(1 :: Nil) assert_=== (Nil, 1)
+State[List[Int], Int] { case x :: xs => (xs, x) }.run(1 :: Nil) assert_=== (Nil, 1)
 (for { xs <- get[List[Int]]; _ <- put(xs.tail) } yield xs.head).run(1 :: Nil) assert_=== (Nil, 1)
 </scala>
 </div>
 
 <div markdown="1" class="cheatsheet">
-### \/
+### \/[+A, +B]
 <scala>
 1.right[String].isRight assert_=== true
 1.right[String].isLeft assert_=== false
@@ -264,6 +291,23 @@ List(1, 2, 3).foldRight (0) {_ + _} assert_=== 6
 List(1, 2, 3).foldLeft (0) {_ + _} assert_=== 6
 (List(1, 2, 3) foldMap {Tags.Multiplication}: Int) assert_=== 6
 List(1, 2, 3).foldLeftM(0) { (acc, x) => (acc + x).some } assert_=== 6.some
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Length[F[_]] 
+<scala>
+def length[A](fa: F[A]): Int
+List(1, 2, 3).length assert_=== 3
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Index[F[_]]
+<scala>
+def index[A](fa: F[A], i: Int): Option[A]
+List(1, 2, 3) index 2 assert_=== 3.some
+List(1, 2, 3) index 3 assert_=== none
 </scala>
 </div>
 
