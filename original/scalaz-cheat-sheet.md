@@ -89,7 +89,7 @@ List(1, 2) mappend List(3) assert_=== List(1, 2, 3)
 ### Monoid[A] extends Semigroup[A]
 <scala>
 def zero: A
-Monoid[List[Int]].zero assert_=== Nil
+mzero[List[Int]] assert_=== Nil
 </scala>
 </div>
 
@@ -119,6 +119,29 @@ val tree = 'A'.node('B'.leaf, 'C'.node('D'.leaf), 'E'.leaf)
 (for { z <- Stream(1, 2, 3, 4).toZipper; n1 <- z.next } yield { n1.modify {_ => 7} }) map { _.toStream.toList } getOrElse Nil assert_=== List(1, 7, 3, 4)
 </scala>
 </div>
+
+<div markdown="1" class="cheatsheet">
+### Lens[A, B] = LensT[Id, A, B]
+<scala>
+val t0 = Turtle(Point(0.0, 0.0), 0.0)
+val t1 = Turtle(Point(1.0, 0.0), 0.0)
+val turtlePosition = Lens.lensu[Turtle, Point] (
+  (a, value) => a.copy(position = value),
+  _.position)
+val pointX = Lens.lensu[Point, Double] (
+  (a, value) => a.copy(x = value),
+  _.x)
+val turtleX = turtlePosition >=> pointX
+turtleX.get(t0) assert_=== 0.0
+turtleX.set(t0, 5.0) assert_=== Turtle(Point(5.0, 0.0), 0.0)
+turtleX.mod(_ + 1.0, t0) assert_=== t1
+t0 |> (turtleX =>= {_ + 1.0}) assert_=== t1
+(for { x <- turtleX %= {_ + 1.0} } yield x) exec t0 assert_=== t1
+(for { x <- turtleX := 5.0 } yield x) exec t0 assert_=== Turtle(Point(5.0, 0.0), 0.0)
+(for { x <- turtleX += 1.0 } yield x) exec t0 assert_=== t1
+</scala>
+</div>
+
 
 </td>
 <td width="50%" valign="top">
