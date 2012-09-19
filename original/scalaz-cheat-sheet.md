@@ -2,6 +2,36 @@
 <tr>
 <td width="50%" valign="top">
 <div markdown="1" class="cheatsheet">
+### Boolean
+<scala>
+false /\ true assert_=== false // &&
+false \/ true assert_=== true // ||
+(1 < 10) option 1 assert_=== 1.some
+(1 > 10)? 1 | 2 assert_=== 2
+(1 > 10)?? {List(1)} assert_=== Nil
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Option
+<scala>
+1.some assert_=== Some(1)
+none[Int] assert_=== (None: Option[Int])
+1.some? 'x' | 'y' assert_=== 'x'
+1.some | 2 assert_=== 1 // getOrElse
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Id[+A] = A
+<scala>
+// no contract function
+1 + 2 + 3 |> {_ * 6}
+1 visit { case x@(2|3) => List(x * 2) }
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
 ### Equal[A]
 <scala>
 def equal(a1: A, a2: A): Boolean
@@ -94,15 +124,6 @@ mzero[List[Int]] assert_=== Nil
 </div>
 
 <div markdown="1" class="cheatsheet">
-### Id[+A] = A
-<scala>
-// no contract function
-1 + 2 + 3 |> {_ * 6}
-1 visit { case x@(2|3) => List(x * 2) }
-</scala>
-</div>
-
-<div markdown="1" class="cheatsheet">
 ### Tree[A]/TreeLoc[A]
 <scala>
 val tree = 'A'.node('B'.leaf, 'C'.node('D'.leaf), 'E'.leaf)
@@ -141,7 +162,6 @@ t0 |> (turtleX =>= {_ + 1.0}) assert_=== t1
 (for { x <- turtleX += 1.0 } yield x) exec t0 assert_=== t1
 </scala>
 </div>
-
 
 </td>
 <td width="50%" valign="top">
