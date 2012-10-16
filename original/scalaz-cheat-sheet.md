@@ -487,6 +487,38 @@ import scalaz._, Scalaz._, iteratee._, Iteratee._
 </div>
 
 <div markdown="1" class="cheatsheet">
+### Free[S[+`_`], +A]
+<scala>
+import scalaz._, Scalaz._, Free._
+type FreeMonoid[A] = Free[({type λ[+α] = (A,α)})#λ, Unit]
+def cons[A](a: A): FreeMonoid[A] = Suspend[({type λ[+α] = (A,α)})#λ, Unit]((a, Return[({type λ[+α] = (A,α)})#λ, Unit](())))
+def toList[A](list: FreeMonoid[A]): List[A] =
+  list.resume.fold(
+    { case (x: A, xs: FreeMonoid[A]) => x :: toList(xs) },
+    { _ => Nil })
+toList(cons(1) >>= {_ => cons(2)}) assert_=== List(1, 2)
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
+### Trampoline[+A] = Free[Function0, A]
+<scala>
+import scalaz._, Scalaz._, Free._
+def even[A](ns: List[A]): Trampoline[Boolean] =
+  ns match {
+    case Nil => return_(true)
+    case x :: xs => suspend(odd(xs))
+  }
+def odd[A](ns: List[A]): Trampoline[Boolean] =
+  ns match {
+    case Nil => return_(false)
+    case x :: xs => suspend(even(xs))
+  }
+even(0 |-> 3000).run assert_=== false
+</scala>
+</div>
+
+<div markdown="1" class="cheatsheet">
 ### Imports
 <scala>
 import scalaz._ // imports type names
