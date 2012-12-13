@@ -1,4 +1,4 @@
-> これは [Scalaz Advent Calencar 2012](http://partake.in/events/7211abc9-ebb8-4670-b912-3089dc5e0edd) 12日目の記事です。
+> これは [Scalaz Advent Calendar 2012](http://partake.in/events/7211abc9-ebb8-4670-b912-3089dc5e0edd) 12日目の記事です。
 >
 > 次々と Scala 界の知能派を集結させている [Precog](http://precog.com/) 社の開発チームからのブログ [Precog.Copointed](http://www.precog.com/blog-precog-2/categories/listings/precog-copointed)。今日は blueeyes などの開発でも知られる Kris Nuttycombe ([@nuttycom](https://twitter.com/nuttycom)) さんが書いた [The Abstract Future](http://www.precog.com/blog-precog-2/categories/listings/precog-copointed) を翻訳しました。翻訳の公開は本人より許諾済みです。
 

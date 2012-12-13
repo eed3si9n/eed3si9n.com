@@ -1,4 +1,4 @@
-> これは [Scalaz Advent Calencar 2012](http://partake.in/events/7211abc9-ebb8-4670-b912-3089dc5e0edd) 5日目の記事です。
+> これは [Scalaz Advent Calendar 2012](http://partake.in/events/7211abc9-ebb8-4670-b912-3089dc5e0edd) 5日目の記事です。
 
 12月の間中、日本の技術系ギークは日替わりでテーマに沿った記事を公開し、彼の国では「Advent Calendar」と呼ばれているらしい。去年の [Scala Advent Calendar 2011](http://partake.in/events/33870915-f25b-40b6-9456-b898b898d48b) で僕は Eric Torreborre さんが [The Essence of Iterator Pattern](http://etorreborre.blogspot.com/2011/06/essence-of-iterator-pattern.html) をカバーした記事を[翻訳](http://eed3si9n.com/ja/essence-of-iterator-pattern)した。これは日本人の関数型プログラミング記事好きを知った上である程度狙ったものだった。もう1つの利己的な動機は、記事を一語一語訳す過程において概念のいくつかは僕の頭にも染みこんでくれるんじゃないかという期待だった。振り返ってみると、両方の目的とも作戦成功だったと言える。Jeremy Gibbons さん、Bruno Oliveira さんそして Eric 両方の仕事のクオリティのお陰だ。これらの染み込んだ知識が今年に書いた独習 Scalaz シリーズの隠し味だったんじゃないかと思っている。
 
