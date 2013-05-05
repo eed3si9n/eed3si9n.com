@@ -234,7 +234,7 @@ In a mailing list thread titled [Adrift in a sea of types][12] Mark mentions thr
 
 ## read other plugins
 When you're starting out on writing a plugin, you can learn many tricks by reading [other plugin's source][18]. Here are the samples that I've used:
-- [eed3si9n/sbt-assembly][16]
+- [sbt/sbt-assembly][16]
 - [softprops/coffeescripted-sbt][15]
 - [siasia/xsbt-web-plugin][19]
 - [Proguard.scala][17]
@@ -492,7 +492,7 @@ Thank you for reading all the way. I'm hoping this would save someone's time. I 
   [13]: http://harrah.github.com/xsbt/latest/sxr/Defaults.scala.html
   [14]: http://harrah.github.com/xsbt/latest/sxr/Structure.scala.html
   [15]: https://github.com/softprops/coffeescripted-sbt/blob/master/src/main/scala/coffeescript.scala
-  [16]: https://github.com/eed3si9n/sbt-assembly/blob/sbt0.10/src/main/scala/assembly/AssemblyPlugin.scala
+  [16]: https://github.com/sbt/sbt-assembly/blob/master/src/main/scala/sbtassembly/Plugin.scala
   [17]: https://github.com/harrah/xsbt/blob/0.10/project/Proguard.scala
   [18]: https://github.com/harrah/xsbt/wiki/sbt-0.10-plugins-list
   [19]: https://github.com/siasia/xsbt-web-plugin/blob/master/src/main/scala/WebPlugin.scala

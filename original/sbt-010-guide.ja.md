@@ -232,7 +232,7 @@ lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
 
 ## プラグインを読む
 プラグインを書き始めるとき、[他の人が書いたプラグインのソース][18]を読むと色々トリックを習うことができる。以下に僕が読んだものを挙げる:
-- [eed3si9n/sbt-assembly][16]
+- [sbt/sbt-assembly][16]
 - [softprops/coffeescripted-sbt][15]
 - [siasia/xsbt-web-plugin][19]
 - [Proguard.scala][17]
@@ -490,7 +490,7 @@ trait の中。
   [13]: http://harrah.github.com/xsbt/latest/sxr/Defaults.scala.html
   [14]: http://harrah.github.com/xsbt/latest/sxr/Structure.scala.html
   [15]: https://github.com/softprops/coffeescripted-sbt/blob/master/src/main/scala/coffeescript.scala
-  [16]: https://github.com/eed3si9n/sbt-assembly/blob/sbt0.10/src/main/scala/assembly/AssemblyPlugin.scala
+  [16]: https://github.com/sbt/sbt-assembly/blob/master/src/main/scala/sbtassembly/Plugin.scala
   [17]: https://github.com/harrah/xsbt/blob/0.10/project/Proguard.scala
   [18]: https://github.com/harrah/xsbt/wiki/sbt-0.10-plugins-list
   [19]: https://github.com/siasia/xsbt-web-plugin/blob/master/src/main/scala/WebPlugin.scala
