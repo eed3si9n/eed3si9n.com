@@ -224,10 +224,12 @@ One of the motivating factor to unify the parsers was the addition on commands. 
 
 <scala>
 cmd("update") action { (_, c) =>
-  c.copy(mode = "update") } text("update is a command.") children {
+  c.copy(mode = "update") } text("update is a command.") children(
+  opt[Unit]("not-keepalive") abbr("nk") action { (_, c) =>
+    c.copy(keepalive = false) } text("disable keepalive"),
   opt[Boolean]("xyz") action { (x, c) =>
     c.copy(xyz = x) } text("xyz is a boolean property")
-}
+)
 </scala>
 
 As scopt3 progressed, I got many useful feedback from Leif in the form of tweets and commit comments. For example [efe45ed](https://github.com/scopt/scopt/commit/efe45ed99fbc8ceecde4eb0c6f000f7802b8fee1#commitcomment-3352444):
@@ -258,10 +260,12 @@ val parser = new scopt.OptionParser[Config]("scopt") {
   arg[File]("<file>...") unbounded() optional() action { (x, c) =>
     c.copy(files = c.files :+ x) } text("optional unbounded args")
   cmd("update") action { (_, c) =>
-    c.copy(mode = "update") } text("update is a command.") children {
+    c.copy(mode = "update") } text("update is a command.") children(
+    opt[Unit]("not-keepalive") abbr("nk") action { (_, c) =>
+      c.copy(keepalive = false) } text("disable keepalive"),
     opt[Boolean]("xyz") action { (x, c) =>
       c.copy(xyz = x) } text("xyz is a boolean property")
-  }
+  )
 }
 // parser.parse returns Option[C]
 parser.parse(args, Config()) map { config =>
@@ -295,6 +299,8 @@ some notes.
 Command: update
 update is a command.
 
+  -nk | --not-keepalive
+        disable keepalive
   --xyz <value>
         xyz is a boolean property
 </code>
