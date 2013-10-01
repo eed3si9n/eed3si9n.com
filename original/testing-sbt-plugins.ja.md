@@ -8,54 +8,68 @@ sbt は、[scripted test framework](http://code.google.com/p/simple-build-tool/w
   >
   > scripted test framework は、sbt が以上に書かれたようなケースを的確に処理しているかを確認するために使われている。
 
-正確には、0.10 では、このフレームワークは [siasia として知られる Artyom Olshevskiy 氏](https://github.com/siasia)により移植された scripted-plugin 経由で利用可能だが、これは正式なコードベースに取り込まれている。
+正確には、このフレームワークは [siasia として知られる Artyom Olshevskiy 氏](https://github.com/siasia)により移植された scripted-plugin 経由で利用可能だが、これは正式なコードベースに取り込まれている。
 
 ## ステップ 1: snapshot
 scripted-plugin はプラグインをローカルに publish するため、まずは version を **-SNAPSHOT** なものに設定しよう。
 
 ## ステップ 2: scripted-plugin
-次に、scripted-plugin をプラグインのビルドに加える。`project/plugins.sbt` (0.11 用):
-
-    resolvers += Resolver.url("Typesafe repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-releases/"))(Resolver.defaultIvyPatterns)
+次に、scripted-plugin をプラグインのビルドに加える。`project/scripted.sbt`:
 
     libraryDependencies <+= (sbtVersion) { sv =>
       "org.scala-tools.sbt" %% "scripted-plugin" % sv
     }
 
-以下を `build.sbt` に加える:
+以下を `scripted.sbt` に加える:
 
     ScriptedPlugin.scriptedSettings
+
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
+    }
+
+    scriptedBufferLog := false
 
 ## ステップ 3: `src/sbt-test`
 `src/sbt-test/<テストグループ>/<テスト名>` というディレクトリ構造を作る。とりあえず、`src/sbt-test/<プラグイン名>/simple` から始めるとする。
 
 ここがポイントなんだけど、`simple` 下にビルドを作成する。プラグインを使った普通のビルド。手動でテストするために、いくつか既にあると思うけど。以下に、`build.sbt` の例を示す:
 
-<scala>version := "0.1"
+<scala>import AssemblyKeys._
 
-seq(Assembly.settings: _*)
+version := "0.1"
 
-Assembly.jarName := "foo.jar"</scala>
+scalaVersion := "2.10.2"
 
-これが、`project/plugins/build.sbt` (0.10 用):
+assemblySettings
 
-<scala>libraryDependencies <+= (sbtVersion) { sv => "com.eed3si9n" %% "sbt-assembly" % ("sbt" + sv + "_0.7-SNAPSHOT") }
+jarName in assembly := "foo.jar"</scala>
+
+これが、`project/plugins.sbt`:
+
+<scala>{
+  val pluginVersion = System.getProperty("plugin.version")
+  if(pluginVersion == null)
+    throw new RuntimeException("""|The system property 'plugin.version' is not defined.
+                                  |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
+  else addSbtPlugin("com.eed3si9n" % "sbt-assembly" % pluginVersion)
+}
 </scala>
+
+これは [JamesEarlDouglas/xsbt-web-plugin@feabb2][6] から拝借してきて技で、これで scripted テストに version を渡すことができる。
 
 他に、`src/main/scala/hello.scala` も用意した:
 
-<scala>object Main {
-  def main(args: Array[String]) { println("hello") }
+<scala>object Main extends App {
+  println("hello")
 }</scala>
-
-何で `App` を使わないかって？ 2.8.1 と 2.9.1 の両方で動かすため。
 
 ## ステップ 4: スクリプトを書く
 次に、好きな筋書きを記述したスクリプトを、テストビルドのルート下に置いた `test` というファイルに書く。
 
 <code># ファイルが作成されたかを確認
 > assembly
-$ exists target/foo.jar</code>
+$ exists target/scala-2.10/foo.jar</code>
 
 スクリプトの文法は [ChangeDetectionAndTesting][1] に記述されている通りだけど、以下に解説しよう:
 1. **`#`** は一行コメントを開始する
@@ -93,17 +107,22 @@ $ exists target/foo.jar</code>
     [success] Total time: 18 s, completed Sep 17, 2011 3:00:58 AM
 
 ## ステップ 6: カスタムアサーション
+
 ファイルコマンドは便利だけど、実際のコンテンツをテストしないため、それだけでは不十分だ。コンテンツをテストする簡単な方法は、テストビルドにカスタムのタスクを実装してしまうことだ。
 
 上記の hello プロジェクトを例に取ると、生成された jar が "hello" と表示するかを確認したいとする。`sbt.Process` を用いて jar を走らせることができる。失敗を表すには、単にエラーを投げればいい。以下に `build.sbt` を示す:
-<scala>version := "0.1"
+<scala>import AssemblyKeys._
 
-seq(Assembly.settings: _*)
+version := "0.1"
 
-Assembly.jarName := "foo.jar"
+scalaVersion := "2.10.2"
 
-TaskKey[Unit]("check") <<= (target) map { (target) =>
-  val process = sbt.Process("java", Seq("-jar", (target / "foo.jar").toString))
+assemblySettings
+
+jarName in assembly := "foo.jar"
+
+TaskKey[Unit]("check") <<= (crossTarget) map { (crossTarget) =>
+  val process = sbt.Process("java", Seq("-jar", (crossTarget / "foo.jar").toString))
   val out = (process!!)
   if (out.trim != "bye") error("unexpected output: " + out)
   ()
@@ -169,11 +188,14 @@ $ copy-file changes/A.scala A.scala
 # Both A.scala and B.scala need to be recompiled because the type has changed
 -> compile</code>
 
-xsbt-web-plugin にも [scripted テスト][4]がある。
+[xsbt-web-plugin][4] や [sbt-assemlby][5] にも scripted テストがある。
 
 これでおしまい！プラグインをテストしてみた経験などを聞かせて下さい！
 
   [1]: http://code.google.com/p/simple-build-tool/wiki/ChangeDetectionAndTesting#Scripts
   [2]: https://github.com/siasia
-  [3]: https://github.com/harrah/xsbt/tree/0.10/sbt/src/sbt-test
-  [4]: https://github.com/siasia/xsbt-web-plugin/tree/master/src/sbt-test/web
+  [3]: https://github.com/sbt/sbt/tree/0.13/sbt/src/sbt-test
+  [4]: https://github.com/JamesEarlDouglas/xsbt-web-plugin/tree/master/src/sbt-test
+  [5]: https://github.com/sbt/sbt-assembly/tree/master/src/sbt-test/sbt-assembly
+  [6]: https://github.com/JamesEarlDouglas/xsbt-web-plugin/commit/feabb2eb554940d9b28049bd0618b6a790d9e141
+

@@ -8,54 +8,68 @@ sbt comes with [scripted test framework](http://code.google.com/p/simple-build-t
   >
   > The scripted test framework is used to verify that sbt handles cases such as that described above.
 
-To be precise, for 0.10, the framework is made available via scripted-plugin ported by [Artyom Olshevskiy known as siasia](https://github.com/siasia), which is part of the official codebase. 
+To be precise, the framework is made available via scripted-plugin ported by [Artyom Olshevskiy known as siasia](https://github.com/siasia), which is part of the official codebase. 
 
 ## step 1: snapshot
 Before you start, set your version to a **-SNAPSHOT** one because scripted-plugin will publish your plugin locally.
 
 ## step 2: scripted-plugin
-Add scripted-plugin to your plugin build. `project/plugins.sbt` (for 0.11):
-
-    resolvers += Resolver.url("Typesafe repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-releases/"))(Resolver.defaultIvyPatterns)
+Add scripted-plugin to your plugin build. `project/scripted.sbt`:
 
     libraryDependencies <+= (sbtVersion) { sv =>
       "org.scala-tools.sbt" %% "scripted-plugin" % sv
     }
 
-Then add the following to `build.sbt`:
+Then add the following to `scripted.sbt`:
 
     ScriptedPlugin.scriptedSettings
+
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
+    }
+
+    scriptedBufferLog := false
 
 ## step 3: `src/sbt-test`
 Make dir structure `src/sbt-test/<test-group>/<test-name>`. For starters, try something like `src/sbt-test/<your-plugin-name>/simple`.
 
 Now ready? Create an initial build in `simple`. Like a real build using your plugin. I'm sure you already have several of them to test manually. Here's an example `build.sbt`:
 
-<scala>version := "0.1"
+<scala>import AssemblyKeys._
 
-seq(Assembly.settings: _*)
+version := "0.1"
 
-Assembly.jarName := "foo.jar"</scala>
+scalaVersion := "2.10.2"
 
-In `project/plugins/build.sbt` (for 0.10):
+assemblySettings
 
-<scala>libraryDependencies <+= (sbtVersion) { sv => "com.eed3si9n" %% "sbt-assembly" % ("sbt" + sv + "_0.7-SNAPSHOT") }
+jarName in assembly := "foo.jar"</scala>
+
+In `project/plugins.sbt`:
+
+<scala>{
+  val pluginVersion = System.getProperty("plugin.version")
+  if(pluginVersion == null)
+    throw new RuntimeException("""|The system property 'plugin.version' is not defined.
+                                  |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
+  else addSbtPlugin("com.eed3si9n" % "sbt-assembly" % pluginVersion)
+}
 </scala>
+
+This a trick I picked up from [JamesEarlDouglas/xsbt-web-plugin@feabb2][6], which allows us to pass version number into the test.
 
 I also have `src/main/scala/hello.scala`:
 
-<scala>object Main {
-  def main(args: Array[String]) { println("hello") }
+<scala>object Main extends App {
+  println("hello")
 }</scala>
-
-Why not use `App`? Because it needs to work for both 2.8.1 and 2.9.1.
 
 ## step 4: write a script
 Now, write a script to describe your scenario in a file called `test` located at the root dir of your test project.
 
 <code># check if the file gets created
 > assembly
-$ exists target/foo.jar</code>
+$ exists target/scala-2.10/foo.jar</code>
 
 The syntax for the script is described in [ChangeDetectionAndTesting][1], but let me break it down:
 1. **`#`** starts a one-line comment
@@ -93,18 +107,23 @@ This will copy your test build into a temporary dir, and executes the `test` scr
     [success] Total time: 18 s, completed Sep 17, 2011 3:00:58 AM
 
 ## step 6: custom assertion
+
 The file commands are great, but not nearly enough because none of them test the actual contents. An easy way to test the contents is to implement a custom task in your test build.
 
 For my hello project, I'd like to check if the resulting jar prints out "hello". I can take advantage of `sbt.Process` to run the jar. To express a failure, just throw an error. Here's `build.sbt`:
 
-<scala>version := "0.1"
+<scala>import AssemblyKeys._
 
-seq(Assembly.settings: _*)
+version := "0.1"
 
-Assembly.jarName := "foo.jar"
+scalaVersion := "2.10.2"
 
-TaskKey[Unit]("check") <<= (target) map { (target) =>
-  val process = sbt.Process("java", Seq("-jar", (target / "foo.jar").toString))
+assemblySettings
+
+jarName in assembly := "foo.jar"
+
+TaskKey[Unit]("check") <<= (crossTarget) map { (crossTarget) =>
+  val process = sbt.Process("java", Seq("-jar", (crossTarget / "foo.jar").toString))
   val out = (process!!)
   if (out.trim != "bye") error("unexpected output: " + out)
   ()
@@ -138,7 +157,6 @@ If you want to reuse the assertions among the test builds, you could use full co
 ## step 7: testing the test
 Until you get the hang of it, it might take a while for the test itself to behave correctly. There are several techniques that may come in handy.
 
-**Edit**:
 First place to start is turning off the log buffering.
 
 <code>> set scriptedBufferLog := false
@@ -169,11 +187,13 @@ $ copy-file changes/A.scala A.scala
 # Both A.scala and B.scala need to be recompiled because the type has changed
 -> compile</code>
 
-xsbt-web-plugin also has some [scripted tests][4].
+[xsbt-web-plugin][4] and [sbt-assemlby][5] have some scripted tests too.
 
 That's it! Let me know about your experience in testing plugins!
 
   [1]: http://code.google.com/p/simple-build-tool/wiki/ChangeDetectionAndTesting#Scripts
   [2]: https://github.com/siasia
-  [3]: https://github.com/harrah/xsbt/tree/0.10/sbt/src/sbt-test
-  [4]: https://github.com/siasia/xsbt-web-plugin/tree/master/src/sbt-test/web
+  [3]: https://github.com/sbt/sbt/tree/0.13/sbt/src/sbt-test
+  [4]: https://github.com/JamesEarlDouglas/xsbt-web-plugin/tree/master/src/sbt-test
+  [5]: https://github.com/sbt/sbt-assembly/tree/master/src/sbt-test/sbt-assembly
+  [6]: https://github.com/JamesEarlDouglas/xsbt-web-plugin/commit/feabb2eb554940d9b28049bd0618b6a790d9e141
