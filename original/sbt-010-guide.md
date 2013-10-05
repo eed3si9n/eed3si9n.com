@@ -181,7 +181,7 @@ Similarly, we could also wire the settings for `Test`:
 <a name="per-task-keys"></a>
 ## notes on scoping keys under tasks (not necessary for sbt 0.12+)
 
-Section deleted.
+[Section deleted](https://github.com/eed3si9n/eed3si9n.com/commit/89453f8b41527bed175cbd14afb42c8aa024e2bb).
 
 ## read the documents, source, and other's source
 The [the official wiki][2] is full of useful information. It feels a bit scattered, but you can usually find information if you know what you're looking for. Here are links to some useful pages:

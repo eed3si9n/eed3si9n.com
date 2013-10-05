@@ -181,7 +181,7 @@ lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
 <a name="per-task-keys"></a>
 ## キーをタスクの下にスコープ付けするときの注意 (sbt 0.12+ では必要ない)
 
-この項は削除した。
+[この項は削除した](https://github.com/eed3si9n/eed3si9n.com/commit/89453f8b41527bed175cbd14afb42c8aa024e2bb)。
 
 ## ドキュメントとソースを読む
 [公式の wiki][2] は役に立つ情報満載だ。ちょっと散漫な気もするが、欲しい情報が分かっていれば大抵見つけることが出来る。以下に役に立つページへのリンクを載せる:
