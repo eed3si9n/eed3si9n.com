@@ -179,35 +179,9 @@ Similarly, we could also wire the settings for `Test`:
 </scala>
 
 <a name="per-task-keys"></a>
-## notes on scoping keys under tasks
-Due to [an existing bug][34] in sbt 0.10, one should be careful when reusing existing keys and scoping it under a task. Given the default configurations `Seq(Compile, Runtime, Test, Provided, Optional)`, a key scoped under task can potentially mask normal delegation of a configuration-scoped key.
+## notes on scoping keys under tasks (not necessary for sbt 0.12+)
 
-An example I have encountered is `test`, which delegates to `test in Test`. When I wired `test in assembly in Runtime`, the build was unable to resolve `test` as `test:test`. This could be worked around by providing an unscoped key that delegates to the natural delegation (in this case from `test` to `test:test`). Use `or` to avoid overwriting.
-
-<scala>import AssemblyKeys._   
-lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = baseAssemblySettings
-lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
-  test <<= test or (test in Test).identity,
-  test in assembly <<= (test in Test).identity,
-)</scala>
-
-The above workaround doesn't seem to work for 0.11.0 due to another bug, which is now fixed in master. We can wait till 0.11.1, or monkey patch the method as `orr`:
-
-<scala>import AssemblyKeys._   
-lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = baseAssemblySettings
-
-implicit def wrapTaskKey[T](key: TaskKey[T]): WrappedTaskKey[T] = WrappedTaskKey(key) 
-case class WrappedTaskKey[A](key: TaskKey[A]) {
-  def orr[T >: A](rhs: Initialize[Task[T]]): Initialize[Task[T]] =
-    (key.? zipWith rhs)( (x,y) => (x :^: y :^: KNil) map Scoped.hf2( _ getOrElse _ ))
-}
-
-lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
-  test <<= test orr (test in Test).identity,
-  test in assembly <<= (test in Test).identity,
-)</scala>
-
-Now this could be used in the global configuration, or `Runtime` configuration.
+Section deleted.
 
 ## read the documents, source, and other's source
 The [the official wiki][2] is full of useful information. It feels a bit scattered, but you can usually find information if you know what you're looking for. Here are links to some useful pages:

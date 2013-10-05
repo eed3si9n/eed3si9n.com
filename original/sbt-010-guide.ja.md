@@ -179,35 +179,9 @@ lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
 </scala>
 
 <a name="per-task-keys"></a>
-## キーをタスクの下にスコープ付けするときの注意
-sbt 0.10 における[既存のバグ][34]により、既存のキーをタスクの下で再利用するのには注意が必要だ。デフォルトのコンフィギュレーション優先順位である `Seq(Compile, Runtime, Test, Provided, Optional)` を仮定したときに、タスクにスコープ付けされたキーは、普通のコンフィギュレーションにスコープ付けられたタスクへの委譲を隠してしまう場合がある。
+## キーをタスクの下にスコープ付けするときの注意 (sbt 0.12+ では必要ない)
 
-その例として `test in Test` に委譲する `test` がある。 `test in assembly in Runtime` を配線すると、ビルドは `test` を `test:test` に委譲することができなくなってしまった。これは、スコープ無しのキーを提供して、元の委譲先へと委譲することで回避できる。この場合は `test` から `test in Test`。さらに、`or` を使うことで既にある値があれば保護できる。
-
-<scala>import AssemblyKeys._   
-lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = baseAssemblySettings
-lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
-  test <<= test or (test in Test).identity,
-  test in assembly <<= (test in Test).identity,
-)</scala>
-
-この回避策は、別のバグにより 0.11.0 ではうまくいかないが、そのバグは既に master では修正されている。0.11.1 まで待つか、`orr` としてモンキーパッチしてしまうこともできる:
-
-<scala>import AssemblyKeys._   
-lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = baseAssemblySettings
-
-implicit def wrapTaskKey[T](key: TaskKey[T]): WrappedTaskKey[T] = WrappedTaskKey(key) 
-case class WrappedTaskKey[A](key: TaskKey[A]) {
-  def orr[T >: A](rhs: Initialize[Task[T]]): Initialize[Task[T]] =
-    (key.? zipWith rhs)( (x,y) => (x :^: y :^: KNil) map Scoped.hf2( _ getOrElse _ ))
-}
-
-lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
-  test <<= test orr (test in Test).identity,
-  test in assembly <<= (test in Test).identity,
-)</scala>
-
-これでグローバルなコンフィギュレーションでも `Runtime` コンフィギュレーションでも使えるようになった。
+この項は削除した。
 
 ## ドキュメントとソースを読む
 [公式の wiki][2] は役に立つ情報満載だ。ちょっと散漫な気もするが、欲しい情報が分かっていれば大抵見つけることが出来る。以下に役に立つページへのリンクを載せる:
