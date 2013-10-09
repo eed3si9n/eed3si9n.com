@@ -79,7 +79,7 @@ is expanded into
 
 <scala>
 name <<= (organization, baseDirectory) { (o, b) =>
-  o + "-" + b  
+  o + "-" + b.getName
 }
 </scala>
 
