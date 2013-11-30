@@ -224,9 +224,9 @@ libraryDependencies += "org.specs2" %% "specs2" % "2.2.3" % "test"
 import AssemblyKeys._
 
 val Dispatch10 = config("dispatch10") extend(Compile)
-val TestDispatch10 = config("testdispatch10") extend(Dispatch10)
+val TestDispatch10 = config("testdispatch10") extend(Test)
 val Dispatch11 = config("dispatch11") extend(Compile)
-val TestDispatch11 = config("testdispatch11") extend(Dispatch11)
+val TestDispatch11 = config("testdispatch11") extend(Test)
 
 val root = project.in(file(".")).
   configs(Dispatch10, TestDispatch10, Dispatch11, TestDispatch11).
@@ -237,39 +237,28 @@ val root = project.in(file(".")).
     compile in Test := inc.Analysis.Empty,
     compile in Compile := inc.Analysis.Empty,
     libraryDependencies ++= Seq(
-      "net.databinder.dispatch" %% "dispatch-core" % "0.10.0" % "dispatch10", 
-      "net.databinder.dispatch" %% "dispatch-core" % "0.11.0" % "dispatch11",
-      "org.specs2" %% "specs2" % "2.2" % "testdispatch10",
-      "org.specs2" %% "specs2" % "2.2" % "testdispatch11",
+      "net.databinder.dispatch" %% "dispatch-core" % "0.10.0" % "dispatch10,testdispatch10", 
+      "net.databinder.dispatch" %% "dispatch-core" % "0.11.0" % "dispatch11,testdispatch11",
+      "org.specs2" %% "specs2" % "2.2" % "test",
       "com.github.scopt" %% "scopt" % "3.0.0"
     )
   ).
-  settings(inConfig(Dispatch10)(Defaults.configSettings ++ baseAssemblySettings ++ Seq(
-    sources := (sources in Compile).value,
-    resources := (resources in Compile).value,
-    internalDependencyClasspath := Nil,
+  settings(inConfig(Dispatch10)(Classpaths.configSettings ++ Defaults.configTasks ++ baseAssemblySettings ++ Seq(
     test := (test in TestDispatch10).value,
     test in assembly := test.value,
     assemblyDirectory in assembly := cacheDirectory.value / "assembly-dispatch10",
     jarName in assembly := name.value + "-assembly-dispatch10_" + version.value + ".jar"
   )): _*).
-  settings(inConfig(TestDispatch10)(Defaults.testSettings ++ Seq(
-    sources := (sources in Test).value,
-    resources := (resources in Test).value,
+  settings(inConfig(TestDispatch10)(Classpaths.configSettings ++ Defaults.configTasks ++ Defaults.testTasks ++ Seq(
     internalDependencyClasspath := Seq((classDirectory in Dispatch10).value).classpath
   )): _*).
-  settings(inConfig(Dispatch11)(Defaults.configSettings ++ baseAssemblySettings ++ Seq(
-    sources := (sources in Compile).value,
-    resources := (resources in Compile).value,
-    internalDependencyClasspath := Nil,
+  settings(inConfig(Dispatch11)(Classpaths.configSettings ++ Defaults.configTasks ++ baseAssemblySettings ++ Seq(
     test := (test in TestDispatch11).value,
     test in assembly := test.value,
     assemblyDirectory in assembly := cacheDirectory.value / "assembly-dispatch11",
     jarName in assembly := name.value + "-assembly-dispatch11_" + version.value + ".jar"
   )): _*).
-  settings(inConfig(TestDispatch11)(Defaults.testSettings ++ Seq(
-    sources := (sources in Test).value,
-    resources := (resources in Test).value,
+  settings(inConfig(TestDispatch11)(Classpaths.configSettings ++ Defaults.configTasks ++ Defaults.testTasks ++ Seq(
     internalDependencyClasspath := Seq((classDirectory in Dispatch11).value).classpath
   )): _*)
 </scala>
