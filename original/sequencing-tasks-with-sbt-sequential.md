@@ -144,6 +144,16 @@ integrationTest4 <<= (integrationTestBody, stopServer) { (body, stop) =>
 }
 </scala>
 
+### addCommandAlias
+
+If the objective is to run several tasks in a row as if it were typed in from the shell, sbt provides `addCommandAlias`, which defines a convenient alias for a group of commands. The following could be added to `build.sbt`:
+
+<scala>
+addCommandAlias("sts", ";startServer;test;stopServer")
+</scala>
+
+You then type `sts` from the sbt shell and it would issue the said tasks one after the other.
+
 One of the above links was a post by me on the old sbt mailing list, and it was recently mentioned an interesting discussion on github [Make it easier to control the sequencing of Tasks (#1001)][1001].
 
 ## sbt-sequential

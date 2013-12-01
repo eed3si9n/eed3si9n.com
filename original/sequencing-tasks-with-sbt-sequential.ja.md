@@ -144,7 +144,17 @@ integrationTest4 <<= (integrationTestBody, stopServer) { (body, stop) =>
 }
 </scala>
 
-上に挙げたリンクの一つは、旧 sbt メーリングリストに僕が投稿したもので、最近 github で立てられた興味深い議論 [Make it easier to control the sequencing of Tasks (#1001)][1001] の中でも言及された。
+### addCommandAlias
+
+いくつかのタスクをシェルから打ち込んだかのように実行するだけが目的ならば、sbt はコマンドに対してエイリアスを定義する `addCommandAlias` も提供する。以下を `build.sbt` 内に追加する:
+
+<scala>
+addCommandAlias("sts", ";startServer;test;stopServer")
+</scala>
+
+sbt シェル内から `sts` と打ち込むと指定されたタスクが順次実行される。
+
+先ほど挙げたリンクの一つは、旧 sbt メーリングリストに僕が投稿したもので、最近 github で立てられた興味深い議論 [Make it easier to control the sequencing of Tasks (#1001)][1001] の中でも言及された。
 
 ## sbt-sequential
 
