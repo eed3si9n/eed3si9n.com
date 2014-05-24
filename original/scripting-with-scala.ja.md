@@ -169,6 +169,69 @@ def runPandoc(f: File): Seq[String] =
   Seq("pandoc", "-f", "rst", "-t", "markdown", f.toString).lines.toSeq
 </scala>
 
+### 引数の処理
+
+Scala を使う動機の一つが Unix コマンドへの依存を減らすことだったけど、多くの場合ファイルのリストを受け取って結果を標準出力に返すといったスクリプトが望ましい。そうすることで、まず少数のファイルでテストすることができるからだ。script runner は引数を `args` という名前の変数に保存するため、それを `processFile` に渡してやればいい。
+
+以下は最近書いた別のスクリプトでカスタムの `howto` タグを抽出している。
+
+<scala>
+#!/usr/bin/env scalas
+ 
+/***
+scalaVersion := "2.10.4"
+
+resolvers += Resolver.url("typesafe-ivy-repo", url("http://typesafe.artifactoryonline.com/typesafe/releases"))(Resolver.ivyStylePatterns)
+ 
+libraryDependencies += "org.scala-sbt" % "io" % "0.13.5-RC2"
+*/
+
+// $ script/extracthowto.scala ../sbt/src/sphinx/Howto/*.rst
+
+import sbt._, Path._
+import java.io.File
+import java.net.{URI, URL}
+def file(s: String): File = new File(s)
+def uri(s: String): URI = new URI(s)
+
+/*
+A how to tag looks like this:
+
+.. howto::
+   :id: unmanaged-base-directory
+   :title: Change the default (unmanaged) library directory
+   :type: setting
+
+   unmanagedBase := baseDirectory.value / "jars"
+*/
+
+def extractId(line: String): String = line.replaceAll(":id:", "").trim
+def extractTitle(line: String): String = line.replaceAll(":title:", "").trim
+
+def processLine(num: Int, line1: String, line2: String, line3: String): Option[String] =
+  line1 match {
+    case x if x.trim == ".. howto::" =>
+      Some(s"""<a name="""${extractId(line2)}"></a>
+### ${extractTitle(line3)}""")
+    case _ => None
+  }
+
+def processFile(f: File): Unit = {
+  if (!f.exists) sys.error(s"$f does not exist!")
+
+  val lines0: Vector[String] = IO.readLines(f).toVector
+  val size = lines0.size
+  val xs: Vector[String] = (0 to size - 3).toVector flatMap { i =>
+    processLine(i, lines0(i), lines0(i + 1), lines0(i + 2))
+  }
+  println("-------------------\n")
+  println(xs.mkString("\n\n"))
+  println("\n")
+}
+
+args foreach { x => processFile(file(x)) }
+</scala>
+
 ### まとめ 
 
 sbt の script runner と `IO` モジュールを使うことで、Scala を使って静的型付けされたシェルスクリプトを書くことができる。[script.scala の gist][5]。
