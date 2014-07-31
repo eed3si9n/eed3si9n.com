@@ -17,7 +17,7 @@ scripted-plugin はプラグインをローカルに publish するため、ま�
 次に、scripted-plugin をプラグインのビルドに加える。`project/scripted.sbt`:
 
     libraryDependencies <+= (sbtVersion) { sv =>
-      "org.scala-tools.sbt" %% "scripted-plugin" % sv
+      "org.scala-sbt" % "scripted-plugin" % sv
     }
 
 以下を `scripted.sbt` に加える:
@@ -56,7 +56,7 @@ jarName in assembly := "foo.jar"</scala>
 }
 </scala>
 
-これは [JamesEarlDouglas/xsbt-web-plugin@feabb2][6] から拝借してきて技で、これで scripted テストに version を渡すことができる。
+これは [JamesEarlDouglas/xsbt-web-plugin@feabb2][6] から拝借してきた技で、これで scripted テストに version を渡すことができる。
 
 他に、`src/main/scala/hello.scala` も用意した:
 

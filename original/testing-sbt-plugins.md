@@ -17,7 +17,7 @@ Before you start, set your version to a **-SNAPSHOT** one because scripted-plugi
 Add scripted-plugin to your plugin build. `project/scripted.sbt`:
 
     libraryDependencies <+= (sbtVersion) { sv =>
-      "org.scala-tools.sbt" %% "scripted-plugin" % sv
+      "org.scala-sbt" % "scripted-plugin" % sv
     }
 
 Then add the following to `scripted.sbt`:
