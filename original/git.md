@@ -1,3 +1,52 @@
+
+## global gitignore
+
+See [Create a global .gitignore](https://help.github.com/articles/ignoring-files).
+
+    $ git config --global core.excludesfile ~/.gitignore_global
+
+## checking out pull requests locally
+
+See [Checking out pull requests locally](https://gist.github.com/piscisaureus/3342247).
+
+<code>[remote "origin"]
+        url = git@github.com:sbt/sbt.git
+        fetch = +refs/heads/*:refs/remotes/origin/*
+        fetch = +refs/pull/*/head:refs/remotes/origin/pr/*</code>
+
+Or if you're calling it "upstream",
+
+<code>[remote "upstream"]
+        url = git@github.com:sbt/sbt.git
+        fetch = +refs/heads/*:refs/remotes/upstream/*
+        fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*</code>
+
+The third line in the above adds pull request Git refs to the fetch list.
+
+    $ git fetch upstream
+    From github.com:sbt/sbt
+     * [new ref]         refs/pull/1/head -> upstream/pr/1
+     * [new ref]         refs/pull/1002/head -> upstream/pr/1002
+     * [new ref]         refs/pull/1003/head -> upstream/pr/1003
+     * [new ref]         refs/pull/1005/head -> upstream/pr/1005
+
+This creates Git ref `remotes/upstream/pr/*`. To make a tracking branch:
+
+    $ git co pr/1467
+    Branch pr/1467 set up to track remote branch pr/1467 from upstream.
+    Switched to a new branch 'pr/1467'
+
+## checking out remote branch
+
+    $ git fetch upstream
+    $ git ba
+    ....
+    remotes/upstream/wip/exclude-rules-ivy
+    ....
+    $ git co wip/exclude-rules-ivy
+    Branch wip/exclude-rules-ivy set up to track remote branch wip/exclude-rules-ivy from upstream.
+    Switched to a new branch 'wip/exclude-rules-ivy'
+
 ## hacking on a topic branch
 
 Create and switch to the topic branch:
@@ -92,3 +141,4 @@ Now, `origin` points to your repository.
 
 - [git guide by sourceforge.jp](http://sourceforge.jp/magazine/09/03/16/0831212)
 - [you don't have to fork to hack](http://subtech.g.hatena.ne.jp/miyagawa/20090114/1231910461)
+- [yuroyoro's git alises](http://yuroyoro.hatenablog.com/entry/20101008/1286531851)
