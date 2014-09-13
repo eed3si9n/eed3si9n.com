@@ -36,6 +36,12 @@ This creates Git ref `remotes/upstream/pr/*`. To make a tracking branch:
     Branch pr/1467 set up to track remote branch pr/1467 from upstream.
     Switched to a new branch 'pr/1467'
 
+## signing tag
+
+See [Tagging](http://git-scm.com/book/en/Git-Basics-Tagging)
+
+    $ git tag -s v1.5 -m 'my signed 1.5 tag'
+
 ## checking out remote branch
 
     $ git fetch upstream
