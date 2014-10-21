@@ -1,6 +1,6 @@
-On my way back from Uppsala, my mind wandered to a conversation I had with a collegue about the intuition of monads, which I pretty much butchered at the time. As I was mulling this over, it dawn on me.
+On my way back from Uppsala, my mind wandered to a conversation I had with a collegue about the intuition of monads, which I pretty much butchered at the time. As I was mulling this over, it dawned on me.
 
-![Sierpinski triangle](/images/500px-Sierpinski_triangle.png)
+![Sierpinski triangle](/images/200px-Sierpinski_triangle.png)
 
 ### monads are fractals
 
@@ -60,7 +60,7 @@ res7: Boolean = true
 
 One aspect of monoid I want to highlight here is that data type alone is not enough to define the monoid. The pair `(Int, +)` forms a monoid. Or `Int`s are monoid under addition. See https://twitter.com/jessitron/status/438432946383360000 for more on this.
 
-### `List` is a monad under `foldLeft` and `++`
+### `List` is a monad under `++`
 
 When `List` of `List` of `Int` crunches into a `List` of `Int`, it's obvious that it uses something like `foldLeft` and `++` to make `List[Int]`.
 
@@ -106,7 +106,7 @@ scala> (None: Option[Option[Int]]).foldLeft(None: Option[Int]) { (_, _)._2 }
 res22: Option[Int] = None
 </scala>
 
-So `Option` apparenlty is a monad under `foldLeft` and `_2`. In this case I don't know if it's immediately obvious from the implemetation, but the idea is to propagate `None`, which represents a failure.
+So `Option` apparenlty is a monad under `_2`. In this case I don't know if it's immediately obvious from the implemetation, but the idea is to propagate `None`, which represents a failure.
 
 ### what about the laws?
 

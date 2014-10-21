@@ -1,6 +1,6 @@
 Uppsala から帰ってくる途中、何となく思い出したのは同僚とのモナドの直観についての会話で、僕は酷い説明をした気がする。色々考えているうちに、ちょっとひらめきがあった。
 
-![Sierpinski triangle](/images/500px-Sierpinski_triangle.png)
+![Sierpinski triangle](/images/200px-Sierpinski_triangle.png)
 
 ### モナドはフラクタルだ
 
@@ -60,7 +60,7 @@ res7: Boolean = true
 
 ここで注目してほしいのが、データ型だけではモノイドを定義するには不十分であることだ。`(Int, +)` のペアになってモノイドを形成する。言い換えると、`Int` は加算に関してモノイドだ。これに話題に関しては https://twitter.com/jessitron/status/438432946383360000 も参照。
 
-### `List` は `foldLeft` と `++` に関してモナド
+### `List` は `++` に関してモナド
 
 `Int` の `List` の `List` を `Int` の `List` に押し潰すとき、`foldLeft` と `++` のようなことを行って `List[Int]` を作ってるであろうことは自明だ。
 
@@ -106,7 +106,7 @@ scala> (None: Option[Option[Int]]).foldLeft(None: Option[Int]) { (_, _)._2 }
 res22: Option[Int] = None
 </scala>
 
-というわけで、`Option` は `foldLeft` と `_2` に関するモナドであるみたいだ。実装を見て自明か分からないけども、失敗を表す `None` を伝搬させるというのが基本的な考えだ。
+というわけで、`Option` は `_2` に関するモナドであるみたいだ。実装を見て自明か分からないけども、失敗を表す `None` を伝搬させるというのが基本的な考えだ。
 
 ### モナド則は?
 
