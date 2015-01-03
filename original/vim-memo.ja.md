@@ -144,6 +144,8 @@ $ tmux new -s <session-name>
 - `Ctrl-T (h|j|k|l)` 指した方向へのペインへの移動
 - `Ctrl-T Ctrl-T` 次のペインへの移動
 - `Ctrl-T (1..9)` ウィンドウへの移動
+- `Ctrl-T }` 現在のペインをスワップ
+- `Ctrl-T Ctrl-arrow` 現在のウィンドウを指した方向へ移動
 
 <code>
 # map vi movement keys as pane movement keys
@@ -534,6 +536,10 @@ set-window-option -g xterm-keys on
 # control arrow to switch windows
 bind -n C-Left  previous-window
 bind -n C-Right next-window
+
+# prefix control arrow to move windows
+bind -r C-Left swap-window -t -1
+bind -r C-Right swap-window -t +1
 
 # use ctrl-shift-arrow keys without prefix key to switch panes
 bind -n C-S-Left select-pane -L

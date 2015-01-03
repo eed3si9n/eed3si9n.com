@@ -144,6 +144,8 @@ I'm using `Ctrl-T` as the prefix to start tmux commands. In tmux terminology, wi
 - `Ctrl-T (h|j|k|l)` moves to the pane in the direction
 - `Ctrl-T Ctrl-T` moves to the next pane
 - `Ctrl-T (1..9)` moves to the window 
+- `Ctrl-T }` swaps the current pane
+- `Ctrl-T Ctrl-arrow` moves the current window in the direction
 
 <code>
 # map vi movement keys as pane movement keys
@@ -534,6 +536,10 @@ Now we can also configure tmux window and pane movements:
 # control arrow to switch windows
 bind -n C-Left  previous-window
 bind -n C-Right next-window
+
+# prefix control arrow to move windows
+bind -r C-Left swap-window -t -1
+bind -r C-Right swap-window -t +1
 
 # use ctrl-shift-arrow keys without prefix key to switch panes
 bind -n C-S-Left select-pane -L
