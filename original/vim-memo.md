@@ -349,6 +349,9 @@ nnoremap <silent> [unite]r :<C-u>Unite -no-split -buffer-name=mru -quick-match b
 " Bookmark using <space>b
 nnoremap <silent> [unite]b :<C-u>Unite -no-split -buffer-name=bookmark bookmark:<cr>
 
+" Add bookmark using <space>x
+nnoremap <silent> [unite]x :<C-u>UniteBookmarkAdd<cr>
+
 " Everything using <space>a
 nnoremap <silent> [unite]a :<C-u>Unite -no-split -buffer-name=files buffer file_mru bookmark file:<cr>
 
