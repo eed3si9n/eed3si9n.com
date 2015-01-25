@@ -144,6 +144,7 @@ $ tmux new -s <session-name>
 - `Ctrl-T (h|j|k|l)` 指した方向へのペインへの移動
 - `Ctrl-T Ctrl-T` 次のペインへの移動
 - `Ctrl-T (1..9)` ウィンドウへの移動
+- `Ctrl-T .` 現在のウィンドウに別の番号を付ける
 - `Ctrl-T }` 現在のペインをスワップ
 - `Ctrl-T Ctrl-arrow` 現在のウィンドウを指した方向へ移動
 

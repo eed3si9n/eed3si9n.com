@@ -144,6 +144,7 @@ I'm using `Ctrl-T` as the prefix to start tmux commands. In tmux terminology, wi
 - `Ctrl-T (h|j|k|l)` moves to the pane in the direction
 - `Ctrl-T Ctrl-T` moves to the next pane
 - `Ctrl-T (1..9)` moves to the window 
+- `Ctrl-T .` renumbers the current window
 - `Ctrl-T }` swaps the current pane
 - `Ctrl-T Ctrl-arrow` moves the current window in the direction
 
