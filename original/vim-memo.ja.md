@@ -628,6 +628,18 @@ endif
 
 `backslash c` でコメントとアンコメントのトグルができる。
 
+### MattesGroeger/vim-bookmarks
+
+[vim-bookmarks](https://github.com/MattesGroeger/vim-bookmarks) は、ブックマーク管理のためのプラグインだ。Visual marks に似ているけども、ワーキング・ディレクトリごとにブックマークを別に管理できることが便利だ。
+
+- `mm` はブックマークをトグルする
+- `mn` はバッファ内の次のブックマークにジャンプ
+- `mp` はバッファ内の前のブックマークにジャンプ
+
+vim-bookmarks は unite ソースも提供する:
+
+- `<Space>m` ワーキング・ディレクトリ内のブックマークの一覧
+
 ## まとめ
 
 というわけで、今回はリンクとか設定をまとめておくための個人的なメモだ。credit の大部分はネタ元の yuroyoro氏とかプラグインを書いた Shougo 氏に行く。

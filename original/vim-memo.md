@@ -628,6 +628,18 @@ endif
 
 I'm assigning `backslash c` to toggle commenting and uncommenting.
 
+### MattesGroeger/vim-bookmarks
+
+[vim-bookmarks](https://github.com/MattesGroeger/vim-bookmarks) is a plugin for managing bookmarks. It works like visual marks, except you can manage bookmarks by the working directory.
+
+- `mm` toggles bookmark
+- `mn` jumps to the next bookmark in the buffer
+- `mp` jumps to the previous bookmark in the buffer
+
+vim-bookmarks also provides a unite source:
+
+- `<Space>m` lists booksmarks for the working directory
+
 ## summary
 
 This was a personal memo on listing out links and settings. Much of the credit goes to people like yuroyoro and Shougo.
