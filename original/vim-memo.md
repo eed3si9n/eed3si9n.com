@@ -613,6 +613,21 @@ Combined with Monokai, it looks like this:
 
 [vim-smartinput](https://github.com/kana/vim-smartinput) is a plugin for automatically completing the parens and quotes like SublimeText
 
+### tyru/caw.vim
+
+[caw.vim](https://github.com/tyru/caw.vim/) aka comment anywhere, is a plugin for commenting out lines of code.
+
+<code>
+" caw.vim {{{
+if neobundle#is_installed('caw.vim')
+  nmap <Leader>c <Plug>(caw:I:toggle)
+  vmap <Leader>c <Plug>(caw:I:toggle)
+endif
+" }}}
+</code>
+
+I'm assigning `backslash c` to toggle commenting and uncommenting.
+
 ## summary
 
 This was a personal memo on listing out links and settings. Much of the credit goes to people like yuroyoro and Shougo.

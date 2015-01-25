@@ -613,6 +613,21 @@ Monokai と組み合わせると、こんな感じになる:
 
 [vim-smartinput](https://github.com/kana/vim-smartinput) は SublimeText のように自動でカッコとクォートを閉じるためのプラグインだ。
 
+### tyru/caw.vim
+
+[caw.vim](https://github.com/tyru/caw.vim/) 別名 comment anywhere は、コードをコメントアウトするためのプラグインだ。
+
+<code>
+" caw.vim {{{
+if neobundle#is_installed('caw.vim')
+  nmap <Leader>c <Plug>(caw:I:toggle)
+  vmap <Leader>c <Plug>(caw:I:toggle)
+endif
+" }}}
+</code>
+
+`backslash c` でコメントとアンコメントのトグルができる。
+
 ## まとめ
 
 というわけで、今回はリンクとか設定をまとめておくための個人的なメモだ。credit の大部分はネタ元の yuroyoro氏とかプラグインを書いた Shougo 氏に行く。
