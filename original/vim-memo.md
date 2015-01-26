@@ -139,6 +139,7 @@ I'm using `Ctrl-T` as the prefix to start tmux commands. In tmux terminology, wi
 - `Ctrl-T " "` moves to the next window
 - `Ctrl-T s` splits window horizontally
 - `Ctrl-T v` splits window vertically
+- `Ctrl-T ,` renames the current window
 - `Ctrl-T $` renames the current session
 - `Ctrl-T d` detaches from the current session
 - `Ctrl-T (h|j|k|l)` moves to the pane in the direction
