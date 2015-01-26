@@ -642,6 +642,10 @@ vim-bookmarks は unite ソースも提供する:
 
 - `<Space>m` ワーキング・ディレクトリ内のブックマークの一覧
 
+### Shougo/unite-session
+
+[unite-session](https://github.com/Shougo/unite-session) は、セッション管理のためのプラグインだ。Vim セッションはバッファー・リストや分割ウィンドウなどを保存してくれる。組み込みで付いてくる `:mksession` を使ってもいいけど、これは Unite と統合されている。Vimfiler バッファーの保存を回避するために、Vim の終了時にプラグイン関連のバッファーを閉じる Vimscript を書く必要があった。試行錯誤の末、セッションの保存と読み込みが自動でできるようになった。
+
 ## まとめ
 
 というわけで、今回はリンクとか設定をまとめておくための個人的なメモだ。credit の大部分はネタ元の yuroyoro氏とかプラグインを書いた Shougo 氏に行く。

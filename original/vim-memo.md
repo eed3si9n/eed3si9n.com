@@ -642,6 +642,10 @@ vim-bookmarks also provides a unite source:
 
 - `<Space>m` lists booksmarks for the working directory
 
+### Shougo/unite-session
+
+[unite-session](https://github.com/Shougo/unite-session) is a plugin for managing sessions. A Vim session remembers the buffer list and split windows among other things. You could use the built-in `:mksession`, but this one is integrated with Unite. To avoid saving Vimfiler buffer I had to write some Vimscript to close plugin buffers on exiting Vim. After some trial and error, I was able to get it to save and load automatically.
+
 ## summary
 
 This was a personal memo on listing out links and settings. Much of the credit goes to people like yuroyoro and Shougo.
