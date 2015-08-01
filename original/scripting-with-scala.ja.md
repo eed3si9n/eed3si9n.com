@@ -47,11 +47,11 @@ println("hello")
 #!/usr/bin/env scalas
 
 /***
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.7"
 
-resolvers += Resolver.url("typesafe-ivy-repo", url("http://typesafe.artifactoryonline.com/typesafe/releases"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.typesafeIvyRepo("releases")
 
-libraryDependencies += "org.scala-sbt" % "io" % "0.13.5-RC2"
+libraryDependencies += "org.scala-sbt" % "io" % "0.13.8"
 */
 
 import sbt._, Path._
@@ -86,13 +86,13 @@ fs foreach { x => println(x.toString) }
 <scala>
 #!/usr/bin/env scalas
 
-/***         
-scalaVersion := "2.10.4"
+/***
+scalaVersion := "2.11.7"
 
-resolvers += Resolver.url("typesafe-ivy-repo", url("http://typesafe.artifactoryonline.com/typesafe/releases"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.typesafeIvyRepo("releases")
 
-libraryDependencies += "org.scala-sbt" % "io" % "0.13.5-RC2"
-*/         
+libraryDependencies += "org.scala-sbt" % "io" % "0.13.8"
+*/
 
 import sbt._, Path._
 import java.io.File
@@ -179,11 +179,11 @@ Scala を使う動機の一つが Unix コマンドへの依存を減らすこ�
 #!/usr/bin/env scalas
  
 /***
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.7"
 
-resolvers += Resolver.url("typesafe-ivy-repo", url("http://typesafe.artifactoryonline.com/typesafe/releases"))(Resolver.ivyStylePatterns)
- 
-libraryDependencies += "org.scala-sbt" % "io" % "0.13.5-RC2"
+resolvers += Resolver.typesafeIvyRepo("releases")
+
+libraryDependencies += "org.scala-sbt" % "io" % "0.13.8"
 */
 
 // $ script/extracthowto.scala ../sbt/src/sphinx/Howto/*.rst

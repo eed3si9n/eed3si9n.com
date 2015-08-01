@@ -48,11 +48,11 @@ The first thing I want to do is traverse all `*.rst` file in all the subdirector
 #!/usr/bin/env scalas
 
 /***
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.7"
 
-resolvers += Resolver.url("typesafe-ivy-repo", url("http://typesafe.artifactoryonline.com/typesafe/releases"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.typesafeIvyRepo("releases")
 
-libraryDependencies += "org.scala-sbt" % "io" % "0.13.5-RC2"
+libraryDependencies += "org.scala-sbt" % "io" % "0.13.8"
 */
 
 import sbt._, Path._
@@ -87,13 +87,13 @@ Reading and writing of lines are called `IO.readLines` and `IO.writeLines` respe
 <scala>
 #!/usr/bin/env scalas
 
-/***         
-scalaVersion := "2.10.4"
+/***
+scalaVersion := "2.11.7"
 
-resolvers += Resolver.url("typesafe-ivy-repo", url("http://typesafe.artifactoryonline.com/typesafe/releases"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.typesafeIvyRepo("releases")
 
-libraryDependencies += "org.scala-sbt" % "io" % "0.13.5-RC2"
-*/         
+libraryDependencies += "org.scala-sbt" % "io" % "0.13.8"
+*/
 
 import sbt._, Path._
 import java.io.File
@@ -180,11 +180,11 @@ The following is another script that I wrote recently to extract custom `howto` 
 #!/usr/bin/env scalas
  
 /***
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.7"
 
-resolvers += Resolver.url("typesafe-ivy-repo", url("http://typesafe.artifactoryonline.com/typesafe/releases"))(Resolver.ivyStylePatterns)
- 
-libraryDependencies += "org.scala-sbt" % "io" % "0.13.5-RC2"
+resolvers += Resolver.typesafeIvyRepo("releases")
+
+libraryDependencies += "org.scala-sbt" % "io" % "0.13.8"
 */
 
 // $ script/extracthowto.scala ../sbt/src/sphinx/Howto/*.rst
