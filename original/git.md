@@ -1,4 +1,3 @@
-
 ## global gitignore
 
 See [Create a global .gitignore](https://help.github.com/articles/ignoring-files).
@@ -91,60 +90,29 @@ To track remote branch locally:
 
     $ git clone git://github.com/sbt/sbt.git
     $ cd sbt
+    $ git checkout -b topic/foo
     # hack
     $ git commit ...
 
 The local files stay local until you push them, so commit all you want. Without the push privilege, you won't be able to push into the remote (origin) anyway.
 
+To rename the remove origin to upstream,
+
+    $ git remote rename origin upstream
+
 To grab the latest as if you haven't hacked it yet,
 
-    $ git pull --rebase
+    $ git pull --rebase upstream master
 
-If you want to submit your local patch to the upstream, only then hit the "fork" button.
-Next, add the fork as a remote repository:
+Hit the "fork" button on Github. Next, add the fork as a remote repository:
 
-    $ git remote add fork git@github.com:YOUR_USERNAME/sbt.git 
-    
-At this point `.git/config` looks as follows:
-<code>[core]
-  repositoryformatversion = 0
-  filemode = true
-  bare = false
-  logallrefupdates = true
-  ignorecase = true
-[remote "origin"]
-  fetch = +refs/heads/*:refs/remotes/origin/*
-  url = http://github.com/sbt/sbt.git
-[branch "master"]
-  remote = origin
-  merge = refs/heads/master
-[remote "fork"]
-  url = git@github.com:eed3si9n/sbt.git
-  fetch = +refs/heads/*:refs/remotes/fork/*
-</code>
-
-Edit the aliases for the remote repositories as follows:
-<code>[core]
-  repositoryformatversion = 0
-  filemode = true
-  bare = false
-  logallrefupdates = true
-  ignorecase = true
-[remote "upstream"]
-  fetch = +refs/heads/*:refs/remotes/origin/*
-  url = http://github.com/sbt/sbt.git
-[branch "master"]
-  remote = origin
-  merge = refs/heads/master
-[remote "origin"]
-  url = git@github.com:eed3si9n/sbt.git
-  fetch = +refs/heads/*:refs/remotes/fork/*
-</code>
+    $ git remote add origin git@github.com:YOUR_USERNAME/sbt.git 
 
 Now, `origin` points to your repository.
 
-    $ git push
+    $ git push --set-upstream origin topic/foo
 
 - [git guide by sourceforge.jp](http://sourceforge.jp/magazine/09/03/16/0831212)
 - [you don't have to fork to hack](http://subtech.g.hatena.ne.jp/miyagawa/20090114/1231910461)
 - [yuroyoro's git alises](http://yuroyoro.hatenablog.com/entry/20101008/1286531851)
+- [Git push existing repo to a new and different remote repo server?](http://stackoverflow.com/q/5181845/3827)
