@@ -4,7 +4,7 @@
   [apnylle]: https://twitter.com/apnylle
   [amsterdam]: https://www.youtube.com/watch?v=Wl8QzsZ4lZk&feature=youtu.be&t=35m30s
 
-これは先日書いた [sbt 1.0 ロードマップ][roadmap]の続編だ。この記事では sbt server の新しい実装を紹介する。
+これは先日書いた [sbt 1.0 ロードマップ][roadmap]の続編だ。この記事では sbt server の新しい実装を紹介する。感想やコメントがあれば [sbt-dev mailing list](https://groups.google.com/d/msg/sbt-dev/G9iWsx7JlnI/hfHCvD-fCgAJ) にお願いします。
 
 sbt server の動機は IDE との統合の改善だ。
 

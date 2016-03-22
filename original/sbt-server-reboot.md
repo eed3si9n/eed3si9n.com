@@ -4,7 +4,7 @@
   [apnylle]: https://twitter.com/apnylle
   [amsterdam]: https://www.youtube.com/watch?v=Wl8QzsZ4lZk&feature=youtu.be&t=35m30s
 
-This is a continuation from the [sbt 1.0 roadmap][roadmap] that I wrote recently. In this post, I'm going to introduce a new implementation of sbt server.
+This is a continuation from the [sbt 1.0 roadmap][roadmap] that I wrote recently. In this post, I'm going to introduce a new implementation of sbt server. Please post on [sbt-dev mailing list](https://groups.google.com/d/msg/sbt-dev/G9iWsx7JlnI/hfHCvD-fCgAJ) for feedback.
 
 The motivation for sbt server is better IDE integration.
 
