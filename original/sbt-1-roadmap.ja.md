@@ -14,9 +14,9 @@ sbt/sbt の現在のコードは、ビルドユーザやプラグイン作者に
 
 あと、これらのモジュールは今まで使ってたような Ivy リポジトリじゃなくて Maven Central に乗せる。
 
-### sbt/incrementalcompiler
+### sbt/zinc
 
-新しい incrementalcompiler は完全に name hashing に移行する。name hashing はしばらく前 (sbt 0.13.6) からデフォルトでオンになっている。それだけじゃなくて、クラスベースの name hashing を使う予定で、これは性能改善が期待されている。
+新しいインクリメンタルコンパイラは完全に name hashing に移行する。name hashing はしばらく前 (sbt 0.13.6) からデフォルトでオンになっている。それだけじゃなくて、クラスベースの name hashing を使う予定で、これは性能改善が期待されている。
 
 ### Java バージョン
 

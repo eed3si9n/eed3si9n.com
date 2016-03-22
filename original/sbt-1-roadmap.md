@@ -15,9 +15,9 @@ The goal of the modularization is to clarify the boundary of what’s public API
 
 We are going to have these modules available on Maven Central instead of an Ivy repo.
 
-### sbt/incrementalcompiler
+### sbt/zinc
 
-The new incrementalcompiler will be based completely on named hashing, which has been turned on by default for a while now (sbt 0.13.6). Not only that it will use the class-based name hashing, which is showing good performance improvements.
+The new incremental compiler will be based completely on named hashing, which has been turned on by default for a while now (sbt 0.13.6). Not only that it will use the class-based name hashing, which is showing good performance improvements.
 
 ### Java version
 
