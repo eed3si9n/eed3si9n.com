@@ -13,8 +13,8 @@ In between the April post and the last weekend, there were [flatMap(Oslo) 2016][
 sbt internally uses HList for caching using sbinary:
 
 <scala>
-implicit def mavenCacheToHL = (m: MavenCache) => m.name :+: m.rootFile.getAbsolutePath :+: HNil
-implicit def mavenRToHL = (m: MavenRepository) => m.name :+: m.root :+: HNil
+implicit def mavenCacheToHL = (m: MavenCache) => m.name :*: m.rootFile.getAbsolutePath :*: HNil
+implicit def mavenRToHL = (m: MavenRepository) => m.name :*: m.root :*: HNil
 ...
 </scala>
 
@@ -27,21 +27,21 @@ sjson-new comes with a datatype called **LList**, which stands for labelled hete
 `List[A]` that comes with the Standard Library can only store values of one type, namely `A`. Unlike the standard `List[A]`, LList can store values of different types per cell, and it can also store a label per cell. Because of this reason, each LList has its own type. Here's how it looks in the REPL:
 
 <scala>
-scala> import sjsonnew._, LList.:+:
+scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
 
 scala> import BasicJsonProtocol._
 import BasicJsonProtocol._
 
-scala> val x = ("name", "A") :+: ("value", 1) :+: LNil
-x: sjsonnew.LList.:+:[String,sjsonnew.LList.:+:[Int,sjsonnew.LNil]] = (name, A) :+: (value, 1) :+: LNil
+scala> val x = ("name", "A") :*: ("value", 1) :*: LNil
+x: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) :*: (value, 1) :*: LNil
 
-scala> val y: String :+: Int :+: LNil = x
-y: sjsonnew.LList.:+:[String,sjsonnew.LList.:+:[Int,sjsonnew.LNil]] = (name, A) :+: (value, 1) :+: LNil
+scala> val y: String :*: Int :*: LNil = x
+y: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) :*: (value, 1) :*: LNil
 </scala>
 
-Can you find `String` and `Int` mentioned in that long type name of `x`? `String :+: Int :+: LNil` is a short form of writing that as demonstrated by `y`.
+Can you find `String` and `Int` mentioned in that long type name of `x`? `String :*: Int :*: LNil` is a short form of writing that as demonstrated by `y`.
 
 `BasicJsonProtocol` is able to convert all LList values into a JSON object.
 
@@ -50,7 +50,7 @@ Can you find `String` and `Int` mentioned in that long type name of `x`? `String
 Because LList is able to turn itself into a JSON object, all we need now is a way to going back and forth between your custom type and an LList. This notion is called isomorphism.
 
 <scala>
-scala> import sjsonnew._, LList.:+:
+scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
 
@@ -61,9 +61,9 @@ scala> case class Person(name: String, value: Int)
 defined class Person
 
 scala> implicit val personIso = LList.iso(
-         { p: Person => ("name", p.name) :+: ("value", p.value) :+: LNil },
-         { in: String :+: Int :+: LNil => Person(in.head, in.tail.head) })
-personIso: sjsonnew.IsoLList.Aux[Person,sjsonnew.LList.:+:[String,sjsonnew.LList.:+:[Int,sjsonnew.LNil]]] = sjsonnew.IsoLList$$anon$1@4140e9d0
+         { p: Person => ("name", p.name) :*: ("value", p.value) :*: LNil },
+         { in: String :*: Int :*: LNil => Person(in.head, in.tail.head) })
+personIso: sjsonnew.IsoLList.Aux[Person,sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]]] = sjsonnew.IsoLList$$anon$1@4140e9d0
 </scala>
 
 We can use the implicit value as a proof that `Person` is isomorphic to an LList, and sjson-new can then use that to derive a `JsonFormat`.
@@ -83,7 +83,7 @@ As you can see, `Person("A", 1)` was encoded as `{"name":"A","value":1}`.
 Suppose now that we have an algebraic datatype represented by a sealed trait. There's a function to compose the `JsonFormat` called `unionFormat2`, `unionFormat3`, ...
 
 <scala>
-scala> import sjsonnew._, LList.:+:
+scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
 
@@ -98,11 +98,11 @@ case class Person(name: String, value: Int) extends Contact
 case class Organization(name: String, value: Int) extends Contact
 
 implicit val personIso = LList.iso(
-  { p: Person => ("name", p.name) :+: ("value", p.value) :+: LNil },
-  { in: String :+: Int :+: LNil => Person(in.head, in.tail.head) })
+  { p: Person => ("name", p.name) :*: ("value", p.value) :*: LNil },
+  { in: String :*: Int :*: LNil => Person(in.head, in.tail.head) })
 implicit val organizationIso = LList.iso(
-  { o: Organization => ("name", o.name) :+: ("value", o.value) :+: LNil },
-  { in: String :+: Int :+: LNil => Organization(in.head, in.tail.head) })
+  { o: Organization => ("name", o.name) :*: ("value", o.value) :*: LNil },
+  { in: String :*: Int :*: LNil => Organization(in.head, in.tail.head) })
 implicit val ContactFormat = unionFormat2[Contact, Person, Organization]
 
 // Exiting paste mode, now interpreting.
@@ -163,18 +163,22 @@ implicit object PersonFormat extends JsonFormat[Person] {
 
 The other one was three lines of iso, but this is 25 lines of code. Since it doesn't create LList, it might run faster.
 
-### sjson-new 0.2.0
+### sjson-new 0.3.0
 
 The features described in this post is available in 0.2.0. Here's how to use with Json4s-AST:
 
 <scala>
-libraryDependencies += "com.eed3si9n" %%  "sjson-new-json4s" % "0.2.0"
+libraryDependencies += "com.eed3si9n" %%  "sjson-new-json4s" % "0.3.0"
 </scala>
 
 Here's how to use with Spray:
 
 <scala>
-libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.2.0"
+libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.3.0"
 </scala>
 
 Thus far, no macros are used, and the use of reflection is limited to pattern matching and retrieving class names.
+
+### notes
+
+In [the earlier version](https://github.com/eed3si9n/eed3si9n.com/commit/856e48123b29a7f496eb4c867d227039e33f13be) of this post I used `:+:` as the LList cons, but Dale pointed out to me that `:+:` is used for coproduct in Shapeless, so I switched to `:*:` in 0.3.0.

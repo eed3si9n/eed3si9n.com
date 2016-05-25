@@ -13,8 +13,8 @@
 sbt の内部では、sbinary を用いたキャッシングに HList が用いられてたりする:
 
 <scala>
-implicit def mavenCacheToHL = (m: MavenCache) => m.name :+: m.rootFile.getAbsolutePath :+: HNil
-implicit def mavenRToHL = (m: MavenRepository) => m.name :+: m.root :+: HNil
+implicit def mavenCacheToHL = (m: MavenCache) => m.name :*: m.rootFile.getAbsolutePath :*: HNil
+implicit def mavenRToHL = (m: MavenRepository) => m.name :*: m.root :*: HNil
 ...
 </scala>
 
@@ -28,21 +28,21 @@ sjson-new には **LList** というデータ型があって、これは labelle
 標準ライブラリについてくる `List[A]` は、`A` という同じ型しか格納することができない。標準の `List[A]` と違って、LList はセルごとに異なる型の値を格納でき、またラベルも格納することができる。このため、LList はそれぞれ独自の型を持つ。REPL で見てみよう:
 
 <scala>
-scala> import sjsonnew._, LList.:+:
+scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
 
 scala> import BasicJsonProtocol._
 import BasicJsonProtocol._
 
-scala> val x = ("name", "A") :+: ("value", 1) :+: LNil
-x: sjsonnew.LList.:+:[String,sjsonnew.LList.:+:[Int,sjsonnew.LNil]] = (name, A) :+: (value, 1) :+: LNil
+scala> val x = ("name", "A") :*: ("value", 1) :*: LNil
+x: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) :*: (value, 1) :*: LNil
 
-scala> val y: String :+: Int :+: LNil = x
-y: sjsonnew.LList.:+:[String,sjsonnew.LList.:+:[Int,sjsonnew.LNil]] = (name, A) :+: (value, 1) :+: LNil
+scala> val y: String :*: Int :*: LNil = x
+y: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) :*: (value, 1) :*: LNil
 </scala>
 
-`x` の長い型の名前の中に `String` と `Int` が書かれているのが分かるだろうか。`y` の例が示すように、`String :+: Int :+: LNil` は同じ型の略記法だ。
+`x` の長い型の名前の中に `String` と `Int` が書かれているのが分かるだろうか。`y` の例が示すように、`String :*: Int :*: LNil` は同じ型の略記法だ。
 
 `BasicJsonProtocol` は全ての LList の値を JSON オブジェクトに変換することができる。
 
@@ -51,7 +51,7 @@ y: sjsonnew.LList.:+:[String,sjsonnew.LList.:+:[Int,sjsonnew.LNil]] = (name, A) 
 LList は JSON object に変換可能なので、あとはカスタムの型から LList に行ったり来たりできるようになればいいだけだ。この概念は isomorphism (同型射) と呼ばれる。
 
 <scala>
-scala> import sjsonnew._, LList.:+:
+scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
 
@@ -62,9 +62,9 @@ scala> case class Person(name: String, value: Int)
 defined class Person
 
 scala> implicit val personIso = LList.iso(
-         { p: Person => ("name", p.name) :+: ("value", p.value) :+: LNil },
-         { in: String :+: Int :+: LNil => Person(in.head, in.tail.head) })
-personIso: sjsonnew.IsoLList.Aux[Person,sjsonnew.LList.:+:[String,sjsonnew.LList.:+:[Int,sjsonnew.LNil]]] = sjsonnew.IsoLList$$anon$1@4140e9d0
+         { p: Person => ("name", p.name) :*: ("value", p.value) :*: LNil },
+         { in: String :*: Int :*: LNil => Person(in.head, in.tail.head) })
+personIso: sjsonnew.IsoLList.Aux[Person,sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]]] = sjsonnew.IsoLList$$anon$1@4140e9d0
 </scala>
 
 上のような implicit 値を `Person` が*ある* LList と同型である「証明」として使って、sjson-new はここから `JsonFormat` を導出することができる。
@@ -84,7 +84,7 @@ res0: scala.util.Try[spray.json.JsValue] = Success({"name":"A","value":1})
 sealed trait を使った代数的データ型があるとする。`JsonFormat` を合成するために、`unionFormat2`, `unionFormat3`, ... という関数を用意した。
 
 <scala>
-scala> import sjsonnew._, LList.:+:
+scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
 
@@ -99,11 +99,11 @@ case class Person(name: String, value: Int) extends Contact
 case class Organization(name: String, value: Int) extends Contact
 
 implicit val personIso = LList.iso(
-  { p: Person => ("name", p.name) :+: ("value", p.value) :+: LNil },
-  { in: String :+: Int :+: LNil => Person(in.head, in.tail.head) })
+  { p: Person => ("name", p.name) :*: ("value", p.value) :*: LNil },
+  { in: String :*: Int :*: LNil => Person(in.head, in.tail.head) })
 implicit val organizationIso = LList.iso(
-  { o: Organization => ("name", o.name) :+: ("value", o.value) :+: LNil },
-  { in: String :+: Int :+: LNil => Organization(in.head, in.tail.head) })
+  { o: Organization => ("name", o.name) :*: ("value", o.value) :*: LNil },
+  { in: String :*: Int :*: LNil => Organization(in.head, in.tail.head) })
 implicit val ContactFormat = unionFormat2[Contact, Person, Organization]
 
 // Exiting paste mode, now interpreting.
@@ -165,18 +165,22 @@ implicit object PersonFormat extends JsonFormat[Person] {
 
 さっきのは 3行だったけど、これは 25行になった。LList を作らない分速くはなるかもしれない。
 
-### sjson-new 0.2.0
+### sjson-new 0.3.0
 
-本稿で紹介した機能は 0.2.0 に入っている。Json4s-AST と使う場合は:
+本稿で紹介した機能は 0.3.0 に入っている。Json4s-AST と使う場合は:
 
 <scala>
-libraryDependencies += "com.eed3si9n" %%  "sjson-new-json4s" % "0.2.0"
+libraryDependencies += "com.eed3si9n" %%  "sjson-new-json4s" % "0.3.0"
 </scala>
 
 Spray と使う場合は:
 
 <scala>
-libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.2.0"
+libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.3.0"
 </scala>
 
 今の所マクロは一切使用してなくて、リフレクションもパターンマッチングとクラス名の取得に限られている。
+
+### 追記
+
+本稿の[以前のバージョン](https://github.com/eed3si9n/eed3si9n.com/commit/856e48123b29a7f496eb4c867d227039e33f13be)では LList の cons に `:+:` 使っていたけども、Shapeless だと `:+:` は coproduct に使われているらしいと Dale に教えてもらったので、0.3.0 では `:*:` に変更した。
