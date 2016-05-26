@@ -4,7 +4,7 @@
   [4]: https://vimeo.com/165837504
 
 Two months ago, I wrote about [sjson-new][1]. I was working on that again over the weekend, so here's the update.
-In the earlier post, I've introduced the family tree of JSON libraries in Scala ecosystem, the notion of backend independent, typeclass based JSON codec library. I concluded that we some easy way of defining a custom codec it to be usable.
+In the earlier post, I've introduced the family tree of JSON libraries in Scala ecosystem, the notion of backend independent, typeclass based JSON codec library. I concluded that we need some easy way of defining a custom codec for it to be usable.
 
 ### roll your own shapeless
 
