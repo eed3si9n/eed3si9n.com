@@ -163,22 +163,24 @@ implicit object PersonFormat extends JsonFormat[Person] {
 
 The other one was three lines of iso, but this is 25 lines of code. Since it doesn't create LList, it might run faster.
 
-### sjson-new 0.3.0
+### sjson-new 0.4.0
 
-The features described in this post is available in 0.2.0. Here's how to use with Json4s-AST:
-
-<scala>
-libraryDependencies += "com.eed3si9n" %%  "sjson-new-json4s" % "0.3.0"
-</scala>
-
-Here's how to use with Spray:
+The features described in this post is available in 0.2.0 and above. Here's how to use with Json4s-AST:
 
 <scala>
-libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.3.0"
+// To use sjson-new with Spray JSON
+libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.4.0"
+
+// To use sjson-new with Scala JSON
+libraryDependencies += "com.eed3si9n" %%  "sjson-new-scalajson" % "0.4.0"
+
+// To use sjson-new with MessagePack
+libraryDependencies += "com.eed3si9n" %%  "sjson-new-msgpack" % "0.4.0"
 </scala>
 
 Thus far, no macros are used, and the use of reflection is limited to pattern matching and retrieving class names.
 
 ### notes
 
-In [the earlier version](https://github.com/eed3si9n/eed3si9n.com/commit/856e48123b29a7f496eb4c867d227039e33f13be) of this post I used `:+:` as the LList cons, but Dale pointed out to me that `:+:` is used for coproduct in Shapeless, so I switched to `:*:` in 0.3.0.
+- In [the earlier version](https://github.com/eed3si9n/eed3si9n.com/commit/856e48123b29a7f496eb4c867d227039e33f13be) of this post I used `:+:` as the LList cons, but Dale pointed out to me that `:+:` is used for coproduct in Shapeless, so I switched to `:*:` in 0.3.0.
+- Updated code examples according to 0.4.0.
