@@ -74,7 +74,7 @@ This also motivated us to add a few features such as `extra` field to hand-code 
 
 ### using functions
 
-The API design of Gigahorse is also influenced by that of [Dispatch Reboot][dispatch] by [@n8han][@n8han]. In particular, Dispatch's uses function `Response => A` to transform the response from the beginning, while with WS API, you would map over the returned `Future`. Gigahorse allows both styles, but the docs emphasizes the `http.run(r, f)`:
+The API design of Gigahorse is also influenced by that of [Dispatch Reboot][dispatch] by [@n8han][@n8han]. In particular, Dispatch uses function `Response => A` to transform the response from the beginning, while with WS API, you would map over the returned `Future`. Gigahorse allows both styles, but the docs emphasizes the `http.run(r, f)`:
 
 <scala>
 val f = http.run(r, Gigahorse.asString andThen {_.take(60)})
