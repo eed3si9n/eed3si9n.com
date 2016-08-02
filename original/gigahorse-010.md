@@ -14,6 +14,8 @@
   [stacking]: http://eed3si9n.com/herding-cats/stacking-future-and-either.html
   [thegigahorse]: http://madmax.wikia.com/wiki/The_Gigahorse
 
+> Update: please use Gigahorse 0.1.1
+
 Gigahorse 0.1.0 is now released. It is an HTTP client for Scala with Async Http Client undernieth. Please see [Gigahorse docs][1] for the details. Here's an example snippet to get the feel of the library.
 
 <scala>
