@@ -16,7 +16,7 @@
 
 > Update: please use Gigahorse 0.1.1
 
-Gigahorse 0.1.0 is now released. It is an HTTP client for Scala with Async Http Client undernieth. Please see [Gigahorse docs][1] for the details. Here's an example snippet to get the feel of the library.
+Gigahorse 0.1.0 is now released. It is an HTTP client for Scala with Async Http Client underneath. Please see [Gigahorse docs][1] for the details. Here's an example snippet to get the feel of the library.
 
 <scala>
 scala> import gigahorse._
