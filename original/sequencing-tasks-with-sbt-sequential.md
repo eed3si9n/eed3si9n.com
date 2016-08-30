@@ -226,6 +226,7 @@ More explanation of `taskDyn` can be found at [Dynamic Computations with Def.tas
 
 > It can be useful to use the result of a task to determine the next tasks to evaluate. This is done using `Def.taskDyn`. The result of `taskDyn` is called a dynamic task because it introduces dependencies at runtime. 
 
+<a id="expanded-code"></a>
 ### expanded code
 
 The expanded code conceptually looks like this:
