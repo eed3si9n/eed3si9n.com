@@ -141,9 +141,9 @@ Scala 2.11 と比較して、この方式はほとんどの場合においてコ
 
 この `invokedynamic` のためのバックエンドサポートはマクロ作者にも公開されていて、[このテストケース](https://github.com/scala/scala/blob/v2.12.0/test/files/run/indy-via-macro-with-dynamic-args/macro_1.scala)で例示されている。
 
-#### 型コンストラクタの推論のための部分的統一
+#### 型コンストラクタの推論に対する部分的ユニフィケーション
 
-`-Ypartial-unification` フラグを用いてコンパイルすることで型コンストラクタの推論に部分的統一が追加され、悪名高い [SI-2712](https://issues.scala-lang.org/browse/SI-2712) 問題が解決される。この[実装](https://github.com/scala/scala/pull/5102)をコントリビュートし ([2.11.9 にもバックポートしてくれた](https://github.com/scala/scala/pull/5343)) [Miles Sabin さん](https://github.com/milessabin)に感謝したい!
+`-Ypartial-unification` フラグを用いてコンパイルすることで型コンストラクタの推論に部分的ユニフィケーションが追加され、悪名高い [SI-2712](https://issues.scala-lang.org/browse/SI-2712) 問題が解決される。この[実装](https://github.com/scala/scala/pull/5102)をコントリビュートし ([2.11.9 にもバックポートしてくれた](https://github.com/scala/scala/pull/5343)) [Miles Sabin さん](https://github.com/milessabin)に感謝したい!
 
 また、[この機能の素晴らしい解説](https://gist.github.com/djspiewak/7a81a395c461fd3a09a6941d4cd040f2)を書いてくれた Daniel Spiewak さんも言及するべきだ。
 
