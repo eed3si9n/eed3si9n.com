@@ -1,3 +1,6 @@
+> 昨日リリースされたばかりの [Scala 2.12.0](http://www.scala-lang.org/news/2.12.0) のリリースノートを翻訳しました。
+> Lightbend 社 Scala チームのコンパイラ魂を感じ取れる、マニアな内容になっています。
+
 Scala 2.12.0 がリリースされました!
 
 Scala 2.12 コンパイラは Java 8 から使えるようになった新しい VM 機能を利用するために、完全なオーバーホールが行われた。
@@ -172,25 +175,24 @@ Scala 2.11 では、ローカルな lazy val は 2つのヒープに割り当て
       val width = 200 // 型推論された Double | String に対して Int から暗黙の変換が行われた
     }
 
-### Tooling improvements
+### ツール周りの改善
 
-#### New back end
+#### 新しいバックエンド
 
-Scala 2.12 standardizes on the "GenBCode" back end, which emits code more quickly because it directly generates bytecode from Scala compiler trees, while the previous back end used an intermediate representation called "ICode". The old back ends (GenASM and GenIcode) have been removed ([#4814](https://github.com/scala/scala/pull/4814), [#4838](https://github.com/scala/scala/pull/4838)).
+Scala 2.12 は GenBCode バックエンドに標準化され、これは直接 Scala のコンパイラ構文木からバイトコードを出力するためより高速にコードの出力が行われる。これに対して、以前のバックエンドは ICode と呼ばれる中間表現を用いていた。旧型のバックエンドである GenASM と GenIcode は削除された ([#4814](https://github.com/scala/scala/pull/4814), [#4838](https://github.com/scala/scala/pull/4838))。
 
+#### 新しいオプティマイザ
 
-#### New optimizer
+GenBCode バックエンドは新しいインライナーとバイトコードオプティマイザを含む。このオプティマイザは `-opt` コンパイラオプションを用いて設定することが可能だ。デフォルトでは、メソッドから到達不能なコードのみを削除する。`-opt:help` オプションを使って、オプティマイザに指定可能なオプションの一覧を見ることができる。
 
-The GenBCode back end includes a new inliner and bytecode optimizer. The optimizer is configured using the `-opt` compiler option. By default it only removes unreachable code within a method. Check `-opt:help` to see the list of available options for the optimizer.
+以下の最適化がある:
 
-The following optimizations are available:
+- final メソッドのインライン化。これは、オブジェクト内で定義されたメソッドや、トレイト内で定義された final メソッドを含む。
+- クロージャが割り当てられて、同じメソッド内で呼び出された場合、そのクロージャ呼び出しは対応するラムダ本文メソッドへの呼び出し置換される。
+- デッドコードの削除と、いくつかのクリーナップ最適化。
+- box/unbox 削除 [#4858](https://github.com/scala/scala/pull/4858): メソッド内で定義され、そのまま抜け出さずにメソッド内のみ使用されるプリミティブ型のボックス化やタプルは削除される。
 
-* Inlining final methods, including methods defined in objects and final methods defined in traits
-* If a closure is allocated and invoked within the same method, the closure invocation is replaced by an invocations of the corresponding lambda body method
-* Dead code elimination and a small number of cleanup optimizations
-* Box/unbox elimination [#4858](https://github.com/scala/scala/pull/4858): primitive boxes and tuples that are created and used within some method without escaping are eliminated.
-
-For example, the following code
+具体例で説明すると、以下のコード
 
     def f(a: Int, b: Boolean) = (a, b) match {
       case (0, true) => -1
@@ -198,103 +200,98 @@ For example, the following code
       case _ => a
     }
 
-produces, when compiled with `-opt:l:method`, the following bytecode (decompiled using [cfr](http://www.benf.org/other/cfr/)):
+は `-opt:l:method` フラグを付けてコンパイルすると以下のバイトコードを生成する ([cfr](http://www.benf.org/other/cfr/) を用いて逆コンパイルした):
 
     public int f(int a, boolean b) {
       int n = 0 == a && true == b ? -1 : (a < 0 ? - a : a);
       return n;
     }
 
-The optimizer supports inlining (disabled by default). With `-opt:l:project` code from source files currently being compiled is inlined, while `-opt:l:classpath` enables inlining code from libraries on the compiler's classpath. Other than methods marked [`@inline`](http://www.scala-lang.org/files/archive/api/2.12.0/scala/inline.html), higher-order methods are inlined if the function argument is a lambda, or a parameter of the caller.
+オプティマイザはインライン化もサポートする (デフォルトでは無効になっている)。`-opt:l:project` フラグは現在コンパイル中のソースファイルのコードをインライン化し、`-opt:l:classpath` はコンパイラのクラスパスに通っているライブラリのコードのインライン化を有効にする。[`@inline`](http://www.scala-lang.org/files/archive/api/2.12.0/scala/inline.html) でマークされたメソッドの他は、高階メソッドの関数引数がラムダもしくは呼び出し側のパラメータである場合にインライン化される。
 
-Note that:
+ここで注意するべきなのは:
 
-  - We recommend to enable inlining only for production builds, as sbt's incremental compilation does not track dependencies introduced by inlining.
-  - When inlining code from the classpath, you need to ensure that all dependencies have exactly the same versions at compile time and run time.
-  - If you are building a library to publish on Maven Central, you should not inline code from its dependencies. Users of your library might have different versions of its dependencies on the classpath, which breaks binary compatibility.
+  - sbt の差分コンパイルはインライン化によって導入された依存性を追跡しないためインライン化はプロダクションのビルドにおいてのみ有効化することを推奨する。
+  - クラスパスからのコードをインライン化する場合は、コンパイル時と実行時で全ての依存ライブラリが同一のバージョンであることを保証する必要がある。
+  - Maven Central に公開するためのライブラリをビルドしている場合は、依存ライブラリからのコードをインライン化するべきではない。あなたのライブラリのユーザは、クラスパスに別のバージョンの間接依存するライブラリを持っている可能性があり、その場合にはバイナリ互換性が崩れるからだ。
 
-The Scala distribution is built using `-opt:l:classpath`, which improves the performance of the Scala compiler by roughly 5% (hot and cold, measured using our [JMH-based benchmark suite](https://github.com/scala/compiler-benchmark/blob/master/compilation/src/main/scala/scala/tools/nsc/ScalacBenchmark.scala)) compared to a non-optimized build.
+Scala のディストリビューションは `-opt:l:classpath` を付けてビルドされており、これは Scala コンパイラの性能を最適化しない場合と比較して約5% 改善する。([JMH-ベースのベンチマーク](https://github.com/scala/compiler-benchmark/blob/master/compilation/src/main/scala/scala/tools/nsc/ScalacBenchmark.scala)によって hot と cold の両方の状態において計測された)
 
-The GenBCode backend and the implementation of the new optimizer are built on earlier work by Miguel Garcia.
+GenBCode バックエンドと新オプティマイザの実装は、Miguel Garcia さんによる先行研究に基いている。
 
+#### Scaladoc ルックアンドフィールのオーバーホール
 
-#### Scaladoc look-and-feel overhauled
+Scaladoc のアウトプットは、より魅力的で、モダンで、使いやすいものとなった。[Scala Standard Library API](http://www.scala-lang.org/api/2.12.0) をみてほしい。
 
-Scaladoc's output is now more attractive, more modern, and easier to use. Take a look at the [Scala Standard Library API](http://www.scala-lang.org/api/2.12.0).
+この取り組みを率先してくれた [Felix Mulder](https://github.com/felixmulder)さん、ありがとう。
 
-Thanks, [Felix Mulder](https://github.com/felixmulder), for leading this effort.
+#### Scaladoc は Java ソースにも対応
 
-#### Scaladoc can be used to document Java sources
-This fix for [SI-4826](https://issues.scala-lang.org/browse/SI-4826) simplifies generating comprehensive documentation for projects with both Scala and Java sources. Thank you for your contribution, [Jakob Odersky](https://github.com/jodersky)!
+これは [SI-4826](https://issues.scala-lang.org/browse/SI-4826) を修正して、Scala と Java の両方のソースを使用するプロジェクトのドキュメンテーションを簡易化する。[Jakob Odersky](https://github.com/jodersky)さん、コントリビューションありがとう!
 
-This feature is enabled by default, but can be disabled with:
+この機能はデフォルトで有効化されているが、以下の方法で無効化できる:
 
     scalacOptions in (Compile, doc) += "-no-java-comments"
 
-Some projects with very large Javadoc comments may run into a stack overflow in the Javadoc scanner, which [will be fixed in 2.12.1](https://github.com/scala/scala/pull/5469).
+巨大な Javadoc コメントを含むプロジェクトは Javadoc スキャナがスタックオーバーフローを起こす場合があるが、これは [2.12.1](https://github.com/scala/scala/pull/5469) にて修正される。
 
+#### Scala シェル ([REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop))
 
-#### Scala Shell ([REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop))
-Scala's interactive shell ships with several spiffy improvements. To try it out, launch it from the command line with the `scala` script or in sbt using the `console` task. If you like color (who doesn't!), use `scala -Dscala.color` instead until [it's turned on by default](https://github.com/scala/scala-dev/issues/256).
+Scala のインタラクティブ・シェルにいくつかのカッコいい機能が追加された。試すには、コマンドライン上から `scala` スクリプトを起動するか、sbt から `console` タスクを使う。もしも色が好きならば (嫌いな人はいない!)、`scala -Dscala.color` を使うことができる。これは、[デフォルトで有効化される](https://github.com/scala/scala-dev/issues/256)予定だ。
 
-Since 2.11.8, the REPL uses the same tab completion logic as Scala IDE and ENSIME, which greatly improves the experience! Check out the [PR description](https://github.com/scala/scala/pull/4725) for some tips and tricks.
+2.11.8 以降より、REPL は Scala IDE や ENSIME と同じタブ補完のロジックを用いており、使い勝手が飛躍的に向上した。ヒントやコツに関して[pull request の記述](https://github.com/scala/scala/pull/4725)を参照してほしい。
 
-#### sbt builds Scala
+#### Scala をビルドする sbt
 
-Scala itself is now completely built, tested and published with sbt! This makes it easier to get started hacking on the compiler and standard library. All you need on your machine is JDK 8 and sbt - no ant, no environment variables to set, no shell scripts to run. You can [build, use, test and publish](https://github.com/scala/scala/blob/2.12.x/README.md#using-the-sbt-build) Scala like any other sbt-based project. Due to the recursive nature of building Scala with itself, IntelliJ cannot yet import our sbt build directly -- use the `intellij` task instead to generate suitable project files.
+Scala 本体は完全に sbt によってビルドされ、テストされ、publish されるようになった! これによって、コンパイラや標準ライブラリの開発に参加するのがより簡単になった。必要なのは JDK 8 と sbt のみで、ant や環境変数の設定や、シェルスクリプトなどはいらなくなった。普通の sbt プロジェクト同様に Scala を[ビルド、テスト、publish、して使用する](https://github.com/scala/scala/blob/2.12.x/README.md#using-the-sbt-build)ことが可能になった。Scala によって Scala をビルドするという再帰的な構造のため、IntelliJ は sbt のビルドを直接インポートするとはまだできない。`intellij` タスクを使って、プロジェクト・ファイルを生成することができるようにした。
 
+### ライブラリの改善
 
-### Library Improvements
+#### Either は右バイアスになった
 
-#### Either is now right-biased
+`Either` は `map`、`flatMap`、 `contains`、 `toOption` などといった演算をサポートするようなり、これらは右側に作用する。今後にリリースにおいて、`.left` メソッドと `.right` メソッドが廃止され `.swap` に取って代わられる可能性がある。
+この変更は現在のコードとソース互換だ (ただし、拡張メソッドとの衝突を除く)。
 
-`Either` now supports operations like `map`, `flatMap`, `contains`, `toOption`, and so forth, which operate on the right-hand side. The `.left` and `.right` methods may be deprecated in favor of `.swap` in a later release.
-The changes are source-compatible with existing code (except in the presence of conflicting extension methods).
+この変更点によって [cats](http://typelevel.org/cats/) などのライブラリは `Either` に標準化することができた。
 
-This change has allowed other libraries, such as [cats](http://typelevel.org/cats/) to standardize on `Either`.
+[Simon Ochsenreither](https://github.com/soc) さん、コントリビューションありがとう。
 
-Thanks, [Simon Ochsenreither](https://github.com/soc), for this contribution.
+#### Future の改善
 
-
-#### Futures improved
-
-A number of improvements to `scala.concurrent.Future` were made for Scala 2.12. This [blog post series](https://github.com/viktorklang/blog) by Viktor Klang explores them in detail.
-
+Scala 2.12 では数々の `scala.concurrent.Future` の改善が行われた。詳細は Viktor Klang さんの[このブログシリーズ](https://github.com/viktorklang/blog)を参照してほしい。
 
 #### scala-java8-compat
 
-The [Java 8 compatibility module for Scala](https://github.com/scala/scala-java8-compat) has received an overhaul for Scala 2.12. Even though interoperability of Java 8 SAMs and Scala functions is now baked into the language, this module provides additional convenience for working with Java 8 SAMs. Java 8 streams support was also added during the development cycle of Scala 2.12. Releases are available for both Scala 2.11 and Scala 2.12.
+[Scala のための Java 8 互換モジュール](https://github.com/scala/scala-java8-compat)も Scala 2.12 に向けてオーバーホールが行われた。Java 8 の SAM と Scala の関数の相互乗り入れは言語に組み込まれたが、このモジュールは Java 8 SAM を取り扱う際に便利なものを追加で提供する。Java 8 ストリームに対するサポートも Scala 2.12 開発中に追加された。このモジュールのリリースは Scala 2.11 と Scala 2.12 の両方に対して行われている。
 
+### 他の変更点と廃止勧告
 
+  - [可変 TreeMap](http://www.scala-lang.org/files/archive/api/2.12.0/scala/collection/mutable/TreeMap.html) の実装が追加された ([#4504](https://github.com/scala/scala/pull/4504))。
+  - [ListSet](http://www.scala-lang.org/files/archive/api/2.12.0/scala/collection/immutable/ListSet.html) と [ListMap](http://www.scala-lang.org/files/archive/api/2.12.0/scala/collection/immutable/ListMap.html) は、挿入順の走査を保証し (2.11.x において走査は逆順だった)、また性能も改善した ([#5103](https://github.com/scala/scala/pull/5103))。
+  - [`@deprecatedInheritance`](http://www.scala-lang.org/files/archive/api/2.12.0/scala/deprecatedInheritance.html) と [`@deprecatedOverriding`](http://www.scala-lang.org/files/archive/api/2.12.0/scala/deprecatedOverriding.html) が公開され、ライブラリ作者が使えるようになった。
+  - `@hideImplicitConversion` という Scaladoc のアノテーションによってどの暗黙の変換が隠されるかをカスタマイズできるようになった ([#4952](https://github.com/scala/scala/pull/4952))。
+  - `@shortDescription` という Scaladoc のアノテーションによってエンティティーページにおけるメソッドの概要をカスタマイズできるようになった ([#4991](https://github.com/scala/scala/pull/4991))。
+  - Scala と Java のコレクション型の暗黙の変換を行う JavaConversion は廃止勧告となった。[JavaConverters](http://www.scala-lang.org/files/archive/api/2.12.0/scala/collection/JavaConverters$.html) を用いて、明示的に `.asJava` / `.asScala` と変換することを推奨する。
+  - ゼロ引数のメソッドのイータ展開 (メソッドから関数値への変換) は、予期しない振る舞いを起こすことから廃止勧告となった ([#5327](https://github.com/scala/scala/pull/5327))。
+  - Scala 標準ライブラリは、`sun.misc.Unsafe` を[一切](https://github.com/scala/scala/pull/4443)[参照](https://github.com/scala/scala/pull/4712)しなくなり、また forkjoin ライブラリのフォークも[含まなくなった](https://github.com/scala/scala/pull/4629)。
+  - パターンマッチャーの網羅性の解析が改善された ([#4919](https://github.com/scala/scala/pull/4919))。
+  - パラメータ名を [JEP-118](http://openjdk.java.net/jeps/118)準拠で出力するようになったため、Java ツールや Java リフレクションから使うことができるようになった。
 
-### Other changes and deprecations
+<a id="breaking-changes"></a>
+## 互換性の無い変更点
 
-  - A [mutable TreeMap](http://www.scala-lang.org/files/archive/api/2.12.0/scala/collection/mutable/TreeMap.html) implementation was added ([#4504](https://github.com/scala/scala/pull/4504)).
-  - [ListSet](http://www.scala-lang.org/files/archive/api/2.12.0/scala/collection/immutable/ListSet.html) and [ListMap](http://www.scala-lang.org/files/archive/api/2.12.0/scala/collection/immutable/ListMap.html) now ensure insertion-order traversal (in 2.11.x, traversal was in reverse order), and their performance has been improved ([#5103](https://github.com/scala/scala/pull/5103)).
-  - The [`@deprecatedInheritance`](http://www.scala-lang.org/files/archive/api/2.12.0/scala/deprecatedInheritance.html) and [`@deprecatedOverriding`](http://www.scala-lang.org/files/archive/api/2.12.0/scala/deprecatedOverriding.html) are now public and available to library authors.
-  - The `@hideImplicitConversion` Scaladoc annotation allows customizing which implicit conversions are hidden ([#4952](https://github.com/scala/scala/pull/4952)).
-  - The `@shortDescription` Scaladoc annotation customizes the method summary on entity pages ([#4991](https://github.com/scala/scala/pull/4991)).
-  - JavaConversions, providing implicit conversions between Scala and Java collection types, has been deprecated. We recommend using [JavaConverters](http://www.scala-lang.org/files/archive/api/2.12.0/scala/collection/JavaConverters$.html) and explicit `.asJava` / `.asScala` conversions.
-  - Eta-expansion (conversion of a method to a function value) of zero-args methods has been deprecated, as this can lead to surprising behavior ([#5327](https://github.com/scala/scala/pull/5327)).
-  - The Scala library is [free](https://github.com/scala/scala/pull/4443) of [references](https://github.com/scala/scala/pull/4712) to `sun.misc.Unsafe`, and [no longer ships](https://github.com/scala/scala/pull/4629) with a fork of the forkjoin library.
-  - Exhaustiveness analysis in the pattern matcher has been improved ([#4919](https://github.com/scala/scala/pull/4919)).
-  - We emit parameter names according to [JEP-118](http://openjdk.java.net/jeps/118), which makes them available to Java tools and exposes them through Java reflection.
+### オブジェクト初期化ロックとラムダ
 
+Scala 2.11 においてラムダの本文は、コンパイル時に生成される匿名関数クラスの `apply` メソッド内にあった。2.12 の新しいラムダエンコーディングはラムダ本文を取り囲むクラス (enclosing class) のメソッドの一つとして持ち上げる。そのため、ラムダの呼び出しは、取り囲むクラスを間接的に経由するため今まで無かったデッドロックを生む原因となる。
 
-## Breaking changes
-
-### Object initialization locks and lambdas
-
-In Scala 2.11, the body of a lambda is in the `apply` method of the anonymous function class generated at compile time. The new lambda encoding in 2.12 lifts the lambda body into a method in the enclosing class. An invocation of the lambda will therefore indirect through the enclosing class, which may cause deadlocks that did not happen before.
-
-For example, the following code
+例えば、以下のコード
 
     import scala.concurrent._
     import scala.concurrent.duration._
     import ExecutionContext.Implicits.global
     object O { Await.result(Future(1), 5.seconds) }
 
-compiles to (simplified):
+は (簡易的に) 以下のようにコンパイルされる:
 
     public final class O$ {
       public static O$ MODULE$;
@@ -306,17 +303,17 @@ compiles to (simplified):
       }
     }
 
-Accessing `O` for the first time initializes the `O$` class and executes the static initializer (which invokes the instance constructor). Class initialization is guarded by an initialization lock ([Chapter 5.5 in the JVM specification](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-5.html#jvms-5.5)).
+初めてのへの `O` アクセスは、`O$` クラスを初期化して、静的初期化を実行する (それがインスタンスのコンストラクタを呼び出す)。クラスの初期化は初期化ロックによって保護されている ([JVM 仕様書 5.5 章](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-5.html#jvms-5.5))。
 
-The main thread locks class initialization and spawns the Future. The Future, executed on a different thread, attempts to execute the static lambda body method `$anonfun$new$1`, which also requires initialization of the class `O$`. Because initialization is locked by the main thread, the thread running the future will block. In the meantime, the main thread continues to run `Await.result`, which will block until the future completes, causing the deadlock.
+メインのスレッドはクラス初期化をロックして Future を生成する。別のスレッドで実行される Future は静的なラムダ本文メソッド `$anonfun$new$1` を実行しようとするが、それも `O$` の初期化を必要とする。初期化は既にメインのスレッドでロック済みなので、Future を実行中のスレッドはブロックする。一方、メインのスレッドは `Await.result` を実行し続けて、Future が完了するのを待機するため、デッドロックとなる。
 
-One example of this [surprised the authors of ScalaCheck](https://github.com/rickynils/scalacheck/issues/290) -- now [fixed](https://github.com/rickynils/scalacheck/pull/294).
+この振る舞いは [ScalaCheck 作者の意表を突いた](https://github.com/rickynils/scalacheck/issues/290)が、後に[修正](https://github.com/rickynils/scalacheck/pull/294)された。
 
-### Lambdas capturing outer instances
+### 外側のインスタンスを捕捉するラムダ
 
-Because lambda bodies are emitted as methods in the enclosing class, a lambda can capture the outer instance in cases where this did not happen in 2.11. This can affect serialization.
+ラムダ本文が取り囲むクラスのメソッドとして出力されるため、ラムダが 2.11 では無かったような形で外側のインスタンスを捕捉することが可能となる。これは、シリアライゼーションに影響を及ぼす。
 
-The Scala compiler analyzes classes and methods to prevent unnecessary outer captures: unused outer parameters are removed from classes ([#4652](https://github.com/scala/scala/pull/4652)), and methods not accessing any instance members are made static ([#5099](https://github.com/scala/scala/pull/5099)). One known limitation is that the analysis is local to a class and does not cover subclasses.
+Scala コンパイラはクラスやメソッドを解析して不必要な外側の捕捉を予防する: 不要な外側のパラメータはクラスから消去され ([#4652](https://github.com/scala/scala/pull/4652))、インスタンスメンバーにアクセスしないメソッドは静的なものにされる ([#5099](https://github.com/scala/scala/pull/5099))。既知の制限としては、この解析は単一のクラスに限定されており、小クラスを含まないことだ。
 
     class C {
       def f = () => {
@@ -326,32 +323,30 @@ The Scala compiler analyzes classes and methods to prevent unnecessary outer cap
       }
     }
 
-In this example, the classes `A` and `B` are first lifted into `C`. When flattening the classes to the package level, the `A` obtains an outer pointer to capture the `A` instance. Because `A` has a subclass `B`, the class-level analysis of `A` cannot conclude that the outer parameter is unused (it might be used in `B`).
+この例では、まずクラス `A` と `B` は `C` に持ち上げ (lift) される。クラスをパッケージレベルに平坦化するとき、`A` は、`A` インスタンスを捕捉するための外側のポインターを取得する。`A` には `B` という子クラスがあるため、クラスレベルでの `A` の解析は外側からのパラメータが未使用なのか結論付けることができない (`B` 内で使われるかもしれないため)。
 
-Serializing the `A` instance attempts to serialize the outer field, which causes a `NotSerializableException: C`.
+`A` のインスタンスをシリアライズすると、外側のフィールドもシリアライズしようとするため、`NotSerializableException: C` エラーが発生する。
 
+### SAM 変換は implicit よりも優先される
 
-### SAM conversion precedes implicits
-
-The [SAM conversion](http://www.scala-lang.org/files/archive/spec/2.12/06-expressions.html#sam-conversion) built into the type system takes priority over implicit conversion of function types to SAM types. This can change the semantics of existing code relying on implicit conversion to SAM types:
+型システムに組み込まれた [SAM 変換](http://www.scala-lang.org/files/archive/spec/2.12/06-expressions.html#sam-conversion) は、関数型から SAM型への暗黙 (implicit) の変換よりも優先される。これは、現行で SAM 型の暗黙の変換に頼っているコードの意味論を変えるものだ:
 
     trait MySam { def i(): Int }
     implicit def convert(fun: () => Int): MySam = new MySam { def i() = 1 }
     val sam1: MySam = () => 2 // Uses SAM conversion, not the implicit
     sam1.i()                  // Returns 2
 
-To retain the old behavior, you may compile under `-Xsource:2.11`, use an explicit call to the conversion method, or disqualify the type from being a SAM (e.g. by adding a second abstract method).
+古い振る舞いを保持するためには、`-Xsource:2.11` フラグを使用して、明示的に変換メソッドを呼ぶか、SAM として不適合になるように型を変える必要がある (例えば、2つ目の抽象メソッドを追加する)。
 
-Note that SAM conversion only applies to lambda expressions, not to arbitrary expressions with Scala `FunctionN` types:
+ここで注意するべきなのは、SAM 変換はラムダ式のみに適用され、任意の `FunctionN` 型の式ではないことだ:
 
     val fun = () => 2     // Type Function0[Int]
     val sam2: MySam = fun // Uses implicit conversion
     sam2.i()              // Returns 1
 
+### オーバーロード解決時の SAM 変換
 
-### SAM conversion in overloading resolution
-
-In order to improve source compatibility, overloading resolution has been adapted to prefer methods with `Function`-typed arguments over methods with parameters of SAM types. The following example is identical in Scala 2.11 and 2.12:
+ソース互換性向上のため、オーバーロード解決は SAM 型をパラメータとして持つメソッドよりも、`Function` 型の引数を持つメソッドを優先するようにした。以下の例は Scala 2.11 と 2.12 において同様に振る舞う:
 
     scala> object T {
          |   def m(f: () => Unit) = 0
@@ -363,11 +358,11 @@ In order to improve source compatibility, overloading resolution has been adapte
     scala> T.m(f)
     res0: Int = 0
 
-In Scala 2.11, the first alternative is chosen because it is the only applicable method. In Scala 2.12, both methods are applicable, therefore [overloading resolution](http://www.scala-lang.org/files/archive/spec/2.12/06-expressions.html#overloading-resolution) needs to pick the most specific alternative. The specification for [*compatibility*](http://www.scala-lang.org/files/archive/spec/2.12/03-types.html#compatibility) has been updated to consider SAM conversion, so that the first alternative is more specific.
+Scala 2.11 では、唯一の適用可能なメソッドである最初のメソッドが選ばれる。Scala 2.12 では両方のメソッドとも適用可能なため、[オーバーロード解決](http://www.scala-lang.org/files/archive/spec/2.12/06-expressions.html#overloading-resolution)がより特定な選択肢を選ぶ必要がある。[*互換性*](http://www.scala-lang.org/files/archive/spec/2.12/03-types.html#compatibility) の仕様が更新され、SAM 変換も考慮しても最初のメソッドが選ばれるようになった。
 
-Note that SAM conversion in overloading resolution is always considered, also if the argument expression is not a function literal (like in the example). This is unlike SAM conversions of expressions themselves, see the previous section. See also the discussion in [scala-dev#158](https://github.com/scala/scala-dev/issues/158).
+オーバーロード解決時には、(この例のように) 引数の式が関数リテラルじゃなくても SAM 変換は常に考慮されることに注意してほしい。これは、前項でみた式そのものの SAM 変換とは異なる振る舞いである。[scala-dev#158](https://github.com/scala/scala-dev/issues/158) における議論も参照。
 
-While the adjustment to overloading resolution improves compatibility, there also exists code that compiles in 2.11, but is ambiguous in 2.12:
+オーバーロード解決の調整によって互換性は向上するが、2.11 ではコンパイルするが、2.12 では曖昧となるコードは存在し得る:
 
     scala> object T {
          |   def m(f: () => Unit, o: Object) = 0
@@ -379,21 +374,21 @@ While the adjustment to overloading resolution improves compatibility, there als
     <console>:13: error: ambiguous reference to overloaded definition
 
 
-### Inferred types for fields
+### フィールドの型推論
 
-Type inference for `val`, and `lazy val` has been aligned with `def`, fixing assorted corner cases and inconsistencies ([#5141](https://github.com/scala/scala/pull/5141) and [#5294](https://github.com/scala/scala/pull/5294)). Concretely, when computing the type of an overriding field, the type of the overridden field is used used as expected type. As a result, the inferred type of a `val` or `lazy val` may change in Scala 2.12.
+`val` と `lazy val` の型推論は、細かいコーナーケースや矛盾点を修正して `def` のそれにすり合わせるようにした ([#5141](https://github.com/scala/scala/pull/5141) 及び [#5294](https://github.com/scala/scala/pull/5294))。具体的には、オーバーライドするフィールドの型を計算するときは、オーバーライドされる側の型を期待される型として使用する。これによって、Scala 2.12 では `val` や `lazy val` から推論される型が 2.11 より変わる可能性がある。
 
-In particular, an `implicit val` that did not need an explicitly declared type in 2.11 may need one now. (This is always good practice anyway.)
+特に、2.11 において明示的な型宣言が必要なかった `implicit val` が 2.12 において必要になる可能性がある (いづれにせよ、implicit には型注釈を付けるべきだが)。
 
-You can get the old behavior with `-Xsource:2.11`. This may be useful for testing whether these changes are responsible if your code fails to compile.
+`-Xsource:2.11` フラグを使用して古い振る舞いを得ることができる。これは、コンパイルできなくなった時にこの変更が原因かを探るのに役立つ。
 
-### Changed syntax trees (affects macro and compiler plugin authors)
+### 構文木の変更 (マクロ作者やコンパイラプラグイン作者に影響がある)
 
-PR [#4794](https://github.com/scala/scala/pull/4749) changed the syntax trees for selections of statically accessible symbols. For example, a selection of `Predef` no longer has the shape `q"scala.this.Predef"` but simply `q"scala.Predef"`. Macros and compiler plugins matching on the old tree shape need to be adjusted.
+PR [#4794](https://github.com/scala/scala/pull/4749) は、静的にアクセス可能なシンボルの選択の構文木を変更した。例えば、`Predef` の選択は `q"scala.this.Predef"` という形は必要なくなり、
+単に `q"scala.Predef"` で良くなった。古い構文木の形でマッチしていたマクロやコンパイラプラグインは対応する必要がある。
 
+## このリリースノートの改善
 
+リリースノートへの[改善](https://github.com/scala/make-release-notes/blob/2.12.x/hand-written.md)は随時受け付けている。
 
-
-## Improving these notes
-
-Improvements to these release notes [are welcome!](https://github.com/scala/make-release-notes/blob/2.12.x/hand-written.md)
+訳注: [和訳](https://github.com/eed3si9n/eed3si9n.com/blob/master/translation/scala-2.12.0.md)の訂正や指摘も受け付けています。
