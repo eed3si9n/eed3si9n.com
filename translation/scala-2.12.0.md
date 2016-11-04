@@ -39,7 +39,7 @@ Java 8 プラットフォームの最近のバージョンを、[OpenJDK](http:/
 
 [scala-seed リポジトリ](https://github.com/scala/scala-seed.g8)に行って、この [giter8 テンプレート](https://github.com/foundweekends/giter8) に 2.12 の好きな機能の例を追加して欲しい!
 
-Scala は、ant、maven](http://docs.scala-lang.org/tutorials/scala-with-maven.html)、[gradle](https://docs.gradle.org/current/userguide/scala_plugin.html) からも動作する。[scala-lang.org](http://scala-lang.org/download/2.12.0.html) からディストリビューションをダウンロードしたり、[Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-lang%22%20AND%20v%3A%222.12.0%22) から JAR を取得することも可能だ。
+Scala は、ant、[maven](http://docs.scala-lang.org/tutorials/scala-with-maven.html)、[gradle](https://docs.gradle.org/current/userguide/scala_plugin.html) からも動作する。[scala-lang.org](http://scala-lang.org/download/2.12.0.html) からディストリビューションをダウンロードしたり、[Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.scala-lang%22%20AND%20v%3A%222.12.0%22) から JAR を取得することも可能だ。
 
 ## コントリビューター
 
