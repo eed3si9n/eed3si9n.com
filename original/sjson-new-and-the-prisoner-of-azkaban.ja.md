@@ -212,23 +212,28 @@ Scala JSON を進めている中心人物である Matthew de Detrich さんが 
 
 各データ型に対して `JsonFormat` を提供するのが一番面倒な所だ。それが済めば、sjson-new は、追加の作業を一切せずに同じプロトコルを異なるバックエンドに再利用することができる。以下が[ベンチマーク][travis]の結果だ:
 
+<s>
+Jawn を用いた Scala JSON (63ms) は Spray JSON (72ms) よりも 12% 高速にデータのラウンドトリップしていることが分かる。同様の傾向が gzipped Scala JSON (90ms) と gzipped Spray JSON (99ms) でも見られる。性能の向上は多分 "unsafe" AST が `Array` を使っているのに対して、Spray JSON が `Vector` を使っていることから来ているのかもしれない。
+</s>
+
+**訂正**: 上記の結果は僕のバグのせいだと思う。最近の結果だとこうなっている:
+
 <code>
-[info] Benchmark                                     Mode  Cnt    Score     Error  Units
-[info] BinaryBenchmark.moduleId1SaveToFile           avgt   10  152.395 ± 140.531  ms/op
-[info] BinaryBenchmark.moduleId2LoadFromFile         avgt   10   82.070 ±  22.701  ms/op
-[info] GzipScalaJsonBenchmark.moduleId1SaveToFile    avgt   10   49.864 ±  16.305  ms/op
-[info] GzipScalaJsonBenchmark.moduleId2LoadFromFile  avgt   10   41.000 ±   8.319  ms/op
-[info] GzipSprayBenchmark.moduleId1SaveToFile        avgt   10   60.115 ±  60.010  ms/op
-[info] GzipSprayBenchmark.moduleId2LoadFromFile      avgt   10   39.847 ±   5.957  ms/op
-[info] MessagePackBenchmark.moduleId1SaveToFile      avgt   10   48.141 ±   7.782  ms/op
-[info] MessagePackBenchmark.moduleId2LoadFromFile    avgt   10   90.794 ±  21.501  ms/op
-[info] ScalaJsonBenchmark.moduleId1SaveToFile        avgt   10   31.256 ±   5.688  ms/op
-[info] ScalaJsonBenchmark.moduleId2LoadFromFile      avgt   10   32.677 ±   6.304  ms/op
-[info] SprayBenchmark.moduleId1SaveToFile            avgt   10   32.879 ±   6.607  ms/op
-[info] SprayBenchmark.moduleId2LoadFromFile          avgt   10   40.074 ±  14.096  ms/op
+[info] Benchmark                                     Mode  Cnt   Score   Error  Units
+[info] GzipScalaJsonBenchmark.moduleId1SaveToFile    avgt   10  43.528 ± 4.601  ms/op
+[info] GzipScalaJsonBenchmark.moduleId2LoadFromFile  avgt   10  43.678 ± 2.873  ms/op
+[info] GzipSprayBenchmark.moduleId1SaveToFile        avgt   10  42.768 ± 2.806  ms/op
+[info] GzipSprayBenchmark.moduleId2LoadFromFile      avgt   10  35.995 ± 2.718  ms/op
+[info] MessagePackBenchmark.moduleId1SaveToFile      avgt   10  48.509 ± 6.870  ms/op
+[info] MessagePackBenchmark.moduleId2LoadFromFile    avgt   10  71.310 ± 6.126  ms/op
+[info] ScalaJsonBenchmark.moduleId1SaveToFile        avgt   10  31.169 ± 4.301  ms/op
+[info] ScalaJsonBenchmark.moduleId2LoadFromFile      avgt   10  40.558 ± 2.958  ms/op
+[info] SprayBenchmark.moduleId1SaveToFile            avgt   10  34.160 ± 3.802  ms/op
+[info] SprayBenchmark.moduleId2LoadFromFile          avgt   10  31.524 ± 3.403  ms/op
 </code>
 
-Jawn を用いた Scala JSON (63ms) は Spray JSON (72ms) よりも 12% 高速にデータのラウンドトリップしていることが分かる。同様の傾向が gzipped Scala JSON (90ms) と gzipped Spray JSON (99ms) でも見られる。性能の向上は多分 "unsafe" AST が `Array` を使っているのに対して、Spray JSON が `Vector` を使っていることから来ているのかもしれない。
+Jawn を用いた Scala JSON (72ms) は Spray JSON (65ms) よりも 9%
+遅くデータのラウンドトリップしていることが分かる。同様の傾向が gzipped Scala JSON (86ms) と gzipped Spray JSON (77ms) でも見られる。
 
 ファイルサイズは全く同一だった。両方とも Spray JSON の compact printer の実装に由来しているので、驚くことではない。
 
