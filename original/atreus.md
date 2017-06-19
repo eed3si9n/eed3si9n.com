@@ -1,7 +1,9 @@
   [quiet]: http://matias.ca/switches/quiet/
   [linear]: http://matias.ca/switches/linear/
+  [apple]: https://deskthority.net/wiki/Apple_Standard_Keyboard
+  [atreus]: https://atreus.technomancy.us/
 
-Last night I finished making my Atreus keyboard from a DYI kit that I got a while back.
+Last night I finished making my [Atreus keyboard][atreus] from a DYI kit that I got a while back.
 Here are some of the details:
 
 - I chose [Matias Quiet Click][quiet] switch option (gray slider). There's no clicking.
@@ -17,6 +19,8 @@ The kit comes with almost everything you need to assemble the Arteus keyboard. Y
 - Hakko Digital FX888D & CHP170 bundle, includes Soldering Station & CHP170 cutter
 - Hakko T18-C2 - T18 Series Soldering Tip for Hakko FX-888/FX-8801
 - DMiotech 0.8mm 50G 63/37 Rosin Core Tin Lead Soldering Solder Wire
+
+Note that Matias switches are clones of Alps SKCM that was used in the 80s and 90s for keyboards like [Apple Standard Keyboard][apple]. This means that all the fancy keycaps available for Cherry MX switches will not work. If you want, you have to order a partial kit that is Cherry compatible.
 
 ### The assembly
 
@@ -70,6 +74,8 @@ The firmware itself is straight up qwerty, but I switch super and option/alt on 
 My everyday keyboard is Microsoft Natural Ergonomic Keyboard 4000, but in the last year or so I've been coding more and more using the MacBook Pro keyboard, often from the kitchen where I hang out.
 This started to wear out the flimsy MacBook Pro keyboard to the point that some keys that I assigned to slide out the terminal started to miss the strokes.
 So a small size split keyboard sounnded like a good idea.
+
+The Matias Quiet Click has definite tactile bump when activated even though they're quiet, and also relatively high actuation of 60±5gf. I'd love to compare it against MX clear, which seems comparable at leat in terms of the spec. In terms of the feel and the quietness, I think I like the switch.
 
 The jury is still out, but the layout of Atreus requires some practice. It has significantly fewer keys compared even to laptop keyboards, so space (not a bar), shift, enter, backspace are all crammed on the bottom row as normal sized key. In addition, ortholinear layout means that I need to re-develop some of the muscle memory on where some of the keys are located. I have hard time particularly with 'c'.
 

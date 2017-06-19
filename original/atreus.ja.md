@@ -1,7 +1,9 @@
   [quiet]: http://matias.ca/switches/quiet/
   [linear]: http://matias.ca/switches/linear/
+  [apple]: https://deskthority.net/wiki/Apple_Standard_Keyboard
+  [atreus]: https://atreus.technomancy.us/
 
-しばらく前にキットで買った Atreus を昨日の夜作り終えた。詳細はこんな感じ:
+しばらく前にキットで買った [Atreus][atreus] を昨日の夜作り終えた。詳細はこんな感じ:
 
 - [Matias Quiet Click][quiet] スイッチのオプションを選んだ（スライダーはグレー）。クリックという名前は付いているがクリック感は無いことに注意。
 - 修飾キーには [Matias Quiet Linear][linear] スイッチを使用（スライダーは赤）。 
@@ -16,6 +18,8 @@
 - Hakko Digital FX888D & CHP170 bundle, includes Soldering Station & CHP170 cutter
 - Hakko T18-C2 - T18 Series Soldering Tip for Hakko FX-888/FX-8801
 - DMiotech 0.8mm 50G 63/37 Rosin Core Tin Lead Soldering Solder Wire
+
+ここで注意してほしいのは Matias社のスイッチは、80年代とか 90年代に [Apple Standard Keyboard][apple] などで採用された日本のアルプス電気の Alps SKCM のクローンであることだ。そのため、Cherry MX スイッチ用のおしゃれなキーキャップは一切使うことができない。それがやりたい人は Cherry 互換のパーシャルキットを注文する必要がある。
 
 ### 組み立て
 
@@ -68,6 +72,8 @@ avrdude done.  Thank you.
 
 僕が普段使っているキーボードは Microsoft Natural Ergonomic Keyboard 4000 だけど、ここ一年ぐらいキッチンとか色んな所でコードを書いていて MacBook Pro のキーボードもよく使うようになった。これによってヘナヘナな MacBook Pro に劣化が出てきて、例えばターミナルをスライドアウトさせるのに割り当てたキーが打鍵をミスするようになった。
 なので小型なスプリット式のキーボードは良いアイディアかのように思えた。
+
+Matias Quiet Click は、音こそは静かだが、打鍵したときの確かなバンプがあって、比較的高めな 60±5g 荷重でアクチュエートされる。スペック的には MX clear が比較対象となると思うので是非比べてみたい。打鍵感と静音という意味ではこのスイッチは今のところ気に入っている。
 
 最終的な結論はまだ控えるが、Atreus のレイアウトは練習を要するということは言える。ラップトップのキーボードと比較してもかなり少ないキーの数なので、スペース（バーではない）、シフト、エンター、バックスペースといったキーが通常サイズのキーとして最下列に詰め込まれている。さらに格子状のレイアウトなため、今まで培ってきたどこにキーがあるのかという反射神経を再開発する必要がある。特に 'c' を打つのに苦労している。
 
