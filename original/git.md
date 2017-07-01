@@ -107,10 +107,20 @@ To grab the latest as if you haven't hacked it yet,
 Hit the "fork" button on Github. Next, add the fork as a remote repository:
 
     $ git remote add origin git@github.com:YOUR_USERNAME/sbt.git 
-
+    
 Now, `origin` points to your repository.
 
     $ git push --set-upstream origin topic/foo
+
+## cleaning working directory
+
+Dry run clean:
+
+    $ git clean -nfxd
+
+To clean ignored and untracked directories and files:
+
+    $ git clean -fxd
 
 - [git guide by sourceforge.jp](http://sourceforge.jp/magazine/09/03/16/0831212)
 - [you don't have to fork to hack](http://subtech.g.hatena.ne.jp/miyagawa/20090114/1231910461)
