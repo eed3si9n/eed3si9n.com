@@ -78,7 +78,7 @@ fi
 $ chmod +x .travis/publish-site.sh
 </code>
 
-This script was originally [written](https://github.com/foundweekends/conscript/commit/3dbeca317c363ca4c224ba4d5f0f9eb44a64d1bf) by Yoshida-san.
+This script was originally [written](https://github.com/foundweekends/conscript/commit/3dbeca317c363ca4c224ba4d5f0f9eb44a64d1bf) by Yoshida-san. According to [him](https://twitter.com/xuwei_k/status/887519941884129284), this was in turn based on [GitHub push from Travis](http://blog.eiel.info/blog/2014/02/18/github-push-from-travis/) by eiel.
 
 ### 5. Edit .travis.yml
 

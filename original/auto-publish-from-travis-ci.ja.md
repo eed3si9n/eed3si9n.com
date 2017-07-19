@@ -78,7 +78,7 @@ fi
 $ chmod +x .travis/publish-site.sh
 </code>
 
-このスクリプトは吉田さんが[書いたもの](https://github.com/foundweekends/conscript/commit/3dbeca317c363ca4c224ba4d5f0f9eb44a64d1bf)を使っている。
+このスクリプトは吉田さんが[書いたもの](https://github.com/foundweekends/conscript/commit/3dbeca317c363ca4c224ba4d5f0f9eb44a64d1bf)を使っている。えいるさんの [Travis-CI でコミットして GitHub にプッシュする - 公開鍵認証を利用してみる](http://blog.eiel.info/blog/2014/02/18/github-push-from-travis/) がさらに[元ネタ](https://twitter.com/xuwei_k/status/887519941884129284)になっているらしい。
 
 ### 5. .travis.yml を編集する。
 
