@@ -72,7 +72,7 @@ Full discosure: As a day job, I maintain [sbt](http://www.scala-sbt.org/), a bui
 
 ![persistent-versioning-water](/images/persistent-versioning-water.jpg)
 
-In an early scene from Mad Max: Fury Road, Immortan Joe showers water on to the ragged citizen in the post apocalyptic desert for a minute, stops it, and declares: _Do not, my friends, become addicted to water. It will take hold of you, and you will resent its absence_. If I may paraphrase this in our context: 
+In an early scene from Mad Max: Fury Road, Immortan Joe showers water on to the ragged citizens of the post-apocalyptic desert for a minute, stops it, and declares: _Do not, my friends, become addicted to water. It will take hold of you, and you will resent its absence_. If I may paraphrase this in our context: 
 
 > Do not become addicted to versions. They will take hold of you, and you will resent their absence.
 
