@@ -9,6 +9,7 @@
   [semver2]: http://semver.org/spec/v2.0.0.html
   [harrah1]: https://docs.google.com/presentation/d/160LhAu9nl0zs1JzwAp8YUGQx5naJIE7dt1Q_VOoVnBk/edit#slide=id.gce05306d_050
   [hickey1]: https://www.youtube.com/watch?v=oyLBGkS5ICk
+  [hp1]: http://ometer.com/parallel.html
 
 本稿では、僕が Persistent Versioning と呼んでるバージョン方法を紹介する。本稿中に出てくるアイディアの多くは新しくもなければ僕が考案したものでもない。既に名前があるならば是非教えてほしい。
 
@@ -121,3 +122,9 @@ Persistent Versioning は、既存の Maven エコシステムと戦う代わり
 ### Persistent Versioning を誰が採用するべきか
 
 Persistent Versioning の初期採用者を見ると、それらが広く使われることを意図したライブラリであることが明らかだ。また、これは別のライブラリから間接依存性として使われることが多いだろう。Square OkHttp を一例にとると、これは Android 本体の一部として搬出されている。ライブラリの複数バージョンの併用が不可能ではない限りこのスキームの採用を是非検討してみてほしい。
+
+### 先行研究: Linux のパッケージ名
+
+Linux のディストーションにおいては、複数バージョンのライブラリを同時にインストールしたいときにバージョン番号を追加するのは一般的に行われている。2002年に (当時 Red Hat 勤務の) Havoc Pennington さんが書いた [parallel][hp1] というガイドがある。Typesafe 社で一時期一緒に働いていたときがあるので、以前に色んなアイディアをインセプションされた可能性もある:
+
+> この問題の解決方法は、事実上 Foo の名前を変えてしまうことで、たいていの場合簡便なのは全てのファイルにバージョン番号を追加することだ。これによって両方のバージョンの Foo を同時にインストールすることができる。

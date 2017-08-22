@@ -9,6 +9,7 @@
   [semver2]: http://semver.org/spec/v2.0.0.html
   [harrah1]: https://docs.google.com/presentation/d/160LhAu9nl0zs1JzwAp8YUGQx5naJIE7dt1Q_VOoVnBk/edit#slide=id.gce05306d_050
   [hickey1]: https://www.youtube.com/watch?v=oyLBGkS5ICk
+  [hp1]: http://ometer.com/parallel.html
 
 In this post, I'd like to introduce a version scheme that I call *Persistent Versioning*. Most of the ideas presented in this post are not new or my own. Let me know if there's already a name for it.
 
@@ -124,3 +125,9 @@ In terms of the maintenance overhead, it should not be any different from mainta
 ### who should adopt Persistent Versioning?
 
 If we look at the early adopters of Persistent Versioning, it should be clear that these are libraries that are intended to be used widely, and often from some other libraries as transitive dependencies. Square OkHttp, for example, is shipped as part of Android. Unless it's impossible to have multiple versions of the library side-by-side, you should consider adopting this scheme.
+
+### prior works: Linux package names
+
+On Linux distributions, it's common to append major versions number when it is desired to install libraries side-by-side. Here's [parallel][hp1] guide from 2002 by Havoc Pennington (then Red Hat), who I had the pleasure to work with for some time in Typesafe. It's entirely possible that he has incepted some of these ideas back then:
+
+> The solution to the problem is essentially to rename Foo, and in most cases the nicest way to do so is to include the version number in the name of every file. This means both versions of Foo can be installed at the same time.
