@@ -1,3 +1,5 @@
+> **NOTE:** Official docs: http://www.scala-sbt.org/1.x/docs/Testing-sbt-plugins.html
+
 Let's talk about testing. Once you write a plugin, it turns into a long-term thing. To keep adding new features (or to keep fixing bugs), writing tests makes sense. But how does one go about testing a plugin to a build tool? We fly, of course.
 
 ## scripted test framework
