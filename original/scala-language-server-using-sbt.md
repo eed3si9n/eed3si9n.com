@@ -2,7 +2,7 @@ It's been a month since sbt 1.0 shipped, and I can finally sit back and think ab
 
 ### what is a language server?
 
-A language server is a program that can provide language service to editors like Visual Studio Code via [Language Server Protocol](https://github.com/Microsoft/language-server-protocol). A typical operation might be `textDocument/didOpen`, which tells the server that a source file was opened in the editor.
+A language server is a program that can provide language service to editors like Visual Studio Code, Eclipse Che, and Sublime Text 3 via [Language Server Protocol](https://github.com/Microsoft/language-server-protocol). A typical operation might be `textDocument/didOpen`, which tells the server that a source file was opened in the editor.
 
 This is clever idea since it frees editor authors from being too close to one programming language (like traditional IDEs), and it simultaneously allows language providers to focus on operations. Since it's a JSON-based protocol, it feels more like writing a backend for a web application. Another neat thing is that we don't have to provide all the features at once.
 
@@ -161,6 +161,6 @@ When hitting the save button, this will highlight compiler errors.
 
 ### summary and future works
 
-sbt server can potentially support Language Server Protocol, a common protocol that are already supported by numbers of editors including VS Code and Eclipse Che. This post demonstrated that we can call sbt's `compile` task and display compiler errors.
+sbt server can potentially support Language Server Protocol, a common protocol that are already supported by a number of editors including VS Code and Eclipse Che. This post demonstrated that we can call sbt's `compile` task and display compiler errors.
 
 Next step might be to migrate the current encoding of sbt server to JSON-RPC. Once my basic setup goes into sbt (currently a pull request https://github.com/sbt/sbt/pull/3524), it would be good to open discussion with various others who have already worked in this area and/or shown interest. Also for weekend hackers, this might be a fun way to contribute to the Scala tooling ecosystem.
