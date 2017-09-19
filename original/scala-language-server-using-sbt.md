@@ -4,7 +4,7 @@ It's been a month since sbt 1.0 shipped, and I can finally sit back and think ab
 
 A language server is a program that can provide language service to editors like Visual Studio Code, Eclipse Che, and Sublime Text 3 via [Language Server Protocol](https://github.com/Microsoft/language-server-protocol). A typical operation might be `textDocument/didOpen`, which tells the server that a source file was opened in the editor.
 
-This is clever idea since it frees editor authors from being too close to one programming language (like traditional IDEs), and it simultaneously allows language providers to focus on operations. Since it's a JSON-based protocol, it feels more like writing a backend for a web application. Another neat thing is that we don't have to provide all the features at once.
+This is a clever idea since it frees editor authors from being too close to one programming language (like traditional IDEs), and it simultaneously allows language providers to focus on operations. Since it's a JSON-based protocol, it feels more like writing a backend for a web application. Another neat thing is that we don't have to provide all the features at once.
 
 There is already an implementation of Scala language server by Iulian Dragos called [dragos-vscode-scala](https://github.com/dragos/dragos-vscode-scala), which uses ENSIME as a backend. Given that I mostly use Sublime and sbt to code, I figured I can cut the middle and just get to Zinc events.
 
