@@ -1,6 +1,10 @@
-In this post I am going to discuss an old new problem of encoding file path as Uniform Resource Identifier (URI) reference. It's surprising how it's not a solved issue, but then again, maybe we didn't have to deal with so much polyglot communication issues until recently.
+In this post I am going to discuss an old new problem of encoding file path as Uniform Resource Identifier (URI) reference.
 
-As of 2017, the authoritative source of information is [RFC 8089 - The "file" URI Scheme][rfc8089]. Future readers might also want to search for "file URI scheme RFC", and find the latest version. If you're a programmer, read the RFC. This post is to raise the awareness of the some of the issues around file to URI encoding.
+As of 2017, the authoritative source of information is [RFC 8089 - The "file" URI Scheme][rfc8089] written by Matthew Kerwin.
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">RFC 8089 The &quot;file&quot; URI Scheme <a href="https://t.co/pAIVmQNzCT">https://tools.ietf.org/html/rfc8089 </a> Wow, it actually happened.</p>&mdash; Matthew Kerwin (@phluid61) <a href="https://twitter.com/phluid61/status/832817027576246272?ref_src=twsrc%5Etfw">February 18, 2017</a></blockquote>
+
+Future readers might also want to search for "file URI scheme RFC", and find the latest version. If you're a programmer, read the RFC. This post is to raise the awareness of the some of the issues around file to URI encoding, but it's not a substitution.
 
 Recently I've been running into interop problems as some platforms are unable to parse `file:/foo/bar`. But this is not the first time I'm having trouble with file path represented as URI. Considering that the notion of filesystem goes back to 1960s, and URL has been around since 1990s, it's surprising that we haven't come to a concensus on this. But then again, like decimal numbers, once you start digging deeper, or start exchanging data, we find some glitches in the Matrix.
 
@@ -215,7 +219,7 @@ Another notation that is mentioned in the non-normative [Appendix E.2. DOS and W
 file:c:/path/to/file
 </code>
 
-Accomodating u0 notation for Windows absolute path opens the door to an elegant conversion from any file path to URI: just prepend `file:` in front of the path after slash conversion. But this does not work by default:
+Accomodating u0 notation for Windows absolute path opens the door to an elegant conversion from any absolute file path to URI: just prepend `file:` in front of the path after slash conversion. But this does not work by default:
 
 <scala>
 scala> new File(new URI("file:C:/Documents%20and%20Settings/"))
@@ -243,7 +247,7 @@ scala> toFile(new URI("file:C:/Documents%20and%20Settings/"))
 res6: java.io.File = C:\Documents and Settings
 </scala>
 
-Even though using u0 notation has a property, given the blog post by Microsoft and backward compatibility with RFC 1738, if you are on the emitting side, u3 notation is recommended.
+Even though using u0 notation has a nice property, given the blog post by Microsoft and backward compatibility with RFC 1738, if you are on the emitting side, u3 notation is recommended.
 
 ### relative path on Windows filesystem
 
