@@ -36,6 +36,12 @@ I wanted give Expecty a try, so I forked the repo to [eed3si9n/expecty][expecty2
 libraryDependencies += "com.eed3si9n.expecty" %% "expecty" % "0.11.0" % Test
 </scala>
 
+and for Scala.JS and Scala Native:
+
+<scala>
+libraryDependencies += "com.eed3si9n.expecty" %%% "expecty" % "0.11.0" % Test
+</scala>
+
 Here's how we can use this:
 
 <scala>

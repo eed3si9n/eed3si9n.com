@@ -36,6 +36,12 @@ Scala には、なんと Peter Niederwieser さん本人が 2012年ごろに書�
 libraryDependencies += "com.eed3si9n.expecty" %% "expecty" % "0.11.0" % Test
 </scala>
 
+Scala.JS か Scala Native の場合は:
+
+<scala>
+libraryDependencies += "com.eed3si9n.expecty" %%% "expecty" % "0.11.0" % Test
+</scala>
+
 以下のように使うことができる:
 
 <scala>
