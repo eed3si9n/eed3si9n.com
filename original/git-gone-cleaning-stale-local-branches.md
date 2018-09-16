@@ -29,7 +29,7 @@ OPTIONS
 
 EXAMPLES
 git gone -pn  prune and dry run
-git gone -d delete the gone branches
+git gone -d   delete the gone branches
 </code>
 
 First we need to delete the remote tracking branches (in `remotes/origin/`). This is called pruning.

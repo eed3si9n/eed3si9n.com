@@ -29,7 +29,7 @@ OPTIONS
 
 EXAMPLES
 git gone -pn  prune and dry run
-git gone -d delete the gone branches
+git gone -d   delete the gone branches
 </code>
 
 まずは remote を (`remotes/origin/` 内で) トラッキングしてるブランチを削除する必要がある。これはプルーニング (pruning) と呼ばれる。
