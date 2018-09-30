@@ -171,20 +171,24 @@ object NoComma {
 <scala>
 import Dependencies._
 
+ThisBuild / organization := "com.example"
+ThisBuild / scalaVersion := "2.12.7"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
+
 lazy val root = (project in file("."))
   .settings(nocomma {
-    ThisBuild / organization := "com.example"
-    ThisBuild / scalaVersion := "2.12.4"
-    ThisBuild / version      := "0.1.0-SNAPSHOT"
-
     name := "Hello"
 
     // comment works
     libraryDependencies += scalaTest % Test
+
+    scalacOptions ++= List(
+      "-encoding", "utf8", "-deprecation", "-unchecked", "-Xlint"
+    )
+    Compile / scalacOptions += "-Xfatal-warnings"
+    Compile / console / scalacOptions --= Seq("-deprecation", "-Xfatal-warnings", "-Xlint")
   })
 </scala>
-
-カンマが一切使われていないことに注目してほしい。
 
 `Setting[_]` に決め打ちしたおかげで、例えば `println(...)` みたいなものがまぎれ込んでも読み込み時にキャッチできる:
 
