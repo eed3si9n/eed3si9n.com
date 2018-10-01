@@ -20,7 +20,7 @@ Moreover, even if an old-timer user takes it as a faith that sbt is executing th
 
 "super shell" that displays the current tasks in progress solves these problems. Tasks that finish in less than 1s wouldn't even show up to the screen, but when tasks are taking a long time the build user will see the count up clock.
 
-![super shell](/images/super-shell.gif)
+![super shell](https://raw.githubusercontent.com/eed3si9n/eed3si9n.com/master/images/super-shell.gif)
 
 I think the first time I noticed something like that was the "rich console" of Gradle. Buck also implements this, and it apparently calls the feature "super console", so I am going to use the name as well.
 
