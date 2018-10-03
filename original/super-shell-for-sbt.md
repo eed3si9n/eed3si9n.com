@@ -14,7 +14,7 @@ Like many things in life, the presentation of work, or the user interface for th
 
 I've taken for granted that sbt processes the task in parallel within a single command execution. However, I've come across several occasions lately that I noticed that people did not know that about sbt. This is actually understandable since nothing in the build DSL or the user interface makes it obvious that sbt does parallel task execution.
 
-Moreover, even if an old-timer user takes it as a faith that sbt is executing the tasks in parallel, it's currently difficult to know which tasks become the bottle neck of the performance. Some plugin could be calling `update` unnecessarily, or maybe out-of-process Typescript compiler is being called repeatedly without any changes to source.
+Moreover, even if an old-timer user takes it on faith that sbt is executing the tasks in parallel, it's currently difficult to know which tasks become the bottle neck of the performance. Some plugin could be calling `update` unnecessarily, or maybe out-of-process Typescript compiler is being called repeatedly without any changes to source.
 
 ### super shell
 
