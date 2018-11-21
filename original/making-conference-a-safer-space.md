@@ -56,6 +56,15 @@ If we collectively want to improve women's inclusion in tech conferences, I thin
 
 You might be thinking "seriously, I would never hit on anyone at a conference," but that's besides the point. What we need to do is move the entire bell curve forward and make sure _everyone_ understands it. That includes people who are new to technical conference scene, or open source culture.
 
+### Edit: safe space
+
+After posting this, I realized that not everyone is familiar with the term "safe space." Here's a definition I found:
+
+> Safe space can be defined as a place where any young person can relax and be fully self-expressed, without fear of being made to feel uncomfortable, unwanted, or unsafe on account of biological sex, sexual orientation, gender identity or gender expression, race/ethnicity, cultural background, age, or physical and mental ability. It is a place where the rules guard each person’s self-respect and strongly encourage everyone to
+respect others.
+>
+> [Advocates for Youth](https://advocatesforyouth.org/resources/health-information/creating-safe-space-for-glbtq-youth-a-toolkit/)
+
 ### ScalaMatsuri code of conduct
 
 Inspired by reports of harassments, [I proposed back in 2015](http://eed3si9n.com/scalamatsuri-as-a-lifestyle) to adopt stricter policy on making advancements at ScalaMatsuri and any related events, and it was accepted by other organizers.
