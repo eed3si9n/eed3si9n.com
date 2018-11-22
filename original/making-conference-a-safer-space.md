@@ -1,3 +1,5 @@
+> This post was coauthored by Eugene Yokota and Yifan Xing
+
 ### summary
 
 We need to change the culture around tech conferences to improve the inclusion of women (and people from other backgrounds too!). For that, there needs to be clear signaling and communication about two basic issues:
@@ -97,7 +99,7 @@ Here are some work-in-progress tips for conference organizers.
 
 Include the two basic rules into Code of Conduct:
 
-1. No, it's not ok to hit on women at a conference.
+1. Ban asking other participants out (comments about appearance, romantic or sexual interest) or inappropriate physical contact.
 2. Assume technical competence, and treat women as professional peers.
 
 - Clearly communicate this policy first thing in the morning and right before the social hour.
