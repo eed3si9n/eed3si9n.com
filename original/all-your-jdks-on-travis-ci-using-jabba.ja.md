@@ -2,6 +2,64 @@
 
 OpenJDK 11-ea, GraalVM, Eclipse OpenJ9 を試してみたり、未だに OpenJDK 6 でビルドしなければいけなかったりしたとしても [jabba][jabba] なら万全だ。[jabba][jabba] は Stanley Shyiko ([@shyiko](https://twitter.com/shyiko)) さんが作ったクロスプラットフォームな Java のバージョンマネージャーだ。
 
+### AdoptOpenJDK 8 and 11
+
+以下は jabba を使って Travis CI 上で AdoptOpenJDK 8 と 11 を用いてクロスビルドする方法だ:
+
+<code>
+sudo: false
+dist: trusty
+group: stable
+
+language: scala
+
+scala:
+  - 2.12.7
+
+env:
+  global:
+    - JABBA_HOME=/home/travis/.jabba
+
+matrix:
+  include:
+  - env:
+      - TRAVIS_JDK=adopt@1.8.192-12
+  - env:
+      - TRAVIS_JDK=adopt@1.11.0-1
+
+before_install:
+  - curl -sL https://raw.githubusercontent.com/shyiko/jabba/0.11.0/install.sh | bash && . ~/.jabba/jabba.sh
+
+install:
+  - $JABBA_HOME/bin/jabba install $TRAVIS_JDK
+  - unset _JAVA_OPTIONS
+  - export JAVA_HOME="$JABBA_HOME/jdk/$TRAVIS_JDK" && export PATH="$JAVA_HOME/bin:$PATH" && java -Xmx32m -version
+
+script: sbt -Dfile.encoding=UTF8 -J-XX:ReservedCodeCacheSize=256M ++$TRAVIS_SCALA_VERSION! test
+
+before_cache:
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt  -name "*.lock"               -delete
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot
+    - $HOME/.jabba/jdk
+</code>
+
+ジョブが走ると、以下のように表示されるはずだ:
+
+<code>
+$ export JAVA_HOME="$JABBA_HOME/jdk/$TRAVIS_JDK" && export PATH="$JAVA_HOME/bin:$PATH" && java -Xmx32m -version
+openjdk version "11.0.1" 2018-10-16
+OpenJDK Runtime Environment AdoptOpenJDK (build 11.0.1+13)
+OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.1+13, mixed mode)
+</code>
+
+
+### Azul Zulu OpenJDK 6
+
 以下は jabba を使って Travis CI 上で Azul Zulu OpenJDK 6 を用いてビルドする方法だ:
 
 <code>
@@ -19,10 +77,12 @@ env:
     - SCRIPT_TEST="; mimaReportBinaryIssues; test"
 
 before_install:
-  - curl -sL https://raw.githubusercontent.com/shyiko/jabba/0.10.1/install.sh | bash && . ~/.jabba/jabba.sh
+  - curl -sL https://raw.githubusercontent.com/shyiko/jabba/0.11.0/install.sh | bash && . ~/.jabba/jabba.sh
 
 install:
-  - $JABBA_HOME/bin/jabba install $TRAVIS_JDK && export JAVA_HOME="$JABBA_HOME/jdk/$TRAVIS_JDK" && export PATH="$JAVA_HOME/bin:$PATH" && java -Xmx32m -version
+  - $JABBA_HOME/bin/jabba install $TRAVIS_JDK
+  - unset _JAVA_OPTIONS
+  - export JAVA_HOME="$JABBA_HOME/jdk/$TRAVIS_JDK" && export PATH="$JAVA_HOME/bin:$PATH" && java -Xmx32m -version
 
 # Undo _JAVA_OPTIONS environment variable
 before_script:
@@ -42,7 +102,7 @@ cache:
     - $HOME/.jabba/jdk
 </code>
 
-`TRAVIS_JDK` 変数を指定するには <https://github.com/shyiko/jabba/blob/0.10.1/index.json> の `"linux"` セクションから JDK を選択する。
+`TRAVIS_JDK` 変数を指定するには <https://github.com/shyiko/jabba/blob/master/index.json> の `"linux"` セクションから JDK を選択する。
 
 ジョブが走ると、以下のように表示されるはずだ:
 
