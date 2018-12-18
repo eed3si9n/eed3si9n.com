@@ -2,6 +2,7 @@
   [218]: https://github.com/scopt/scopt/issues/218
   [args]: https://github.com/scala/scala/blob/v2.13.0-M5/src/library/scala/App.scala#L46
   [11317]: https://github.com/scala/bug/issues/11317
+  [heiko]: https://hseeberger.wordpress.com/2013/10/25/attention-seq-is-not-immutable/
 
 As of Scala 2.13.0-M5, it's planned that `scala.Seq` will change from `scala.collection.Seq` to `scala.collection.immutable.Seq`. [Scala 2.13 collections rework][1] explains a bit about why it's been non-immutable historically. Between the lines, I think it's saying that we should celebrate that `scala.Seq` will now be immutable out of the box.
 
@@ -68,3 +69,38 @@ import scala.collection.immutable.{ Seq => ISeq }
 </scala>
 
 If you care about your API semantics being the same across cross builds you might opt for `CSeq` for anything public. And maybe when you bump your API, you can change them all to `ISeq`.
+
+### addendum: scala.IndexedSeq is affected too
+
+Sciss (Hanns) pointed out that `scala.IndexedSeq` are affected in the same way. So if you're doing this for `scala.Seq` you might as well check for `scala.IndexedSeq` too.
+
+### addendum: Heiko Seq
+
+Sciss (Hanns) also [reminded](https://www.reddit.com/r/scala/comments/a71pi3/masking_scalaseq/) me about Heiko Seq, which Heiko wrote in [Seq is not immutable!][heiko] post back in 2013:
+
+<scala>
+package object scopt {
+  type Seq[+A] = scala.collection.immutable.Seq[A]
+  val Seq = scala.collection.immutable.Seq
+  type IndexedSeq[+A] = scala.collection.immutable.IndexedSeq[A]
+  val IndexedSeq = scala.collection.immutable.IndexedSeq
+}
+</scala>
+
+This will adopt the `scala.immutable.Seq` across all Scala versions. If you want to stay on `scala.collection.Seq`, you can use the Sciss variation:
+
+<scala>
+package object scopt {
+  type Seq[+A] = scala.collection.Seq[A]
+  val Seq = scala.collection.Seq
+  type IndexedSeq[+A] = scala.collection.IndexedSeq[A]
+  val IndexedSeq = scala.collection.IndexedSeq
+}
+</scala>
+
+If you don't want to go through your source deciding whether to use `CSeq`, `ISeq`, or `List`, this might be a solution for you.
+
+### addendum: vararg
+
+Dale reminded about related Scala 2.13 migration issue, which is vararg.
+Given that Scala specification specifies that `scala.Seq` is passed on, vararg parameters will expect `scala.collection.immutable.Seq`. This matters if your users are calling your API as `something(xs: _*)`, and `xs` happens to be an array etc. This is a Scala wide change, and it's something everyone has to change if you migrate to Scala 2.13.

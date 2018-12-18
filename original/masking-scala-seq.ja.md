@@ -2,6 +2,7 @@
   [218]: https://github.com/scopt/scopt/issues/218
   [args]: https://github.com/scala/scala/blob/v2.13.0-M5/src/library/scala/App.scala#L46
   [11317]: https://github.com/scala/bug/issues/11317
+  [heiko]: https://hseeberger.wordpress.com/2013/10/25/attention-seq-is-not-immutable/
 
 現行の Scala 2.13.0-M5 のままで行くと、`scala.Seq` は `scala.collection.Seq` から `scala.collection.immutable.Seq` に変更される予定だ。[Scala 2.13 collections rework][1] に何故今まで不変じゃなかったのかの解説が少し書かれている。行間から推し量ると、`scala.Seq` がデフォルトで不変になることを喜ぶべきだと言っているんだと思う。
 
@@ -68,3 +69,38 @@ import scala.collection.immutable.{ Seq => ISeq }
 </scala>
 
 クロスビルド間の API semantics が統一されているべきと思うならば、public なものは全て `CSeq` を使うのがいいと思う。そして API が変更されるタイミングで `ISeq` を全面的に採用するかを検討すればいいと思う。
+
+### 追記: scala.IndexedSeq
+
+Sciss (Hanns) さんに `scala.IndexSeq` にも同様に影響があることを指摘してもらった。`scala.Seq` 対策をする場合は `scala.IndexedSeq` も同様に対応するべきだろう。
+
+### 追記: Heiko Seq
+
+あともう一つ Sciss (Hanns) さんに[思い出させて](https://www.reddit.com/r/scala/comments/a71pi3/masking_scalaseq/)もらったのは Heiko Seq のことだ。これは、Heiko さんが 2013年に [Seq is not immutable!][heiko] 書いている:
+
+<scala>
+package object scopt {
+  type Seq[+A] = scala.collection.immutable.Seq[A]
+  val Seq = scala.collection.immutable.Seq
+  type IndexedSeq[+A] = scala.collection.immutable.IndexedSeq[A]
+  val IndexedSeq = scala.collection.immutable.IndexedSeq
+}
+</scala>
+
+これは `scala.immutable.Seq` を全ての Scala バージョンで採用することになる。`scala.collection.Seq` のままが良ければ Sciss さんのバリエーションを使えばいい:
+
+<scala>
+package object scopt {
+  type Seq[+A] = scala.collection.Seq[A]
+  val Seq = scala.collection.Seq
+  type IndexedSeq[+A] = scala.collection.IndexedSeq[A]
+  val IndexedSeq = scala.collection.IndexedSeq
+}
+</scala>
+
+ソースを検査して `CSeq`、`ISeq`、`List` と決めるのが面倒なひとはこういう手もあるかもしれない。
+
+### 追記: 可変長引数 (vararg)
+
+あと、関連する Scala 2.13 マイグレーションの事項として可変長引数 (vararg) があるというコメントを Dale 君がしていた。
+Scala の言語仕様として可変長引数は `scala.Seq` を受け取ることになっているので、この変更によって実質 `scala.collection.immutable.Seq` を期待するという変更になる。あなたのユーザが API を `something(xs: _*)` というふうに呼び出していて、`xs` が配列などであった場合に影響が出てくる。これは Scala 全体の変更で、Scala 2.13 に移行するときに全員が変更しなければいけない。
