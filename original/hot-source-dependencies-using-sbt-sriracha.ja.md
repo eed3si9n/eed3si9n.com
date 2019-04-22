@@ -150,6 +150,18 @@ X foo.HelloTests.test1 28ms
 
 µTest をさらにいじりたければ `utestJVMRef` を `ProjectRef(IO.toURI(workspaceDirectory / "utest"), "utestJVM")` に置き換える。
 
+### 更新: Scala 2.13.0-RC1
+
+Scala 2.13.0-RC1 だと以下のようになる:
+
+<scala>
+lazy val utestVersion = "0.6.6"
+lazy val utestJVMRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#79950544"), "utestJVM")
+lazy val utestJVMLib = "com.lihaoyi" %% "utest" % utestVersion
+lazy val utestJSRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#79950544"), "utestJS")
+lazy val utestJSLib = "com.lihaoyi" %% "utest_sjs0.6" % utestVersion
+</scala>
+
 ### まとめ
 
 - sbt はソース依存性を使うことができる

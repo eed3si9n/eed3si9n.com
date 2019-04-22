@@ -150,6 +150,18 @@ X foo.HelloTests.test1 28ms
 
 If you want to further hack on µTest, just substitute `utestJVMRef` to `ProjectRef(IO.toURI(workspaceDirectory / "utest"), "utestJVM")`.
 
+### update: Scala 2.13.0-RC1
+
+Here's what you can use for Scala 2.13.0-RC1
+
+<scala>
+lazy val utestVersion = "0.6.6"
+lazy val utestJVMRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#79950544"), "utestJVM")
+lazy val utestJVMLib = "com.lihaoyi" %% "utest" % utestVersion
+lazy val utestJSRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#79950544"), "utestJS")
+lazy val utestJSLib = "com.lihaoyi" %% "utest_sjs0.6" % utestVersion
+</scala>
+
 ### summary
 
 - sbt can use source dependencies
