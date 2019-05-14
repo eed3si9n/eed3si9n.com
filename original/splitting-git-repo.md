@@ -50,7 +50,7 @@ git clone someotherRepo
 cd someotherRepo
 git remote add childRepo ../childRepo
 git checkout -b wip/graft
-git pull childRepo wip/graft --allow-unrelated-histories
+git pull childRepo master --allow-unrelated-histories
 git remote remove childRepo
 </code>
 
