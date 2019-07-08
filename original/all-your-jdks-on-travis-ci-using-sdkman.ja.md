@@ -35,6 +35,7 @@ before_install:
 install:
   - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1)
   - unset JAVA_HOME
+  - unset _JAVA_OPTIONS
   - java -Xmx32m -version
 
 script: sbt -Dfile.encoding=UTF8 -J-XX:ReservedCodeCacheSize=256M ++$TRAVIS_SCALA_VERSION! test
@@ -91,6 +92,7 @@ before_install:
 install:
   - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1)
   - unset JAVA_HOME
+  - unset _JAVA_OPTIONS
   - java -Xmx32m -version
   # detect sbt version from project/build.properties, otherwise hardcode as export TRAVIS_SBT=1.2.8
   - export TRAVIS_SBT=$(grep sbt.version= project/build.properties | sed -e 's/sbt.version=//g' ) && echo "sbt $TRAVIS_SBT"
