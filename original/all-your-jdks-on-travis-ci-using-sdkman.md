@@ -33,7 +33,7 @@ before_install:
   - source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | tail -1)
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1)
   - unset JAVA_HOME
   - java -Xmx32m -version
 
@@ -89,7 +89,7 @@ before_install:
   - source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | tail -1)
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1)
   - unset JAVA_HOME
   - java -Xmx32m -version
   # detect sbt version from project/build.properties, otherwise hardcode as export TRAVIS_SBT=1.2.8
