@@ -11,8 +11,7 @@
 以下は SDKMAN! を使って Travis CI 上で AdoptOpenJDK 8 と 11 を用いてクロスビルドする方法だ:
 
 <code>
-sudo: false
-dist: trusty
+dist: xenial
 group: stable
 
 language: scala
@@ -28,14 +27,13 @@ matrix:
 
 before_install:
   # adding $HOME/.sdkman to cache would create an empty directory, which interferes with the initial installation
-  - "[[ -d /home/travis/.sdkman/ ]] && [[ -d /home/travis/.sdkman/bin/ ]] || rm -rf /home/travis/.sdkman/"
+  - "[[ -d $HOME/.sdkman/bin/ ]] || rm -rf $HOME/.sdkman/"
   - curl -sL https://get.sdkman.io | bash
-  - echo sdkman_auto_answer=true > /home/travis/.sdkman/etc/config
-  - source "/home/travis/.sdkman/bin/sdkman-init.sh"
+  - echo sdkman_auto_answer=true > $HOME/.sdkman/etc/config
+  - source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 install:
   - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | tail -1)
-  - unset _JAVA_OPTIONS
   - unset JAVA_HOME
   - java -Xmx32m -version
 
@@ -69,8 +67,7 @@ javac 11.0.3
 SDKMAN! を使うことで、Travis CI がプレインストールする sbt-extras じゃなくて sbt 公式ディストリビューションを使うことも可能だ。
 
 <code>
-sudo: false
-dist: trusty
+dist: xenial
 group: stable
 
 language: scala
@@ -86,14 +83,13 @@ matrix:
 
 before_install:
   # adding $HOME/.sdkman to cache would create an empty directory, which interferes with the initial installation
-  - "[[ -d /home/travis/.sdkman/ ]] && [[ -d /home/travis/.sdkman/bin/ ]] || rm -rf /home/travis/.sdkman/"
+  - "[[ -d $HOME/.sdkman/bin/ ]] || rm -rf $HOME/.sdkman/"
   - curl -sL https://get.sdkman.io | bash
-  - echo sdkman_auto_answer=true > /home/travis/.sdkman/etc/config
-  - source "/home/travis/.sdkman/bin/sdkman-init.sh"
+  - echo sdkman_auto_answer=true > $HOME/.sdkman/etc/config
+  - source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 install:
   - sdk install java $TRAVIS_JDK
-  - unset _JAVA_OPTIONS
   - unset JAVA_HOME
   - java -Xmx32m -version
   # detect sbt version from project/build.properties, otherwise hardcode as export TRAVIS_SBT=1.2.8
