@@ -1,4 +1,3 @@
-
   [1]: http://eed3si9n.com/all-your-jdks-on-travis-ci-using-jabba
 
 This is a second post on installing your own JDKs on Travis CI. Previously I've written about [jabba][1].
@@ -6,6 +5,8 @@ This is a second post on installing your own JDKs on Travis CI. Previously I've 
 Today, let's look at [SDKMAN!](https://sdkman.io/), an environment manager written by Marco Vermeulen ([@marc0der](https://twitter.com/marc0der)) for JDKs and various tools on JVM, including Groovy, Spark, sbt, etc.
 
 ### AdoptOpenJDK 11 and 8
+
+**Update 2019-07-08**: Updated the script to detect patch version. See GitHub for the [older version](https://github.com/eed3si9n/eed3si9n.com/blob/4aeeadaf8b32c4cd8d21afd4d5bdcec7538b0aff/original/all-your-jdks-on-travis-ci-using-sdkman.md).
 
 Here's how we can use SDKMAN! on Travis CI to cross build using AdoptOpenJDK 11 and 8:
 
@@ -21,9 +22,9 @@ scala: 2.12.8
 matrix:
   include:
   - env:
-      - TRAVIS_JDK=11.0.2.hs-adpt
+      - ADOPTOPENJDK=11
   - env:
-      - TRAVIS_JDK=8.0.202.hs-adpt
+      - ADOPTOPENJDK=8
 
 before_install:
   # adding $HOME/.sdkman to cache would create an empty directory, which interferes with the initial installation
@@ -33,8 +34,9 @@ before_install:
   - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $TRAVIS_JDK
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | tail -1)
   - unset _JAVA_OPTIONS
+  - unset JAVA_HOME
   - java -Xmx32m -version
 
 script: sbt -Dfile.encoding=UTF8 -J-XX:ReservedCodeCacheSize=256M ++$TRAVIS_SCALA_VERSION! test
@@ -50,15 +52,16 @@ cache:
     - $HOME/.sdkman
 </code>
 
-How did I get those `11.0.2.hs-adpt` string? Run `sdk list java` locally.
-
 When the job runs you should see something like:
 
 <code>
 $ java -Xmx32m -version
-openjdk version "11.0.2" 2019-01-15
-OpenJDK Runtime Environment AdoptOpenJDK (build 11.0.2+9)
-OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.2+9, mixed mode)
+openjdk version "11.0.3" 2019-04-16
+OpenJDK Runtime Environment AdoptOpenJDK (build 11.0.3+7)
+OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.3+7, mixed mode)
+install.4
+$ javac -version
+javac 11.0.3
 </code>
 
 ### official sbt distribution
@@ -77,9 +80,9 @@ scala: 2.12.8
 matrix:
   include:
   - env:
-      - TRAVIS_JDK=11.0.2.hs-adpt
+      - ADOPTOPENJDK=11
   - env:
-      - TRAVIS_JDK=8.0.202.hs-adpt
+      - ADOPTOPENJDK=8
 
 before_install:
   # adding $HOME/.sdkman to cache would create an empty directory, which interferes with the initial installation
@@ -89,8 +92,9 @@ before_install:
   - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $TRAVIS_JDK
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | tail -1)
   - unset _JAVA_OPTIONS
+  - unset JAVA_HOME
   - java -Xmx32m -version
   # detect sbt version from project/build.properties, otherwise hardcode as export TRAVIS_SBT=1.2.8
   - export TRAVIS_SBT=$(grep sbt.version= project/build.properties | sed -e 's/sbt.version=//g' ) && echo "sbt $TRAVIS_SBT"
