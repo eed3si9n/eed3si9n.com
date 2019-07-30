@@ -2,7 +2,7 @@
   [ivy2]: http://ant.apache.org/ivy/history/2.3.0/settings/conflict-managers.html
   [ivy3]: https://github.com/sbt/ivy/blob/2.3.0/src/java/org/apache/ivy/plugins/latest/LatestRevisionStrategy.java
   [maven1]: https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
-  [pronounce]: https://www.youtube.com/watch?v=aFSq-YqpeXU
+  [pronounce]: https://forvo.com/word/coursier/
   [coursier1]: https://get-coursier.io/docs/other-version-selection
   [coursier2]: https://github.com/coursier/coursier/blob/c9efac25623e836d6aea95f792bf22f147fa5915/doc/docs/other-version-handling.md
   [php1]: https://www.php.net/manual/en/function.version-compare.php
@@ -177,7 +177,7 @@ In the latest-wins semantics, specifying `config:1.2.0` effectively means "give 
 
 #### Coursier's latest-wins semantics
 
-Before we get into the dependency resolution semantics of Coursier, a quick note about how to pronounce the stuff. It's kind of like [KO-ugh-si-eh][pronounce].
+Before we get into the dependency resolution semantics of Coursier, a quick note about how to pronounce the stuff. It's kind of like [COURSE-yeah][pronounce] according to [Alex](https://twitter.com/alxarchambault/status/1156109836033171456).
 
 Cool thing about Coursier is that there's a [version reconciliation][coursier1] page in the documentation that talks about the dependency resolution semantics.
 

@@ -2,7 +2,7 @@
   [ivy2]: http://ant.apache.org/ivy/history/2.3.0/settings/conflict-managers.html
   [ivy3]: https://github.com/sbt/ivy/blob/2.3.0/src/java/org/apache/ivy/plugins/latest/LatestRevisionStrategy.java
   [maven1]: https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html
-  [pronounce]: https://www.youtube.com/watch?v=aFSq-YqpeXU
+  [pronounce]: https://forvo.com/word/coursier/
   [coursier1]: https://get-coursier.io/docs/other-version-selection
   [coursier2]: https://github.com/coursier/coursier/blob/c9efac25623e836d6aea95f792bf22f147fa5915/doc/docs/other-version-handling.md
   [php1]: https://www.php.net/manual/en/function.version-compare.php
@@ -175,7 +175,7 @@ latest-wins セマンティクスにおいては、`config:1.2.0` を指定す�
 
 #### Coursier の latest-wins セマンティクス
 
-Coursier の依存性リゾルバーセマンティクスについて考察する前に、発音に関して少し。フランス語の r なので[コ(ʁ)シエ][pronounce]っぽい感じになる。
+Coursier の依存性リゾルバーセマンティクスについて考察する前に、発音に関して少し。[コース・イェ][pronounce]っぽい感じになるらしい。
 
 Coursier が良いのはドキュメンテーションに [version reconciliation][coursier1] というページがあって、依存性解決のセマンティクスについて書かれている。
 
