@@ -11,7 +11,7 @@
 
 ### dependency resolver
 
-A dependency resolver, or package manager, is a program that determines a consistent set of modules based on a set of constraints provided by the user. Normally the constraint specification would normally include the names of the modules and their version numbers. In JVM ecosystem, Maven modules are denoted with organization name (group id) as well. In addition there may be more constraints like version range, excluded modules, version overrides etc.
+A dependency resolver, or package manager, is a program that determines a consistent set of modules based on a set of constraints provided by the user. The constraint specification would normally include the names of the modules and their version numbers. In JVM ecosystem, Maven modules are denoted with organization name (group id) as well. In addition there may be more constraints like version range, excluded modules, version overrides etc.
 
 The three major categories of packaging are OS packages (Homebrew, Debian packages, etc), modules for specific programming languages (CPAN, RubyGem, Maven, etc), and application-specifc extensions (Eclipse plugins, IntelliJ plugins, VS Code extensions).
 
@@ -179,7 +179,7 @@ In the latest-wins semantics, specifying `config:1.2.0` effectively means "give 
 
 Before we get into the dependency resolution semantics of Coursier, a quick note about how to pronounce the stuff. It's kind of like [KO-ugh-si-eh][pronounce].
 
-Cool thing about Coursier is that there's a [version reconciliation][coursier1] page in the documentation that talks about the dependency resolution semantics called.
+Cool thing about Coursier is that there's a [version reconciliation][coursier1] page in the documentation that talks about the dependency resolution semantics.
 
 > - Take the intersection of the input intervals. If it's empty (the intervals don't overlap), there's a conflict. If there are no input intervals, assume the intersection is `(,)` (interval matching all versions).
 > - Then look at specific versions:
@@ -215,7 +215,7 @@ sbt:foo> evicted
 [info]      +- com.typesafe.akka:akka-stream_2.12:2.5.3           (depends on 0.2.1)
 </code>
 
-#### side note: Apache Ivy's emulation of latest-wins semantics?
+#### side note: Apache Ivy's emulation of nearest-wins semantics?
 
 When Ivy resolves a module out of a Maven repository, it puts `force="true"` attribute on the `ivy.xml` in Ivy cache when it translates from POM file. See for example `cat ~/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/ivy-2.5.3.xml`:
 
@@ -435,7 +435,7 @@ Since the version ranges come up frequently enough to be annoying, I am sending 
 
 ### summary
 
-The semantics of a dependency resolver determine the concrete classpath based on the user-specified dependency constraints. Typically the differences in the details manifest as different way the version conflicts are resolved.
+The semantics of a dependency resolver determines the concrete classpath based on the user-specified dependency constraints. Typically the differences in the details manifest as different way the version conflicts are resolved.
 
 - Maven uses nearest-wins strategy, which could downgrade transitive dependencies
 - Ivy uses latest-wins strategy
