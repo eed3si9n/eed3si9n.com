@@ -6,17 +6,17 @@
 
 ### AdoptOpenJDK 11 と 8
 
+**2019-11-06 更新**: SDKMAN の更新プロンプトが CI をブロックするのを回避するために `sdkman_auto_selfupdate` を追加した。また、`sdk install` の行に `|| true` を追加した。
 **2019-07-08 更新**: パッチバージョンを自動検知するように変更した。[古い版](https://github.com/eed3si9n/eed3si9n.com/blob/4aeeadaf8b32c4cd8d21afd4d5bdcec7538b0aff/original/all-your-jdks-on-travis-ci-using-sdkman.ja.md)は GitHub に置いてある。
 
 以下は SDKMAN! を使って Travis CI 上で AdoptOpenJDK 8 と 11 を用いてクロスビルドする方法だ:
 
 <code>
 dist: xenial
-group: stable
 
 language: scala
 
-scala: 2.12.8
+scala: 2.12.10
 
 matrix:
   include:
@@ -27,14 +27,14 @@ matrix:
 
 before_install:
   # adding $HOME/.sdkman to cache would create an empty directory, which interferes with the initial installation
-  - "[[ -d $HOME/.sdkman/bin/ ]] || rm -rf $HOME/.sdkman/"
+  - "[[ -d /home/travis/.sdkman/ ]] && [[ -d /home/travis/.sdkman/bin/ ]] || rm -rf /home/travis/.sdkman/"
   - curl -sL https://get.sdkman.io | bash
-  - echo sdkman_auto_answer=true > $HOME/.sdkman/etc/config
-  - source "$HOME/.sdkman/bin/sdkman-init.sh"
+  - echo sdkman_auto_answer=true > /home/travis/.sdkman/etc/config
+  - echo sdkman_auto_selfupdate=true >> $HOME/.sdkman/etc/config
+  - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1)
-  - unset JAVA_HOME
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1) || true
   - unset _JAVA_OPTIONS
   - unset JAVA_HOME
   - java -Xmx32m -version
@@ -47,6 +47,7 @@ before_cache:
 
 cache:
   directories:
+    - $HOME/.cache/coursier
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot
     - $HOME/.sdkman
@@ -70,11 +71,10 @@ SDKMAN! を使うことで、Travis CI がプレインストールする sbt-ext
 
 <code>
 dist: xenial
-group: stable
 
 language: scala
 
-scala: 2.12.8
+scala: 2.12.10
 
 matrix:
   include:
@@ -85,20 +85,20 @@ matrix:
 
 before_install:
   # adding $HOME/.sdkman to cache would create an empty directory, which interferes with the initial installation
-  - "[[ -d $HOME/.sdkman/bin/ ]] || rm -rf $HOME/.sdkman/"
+  - "[[ -d /home/travis/.sdkman/ ]] && [[ -d /home/travis/.sdkman/bin/ ]] || rm -rf /home/travis/.sdkman/"
   - curl -sL https://get.sdkman.io | bash
-  - echo sdkman_auto_answer=true > $HOME/.sdkman/etc/config
-  - source "$HOME/.sdkman/bin/sdkman-init.sh"
+  - echo sdkman_auto_answer=true > /home/travis/.sdkman/etc/config
+  - echo sdkman_auto_selfupdate=true >> $HOME/.sdkman/etc/config
+  - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1)
-  - unset JAVA_HOME
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1) || true
   - unset _JAVA_OPTIONS
   - unset JAVA_HOME
   - java -Xmx32m -version
   # detect sbt version from project/build.properties, otherwise hardcode as export TRAVIS_SBT=1.2.8
   - export TRAVIS_SBT=$(grep sbt.version= project/build.properties | sed -e 's/sbt.version=//g' ) && echo "sbt $TRAVIS_SBT"
-  - sdk install sbt $TRAVIS_SBT
+  - sdk install sbt $TRAVIS_SBT || true
   # override Travis CI's SBT_OPTS
   - unset SBT_OPTS
   - export JAVA_OPTS="-Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M"
@@ -111,6 +111,7 @@ before_cache:
 
 cache:
   directories:
+    - $HOME/.cache/coursier
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot
     - $HOME/.sdkman
