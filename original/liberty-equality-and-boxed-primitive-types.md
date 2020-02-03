@@ -445,6 +445,6 @@ Here is some summary.
 
 - Scala 2.x uses universal equality which allows comparison of `Int` and `String`. Dotty introduces "multiversal" `strictEquality` that works similar to `Eq` typeclass.
 - Currently both Scala 2.x and Dotty use Java's `==` to compare unboxed primitive types. This mixes comparison of `Int` with `Float` and `Double` etc.
-- `Float` is narrower than `Int`.
+- `Float` is narrower than `Int`, and `Double` is narrower than `Long`.
 - Because Scala transparently boxes `Int` into `java.lang.Integer` as `(1: Any)`, it implements cooperative equality for `==` and `##`, but not for `equals` and `hashCode`, which emulates widening for boxed primitive types. Many people are unaware of this behavior, and this could lead to surprising bugs if people believed that `equals` is same as `==`.
 - We might be able to remove cooperative equality if we are willing to make unboxed primitive comparison of different types `1L == 1` an error.
