@@ -20,6 +20,15 @@
 
 I want to understand how equality works in Scala. It's a complicated topic that's been going on for ten years.
 
+Major concerns are:
+- `null`
+- Unboxed number types
+- Boxed number types
+- Reference types
+- Collections (especially of `F[+A]`)
+
+Understanding equality means knowing how these combinations are compared.
+
 ### Scala Language Specification
 
 The language spec provides some hints, although it does not have the full information. [Chapter 12][12] contains the definition of `Any` as follows:
