@@ -1,0 +1,69 @@
+<img border="0" alt="" src="/images/2020-03-500x500.jpg" width="500" />
+
+Spotify: https://open.spotify.com/playlist/0PHmoJCo6yesLCHC1cFaBJ?si=mg6tqCRYTzWxRPLN6wdZlw
+YouTube: https://www.youtube.com/playlist?list=PLSUh6oJ5ZotVTZp7NrT2vq7Y9npLmn1ty
+4h 35m
+
+### track list
+
+- Hold Me - Lil Halima [[lyrics](https://genius.com/Lil-halima-hold-me-lyrics)]
+- Menschen und Mauern - Shed
+- Baby - Four Tet
+- Escape Pod - тпсб
+- Cinderella - Instupendo [[lyrics](https://genius.com/Instupendo-cinderella-lyrics)]
+- Purvayi (Anhad + Tanner Remix) - Midival Punditz, Papon
+- Blue Spring - Nathan Micay
+- Take U There - Jasper Lotti
+- Uk Will Not Survive - Rainer Veil
+- Undertow - Former Hero [[lyrics](https://genius.com/Former-hero-undertow-lyrics)]
+- Volition (Robag Wruhme's Botnax Caal Remix) - Max Cooper, Wilderthorn, Robag Wruhme
+- Voltaire - Horsemen
+- Blue Moon Tree - Lone
+- Promethium Reprise - ylxr, Midnight
+- Skyline (Marco Berto Rmx) - Subset, Marco Berto
+- Valmer - Dark Sky, Minioca
+- C O S M - Jon Hopkins
+- No Shortcuts - Waldo, Savon, Sango [[lyrics](https://genius.com/Waldo-no-shortcuts-lyrics)]
+- Part Five - Suzanne Ciani
+- Glitter - Altone
+- Old Neon - Altone
+- Penrose Tiling - Max Cooper
+- Due West - Kelsey Lu [[lyricss](https://genius.com/Kelsey-lu-due-west-lyrics)]
+- Never Meant - American Football [[lyrics](https://genius.com/American-football-never-meant-lyrics)]
+- Click (Feat. Kim Petras and Tommy Cash) - Charli XCX, Kim Petras, Tommy Cash [[lyrics](https://genius.com/Charli-xcx-click-lyrics)]
+- Phase Transition - Indian Wells
+- Bromley - Joy Orbison, Overmono
+- Soulan - Acid Arab, Les Filles de Illighadad
+- Rae - Autechre
+- Enough - Kelela [[lyrics](https://genius.com/Kelela-enough-lyrics)]
+- Ares - Covet
+- Glow - Ocoeur
+- Fancy - Xavier Dunn [[lyrics](https://genius.com/Xavier-dunn-fancy-annotated)]
+- Start Again - Kidnap
+- Untitled - Indian Wells
+- Ecstasy - Disclosure
+- Oread - Space Afrika
+- Landscape Two (Fluxion Mix) - Gradient, Fluxion
+- Long Summer - Om Unit
+- グッドバイ - toe [[lyrics](https://www.kkbox.com/jp/ja/song/ScYriOA3sHnYMWKocWKoc0P4-index.html)]
+- Running (Bombay Dub Orchestra Edit) - Model Man, Bombay Dub Orchestra
+- Cascade Effect - Barker
+- Voyage de la planéte - Marc Romboy
+- Oolong - Packed Rich
+- Endless Cultural Turnover - Jacques, Superpoze
+- Paradigm Shift ASAP - Cosmin TRG
+- Persuasion System (Anastasia Kristensen Ambient Rework) - Com Truise, Anastasia Kristensen
+- Close - Ed Carlsen
+- Tide Pools - Suzanne Ciani
+- Stasis Sounds for Long-Distance Space Travel (Extended Hypersleep Program 4 - City at Night) - 36, zakè
+- Mental Model No. 2 - John Roberts
+
+### previous mixtapes
+
+- [music for new ark (2019.12 mixtape)](http://eed3si9n.com/2019.12-mixtape)
+- [future left identity (2019.09 mixtape)](http://eed3si9n.com/2019.09-mixtape)
+- [delta vee (2019.06 mixtape)](http://eed3si9n.com/2019.06-mixtape)
+- [2019.03 mixtape](http://eed3si9n.com/2019.03-mixtape)
+- [underhill (2019.12 mixtape)](http://eed3si9n.com/2018.12-mixtape)
+- [xenoanthropology (2018.09 mixtape)](http://eed3si9n.com/2018.09-mixtape)
+- [2018.06 mixtape](http://eed3si9n.com/2018.06-mixtape)
