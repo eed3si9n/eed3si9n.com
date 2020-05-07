@@ -1,6 +1,6 @@
 Ever since I learned about Google's build infrastructure Blaze, which is today open sourced as Bazel, I've througt of having a similar facility for Scala's tool chain. This is not particularly original since there's been prior works such as Peter Vlugter and Ben Dougherty's work on [nailgun Zinc](https://github.com/typesafehub/zinc/commits/master/src/main/scala/com/typesafe/zinc/SbtAnalysis.scala), which was used in Pants, and Krzysztof Romanowski's [Hoarder](https://github.com/romanowski/hoarder). These rely on the idea of transforming the absolute paths appearing in Zinc Analysis file for each working directory.
 
-Before I go into the details of what I've been working on, let's demontrate the problem space.
+Before I go into the details of what I've been working on, let's demonstrate the problem space.
 
 ### machine-dependence of the build
 
@@ -126,4 +126,4 @@ The notion of cached compilation or remote cache has been around for a while now
 
 Even for open source projects, if Travis CI publishes into Bintray or something, the contributors might be able to resume compilation off of the last build.
 
-The PR for sbt change is [sbt/sbt#5534](https://github.com/sbt/sbt/pull/5534).
+The PR for sbt change is [sbt/sbt#5534](https://github.com/sbt/sbt/pull/5534), and the virtualization change in Zinc is [sbt/zinc#712](https://github.com/sbt/zinc/pull/712).

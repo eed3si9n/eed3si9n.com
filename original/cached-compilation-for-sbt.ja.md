@@ -126,4 +126,4 @@ Java の整形とコード生成が走って多少のコンパイルが発生し
 
 オープンソースのプロジェクトでも Travis CI が Bintray にキャッシュをプッシュすれば、コントリビューターは最新のビルドからコンパイルをレジュームということができるかもしれない。
 
-sbt の変更の pull req は [sbt/sbt#5534](https://github.com/sbt/sbt/pull/5534) だ。
+sbt の変更の pull req は [sbt/sbt#5534](https://github.com/sbt/sbt/pull/5534) で、Zinc 側の仮想ファイル化は [sbt/zinc#712](https://github.com/sbt/zinc/pull/712) だ。
