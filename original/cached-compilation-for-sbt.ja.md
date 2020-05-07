@@ -1,4 +1,4 @@
-Google のビルドインフラ Blaze (現在は Bazel としてオープンソース化されている) のことを知ってから Scala のツールチェインにも似たような仕組みが欲しいとずっと思い続けてきた。これは特に独創的な発想という訳では無く、Peter Vlugter さんと Ben Dougherty さんの [nailgun Zinc](https://github.com/typesafehub/zinc/commits/master/src/main/scala/com/typesafe/zinc/SbtAnalysis.scala) での機能 (Pants で使われていた?) や、Krzysztof Romanowski さんの [Hoarder](https://github.com/romanowski/hoarder) など先行研究もある。それらは、作業ディレクトリに合わせて Zinc Analsis ファイルの絶対パスを変換するというアイディアから成り立っている。
+Google のビルドインフラ Blaze (現在は Bazel としてオープンソース化されている) のことを知ってから Scala のツールチェインにも似たような仕組みが欲しいとずっと思い続けてきた。これは特に独創的な発想という訳では無く、Peter Vlugter さんと Ben Dougherty さんの [nailgun Zinc](https://github.com/typesafehub/zinc/commits/master/src/main/scala/com/typesafe/zinc/SbtAnalysis.scala) での機能 (Pants で使われていた?) や、Krzysztof Romanowski さんの [Hoarder](https://github.com/romanowski/hoarder) など先行研究もある。それらは、作業ディレクトリに合わせて Zinc Analsis ファイル内に格納されている絶対パスを変換するというアイディアから成り立っている。
 
 僕の作業の詳細に入る前に、問題スペースをざっとデモしよう。
 
