@@ -344,23 +344,20 @@ def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
 <scala>
 def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
   Def.taskIf {
-    if (useCoursier.value) Def.task { CoursierDependencyResolution(csrConfiguration.value) }
-    else Def.task { IvyDependencyResolution(ivyConfiguration.value, CustomHttp.okhttpClient.value) }
+    if (useCoursier.value) CoursierDependencyResolution(csrConfiguration.value)
+    else IvyDependencyResolution(ivyConfiguration.value, CustomHttp.okhttpClient.value)
   }
 
 def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
   Def.taskIf {
-    if ((publish / skip).value)
-      Def.task {
-        val s = streams.value
-        val ref = thisProjectRef.value
-        s.log.debug(s"Skipping publish* for ${ref.project}")
-      }
-    else
-      Def.task {
-        val s = streams.value
-        IvyActions.publish(ivyModule.value, config.value, s.log)
-      }
+    if ((publish / skip).value) {
+      val s = streams.value
+      val ref = thisProjectRef.value
+      s.log.debug(s"Skipping publish* for ${ref.project}")
+    } else {
+      val s = streams.value
+      IvyActions.publish(ivyModule.value, config.value, s.log)
+    }
   } tag (Tags.Publish, Tags.Network)
 </scala>
 
@@ -391,9 +388,9 @@ Scala だと関連する構文はパターンマッチかもしれない:
 
 <scala>
 something match {
-  case pattern1 => Def.task { ... }
-  case pattern2 => Def.task { ... }
-  case pattern3 => Def.task { ... }
+  case pattern1 => something1
+  case pattern2 => something2
+  case pattern3 => something3
 }
 </scala>
 
@@ -407,8 +404,8 @@ sbt では、Selective 合成は `Def.taskIf` マクロを使って表すこと�
 
 <scala>
 Def.taskIf {
-  if (Boolean) Def.task { ... }
-  else Def.task { ... }
+  if (Boolean) something1
+  else something2
 }
 </scala>
 
