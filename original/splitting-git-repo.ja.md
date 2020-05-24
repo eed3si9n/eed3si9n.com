@@ -1,4 +1,4 @@
-### サブディレクトリを新しいリポジトリへ分岐させる
+### サブディレクトリを新しいリポジトリへ分岐させる (シンプルな場合)
 
 <code>
 git clone --no-hardlinks --branch master originalRepoURL childRepo
@@ -10,6 +10,22 @@ git gc --aggressive
 </code>
 
 `originalRepoURL`、`master`、`path/to/keep` などは適当な値に変える。全てのブランチを処理したい場合は `-- --all` を使う。
+
+### サブディレクトリを新しいリポジトリへ分岐させる (複雑な場合)
+
+複数のパスをフィルターしたい場合は、`--index-filter` と `brew install gnu-sed findutils` によってインストールできる GNU xargs と GNU sed を使う必要がある。
+
+<code>
+git clone --no-hardlinks --branch master originalRepoURL childRepo
+cd childRepo
+git filter-branch --index-filter 'git rm --cached -qr --ignore-unmatch -- . && git reset -q $GIT_COMMIT -- path1/to/keep path2/to/keep' --prune-empty master
+git filter-branch --prune-empty --parent-filter 'gsed "s/-p //g" | gxargs git show-branch --independent | gsed "s/\</-p /g"'
+git remote remove origin
+git prune
+git gc --aggressive
+</code>
+
+`originalRepoURL`、`master`、`path1/to/keep`、`path2/to/keep` などは適当な値に変える。全てのブランチを処理したい場合は `-- --all` を使う。
 
 ### src を path/to/keep に戻す
 
@@ -61,3 +77,4 @@ git remote remove childRepo
 - [git-filter-branch](https://git-scm.com/docs/git-filter-branch)
 - [Splitting a subfolder out into a new repository](https://help.github.com/en/articles/splitting-a-subfolder-out-into-a-new-repository)
 - [Moving Files from one Git Repository to Another, Preserving History](http://gbayer.com/development/moving-files-from-one-git-repository-to-another-preserving-history/)
+- [Detach many subdirectories into a new, separate Git repository](https://stackoverflow.com/a/17867910/3827)

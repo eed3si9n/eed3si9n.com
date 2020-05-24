@@ -1,4 +1,4 @@
-### split a subdirectory into a new repo
+### split a subdirectory into a new repo (simple case)
 
 <code>
 git clone --no-hardlinks --branch master originalRepoURL childRepo
@@ -10,6 +10,22 @@ git gc --aggressive
 </code>
 
 Change `originalRepoURL`, `master`, and `path/to/keep` to appropriate values. Use `-- --all` to handle all branches.
+
+### split a subdirectory into a new repo (complex case)
+
+In case you have multiple paths you want to filter, you need to use `--index-filter` together with GNU xargs and GNU sed available via `brew install gnu-sed findutils`.
+
+<code>
+git clone --no-hardlinks --branch master originalRepoURL childRepo
+cd childRepo
+git filter-branch --index-filter 'git rm --cached -qr --ignore-unmatch -- . && git reset -q $GIT_COMMIT -- path1/to/keep path2/to/keep' --prune-empty master
+git filter-branch --prune-empty --parent-filter 'gsed "s/-p //g" | gxargs git show-branch --independent | gsed "s/\</-p /g"'
+git remote remove origin
+git prune
+git gc --aggressive
+</code>
+
+Change `originalRepoURL`, `master`, `path1/to/keep`, `path2/to/keep` to appropriate values. Use `-- --all` to handle all branches.
 
 ### move src back to path/to/keep
 
@@ -61,3 +77,4 @@ This way you can send this as a pull request etc.
 - [git-filter-branch](https://git-scm.com/docs/git-filter-branch)
 - [Splitting a subfolder out into a new repository](https://help.github.com/en/articles/splitting-a-subfolder-out-into-a-new-repository)
 - [Moving Files from one Git Repository to Another, Preserving History](http://gbayer.com/development/moving-files-from-one-git-repository-to-another-preserving-history/)
+- [Detach many subdirectories into a new, separate Git repository](https://stackoverflow.com/a/17867910/3827)
