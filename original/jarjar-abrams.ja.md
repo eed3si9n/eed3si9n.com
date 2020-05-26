@@ -4,7 +4,7 @@
 
 このような衝突はプログラムがランタイムやフレームワーク上で実行される場合によく起こる。sbt プラグインがその例だ。Spark もそう。1つの緩和策として間接的ライブラリを自分のパッケージの中にシェーディングするという方法がある。2004年に herbyderby (Chris Nokleberg) さんは [Jar Jar Links](https://code.google.com/archive/p/jarjar/) というライブラリを再パッケージ化するツールを作った。
 
-2015年に Wu Xiang さんが Jar Jar Links を使ったシェーディングのサポートを [sbt-assembly](https://github.com/sbt/sbt-assembly) に[追加](https://github.com/sbt/sbt-assembly/pull/162)した。これは前向きな一歩だったが、課題も残っていた。問題の 1つは Scala コンパイラは ScalaSignature 情報を `*.class` ファイルに埋め込むが、Jar Jar がそのことを知らないことだ。2020年になって Jeroen ter Voorde さんが ScalaSignature の変換を [sbt-assembly#393](https://github.com/sbt/sbt-assembly/pull/393) にて実装した。sbt-assembly からこの部分を抜き出してライブラリにしたのが Jar Jar Abrams だ。
+2015年に Wu Xiang さんが Jar Jar Links を使ったシェーディングのサポートを [sbt-assembly](https://github.com/sbt/sbt-assembly) に[追加](https://github.com/sbt/sbt-assembly/pull/162)した。これは前向きな一歩だったが、課題も残っていた。問題の 1つは Scala コンパイラは ScalaSignature 情報を `*.class` ファイルに埋め込むが、Jar Jar がそのことを知らないことだ。2020年になって [Simacan](https://simacan.com/)社の Jeroen ter Voorde さんが ScalaSignature の変換を [sbt-assembly#393](https://github.com/sbt/sbt-assembly/pull/393) にて実装した。sbt 以外でもこれは役に立つかもしれないので、独立したライブラリに抜き出した。これが Jar Jar Abrams だ。
 
 ### core API
 

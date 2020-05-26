@@ -4,7 +4,7 @@ For library authors, the idea of other library is a double-edged sword. On one h
 
 This type of conflict happens often in a setup, where a program runs on top of a runtime or a framework. sbt plugins are like that. Spark is another example. One way to mitigate this to shade the transitive libraries under your own package. In 2004, herbyderby (Chris Nokleberg) created a tool called [Jar Jar Links](https://code.google.com/archive/p/jarjar/) that can repackage libraries.
 
-In 2015, Wu Xiang [added](https://github.com/sbt/sbt-assembly/pull/162) shading support to [sbt-assembly](https://github.com/sbt/sbt-assembly) using Jar Jar Links. This was a step forward, but the challenges remained. One of the issues was that Scala compiler includes ScalaSignature information into the `*.class` files, but Jar Jar was not aware of it. Fast forward to 2020, Jeroen ter Voorde implemented ScalaSignature conversion in [sbt-assembly#393](https://github.com/sbt/sbt-assembly/pull/393). Instead of keeping it in sbt-assembly, I wanted to split this up into its own library.
+In 2015, Wu Xiang [added](https://github.com/sbt/sbt-assembly/pull/162) shading support to [sbt-assembly](https://github.com/sbt/sbt-assembly) using Jar Jar Links. This was a step forward, but the challenges remained. One of the issues was that Scala compiler includes ScalaSignature information into the `*.class` files, but Jar Jar was not aware of it. Fast forward to 2020, Jeroen ter Voorde at [Simacan](https://simacan.com/) contributed ScalaSignature conversion in [sbt-assembly#393](https://github.com/sbt/sbt-assembly/pull/393). (Thanks Simacan!) I wanted to split this up into its own library, since this might be useful beyond sbt. This is Jar Jar Abrams.
 
 ### core API
 
