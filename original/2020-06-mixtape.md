@@ -1,0 +1,72 @@
+<img border="0" alt="" src="/images/2020-06-500x500.jpg" width="500" />
+
+Spotify: https://open.spotify.com/playlist/4fAHIQhqD4GdaqoCZVrULG?si=crwaw9y-Q-yfqwErXiTqJg
+YouTube: https://www.youtube.com/playlist?list=PLSUh6oJ5ZotXZXAHittTWaNgO3uGdvls7
+3h 59m
+
+### track list
+
+- Moonstone - Ekcle
+- Find Me (Hoskins Remix) - Szjerdene, Hoskins [[lyrics](https://genius.com/Szjerdene-find-me-lyrics)]
+- Welcome Rain - U-zhaan, Ametsub
+- Stellar - Jamila Woods [[lyrics](https://genius.com/Jamila-woods-stellar-lyrics)]
+- No Justice - Ty Dolla $ign, Big TC [[lyrics](https://genius.com/Ty-dolla-sign-no-justice-lyrics)]
+- LA CANCIÓN - maye [[lyrics](https://genius.com/Maye-la-cancion-lyrics)]
+- Mt. Wolf - Life Size Ghosts (Catching Flies Remix) - Catching Flies [[lyrics](https://genius.com/Mt-wolf-life-size-ghosts-lyrics)]
+- Everything Goes Black - Kilamanzego
+- RIPLEY - Lorn
+- Ordinary Boy - Ultraísta [[lyrics](https://genius.com/Ultraista-ordinary-boy-lyrics)]
+- Monolith (Overture) - Sinjin Hawke
+- Settle - BAYNK, Sinéad Harnett [[lyrics](https://genius.com/Baynk-settle-lyrics)]
+- Joy Of Rebirth - J. Albert
+- Sunny's Time - Caribou [[lyrics](https://genius.com/Caribou-sunnys-time-lyrics)]
+- Discipline of Enthusiasm - Lorenzo Senni
+- Who Shaves The Barber - Nathan Micay
+- Insect Near Piha Beach - Four Tet
+- Backdrops - Andrea
+- Berry Streets - Chon, GoYama
+- Toxic - Kehlani [[lyrics](https://genius.com/Kehlani-toxic-lyrics)]
+- Reverie - Sorrow
+- Spellbound - Imre Kiss
+- Song For You - Jacques Greene Remix - Rhye [[lyrics](https://genius.com/Rhye-song-for-you-lyrics)]
+- Liggi - Ritviz [[lyrics](https://genius.com/Ritviz-liggi-lyrics)]
+- She Like - Happy Singh
+- Jaani Tera Naa - Sunanda Sharma [[lyrics](https://www.metrolyrics.com/jaani-tera-naa-lyrics-sunanda-sharma.html)]
+- Tell All Ur Friends - Greyhat, J'von [[lyrics](https://genius.com/Greyhat-tell-all-ur-friends-lyrics)]
+- Unthoughtful - Charlotte de Witte
+- Bunny (Meitei Remix) - Tourist, Meitei
+- Canone Infinito - Lorenzo Senni
+- Remember - Claro Intelecto
+- schw schw - Rei Harakami
+- Verkunstungstraktat - Vril
+- Hardly A Day, Hardly A Night - Cubicolor [[lyrics](https://genius.com/Cubicolor-hardly-a-day-hardly-a-night-lyrics)]
+- The Night - Halogenix, Solah [[lyrics](https://www.musixmatch.com/lyrics/Halogenix-feat-Solah/The-Night)]
+- Think About What You Love - Daniel Avery
+- Kawanabe Kyosai (Pt. 1) - Meitei
+- Licidana - Apparat
+- NEVER SETTLING DOWN - Yaeji [[lyrics](https://genius.com/Yaeji-never-settling-down-lyrics)]
+- Isolation - Dwson
+- Dance Tonight Revolution Tomorrow - Lorenzo Senni
+- Jungle Frequency - Kilamanzego
+- The Difference - Flume, Toro y Moi [[lyrics](https://genius.com/Flume-the-difference-lyrics)]
+- Zen - Oscar Masala
+- Untitled B1 - Space Afrika
+- Ark - Kirk Barley
+- Transparent Tickle Shining Glace - Pantha du Prince
+- HVA (Failed Revolutions) - Port-Royal
+- Table Tennis - Flying Lotus, Laura Darlington [[lyrics](https://genius.com/Flying-lotus-table-tennis-lyrics)]
+- Letter to Glass, Hania Rani
+- A Hymn - Khruangbin
+- 互いの宇宙 - JYOCHO [[lyrics](https://www.lyrical-nonsense.com/lyrics/jyocho/tagai-no-uchuu/)]
+- vice versa - Rei Harakami
+
+### previous mixtapes
+
+- [2020.03 mixtape](http://eed3si9n.com/2020.03-mixtape)
+- [music for new ark (2019.12 mixtape)](http://eed3si9n.com/2019.12-mixtape)
+- [future left identity (2019.09 mixtape)](http://eed3si9n.com/2019.09-mixtape)
+- [delta vee (2019.06 mixtape)](http://eed3si9n.com/2019.06-mixtape)
+- [2019.03 mixtape](http://eed3si9n.com/2019.03-mixtape)
+- [underhill (2019.12 mixtape)](http://eed3si9n.com/2018.12-mixtape)
+- [xenoanthropology (2018.09 mixtape)](http://eed3si9n.com/2018.09-mixtape)
+- [2018.06 mixtape](http://eed3si9n.com/2018.06-mixtape)
