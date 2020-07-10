@@ -4,8 +4,9 @@
   [@Shougo]: https://github.com/Shougo
   [command-t]: https://github.com/wincent/command-t
   [denite]: https://github.com/Shougo/denite.nvim
+  [fzf]: https://github.com/junegunn/fzf
 
-The combination of fuzzy searching ([Command-T][command-t], [Denite][denite] etc) and file explorer are great. That's pretty much what you get when you open Sublime Text or VS Code.
+The combination of fuzzy searching ([fzf][fzf], [Command-T][command-t], [Denite][denite] etc) and file explorer are great. That's pretty much what you get when you open Sublime Text or VS Code.
 
 This post is my attempt to configure Neovim so I can get a nice tree-view style file explorer. This was inspired in part because I tried to use Onivim, and for me the lack of functional file explorer was noticable maybe because I mostly use Sublime or VS Code.
 

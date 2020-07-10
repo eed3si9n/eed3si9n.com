@@ -4,8 +4,9 @@
   [@Shougo]: https://github.com/Shougo
   [command-t]: https://github.com/wincent/command-t
   [denite]: https://github.com/Shougo/denite.nvim
+  [fzf]: https://github.com/junegunn/fzf
 
-ファジー検索 ([Command-T][command-t], [Denite][denite] etc) とファイル・エクスプローラーのコンボは最強だ。Sublime Text や VS Code を開いてもこの 2つが出てきて、それでだいたい事足りる。
+ファジー検索 ([fzf][fzf], [Command-T][command-t], [Denite][denite] etc) とファイル・エクスプローラーのコンボは最強だ。Sublime Text や VS Code を開いてもこの 2つが出てきて、それでだいたい事足りる。
 
 本稿は Neovim を頑張って設定して、ツリーヴューのファイル・エクスプローラーを作ってみようという試みだ。1つの動機としては Onivim のアルファ版を使ってみて、機能的なファイル・エクスプローラーが無いというのが辛かったというのがある。普段 Sublime や VS Code を使ってる人視点なのでそれは悪しからず。
 
