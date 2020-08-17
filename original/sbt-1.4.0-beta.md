@@ -1,20 +1,30 @@
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.4.0-M1. This is the first beta release for sbt 1.4.0.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.4.0-M2. This is the first beta release for sbt 1.4.0.
 
-The headline features of sbt 1.4.0 are build server protocol (BSP) support and build caching.
+The headline features of sbt 1.4.0 are:
+
+- build server protocol (BSP) support
+- sbtn: a native thin client for sbt
+- build caching
+- `ThisBuild / versionScheme` to take the guessing out of eviction warning
 
 ### How to upgrade
 
-You can upgrade to sbt 1.4.0-M1 by putting the following in `project/build.properties`:
+You can upgrade to sbt 1.4.0-M2 by putting the following in `project/build.properties`:
 
 <code>
-sbt.version=1.4.0-M1
+sbt.version=1.4.0-M2
 </code>
 
-### Known issues
+### Changes since M1
 
-- sbt 1.4.0-M1 does not support Dotty yet.
-
-Check <https://github.com/sbt/sbt/issues> for other reported issues. If you find an issue, please report there.
+- ThisBuild / versionScheme. See below for details.
+- Native thin client. See below for details.
+- Incremental build pipelining. See below for details.
+- Updates shell to use JLine 3 for better tab completion [#5671][5671] by [@eatkins][@eatkins]
+- Adds support for Scala 2.13-3.0 sandwich [#5767][5767] by [@eed3si9n][@eed3si9n]
+- Fixes Dotty support.
+- Fixes conditional task.
+- Fixes remote cache id [#5622][5622] by [@iRevive][@iRevive]
 
 ### Build server protocol (BSP) support
 
@@ -41,15 +51,38 @@ When sbt 1.4.0 starts, it will create a file named `.bsp/sbt.json` containing a 
 
 [#5538][5538]/[#5443][5443] by [@adpi2][@adpi2]
 
+### Native thin client
+
+sbt 1.4.0 adds an official native thin client called `sbtn` that supports all tasks. https://github.com/sbt/sbtn-dist/releases/tag/v1.4.0-M2
+
+This lets you run sbt tasks from the system shell as:
+
+<code>
+$ sbtn compile
+$ sbtn shutdown
+</code>
+
+Remember to call `sbtn shutdown` when you're done. [#5620][5620] by [@eatkins][@eatkins]
+
+### ThisBuild / versionScheme
+
+sbt 1.4.0 adds a new setting called `ThisBuild / versionScheme` to track version scheme of the build:
+
+<scala>
+ThisBuild / versionScheme := Some("early-semver")
+</scala>
+
+The supported values are `"early-semver"`, `"pvp"`, and `"semver-spec"`. sbt will include this information into `pom.xml` and `ivy.xml` as a property. In addition, sbt 1.4.0 will use the information to take the guessing out of eviction warning when this information is available. [#5724][5724] by [@eed3si9n][@eed3si9n]
+
 ### VirtualFile + RemoteCache
 
 sbt 1.4.0 / Zinc 1.4.0 virtualizes the file paths tracked during incremental compilation. The benefit for this that the state of incremental compilation can shared across _different_ machines, as long as `ThisBuild / rootPaths` are enumerated beforehand.
 
 To demonstrate this, we've also added **experimental** [cached compilation](http://eed3si9n.com/cached-compilation-for-sbt) feature to sbt. All you need is the following setting:
 
-```
+<scala>
 ThisBuild / pushRemoteCacheTo := Some(MavenCache("local-cache", file("/tmp/remote-cache")))
-```
+</scala>
 
 Then from machine 1, call `pushRemoteCache`. This will publish the `*.class` and Zinc Analysis artifacts to the location. Next, from machine 2, call `pullRemoteCache`.
 
@@ -75,6 +108,22 @@ bar := {
 
 Unlike the regular (Applicative) task composition, conditional tasks delays the evaluation of then-clause and else-clause as naturally expected of an `if`-expression. This is already possible with `Def.taskDyn { ... }`, but unlike dynamic tasks, conditional task works with `inspect` command. See [Selective functor for sbt](http://eed3si9n.com/selective-functor-in-sbt) for more details. [#5558][5558] by [@eed3si9n][@eed3si9n]
 
+### Incremental build pipelining
+
+sbt 1.4.0 adds experimental incremental build pipelining. To enable build pipelining for the build:
+
+<scala>
+ThisBuild / usePipelining := true
+</scala>
+
+To opt-out of creating an early output for some of the subprojects:
+
+<scala>
+exportPipelining := false
+</scala>
+
+[#5703][5703] by [@eed3si9n][@eed3si9n]
+
 ### Fixes with compatibility implications
 
 - Makes JAR file creation repeatable by sorting entry by name and dropping timestamps [#5344][5344]/[io#279][io279] by [@raboof][@raboof]
@@ -84,6 +133,8 @@ Unlike the regular (Applicative) task composition, conditional tasks delays the 
 
 ### Other updates
 
+- Updates shell to use JLine 3 for better tab completion [#5671][5671] by [@eatkins][@eatkins]
+- Adds support for Scala 2.13-3.0 sandwich [#5767][5767] by [@eed3si9n][@eed3si9n]
 - Throws an error if you run sbt from `/` without `-Dsbt.rootdir=true` [#5112][5112] by [@eed3si9n][@eed3si9n]
 - Upates `StateTransform` to accept `State => State` [#5260][5260] by [@eatkins][@eatkins]
 - Fixes various issues around background run [#5259][5259] by [@eatkins][@eatkins]
@@ -114,7 +165,7 @@ Unlike the regular (Applicative) task composition, conditional tasks delays the 
 
 ### Participation
 
-sbt 1.4.0-M1 was brought to you by 25 contributors. Eugene Yokota (eed3si9n), Ethan Atkins, Adrien Piquerez, Dale Wijnand, Jason Zaugg, Arnout Engelen, Guillaume Martres, Anil Kumar Myla, Brice Jaglin, Steve Waldman, frosforever, Alex Zolotko, Heikki Vesalainen, Stephane Landelle, Jannik Theiß, João Ferreira, lloydmeta, Alexandre Archambault, Erwan Queffelec, Ismael Juma, Kenji Yoshida (xuwei-k), Olafur Pall Geirsson, Renato Cavalcanti, Vincent PERICART, nigredo-tori. Thanks!
+sbt 1.4.0-M2 was brought to you by 27 contributors. Eugene Yokota (eed3si9n), Ethan Atkins, Dale Wijnand, Adrien Piquerez, Jason Zaugg, Arnout Engelen, Josh Soref, Guillaume Martres, Anil Kumar Myla, Brice Jaglin, Maksim Ochenashko, Steve Waldman, frosforever, Alex Zolotko, Heikki Vesalainen, Ismael Juma, Stephane Landelle, Jannik Theiß, João Ferreira, lloydmeta, Alexandre Archambault, Erwan Queffelec, Kenji Yoshida (xuwei-k), Olafur Pall Geirsson, Renato Cavalcanti, Vincent PERICART, nigredo-tori. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc 1 by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
@@ -169,6 +220,12 @@ Content-Type: application/vscode-jsonrpc; charset=utf-8
   [5526]: https://github.com/sbt/sbt/pull/5526
   [5552]: https://github.com/sbt/sbt/pull/5552
   [5558]: https://github.com/sbt/sbt/pull/5558
+  [5724]: https://github.com/sbt/sbt/pull/5724
+  [5620]: https://github.com/sbt/sbt/pull/5620
+  [5671]: https://github.com/sbt/sbt/pull/5671
+  [5703]: https://github.com/sbt/sbt/pull/5703
+  [5622]: https://github.com/sbt/sbt/pull/5622
+  [5767]: https://github.com/sbt/sbt/pull/5767
   [io274]: https://github.com/sbt/io/pull/274
   [io279]: https://github.com/sbt/io/pull/279
   [lm309]: https://github.com/sbt/librarymanagement/pull/309
@@ -195,3 +252,4 @@ Content-Type: application/vscode-jsonrpc; charset=utf-8
   [@swaldman]: https://github.com/swaldman
   [@retronym]: https://github.com/retronym
   [@mspnf]: https://github.com/mspnf
+  [@iRevive]: https://github.com/iRevive
