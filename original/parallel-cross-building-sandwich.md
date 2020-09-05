@@ -13,7 +13,7 @@ lazy val core = (projectMatrix in file("core"))
   .settings(
     name := "core"
   )
-  .jvmPlatform(scalaVersions = Seq("2.12.12", "2.13.13"))
+  .jvmPlatform(scalaVersions = Seq("2.12.12", "2.13.3"))
 </scala>
 
 This will create subprojects for each `scalaVersion`. Unlike `++` style stateful cross building, these will build in parallel. This part has not changed.

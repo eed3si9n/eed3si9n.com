@@ -13,7 +13,7 @@ lazy val core = (projectMatrix in file("core"))
   .settings(
     name := "core"
   )
-  .jvmPlatform(scalaVersions = Seq("2.12.10", "2.11.12"))
+  .jvmPlatform(scalaVersions = Seq("2.12.12", "2.13.3"))
 </scala>
 
 これはそれぞれの `scalaVersion` にサプブロジェクトを作る。 `++` スタイルのステートフルなクロスビルドと違って、これは並列にビルドする。これは変わっていない。
