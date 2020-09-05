@@ -6,21 +6,4 @@ I also have ten years of experience on various open source projects on GitHub, a
 
 <img src='/images/github-2020.png' style='width: 100%;'>
 
-### I'm looking for a new team
-
-I'm looking for a new team to solve the next big problem. Beyond my current field of Scala and developer tooling, I'm keen on continuing to be a student of the art. Some of the potential area of interest might be large-scale data processing and bioinformatics.
-
-Location: Remote or in New York (remote preferred)
-Employment type: Full-time employee
-
-Some topics I'll want to discuss with you:
-- How does the company plan to survive the post-COVID contraction?
-- What is this team most proud of?
-- What is the mission of this team? How would it quantify success?
-- Where do you think I can do the most good?
-- What problems will this team be tackling over the next 6 months?
-- Who in this team has given talks at tech conferences like Scala Days?
-- Are there any women/Asian/Black/Latinx/LGBTQ person along the management ladder I would report to?
-- Does this team direclty talk to developers in the community?
-
-I'm looking for the right position and eager to explore opportunities. Here's my [cv](http://eed3si9n.com/cv.pdf). If you think we're a match, please email me at eed3si9n at gmail.com.
+Here's my [cv](http://eed3si9n.com/cv.pdf).
