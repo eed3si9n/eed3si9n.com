@@ -6,6 +6,7 @@ Today, let's look at [SDKMAN!](https://sdkman.io/), an environment manager writt
 
 ### AdoptOpenJDK 11 and 8
 
+**Update 2020-09-23**: Updated the regex of version number.
 **Update 2019-11-06**: Added `sdkman_auto_selfupdate` to workaround the update prompt blocking the CI. Also it adds `|| true` on the `sdk install` line.
 **Update 2019-07-08**: Updated the script to detect patch version. See GitHub for the [older version](https://github.com/eed3si9n/eed3si9n.com/blob/4aeeadaf8b32c4cd8d21afd4d5bdcec7538b0aff/original/all-your-jdks-on-travis-ci-using-sdkman.md).
 
@@ -34,7 +35,7 @@ before_install:
   - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1) || true
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9]*\.[0-9]*\.hs-adpt" | head -1) || true
   - unset _JAVA_OPTIONS
   - unset JAVA_HOME
   - java -Xmx32m -version
@@ -92,7 +93,7 @@ before_install:
   - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1) || true
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9]*\.[0-9]*\.hs-adpt" | head -1) || true
   - unset _JAVA_OPTIONS
   - unset JAVA_HOME
   - java -Xmx32m -version

@@ -6,6 +6,7 @@
 
 ### AdoptOpenJDK 11 と 8
 
+**2020-09-23 更新**: バージョン番号の正規表現を更新した。
 **2019-11-06 更新**: SDKMAN の更新プロンプトが CI をブロックするのを回避するために `sdkman_auto_selfupdate` を追加した。また、`sdk install` の行に `|| true` を追加した。
 **2019-07-08 更新**: パッチバージョンを自動検知するように変更した。[古い版](https://github.com/eed3si9n/eed3si9n.com/blob/4aeeadaf8b32c4cd8d21afd4d5bdcec7538b0aff/original/all-your-jdks-on-travis-ci-using-sdkman.ja.md)は GitHub に置いてある。
 
@@ -34,7 +35,7 @@ before_install:
   - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1) || true
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9]*\.[0-9]*\.hs-adpt" | head -1) || true
   - unset _JAVA_OPTIONS
   - unset JAVA_HOME
   - java -Xmx32m -version
@@ -92,7 +93,7 @@ before_install:
   - source "/home/travis/.sdkman/bin/sdkman-init.sh"
 
 install:
-  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9\.]*hs-adpt" | head -1) || true
+  - sdk install java $(sdk list java | grep -o "$ADOPTOPENJDK\.[0-9]*\.[0-9]*\.hs-adpt" | head -1) || true
   - unset _JAVA_OPTIONS
   - unset JAVA_HOME
   - java -Xmx32m -version
