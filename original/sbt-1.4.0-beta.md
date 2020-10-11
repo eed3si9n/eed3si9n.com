@@ -1,4 +1,8 @@
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.4.0-M2. This is the first beta release for sbt 1.4.0.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.4.0-RC2. This is the fourth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series.
+
+- If no serious issues are found by Saturday, October 3rd 2020, 1.4.0-RC2 will become 1.4.0 final.
+- <s>If no serious issues are found by Saturday, September 19th 2020, 1.4.0-RC1 will become 1.4.0 final.</s>
+
 
 The headline features of sbt 1.4.0 are:
 
@@ -9,22 +13,21 @@ The headline features of sbt 1.4.0 are:
 
 ### How to upgrade
 
-You can upgrade to sbt 1.4.0-M2 by putting the following in `project/build.properties`:
+You can upgrade to sbt 1.4.0-RC2 by putting the following in `project/build.properties`:
 
 <code>
-sbt.version=1.4.0-M2
+sbt.version=1.4.0-RC2
 </code>
 
-### Changes since M1
+### Changes since RC1
 
-- ThisBuild / versionScheme. See below for details.
-- Native thin client. See below for details.
-- Incremental build pipelining. See below for details.
-- Updates shell to use JLine 3 for better tab completion [#5671][5671] by [@eatkins][@eatkins]
-- Adds support for Scala 2.13-3.0 sandwich [#5767][5767] by [@eed3si9n][@eed3si9n]
-- Fixes Dotty support.
-- Fixes conditional task.
-- Fixes remote cache id [#5622][5622] by [@iRevive][@iRevive]
+- BSP `buildTarget/run` and `buildTarget/test` support [#5865][5865]/[#5878][5878] by [@adpi2][@adpi2]
+- sbt-dependency-graph is brought into sbt 1.4.0
+- Updates to lm-coursier-shaded 2.0.0-RC6-9, which uses Coursier 2.0.0-RC6-26
+- Adds retry with backoff during publish (`-Dsbt.repository.publish.attempts` set to 3) [lm#340][lm340] by [@izharahmd][@izharahmd]
+- Fixes shell prompt override [#5839][5839] by [@eatkins][@eatkins]
+- Fixes in various terminal IO issues by [@eatkins][@eatkins]
+- Fixes in Zinc by [@dwijnand][@dwijnand], [@eatkins][@eatkins], and [@eed3si9n][@eed3si9n] addressing over-compilation regressions.
 
 ### Build server protocol (BSP) support
 
@@ -53,7 +56,7 @@ When sbt 1.4.0 starts, it will create a file named `.bsp/sbt.json` containing a 
 
 ### Native thin client
 
-sbt 1.4.0 adds an official native thin client called `sbtn` that supports all tasks. https://github.com/sbt/sbtn-dist/releases/tag/v1.4.0-M2
+sbt 1.4.0 adds an official native thin client called `sbtn` that supports all tasks. https://github.com/sbt/sbtn-dist/releases/tag/v1.4.0-RC2
 
 This lets you run sbt tasks from the system shell as:
 
@@ -62,7 +65,17 @@ $ sbtn compile
 $ sbtn shutdown
 </code>
 
-Remember to call `sbtn shutdown` when you're done. [#5620][5620] by [@eatkins][@eatkins]
+The native thin client will run sbt (server) as a daemon, which avoids the JVM spinup and loading time for the second call onwards. This could an option if you would like to use sbt from the system shell such as Zsh and Fish.
+
+Remember to call `sbtn shutdown` when you're done!
+Later on, `sbt` script will also support `--client` option to run the native thin client:
+
+<code>
+$ sbt --client compile
+$ sbt --client shutdown
+</code>
+
+[#5620][5620] by [@eatkins][@eatkins]
 
 ### ThisBuild / versionScheme
 
@@ -124,12 +137,25 @@ exportPipelining := false
 
 [#5703][5703] by [@eed3si9n][@eed3si9n]
 
+### sbt-dependency-graph is in-sourced
+
+sbt 1.4.0 brings in Johannes Rudolph's sbt-dependency-graph plugin into the code base.
+Since it injects many tasks per subprojects, the plugin is split into two parts:
+- `MiniDependencyTreePlugin` that is enabled by default, bringing in `dependencyTree` task to `Compile` and `Test` configurations
+- Full strength `DependencyTreePlugin` that is enabled by putting the following to `project/plugins.sbt`:
+
+<scala>
+addDependencyTreePlugin
+</scala>
+
 ### Fixes with compatibility implications
 
+- Replaces Apache Log4j with our own logger by default to avoid Appender leakage. Use `ThisBuild / useLog4J := true` to use Log4j. [#5731][5731] by [@eatkins][@eatkins]
 - Makes JAR file creation repeatable by sorting entry by name and dropping timestamps [#5344][5344]/[io#279][io279] by [@raboof][@raboof]
 - Loads bare settings in the alphabetic order of the build files [#2697][2697]/[#5447][5447] by [@eed3si9n][@eed3si9n]
 - Loads `val`s from top-to-bottom within a build file [#2232][2232]/[#5448][5448] by [@eed3si9n][@eed3si9n]
 - HTTP resolvers require explicit opt-in using `.withAllowInsecureProtocol(true)` [#5593][5593] by [@eed3si9n][@eed3si9n]
+- Ctrl-C during triggered execution `~` returns to the shell instead of shutting down sbt [#5804][5804] by [@eatkins][@eatkins]
 
 ### Other updates
 
@@ -155,17 +181,20 @@ exportPipelining := false
 - Fixes NullPointerError when credential realm is `null` [#5526][5526] by [@3rwww1][@3rwww1]
 - Adds `Def.promise` for long-running tasks to communicate to another task [#5552][5552] by [@eed3si9n][@eed3si9n]
 - Uses Java's timestamp on JDK 10+ as opposed to using native call [io#274][io274] by [@slandelle][@slandelle]
+- Adds retry with backoff during publish (`-Dsbt.repository.publish.attempts` set to 3) [lm#340][lm340] by [@izharahmd][@izharahmd]
 - Improves failure message for PUT [lm#309][lm309] by [@swaldman][@swaldman]
 - Adds provenance to AnalyzedClass [zinc#786][zinc786] by [@dwijnand][@dwijnand] + [@mspnf][@mspnf]
 - Makes hashing childrenOfSealedClass stable [zinc#788][zinc788] by [@dwijnand][@dwijnand]
 - Fixes performance regressions around build source monitoring [#5530][5530] by [@eatkins][@eatkins]
 - Fixes performance regressions around super shell [#5531][5531] by [@eatkins][@eatkins]
 - Various performance improvements in Zinc [zinc#756][zinc756]/[zinc#763][zinc763] by [@retronym][@retronym]
-
+- Adds a monitor to warn about excessive GC [#5812][5812] by [@eatkins][@eatkins]
+- Fixes forked tests running tests twice when they match multiple fingerprints [#5800][5800] by [@Duhemm][@Duhemm]
 
 ### Participation
 
-sbt 1.4.0-M2 was brought to you by 27 contributors. Eugene Yokota (eed3si9n), Ethan Atkins, Dale Wijnand, Adrien Piquerez, Jason Zaugg, Arnout Engelen, Josh Soref, Guillaume Martres, Anil Kumar Myla, Brice Jaglin, Maksim Ochenashko, Steve Waldman, frosforever, Alex Zolotko, Heikki Vesalainen, Ismael Juma, Stephane Landelle, Jannik Theiß, João Ferreira, lloydmeta, Alexandre Archambault, Erwan Queffelec, Kenji Yoshida (xuwei-k), Olafur Pall Geirsson, Renato Cavalcanti, Vincent PERICART, nigredo-tori. Thanks!
+sbt 1.4.0-RC1 was brought to you by 29 contributors. Eugene Yokota (eed3si9n), Ethan Atkins, Dale Wijnand, Adrien Piquerez, Jason Zaugg, Arnout Engelen, Josh Soref, Guillaume Martres, Anil Kumar Myla, Brice Jaglin, Maksim Ochenashko, João Ferreira, Steve Waldman, frosforever, Alex Zolotko, Heikki Vesalainen, Ismael Juma, Stephane Landelle, Jannik Theiß, João Ferreira, lloydmeta, Alexandre Archambault, Erwan Queffelec, 
+Izhar Ahmed, Kenji Yoshida (xuwei-k), Olafur Pall Geirsson, Renato Cavalcanti, Vincent PERICART, nigredo-tori. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc 1 by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
@@ -226,9 +255,19 @@ Content-Type: application/vscode-jsonrpc; charset=utf-8
   [5703]: https://github.com/sbt/sbt/pull/5703
   [5622]: https://github.com/sbt/sbt/pull/5622
   [5767]: https://github.com/sbt/sbt/pull/5767
+  [5812]: https://github.com/sbt/sbt/pull/5812
+  [5800]: https://github.com/sbt/sbt/pull/5800
+  [5804]: https://github.com/sbt/sbt/pull/5804
+  [5782]: https://github.com/sbt/sbt/pull/5782
+  [5788]: https://github.com/sbt/sbt/pull/5788
+  [5731]: https://github.com/sbt/sbt/pull/5731
+  [5839]: https://github.com/sbt/sbt/pull/5839
+  [5865]: https://github.com/sbt/sbt/pull/5865
+  [5878]: https://github.com/sbt/sbt/pull/5878
   [io274]: https://github.com/sbt/io/pull/274
   [io279]: https://github.com/sbt/io/pull/279
   [lm309]: https://github.com/sbt/librarymanagement/pull/309
+  [lm340]: https://github.com/sbt/librarymanagement/pull/340
   [zinc712]: https://github.com/sbt/zinc/pull/712
   [zinc742]: https://github.com/sbt/zinc/pull/742
   [zinc756]: https://github.com/sbt/zinc/pull/756
@@ -253,3 +292,6 @@ Content-Type: application/vscode-jsonrpc; charset=utf-8
   [@retronym]: https://github.com/retronym
   [@mspnf]: https://github.com/mspnf
   [@iRevive]: https://github.com/iRevive
+  [@Duhemm]: https://github.com/Duhemm
+  [@jtjeferreira]: https://github.com/jtjeferreira
+  [@izharahmd]: https://github.com/izharahmd
