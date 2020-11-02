@@ -17,7 +17,7 @@ For people who want to use remote caching now, I've created sbt-bintray-remote-c
 To try put the following in `project/plugins.sbt`:
 
 <scala>
-addSbtPlugin("org.foundweekends" % "sbt-bintray-remote-cache" % "0.6.0")
+addSbtPlugin("org.foundweekends" % "sbt-bintray-remote-cache" % "0.6.1")
 </scala>
 
 #### Bintray repo and package
@@ -107,7 +107,7 @@ akka > bintrayRemoteCacheCleanOld
 
 ### some more thoughts
 
-sbt 1.4.1 uses Git commit id as the remote cache id, but I don't think it's efficient since that would invalidate all the cache for each commit. A better solution probably is to use content hash of all inputs [sbt/sbt#5842](https://github.com/sbt/sbt/issues/5842).
+sbt 1.4.1 uses Git commit id as the remote cache id, but I don't think it's efficient since that would invalidate all the cache for each commit. A better solution probably is to use content hash of all inputs [sbt/sbt#5842](https://github.com/sbt/sbt/issues/5842). [sbt/sbt#6026](https://github.com/sbt/sbt/pull/6026) is my PR that implements content-based remoteCacheId.
 
 To get better caching, we will likely have to cache more things like formatting states and generated code. We might also need to evaluate the repeatability of the generated code.
 

@@ -17,7 +17,7 @@ sbt 1.4.x が出たので、この機能を実際に使ってみたいという�
 使うには以下を `project/plugins.sbt` に追加する:
 
 <scala>
-addSbtPlugin("org.foundweekends" % "sbt-bintray-remote-cache" % "0.6.0")
+addSbtPlugin("org.foundweekends" % "sbt-bintray-remote-cache" % "0.6.1")
 </scala>
 
 #### Bintray リポとパッケージ
@@ -107,7 +107,7 @@ akka > bintrayRemoteCacheCleanOld
 
 ### その他のこと
 
-sbt 1.4.1 は Git commit id をリモートキャッシュid として使っているけども、コミットのたびにキャッシュが無効化されるは実は非常に効率が悪い。より良いソリューションは入力コンテンツのハッシュを使うことだと思う [sbt/sbt#5842](https://github.com/sbt/sbt/issues/5842)。
+sbt 1.4.1 は Git commit id をリモートキャッシュid として使っているけども、コミットのたびにキャッシュが無効化されるは実は非常に効率が悪い。より良いソリューションは入力コンテンツのハッシュを使うことだと思う [sbt/sbt#5842](https://github.com/sbt/sbt/issues/5842)。これを実装した PR が [sbt/sbt#6026](https://github.com/sbt/sbt/pull/6026)。
 
 より良いキャッシュ効果のためには、フォーマッターの状態や生成されるコードなどもキャッシュしていく必要があると思う。生成されるコードの再現性 (repeatability) を評価しなおす必要もある。
 
