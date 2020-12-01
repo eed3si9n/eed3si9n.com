@@ -8,6 +8,52 @@
 
 最近 `file:/foo/bar` がパースできないというプラットフォーム間の相互乗り入れ問題に出くわした。ファイルパスを URI として表現するのに関連した問題に悩まされるのはこれが最初でもない。ファイルシステムという概念は 1960年代に遡り、1990年代から URL があることを考えると、このコンセンサスが取れていないというのは意外なことだ。しかし、十進法小数のように、深く掘り下げたり、データを交換しはじめると、Matrix　のほころびが見えてくるのかもしれない。
 
+### tl;dr
+
+2020年11月現在での実装:
+
+<scala>
+import java.io.File
+import java.net.{ URI, URISyntaxException }
+import java.util.Locale
+
+private val isWindows: Boolean =
+  sys.props("os.name").toLowerCase(Locale.ENGLISH).contains("windows")
+private final val FileScheme = "file"
+
+/** Converts the given File to a URI.  If the File is relative, the URI is relative, unlike File.toURI*/
+def toURI(input: File): URI = {
+  def ensureHeadSlash(name: String) =
+    if (name.nonEmpty && name.head != File.separatorChar) File.separatorChar.toString + name
+    else name
+  def normalizeToSlash(name: String) =
+    if (File.separatorChar == '/') name
+    else name.replace(File.separatorChar, '/')
+
+  val p = input.getPath
+  if (isWindows && p.nonEmpty && p.head == File.separatorChar)
+    if (p.startsWith("""\\""")) new URI(FileScheme, normalizeToSlash(p), null)
+    else new URI(FileScheme, "", normalizeToSlash(p), null)
+  else if (input.isAbsolute)
+    new URI(FileScheme, "", normalizeToSlash(ensureHeadSlash(input.getAbsolutePath)), null)
+  else new URI(null, normalizeToSlash(p), null)
+}
+
+/** Converts the given URI to a File. */
+def toFile(uri: URI): File =
+  try {
+    val part = uri.getSchemeSpecificPart
+    if (uri.getScheme == null || uri.getScheme == FileScheme) ()
+    else sys.error(s"Expected protocol to be '$FileScheme' or empty in URI $uri")
+    Option(uri.getAuthority) match {
+      case None if part startsWith "/" => new File(uri)
+      case _                           =>
+        if (!(part startsWith "/") && (part contains ":")) new File("//" + part)
+        else new File(part)
+    }
+  } catch { case _: URISyntaxException => new File(uri.getPath) }
+</scala>
+
 ### ファイルパスとは何か?
 
 以下は、網羅的なリストではないが、よく使われる OS である macOS、Linux、Windows の大部分をカバーする:
@@ -309,6 +355,47 @@ UNC パスを path 構成要素として取り扱って、authority は空であ
 scala> new File(new URI("file:////laptop/My%20Documents/Some.doc"))
 res16: java.io.File = \\laptop\My Documents\Some.doc
 </scala>
+
+### 実行時性能の改善
+
+[eed3si9n/sjson-new#117](https://github.com/eed3si9n/sjson-new/pull/117) にて João Ferreira さんが `java.nio.file.Path#toUri` はディレクトリかどうかの判定に `stat` 呼び出しを行うため重いため、Json シリアライゼーションなどでは回避した方がいいと指摘してくれた。
+
+以下は高速化された `toUri` だ:
+
+<scala>
+scala> import java.io.File
+       import java.net.{ URI, URISyntaxException }
+       import java.util.Locale
+
+scala> val isWindows: Boolean =
+         sys.props("os.name").toLowerCase(Locale.ENGLISH).contains("windows")
+
+scala> final val FileScheme = "file"
+
+scala> def toUri(input: File): URI = {
+         def ensureHeadSlash(name: String) =
+           if (name.nonEmpty && name.head != File.separatorChar) File.separatorChar.toString + name
+           else name
+         def normalizeToSlash(name: String) =
+           if (File.separatorChar == '/') name
+           else name.replace(File.separatorChar, '/')
+      
+         val p = input.getPath
+         if (isWindows && p.nonEmpty && p.head == File.separatorChar)
+           if (p.startsWith("""\\""")) new URI(FileScheme, normalizeToSlash(p), null)
+           else new URI(FileScheme, "", normalizeToSlash(p), null)
+         else if (input.isAbsolute)
+           new URI(FileScheme, "", normalizeToSlash(ensureHeadSlash(input.getAbsolutePath)), null)
+         else new URI(null, normalizeToSlash(p), null)
+       }
+
+scala> val etcHosts = new File("/etc/hosts")
+
+scala> toURI(etcHosts)
+val res0: java.net.URI = file:///etc/hosts
+</scala>
+
+この実装は Unix-like なファイルシステムの絶対パスは u3 記法を用いる。コードが Linux で実行されても Windows 上で実行されてもこの値に関しては同じように動作するようになっている。
 
 ### まとめ
 

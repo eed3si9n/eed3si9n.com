@@ -8,6 +8,52 @@ Future readers might also want to search for "file URI scheme RFC", and find the
 
 Recently I've been running into interop problems as some platforms are unable to parse `file:/foo/bar`. But this is not the first time I'm having trouble with file path represented as URI. Considering that the notion of filesystem goes back to 1960s, and URL has been around since 1990s, it's surprising that we haven't come to a concensus on this. But then again, like decimal numbers, once you start digging deeper, or start exchanging data, we find some glitches in the Matrix.
 
+### tl;dr
+
+Here's the implementation I use as of November, 2020:
+
+<scala>
+import java.io.File
+import java.net.{ URI, URISyntaxException }
+import java.util.Locale
+
+private val isWindows: Boolean =
+  sys.props("os.name").toLowerCase(Locale.ENGLISH).contains("windows")
+private final val FileScheme = "file"
+
+/** Converts the given File to a URI. If the File is relative, the URI is relative, unlike File.toURI*/
+def toUri(input: File): URI = {
+  def ensureHeadSlash(name: String) =
+    if (name.nonEmpty && name.head != File.separatorChar) File.separatorChar.toString + name
+    else name
+  def normalizeToSlash(name: String) =
+    if (File.separatorChar == '/') name
+    else name.replace(File.separatorChar, '/')
+
+  val p = input.getPath
+  if (isWindows && p.nonEmpty && p.head == File.separatorChar)
+    if (p.startsWith("""\\""")) new URI(FileScheme, normalizeToSlash(p), null)
+    else new URI(FileScheme, "", normalizeToSlash(p), null)
+  else if (input.isAbsolute)
+    new URI(FileScheme, "", normalizeToSlash(ensureHeadSlash(input.getAbsolutePath)), null)
+  else new URI(null, normalizeToSlash(p), null)
+}
+
+/** Converts the given URI to a File. */
+def toFile(uri: URI): File =
+  try {
+    val part = uri.getSchemeSpecificPart
+    if (uri.getScheme == null || uri.getScheme == FileScheme) ()
+    else sys.error(s"Expected protocol to be '$FileScheme' or empty in URI $uri")
+    Option(uri.getAuthority) match {
+      case None if part startsWith "/" => new File(uri)
+      case _                           =>
+        if (!(part startsWith "/") && (part contains ":")) new File("//" + part)
+        else new File(part)
+    }
+  } catch { case _: URISyntaxException => new File(uri.getPath) }
+</scala>
+
 ### what are file paths?
 
 The following is by no means an exhaustive list, but it covers much of the path that we come across on popular operating systems like macOS, Linux, and Windows:
@@ -74,9 +120,9 @@ relative-part = "//" authority path-abempty
 
 For our purpose, we can think of it as mostly as the path component of the URI, which then gets applied to some target URI.
 
-### absolute paths on Unix-like filesystem
+### absolute paths from Unix-like filesystem
 
-An absolute path on Unix-like filesystem `/etc/hosts` should be encoded using u3 notation `file:///etc/hosts` to maximize compatibility with current and previous RFCs.
+An absolute path from Unix-like filesystem `/etc/hosts` should be encoded using u3 notation `file:///etc/hosts` to maximize compatibility with current and previous RFCs.
 
 Current RFC 8089 allows `/etc/hosts` to be encoded in u1, u2, and u3 notations.
 
@@ -132,9 +178,9 @@ scala> new File(new URI("file://localhost/etc/hosts"))
 java.lang.IllegalArgumentException: URI has an authority component
 </scala>
 
-### relative path on Unix-like filesystem
+### relative path from Unix-like filesystem
 
-A relative path on Unix-like filesystem `../src/main/` should be encoded using relative reference `../src/main`.
+A relative path from Unix-like filesystem `../src/main/` should be encoded using relative reference `../src/main`.
 
 As noted previously, URI reference is able to express a relative path, similar to the relative path on filesystems.
 
@@ -310,15 +356,56 @@ scala> new File(new URI("file:////laptop/My%20Documents/Some.doc"))
 res16: java.io.File = \\laptop\My Documents\Some.doc
 </scala>
 
+### Improving runtime performance
+
+In [eed3si9n/sjson-new#117](https://github.com/eed3si9n/sjson-new/pull/117) João Ferreira pointed out that `java.nio.file.Path#toUri` is expensive because it calls `stat` to check if the path is a directory or not, and thus it should be avoided during Json serialization.
+
+Here's the new `toUri` that's faster:
+
+<scala>
+scala> import java.io.File
+       import java.net.{ URI, URISyntaxException }
+       import java.util.Locale
+
+scala> val isWindows: Boolean =
+         sys.props("os.name").toLowerCase(Locale.ENGLISH).contains("windows")
+
+scala> final val FileScheme = "file"
+
+scala> def toUri(input: File): URI = {
+         def ensureHeadSlash(name: String) =
+           if (name.nonEmpty && name.head != File.separatorChar) File.separatorChar.toString + name
+           else name
+         def normalizeToSlash(name: String) =
+           if (File.separatorChar == '/') name
+           else name.replace(File.separatorChar, '/')
+      
+         val p = input.getPath
+         if (isWindows && p.nonEmpty && p.head == File.separatorChar)
+           if (p.startsWith("""\\""")) new URI(FileScheme, normalizeToSlash(p), null)
+           else new URI(FileScheme, "", normalizeToSlash(p), null)
+         else if (input.isAbsolute)
+           new URI(FileScheme, "", normalizeToSlash(ensureHeadSlash(input.getAbsolutePath)), null)
+         else new URI(null, normalizeToSlash(p), null)
+       }
+
+scala> val etcHosts = new File("/etc/hosts")
+
+scala> toURI(etcHosts)
+val res0: java.net.URI = file:///etc/hosts
+</scala>
+
+This implementation will use u3 notation for absolute paths from Unix-like filesystem. Note that this will hold whether the code is run on Linux or Windows.
+
 ### summary
 
 Here's the summary. If you are converting from a file path to a URI reference:
 
-- Absolute paths on Unix-like filesystem (`/etc/hosts`): Use u3 notation `file:///etc/hosts`
-- Relative paths on Unix-like filesystem (`../src/main/`): Use relative reference `../src/main`
-- Absolute paths on Windows filesystem (`C:\Documents and Settings\`): Use u3 notation `file:///C:/Documents%20and%20Settings/`
-- Relative paths on Windows filesystem (`..\My Documents\test`): Use relative reference `../My%20Documents/test`
-- UNC paths on Windows (`\\laptop\My Documents\Some.doc`): Use u2 notation `file://laptop/My%20Documents/Some.doc`
+- Absolute paths from Unix-like filesystem (`/etc/hosts`): Use u3 notation `file:///etc/hosts`
+- Relative paths from Unix-like filesystem (`../src/main/`): Use relative reference `../src/main`
+- Absolute paths from Windows filesystem (`C:\Documents and Settings\`): Use u3 notation `file:///C:/Documents%20and%20Settings/`
+- Relative paths from Windows filesystem (`..\My Documents\test`): Use relative reference `../My%20Documents/test`
+- UNC paths from Windows (`\\laptop\My Documents\Some.doc`): Use u2 notation `file://laptop/My%20Documents/Some.doc`
 
 If you are converting from a URI reference to a file path, in addition to the above,
 
