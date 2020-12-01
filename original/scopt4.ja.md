@@ -4,17 +4,27 @@
   [github_search]: https://github.com/search?q=%22com.github.scopt%22&type=Code
   [215]: https://github.com/scopt/scopt/issues/215
 
-> scopt is a little command line options parsing library.
+> 本稿は 2018年12月に 4.0.0-RC2 と共に初出した。2020年11月にリリースした 4.0.0 での変更を反映して更新してある。
 
 最近 scopt 4.0 を書いている。せっかちな人は [readme](https://github.com/scopt/scopt) に飛んでほしい。
 
-ベータ版を試すには以下を build.sbt に書く:
+4.0.0 を試すには以下を build.sbt に書く:
 
 <code>
-libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.0-RC2"
+libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.0"
 </code>
 
-scopt は、2008年に [aaronharnly/scala-options][scala-options] として始まり、当初は Ruby の [OptionParser][OptionParser] を緩めにベースにしたものだった。scopt 2 で immutable parsing を導入して、scopt 3 では `Read` 型クラスを使ってメソッド数を大幅に減らすことができた。
+scopt 4.0.0 は以下のビルドマトリックスに対してクロスパブリッシュされている:
+
+| Scala         | JVM | JS (1.x) |  JS (0.6.x) |  Native (0.4.0-M2) |  Native (0.3.x) |
+| ------------- | :-: | :------: | :---------: | :------------:  | :------------:  |
+| 3.0.0-M2      | ✅  |   ✅     |     n/a     |      n/a        |     n/a        |
+| 3.0.0-M1      | ✅  |   ✅     |     n/a     |      n/a        |      n/a       |
+| 2.13.x        | ✅  |   ✅     |     ✅      |      n/a        |      n/a        |
+| 2.12.x        | ✅  |   ✅     |     ✅      |      n/a        |      n/a        |
+| 2.11.x        | ✅  |   ✅     |     ✅      |      ✅         |      ✅         |
+
+scopt はコマンドラインオプションをパースするための小さなライブラリだ。2008年に [aaronharnly/scala-options][scala-options] として始まり、当初は Ruby の [OptionParser][OptionParser] を緩めにベースにしたものだった。scopt 2 で immutable parsing を導入して、scopt 3 では `Read` 型クラスを使ってメソッド数を大幅に減らすことができた。
 
 ### 後方ソース互換性
 
@@ -192,6 +202,50 @@ val parser3: OParser[_, Config1] = {
 </scala>
 
 この例では `parser1` と `parser2` は、`ConfigLike1[R]` と `ConfigLike2[R]` のサブタイプであるという制約を満たす抽象型 `R` に対して書かれている。`parser3` において、`R` は具象データ型 `Config1` に束縛される。
+
+### effects の抽象化
+
+RC2 を出したあとにもらったフィードバックは effects の管理に関してだった。以前も `reporError` 関数などを差し替えるということは可能だったが、effects をデータ構造で表現できればより良いだろう。
+
+それを 4.0.0 で行った:
+
+<scala>
+sealed trait OEffect
+object OEffect {
+  case class DisplayToOut(msg: String) extends OEffect
+  case class DisplayToErr(msg: String) extends OEffect
+  case class ReportError(msg: String) extends OEffect
+  case class ReportWarning(msg: String) extends OEffect
+  case class Terminate(exitState: Either[String, Unit]) extends OEffect
+}
+</scala>
+
+通常の `OParser.parse(...)` の他に scopt 4 は `runParser` というパーサーの呼び出しの新しい方法を提供して、これは `(Option[Config], List[OEffect])` を返す:
+
+<scala>
+// OParser.runParser returns (Option[Config], List[OEffect])
+OParser.runParser(parser1, args, Config()) match {
+  case (result, effects) =>
+    OParser.runEffects(effects, new DefaultOEffectSetup {
+      // override def displayToOut(msg: String): Unit = Console.out.println(msg)
+      // override def displayToErr(msg: String): Unit = Console.err.println(msg)
+      // override def reportError(msg: String): Unit = displayToErr("Error: " + msg)
+      // override def reportWarning(msg: String): Unit = displayToErr("Warning: " + msg)
+      
+      // ignore terminate
+      override def terminate(exitState: Either[String, Unit]): Unit = ()
+    })
+
+    result match {
+      Some(config) =>
+        // do something
+      case _ =>
+        // arguments are bad, error message will have been displayed
+    }
+}
+</scala>
+
+返ってきた effects を好きにできるようになった。
 
 ### usage の自動生成
 

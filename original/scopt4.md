@@ -4,17 +4,27 @@
   [github_search]: https://github.com/search?q=%22com.github.scopt%22&type=Code
   [215]: https://github.com/scopt/scopt/issues/215
 
-> scopt is a little command line options parsing library.
+> This post was first published in December 2018 together with 4.0.0-RC2. It's updated to reflect the changes made in November 2020 for 4.0.0.
 
-I've been working on scopt 4.0 lately. You can skip to the [readme](https://github.com/scopt/scopt), if you're in a hurry.
+You can skip to the [readme](https://github.com/scopt/scopt), if you're in a hurry.
 
-To try the beta:
+To try new scopt 4.0.0:
 
 <code>
-libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.0-RC2"
+libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.0"
 </code>
 
-scopt started its life in 2008 as [aaronharnly/scala-options][scala-options] based loosely on Ruby's [OptionParser][OptionParser]. scopt 2 added immutable parsing, and scopt 3 cleaned up the number of methods by introducing `Read` typeclass.
+scopt 4.0.0 is cross published for the following build matrix:
+
+| Scala         | JVM | JS (1.x) |  JS (0.6.x) |  Native (0.4.0-M2) |  Native (0.3.x) |
+| ------------- | :-: | :------: | :---------: | :------------:  | :------------:  |
+| 3.0.0-M2      | ✅  |   ✅     |     n/a     |      n/a        |     n/a        |
+| 3.0.0-M1      | ✅  |   ✅     |     n/a     |      n/a        |      n/a       |
+| 2.13.x        | ✅  |   ✅     |     ✅      |      n/a        |      n/a        |
+| 2.12.x        | ✅  |   ✅     |     ✅      |      n/a        |      n/a        |
+| 2.11.x        | ✅  |   ✅     |     ✅      |      ✅         |      ✅         |
+
+scopt is a little command line options parsing library. scopt started its life in 2008 as [aaronharnly/scala-options][scala-options] based loosely on Ruby's [OptionParser][OptionParser]. scopt 2 added immutable parsing, and scopt 3 cleaned up the number of methods by introducing `Read` typeclass.
 
 ### backward source compatibility
 
@@ -192,6 +202,50 @@ val parser3: OParser[_, Config1] = {
 </scala>
 
 In the above example, `parser1` and `parser2` are written against an abstract type `R` that meets type constraint of being a subtype of `ConfigLike1[R]` and `ConfigLike2[R]`. In `parser3`, `R` gets bound to a concrete datatype `Config1`.
+
+### abstracting over effects
+
+One feedback I got during RC2 was about the management of effects. Previously we were able to swap out the `reportError` function etc, but it would be even better if we can represent the effects as data strcture.
+
+This is what I did for 4.0.0:
+
+<scala>
+sealed trait OEffect
+object OEffect {
+  case class DisplayToOut(msg: String) extends OEffect
+  case class DisplayToErr(msg: String) extends OEffect
+  case class ReportError(msg: String) extends OEffect
+  case class ReportWarning(msg: String) extends OEffect
+  case class Terminate(exitState: Either[String, Unit]) extends OEffect
+}
+</scala>
+
+In addition to `OParser.parse(...)` scopt 4 adds a new way of invoking the parser called `runParser(...)`, which returns `(Option[Config], List[OEffect])`:
+
+<scala>
+// OParser.runParser returns (Option[Config], List[OEffect])
+OParser.runParser(parser1, args, Config()) match {
+  case (result, effects) =>
+    OParser.runEffects(effects, new DefaultOEffectSetup {
+      // override def displayToOut(msg: String): Unit = Console.out.println(msg)
+      // override def displayToErr(msg: String): Unit = Console.err.println(msg)
+      // override def reportError(msg: String): Unit = displayToErr("Error: " + msg)
+      // override def reportWarning(msg: String): Unit = displayToErr("Warning: " + msg)
+      
+      // ignore terminate
+      override def terminate(exitState: Either[String, Unit]): Unit = ()
+    })
+
+    result match {
+      Some(config) =>
+        // do something
+      case _ =>
+        // arguments are bad, error message will have been displayed
+    }
+}
+</scala>
+
+Now you can do whatever with those effects.
 
 ### automatic usage generation
 
