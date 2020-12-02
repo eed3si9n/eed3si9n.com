@@ -166,6 +166,8 @@ jobs:
       uses: olafurpg/setup-scala@v10
       with:
         java-version: "adopt@1.8"
+    - name: Setup GPG 1.4
+      uses: olafurpg/setup-gpg@v3
     - name: Coursier cache
       uses: coursier/cache-action@v5
     - name: Test
