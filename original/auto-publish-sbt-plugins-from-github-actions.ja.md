@@ -13,6 +13,7 @@ sbt-release を使っている場合は削除する。sbt-ci-release を追加�
 <scala>
 addSbtPlugin("org.foundweekends" %% "sbt-bintray" % "0.6.1")
 addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.4")
+addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.1.1") // for gpg 2
 </scala>
 
 `version.sbt` も削除する。
@@ -106,7 +107,23 @@ gpg --armor --export-secret-keys $LONG_ID | base64 | sed -z 's;\n;;g' | xclip -s
 gpg --armor --export-secret-keys $LONG_ID | base64 | xclip
 </code>
 
-### step 7: GitHub Actions YAML
+### step 7: 秘密鍵のデコード
+
+最近の Ubuntu ディストロで使われいる gpg 2.2 のために、秘密鍵を時前でデコードする必要がある。 `.github/decodekey.sh` というファイルを追加する:
+
+<code>
+#!/bin/bash
+
+echo $PGP_SECRET | base64 --decode | gpg  --batch --import
+</code>
+
+実行権を付ける:
+
+<code>
+$ chmod +x .github/decodekey.sh
+</code>
+
+### step 8: GitHub Actions YAML
 
 `.github/workflows/ci.yml` を作る。詳細は [Setting up GitHub Actions with sbt](https://www.scala-sbt.org/1.x/docs/GitHub-Actions-with-sbt.html) 参照。
 
@@ -166,8 +183,6 @@ jobs:
       uses: olafurpg/setup-scala@v10
       with:
         java-version: "adopt@1.8"
-    - name: Setup GPG 1.4
-      uses: olafurpg/setup-gpg@v3
     - name: Coursier cache
       uses: coursier/cache-action@v5
     - name: Test
@@ -183,10 +198,11 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SONATYPE_RELEASE: version
       run: |
+        .github/decodekey.sh
         sbt ci-release
 </code>
 
-### step 8: タグ駆動リリース
+### step 9: タグ駆動リリース
 
 プラグインをリリースする準備ができたら、コミットにタグを付けて push する。
 
@@ -196,3 +212,32 @@ git push origin v0.1.0
 </code>
 
 GitHub Actions でリリースジョブが開始するはずだ。
+
+<a name="gpg2"></a>
+### gpg 2 に関する備考
+
+sbt-pgp は署名をするときに `--passphrase` オプションを使う。[ドキュメンテーション](https://www.gnupg.org/documentation/manuals/gnupg/GPG-Esoteric-Options.html#GPG-Esoteric-Options) によると、新たに `--pinentry-mode loopback` を渡す必要がある:
+
+> Note that since Version 2.0 this passphrase is only used if the option `--batch` has also been given. Since Version 2.1 the `--pinentry-mode` also needs to be set to `loopback`.
+
+sbt-pgp 2.1.1 で `gpg` コマンドのバージョン番号を検知して `--pinetry-mode loopback` オプションを渡すようにした。
+
+sbt-ci-release は `--import` を使うが、これは gpg 2.2 で静かに失敗して以下のようなエラーとなって表出する:
+
+<code>
+gpg: key 24A4616356F15CE1: public key "sbt-something bot <some@example.com>" imported
+gpg: key 24A4616356F15CE1/24A4616356F15CE1: error sending to agent: Inappropriate ioctl for device
+gpg: error building skey array: Inappropriate ioctl for device
+gpg: Total number processed: 1
+gpg:               imported: 1
+gpg:       secret keys read: 1
+Tag push detected, publishing a stable release
+....
+[info] gpg: no default secret key: No secret key
+[info] gpg: signing failed: No secret key
+[error] java.lang.RuntimeException: Failure running 'gpg --batch --pinentry-mode loopback --passphrase *** --detach-sign --armor --use-agent --output /home/runner/work/sbt-projectmatrix/sbt-projectmatrix/target/scala-2.12/sbt-1.0/sbt-projectmatrix-0.7.1-M1.jar.asc /home/runner/work/sbt-projectmatrix/sbt-projectmatrix/target/scala-2.12/sbt-1.0/sbt-projectmatrix-0.7.1-M1.jar'.  Exit code: 2
+</code>
+
+[T2313](https://dev.gnupg.org/T2313) によると、この回避策は `--batch --import` を使うことで、`.github/decodekey.sh` はそれを行う。
+
+この辺りの問題に関しては一応何となく存在は知っていたけども自分が使っている Xenial イメージに付いてくる gpg 1.4 はこれらのオプションと互換性が無かったため特にアクションを取ってこなかった。GitHub Action は Bionic を使っていて、これから Focal にも移行するようなのでこれらの問題に皆も遭遇するようになったということだ。
