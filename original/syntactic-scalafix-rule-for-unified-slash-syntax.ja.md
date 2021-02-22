@@ -1,6 +1,6 @@
   [6309]: https://github.com/sbt/sbt/pull/6309
 
-sbt 1.1.0 で僕は統一スラッシュ構文を実装した。今日、古い sbt 0.13 でのシェル構文を廃止勧告するための pull request を送った。[#6309][6309]
+sbt 1.1.0 で僕は統一スラッシュ構文を実装した。それから数年経った今日になって、古い sbt 0.13 でのシェル構文を廃止勧告するための pull request を送った。[#6309][6309]
 
 成り行きとして、`build.sbt` のための旧構文も廃止勧告にするという[話題](https://twitter.com/dwijnand/status/1361425290182995969)が[出てきた](https://twitter.com/SethTisue/status/1361466421847330818)。
 
@@ -8,11 +8,11 @@ sbt 1.1.0 で僕は統一スラッシュ構文を実装した。今日、古い 
 
 「統一」スラッシュ構文がそう名付けられたのはシェル構文とビルド定義構文を統一するからだ。そのため、シェルの旧構文を廃止勧告するならば、`skip in publish` や `scalacOptions in (Compile, console)` というふうに `in` を使う旧 `build.sbt` 構文も同時に廃止勧告するというのは理にかなっている。
 
-`build.sbt` を統一スラッシュ構文へと変換する syntactic Scalafix rule をちゃちゃっと作ったのでここで紹介する。
+`build.sbt` を統一スラッシュ構文へと変換する syntactic Scalafix rule をちゃちゃっと作ったのでここで紹介する - https://gist.github.com/eed3si9n/57e83f5330592d968ce49f0d5030d4d5
 
 ### 用法
 
-プロジェクトが git で管理されているか、バックアップを取ること。
+プロジェクトを git で管理するか、バックアップを取ること。
 
 <code>
 $ cs install scalafix
@@ -30,7 +30,7 @@ semantic rule と違って syntactic rule はコードの形だけを見て機�
 
 ### いくつかの適用例
 
-<code>
+<scala>
 diff --git a/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala b/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala
 index cf70ab2..5214226 100644
 --- a/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala
@@ -80,7 +80,7 @@ index 22de1a398..610a4d410 100644
        "-doc-source-url",
        s"https://github.com/sbt/sbt/tree/$tagOrSha€{FILE_PATH}.scala"
      )
-</code>
+</scala>
 
 僕が自分で書くより少し括弧が多い気がするが、変更そのものは正しいと思う。
 
@@ -88,9 +88,9 @@ index 22de1a398..610a4d410 100644
 
 `contrabandFormatsForType in generateContrabands in Compile` というふうに `in` が連鎖する場合はうまく動作しない:
 
-<code>
+<scala>
 -    contrabandFormatsForType in generateContrabands in Compile := ContrabandConfig.getFormats,
 +    (Compile / contrabandFormatsForType in generateContrabands)(generateContrabands / contrabandFormatsForType) := ContrabandConfig.getFormats,
-</code>
+</scala>
 
 これは手で `Compile / generateContrabands / contrabandFormatsForType` というふうに直してあげる必要がある。

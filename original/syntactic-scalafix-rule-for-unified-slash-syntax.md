@@ -8,7 +8,7 @@ Naturally, the topic of deprecating old syntax for `build.sbt` also [came](https
 
 This is because "unified" slash syntax is called so because it unifies the shell syntax and the build syntax together. Thus, it makes sense to deprecate the old `build.sbt` syntax that uses `in` like `skip in publish` or `scalacOptions in (Compile, console)`, if we're deprecating the old shell syntax.
 
-I was able to hack together a syntactic Scalafix rule to convert `build.sbt` to unified slash syntax.
+I was able to hack together a syntactic Scalafix rule to convert `build.sbt` to unified slash syntax - https://gist.github.com/eed3si9n/57e83f5330592d968ce49f0d5030d4d5
 
 ### usage
 
@@ -30,7 +30,7 @@ Unlike semantic rules, syntactic rules just looks at the shape of the code and a
 
 ### some examples
 
-<code>
+<scala>
 diff --git a/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala b/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala
 index cf70ab2..5214226 100644
 --- a/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala
@@ -80,7 +80,7 @@ index 22de1a398..610a4d410 100644
        "-doc-source-url",
        s"https://github.com/sbt/sbt/tree/$tagOrSha€{FILE_PATH}.scala"
      )
-</code>
+</scala>
 
 It puts more parentheses than I'd put sometimes, but these changes all look ok.
 
@@ -88,9 +88,9 @@ It puts more parentheses than I'd put sometimes, but these changes all look ok.
 
 It does not handle chained `in` like `contrabandFormatsForType in generateContrabands in Compile`:
 
-<code>
+<scala>
 -    contrabandFormatsForType in generateContrabands in Compile := ContrabandConfig.getFormats,
 +    (Compile / contrabandFormatsForType in generateContrabands)(generateContrabands / contrabandFormatsForType) := ContrabandConfig.getFormats,
-</code>
+</scala>
 
 You'd have to fix this manually: `Compile / generateContrabands / contrabandFormatsForType`
