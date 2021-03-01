@@ -1,32 +1,34 @@
 Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.5.0-M1. This is the fifth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series.
 
 
-The headline features of sbt 1.5.0 is:
+The headline features of sbt 1.5.0 are:
 
 - Scala 3 support
+- Eviction error
+- Deprecation of sbt 0.13 syntax
 
 ### How to upgrade
 
-You can upgrade to sbt 1.5.0-M1 by putting the following in `project/build.properties`:
+You can upgrade to sbt 1.5.0-M2 by putting the following in `project/build.properties`:
 
 <code>
-sbt.version=1.5.0-M1
+sbt.version=1.5.0-M2
 </code>
 
 ### Scala 3 support
 
 sbt 1.5.0 adds built-in Scala 3 support, contributed by Scala Center. Main implementation was done by Adrien Piquerez ([@adpi2][@adpi2]) based on EPFL/LAMP's [sbt-dotty](https://github.com/lampepfl/dotty/tree/master/sbt-dotty).
 
-**Note**: Due to the transitive dependencies to Dokka, which is planned to be removed eventually, the following resolver is required to use Scala 3.0.0-M3 for now:
+**Note**: Due to the transitive dependencies to Dokka, which is planned to be removed eventually, the following resolver is required to use Scala 3.0.0-RC1 for now:
 
 <scala>
 ThisBuild / resolvers += Resolver.JCenterRepository
 </scala>
 
-After this resolver is added, you can now use Scala 3.0.0-M3 like any other Scala version.
+After this resolver is added, you can now use Scala 3.0.0-RC1 like any other Scala version.
 
 <scala>
-ThisBuild / scalaVersion := "3.0.0-M3"
+ThisBuild / scalaVersion := "3.0.0-RC1"
 ThisBuild / resolvers += Resolver.JCenterRepository
 </scala>
 
@@ -57,6 +59,12 @@ These are analogous to `%%` operator that selects `_2.13` etc based on `scalaVer
 **Warning**: Libraries such as Cats may encode a particular notion in different ways for Scala 2.13 and 3.0. For example, arity abstraction may use Shapeless HList in Scala 2.13, but built-in Tuple types in Scala 3.0. Thus it's generally not safe to have `_2.13` and `_3` versions of the same library in the classpath, even transitively. Library authors should generally treat Scala 3.0 as any other major version, and generally prefer to cross publish `_3` variant to avoid the conflict. Application developers should be free to use `.cross(CrossVersion.for3Use2_13)` as long as the transitive dependency graph will not introduce `_2.13` variant of a library you already have in `_3` variant.
 
 [lm#361][lm361] by [@adpi2][@adpi2]
+
+### Deprecation of sbt 0.13 syntax
+
+sbt 1.5.0 deprecates both the sbt 0.13 style shell syntax `proj/cofing:intask::key` and sbt 0.13 styld build.sbt DSL `key in (Compile, intask)` in favor of the unified slash syntax.
+
+See <https://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html#slash> for details.
 
 ### Eviction error
 
@@ -106,16 +114,48 @@ or globally as:
 ThisBuild / evictionErrorLevel := Level.Info
 </scala>
 
+On the other hand, if you want to bring back the guessing feature in eviction warning, you can do using the following settings:
+
+<scala>
+ThisBuild / assumedVersionScheme := VersionScheme.PVP
+ThisBuild / assumedVersionSchemeJava := VersionScheme.EarlySemVer
+ThisBuild / assumedEvictionErrorLevel := Level.Warn
+</scala>
+
 [@eed3si9n][@eed3si9n] implemented this in [#6221][6221], inspired in part by Scala Center's [sbt-eviction-rules](https://github.com/scalacenter/sbt-eviction-rules), which was implemented by Alexandre Archambault ([@alxarchambault][@alxarchambault]) and Julien Richard-Foy ([@julienrf][@julienrf]).
+
+### ThisBuild / packageTimestamp setting
+
+In sbt 1.4.0 we started wiping out the timestamps in JAR to make the builds more repeatable. This had an unintended consequence of breaking Play's last-modified response header.
+
+To opt out of this default, the user can use:
+
+<scala>
+ThisBuild / packageTimestamp := Package.keepTimestamps
+
+// or
+
+ThisBuild / packageTimestamp := Package.gitCommitDateTimestamp
+</scala>
+
+[#6237][6237] by [@eed3si9n][@eed3si9n]
+
 
 ### Other updates
 
+- Fixes `SemanticdbPlugin` creating duplicate `scalacOptions` or dropping `-Yrangepos` [#6296][6296]/[#6316][6316] by [@bjaglin][@bjaglin] and [@eed3si9n][@eed3si9n]
+- Fixes tab completion of dependency configurations `Compile`, `Test`, etc [#6283][6283] by [@eed3si9n][@eed3si9n]
+- Fixes exit code calculation in `StashOnFailure` [#6266][6266] by [@melezov][@melezov]
+- Fixes concurrency issues with `testQuick` [#6326][6326] by [@RafalSumislawski][@RafalSumislawski]
+- Updates to Scala 2.12.13.
+- Updates to Coursier 2.0.12, includes `reload` memory fix by [@jtjeferreira] and behind-the-proxy IntelliJ import fix added by [@eed3si9n][@eed3si9n]
+- Warns when `ThisBuild / versionScheme` is missing while publishing [#6310][6310] by [@eed3si9n][@eed3si9n]
 - Use 2010-01-01 for the repeatable build timestamp wipe-out to avoid negative date [#6254][6254] by [@takezoe][@takezoe] (There's an active discussion to use commit date instead)
 - Adds FileInput/FileOutput that avoids intermediate String parsing [#5515][5515] by [@jtjeferreira][@jtjeferreira]
 
 ### Participation
 
-sbt 1.5.0-M1 was brought to you by 14 contributors. Eugene Yokota (eed3si9n), Adrien Piquerez, Ethan Atkins, João Ferreira, Eric Peters, Erlend Hamnaberg, Erwan Queffélec, Martin Duhem, Matthias Kurz, Mirco Dotta, Arthur McGibbon, Guillaume Martres, Kenji Yoshida (xuwei-k), Luc Henninger, Naoki Takezoe. Thanks!
+sbt 1.5.0-M2 was brought to you by 20 contributors. Eugene Yokota (eed3si9n), Adrien Piquerez, Ethan Atkins, João Ferreira, Eric Peters, Sam Halliday, Erlend Hamnaberg, Erwan Queffélec, Martin Duhem, Matthias Kurz, Mirco Dotta, Arthur McGibbon, Brice Jaglin, Cyrille Chepelov, Eric Meisel, Guillaume Martres, Kenji Yoshida (xuwei-k), Luc Henninger, Marko Elezovic, Naoki Takezoe, Rafał Sumisławski. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc 1 by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
@@ -128,7 +168,17 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
   [@eed3si9n]: https://twitter.com/eed3si9n
   [@julienrf]: https://twitter.com/julienrf
   [@alxarchambault]: https://twitter.com/alxarchambault
+  [@bjaglin]: https://github.com/bjaglin
+  [@RafalSumislawski]: https://github.com/RafalSumislawski
+  [@melezov]: https://github.com/melezov
   [lm361]: https://github.com/sbt/librarymanagement/pull/361
+  [6296]: https://github.com/sbt/sbt/pull/6296
   [5515]: https://github.com/sbt/sbt/pull/5515
   [6254]: https://github.com/sbt/sbt/pull/6254
   [6221]: https://github.com/sbt/sbt/pull/6221
+  [6283]: https://github.com/sbt/sbt/pull/6283
+  [6237]: https://github.com/sbt/sbt/pull/6237
+  [6316]: https://github.com/sbt/sbt/pull/6316
+  [6310]: https://github.com/sbt/sbt/pull/6310
+  [6326]: https://github.com/sbt/sbt/pull/6326
+  [6266]: https://github.com/sbt/sbt/pull/6266
