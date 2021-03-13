@@ -330,19 +330,19 @@ This should work as before, and we get `inspect` back.
 
 ### code as data
 
-`Def.ifS` works as expected, but `Def.ifS(...)(...)(...)` looks a bit alien in Scala. In Scala it's more idiomatic to express if conditions using `if`. We can encode this by providing a simple def-macro called `Def.taskIf(...)`.
+`Def.ifS` works as expected, but `Def.ifS(...)(...)(...)` looks a bit alien in Scala. In Scala it's more idiomatic to express if conditions using `if`. We can encode this in `Def.task(...)` macro.
 
-We can pass in either an `if`-expression or a block ending in an `if`, and then hoist the contents into `Def.ifS(...)(...)(...)`. Let's see how the example usages become:
+When the top-level expression within `Def.task(...)` is an `if`-expression, we can hoist the contents into `Def.ifS(...)(...)(...)`. Let's see how the example usages become:
 
 <scala>
 def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
-  Def.taskIf {
+  Def.task {
     if (useCoursier.value) CoursierDependencyResolution(csrConfiguration.value)
     else IvyDependencyResolution(ivyConfiguration.value, CustomHttp.okhttpClient.value)
   }
 
 def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
-  Def.taskIf {
+  Def.task {
     if ((publish / skip).value) {
       val s = streams.value
       val ref = thisProjectRef.value
@@ -393,13 +393,17 @@ If we had that, if-expression can be encoded on top of that.
 
 Selective functor can facilitate conditional execution of tasks while keeping the ability to run `inspect` command.
 
-Selective composition can be implemented in sbt as `Def.taskIf` macro:
+Selective composition can be implemented in sbt as conditional task:
 
 <scala>
-Def.taskIf {
+Def.task {
   if (Boolean) something1
   else something2
 }
 </scala>
 
 PR to sbt is [sbt/sbt#5558](https://github.com/sbt/sbt/pull/5558).
+
+**Update**:
+
+This was originally proposed as `Def.taskIf { ... }` was was merged as `Def.task { ... }`, so I've updated this post to reflect that.

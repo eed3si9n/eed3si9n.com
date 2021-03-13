@@ -337,19 +337,19 @@ def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
 
 ### データとしてのコード
 
-`Def.ifS` は期待通り動作するが、`Def.ifS(...)(...)(...)` は Scala コードの中では異質的だ。Scala では、if 条件は `if` を使って表現するのが慣習に沿っている。これは、シンプルな `Def.taskIf(...)` という def マクロを提供してエンコードできる。
+`Def.ifS` は期待通り動作するが、`Def.ifS(...)(...)(...)` は Scala コードの中では異質的だ。Scala では、if 条件は `if` を使って表現するのが慣習に沿っている。これは、`Def.task(...)` マクロ内を使ってエンコードできる。
 
-`if`式もしくは、`if` で終わるブロックを渡すとそのコンテンツを `Def.ifS(...)(...)(...)` の中に持ち上げるということを行う。使用例のコードはこうなる:
+`Def.task(...)` 内のトップレベルの式が `if`式の場合、そのコンテンツを `Def.ifS(...)(...)(...)` の中に持ち上げるということを行う。使用例のコードはこうなる:
 
 <scala>
 def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
-  Def.taskIf {
+  Def.task {
     if (useCoursier.value) CoursierDependencyResolution(csrConfiguration.value)
     else IvyDependencyResolution(ivyConfiguration.value, CustomHttp.okhttpClient.value)
   }
 
 def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
-  Def.taskIf {
+  Def.task {
     if ((publish / skip).value) {
       val s = streams.value
       val ref = thisProjectRef.value
@@ -400,13 +400,17 @@ something match {
 
 Selective ファンクターは `inspect` コマンドを犠牲にせずにタスクの条件的実行を可能とする仕組みを提供する。
 
-sbt では、Selective 合成は `Def.taskIf` マクロを使って表すことができる:
+sbt では、Selective 合成は条件的タスク (conditional task) として表すことができる:
 
 <scala>
-Def.taskIf {
+Def.task {
   if (Boolean) something1
   else something2
 }
 </scala>
 
 sbt への pull req は [sbt/sbt#5558](https://github.com/sbt/sbt/pull/5558)だ。
+
+**追記**:
+
+当初は `Def.taskIf { ... }` として提案されたが、`Def.task { ... }` として merge されたので、本稿もそれに追随して変更した。
