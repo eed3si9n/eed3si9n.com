@@ -1,5 +1,6 @@
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.5.0-M1. This is the fifth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.5.0-RC1. This is the fifth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series.
 
+- If no serious issues are found by Saturday, March 27th 2021, 1.5.0-RC1 will become 1.5.0 final.
 
 The headline features of sbt 1.5.0 are:
 
@@ -9,21 +10,15 @@ The headline features of sbt 1.5.0 are:
 
 ### How to upgrade
 
-You can upgrade to sbt 1.5.0-M2 by putting the following in `project/build.properties`:
+You can upgrade to sbt 1.5.0-RC1 by putting the following in `project/build.properties`:
 
 <code>
-sbt.version=1.5.0-M2
+sbt.version=1.5.0-RC1
 </code>
 
 ### Scala 3 support
 
 sbt 1.5.0 adds built-in Scala 3 support, contributed by Scala Center. Main implementation was done by Adrien Piquerez ([@adpi2][@adpi2]) based on EPFL/LAMP's [sbt-dotty](https://github.com/lampepfl/dotty/tree/master/sbt-dotty).
-
-**Note**: Due to the transitive dependencies to Dokka, which is planned to be removed eventually, the following resolver is required to use Scala 3.0.0-RC1 for now:
-
-<scala>
-ThisBuild / resolvers += Resolver.JCenterRepository
-</scala>
 
 After this resolver is added, you can now use Scala 3.0.0-RC1 like any other Scala version.
 
@@ -152,10 +147,14 @@ ThisBuild / packageTimestamp := Package.gitCommitDateTimestamp
 - Warns when `ThisBuild / versionScheme` is missing while publishing [#6310][6310] by [@eed3si9n][@eed3si9n]
 - Use 2010-01-01 for the repeatable build timestamp wipe-out to avoid negative date [#6254][6254] by [@takezoe][@takezoe] (There's an active discussion to use commit date instead)
 - Adds FileInput/FileOutput that avoids intermediate String parsing [#5515][5515] by [@jtjeferreira][@jtjeferreira]
+- Support credential file without realm [lm#367][lm367] by [@MasseGuillaume][@MasseGuillaume]
+- Support MUnit out of box [#6335][6335] by [@julienrf][@julienrf]
+- Automatically publishLocal plugin dependency subprojects before `scripted` [#6351][6351] by [@steinybot][@steinybot]
+- Update Launcher to use Coursier to download the artifact [launcher#86][launcher86] by [@eed3si9n][@eed3si9n]
 
 ### Participation
 
-sbt 1.5.0-M2 was brought to you by 20 contributors. Eugene Yokota (eed3si9n), Adrien Piquerez, Ethan Atkins, João Ferreira, Eric Peters, Sam Halliday, Erlend Hamnaberg, Erwan Queffélec, Martin Duhem, Matthias Kurz, Mirco Dotta, Arthur McGibbon, Brice Jaglin, Cyrille Chepelov, Eric Meisel, Guillaume Martres, Kenji Yoshida (xuwei-k), Luc Henninger, Marko Elezovic, Naoki Takezoe, Rafał Sumisławski. Thanks!
+sbt 1.5.0-RC1 was brought to you by 27 contributors. Eugene Yokota (eed3si9n), Adrien Piquerez, Ethan Atkins, João Ferreira, Matthias Kurz, Eric Peters, Sam Halliday, Erlend Hamnaberg, Erwan Queffélec, Guillaume Massé, Martin Duhem, Mirco Dotta, Arthur McGibbon, Brice Jaglin, Cyrille Chepelov, Dale Wijnand, Eric Meisel, Guillaume Martres, Jason Pickens, Julien Richard-Foy, Kenji Yoshida (xuwei-k), Luc Henninger, Marcos Pereira, Marko Elezovic, Naoki Takezoe, Ondra Pelech, Rafał Sumisławski. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc 1 by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
@@ -171,7 +170,10 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
   [@bjaglin]: https://github.com/bjaglin
   [@RafalSumislawski]: https://github.com/RafalSumislawski
   [@melezov]: https://github.com/melezov
+  [@MasseGuillaume]: https://github.com/MasseGuillaume
+  [@steinybot]: https://github.com/steinybot
   [lm361]: https://github.com/sbt/librarymanagement/pull/361
+  [lm367]: https://github.com/sbt/librarymanagement/pull/367
   [6296]: https://github.com/sbt/sbt/pull/6296
   [5515]: https://github.com/sbt/sbt/pull/5515
   [6254]: https://github.com/sbt/sbt/pull/6254
@@ -182,3 +184,6 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
   [6310]: https://github.com/sbt/sbt/pull/6310
   [6326]: https://github.com/sbt/sbt/pull/6326
   [6266]: https://github.com/sbt/sbt/pull/6266
+  [6335]: https://github.com/sbt/sbt/pull/6335
+  [6351]: https://github.com/sbt/sbt/pull/6351
+  [launcher86]: https://github.com/sbt/launcher/pull/86
