@@ -1,6 +1,7 @@
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.5.0-RC1. This is the fifth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.5.0-RC2. This is the fifth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series.
 
-- If no serious issues are found by Saturday, March 27th 2021, 1.5.0-RC1 will become 1.5.0 final.
+- If no serious issues are found by Saturday, April 3rd 2021, 1.5.0-RC2 will become 1.5.0 final.
+- <s>If no serious issues are found by Saturday, March 27th 2021, 1.5.0-RC1 will become 1.5.0 final.</s>
 
 The headline features of sbt 1.5.0 are:
 
@@ -10,11 +11,23 @@ The headline features of sbt 1.5.0 are:
 
 ### How to upgrade
 
-You can upgrade to sbt 1.5.0-RC1 by putting the following in `project/build.properties`:
+You can upgrade to sbt 1.5.0-RC2 by putting the following in `project/build.properties`:
 
 <code>
-sbt.version=1.5.0-RC1
+sbt.version=1.5.0-RC2
 </code>
+
+### Changes since RC-1
+
+- Updates to Coursier 2.0.15
+- Fixes full recompilation after reboot by fixing Modifier access [zinc#968][zinc968] by [@adpi2][@adpi2]
+- Fixes spurious "@nowarn annotation does not suppress any warnings" [#6403][6403] by [@adpi2][@adpi2]
+- Fixes `--sbt-launch-jar` option in BSP connection details [#6401][6401] by [@adpi2][@adpi2]
+- Environment variable support in BSP debug session [#6397][6397] by [@arixmkii][@arixmkii]
+- Fixes "Scala binary version" warning when using Ivy [lm#372][lm372] by [@adpi2][@adpi2]
+- Fixes `LinkageError` during `run` by shading Coursier in launcher [launcher#89][launcher89] by [@adpi2][@adpi2]
+- Fixes launcher launching older sbt [launcher#92][launcher92] / [launcher#93][launcher93] by [@eed3si9n][@eed3si9n]
+- Fixes Coursier cache location on Windows becoming `null/Coursier/cache` by using `%LOCALAPPDATA%` instead of shelling out to PowerShell [#6408][6408] by [@eed3si9n][@eed3si9n]
 
 ### Scala 3 support
 
@@ -154,12 +167,11 @@ ThisBuild / packageTimestamp := Package.gitCommitDateTimestamp
 
 ### Participation
 
-sbt 1.5.0-RC1 was brought to you by 27 contributors. Eugene Yokota (eed3si9n), Adrien Piquerez, Ethan Atkins, João Ferreira, Matthias Kurz, Eric Peters, Sam Halliday, Erlend Hamnaberg, Erwan Queffélec, Guillaume Massé, Martin Duhem, Mirco Dotta, Arthur McGibbon, Brice Jaglin, Cyrille Chepelov, Dale Wijnand, Eric Meisel, Guillaume Martres, Jason Pickens, Julien Richard-Foy, Kenji Yoshida (xuwei-k), Luc Henninger, Marcos Pereira, Marko Elezovic, Naoki Takezoe, Ondra Pelech, Rafał Sumisławski. Thanks!
+sbt 1.5.0-RC2 was brought to you by 27 contributors. Eugene Yokota (eed3si9n), Adrien Piquerez, Ethan Atkins, João Ferreira, Matthias Kurz, Eric Peters, Sam Halliday, Erlend Hamnaberg, Erwan Queffélec, Guillaume Massé, Martin Duhem, Mirco Dotta, Arthur McGibbon, Brice Jaglin, Cyrille Chepelov, Dale Wijnand, Eric Meisel, Guillaume Martres, Jason Pickens, Julien Richard-Foy, Kenji Yoshida (xuwei-k), Luc Henninger, Marcos Pereira, Marko Elezovic, Naoki Takezoe, Ondra Pelech, Rafał Sumisławski. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc 1 by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
 For anyone interested in helping sbt, there are many avenues for you to help, depending on your interest. If you're interested, [Contributing](https://github.com/sbt/sbt/blob/develop/CONTRIBUTING.md), ["help wanted"](https://github.com/sbt/sbt/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22), ["good first issue"](https://github.com/sbt/sbt/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), and [Discussions](https://github.com/sbt/sbt/discussions/) are good starting points.
-
   [versionScheme]: https://www.scala-sbt.org/1.x/docs/Publishing.html#Version+scheme
   [@adpi2]: https://twitter.com/adrienpi2
   [@jtjeferreira]: https://github.com/jtjeferreira
@@ -172,6 +184,7 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
   [@melezov]: https://github.com/melezov
   [@MasseGuillaume]: https://github.com/MasseGuillaume
   [@steinybot]: https://github.com/steinybot
+  [@arixmkii]: https://github.com/arixmkii
   [lm361]: https://github.com/sbt/librarymanagement/pull/361
   [lm367]: https://github.com/sbt/librarymanagement/pull/367
   [6296]: https://github.com/sbt/sbt/pull/6296
@@ -186,4 +199,13 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
   [6266]: https://github.com/sbt/sbt/pull/6266
   [6335]: https://github.com/sbt/sbt/pull/6335
   [6351]: https://github.com/sbt/sbt/pull/6351
+  [6403]: https://github.com/sbt/sbt/pull/6403
+  [6401]: https://github.com/sbt/sbt/pull/6401
+  [6397]: https://github.com/sbt/sbt/pull/6397
+  [6408]: https://github.com/sbt/sbt/pull/6408
   [launcher86]: https://github.com/sbt/launcher/pull/86
+  [launcher89]: https://github.com/sbt/launcher/pull/89
+  [launcher92]: https://github.com/sbt/launcher/pull/92
+  [launcher93]: https://github.com/sbt/launcher/pull/93
+  [zinc968]: https://github.com/sbt/zinc/pull/968
+  [lm372]: https://github.com/sbt/librarymanagement/pull/372
