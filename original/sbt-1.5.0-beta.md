@@ -37,7 +37,6 @@ After this resolver is added, you can now use Scala 3.0.0-RC1 like any other Sca
 
 <scala>
 ThisBuild / scalaVersion := "3.0.0-RC1"
-ThisBuild / resolvers += Resolver.JCenterRepository
 </scala>
 
 This will compile the following `Hello.scala`:
