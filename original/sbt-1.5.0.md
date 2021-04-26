@@ -21,9 +21,7 @@ This mechanism allows that sbt 1.5.0 is used only for the builds that you want.
 
 ### Scala 3 support
 
-sbt 1.5.0 adds built-in Scala 3 support, contributed by Scala Center. Main implementation was done by Adrien Piquerez ([@adpi2][@adpi2]) based on EPFL/LAMP's [sbt-dotty](https://github.com/lampepfl/dotty/tree/master/sbt-dotty).
-
-After this resolver is added, you can now use Scala 3.0.0-RC2 like any other Scala version.
+sbt 1.5.0 adds built-in Scala 3 support, contributed by Scala Center. Main implementation was done by Adrien Piquerez ([@adpi2][@adpi2]) based on EPFL/LAMP's [sbt-dotty](https://github.com/lampepfl/dotty/tree/master/sbt-dotty). You can now use Scala 3.0.0-RC2 like any other Scala version.
 
 <scala>
 ThisBuild / scalaVersion := "3.0.0-RC2"
@@ -62,6 +60,14 @@ These are analogous to `%%` operator that selects `_2.13` etc based on `scalaVer
 ### Deprecation of sbt 0.13 syntax
 
 sbt 1.5.0 deprecates both the sbt 0.13 style shell syntax `proj/cofing:intask::key` and sbt 0.13 styld build.sbt DSL `key in (Compile, intask)` in favor of the unified slash syntax.
+
+There's a [syntactic Scalafix rule for unified slash syntax](https://eed3si9n.com/syntactic-scalafix-rule-for-unified-slash-syntax)
+to semi-automatically rewrite existing sbt 0.13 syntax to the slash syntax. Currently it requires the use of scalafix CLI
+and it's not very precise (because it's a syntactic rule that only looks at the shape of the code) but it gets most of the job done.
+
+<code>
+$ scalafix --rules=https://gist.githubusercontent.com/eed3si9n/57e83f5330592d968ce49f0d5030d4d5/raw/7f576f16a90e432baa49911c9a66204c354947bb/Sbt0_13BuildSyntax.scala *.sbt project/*.scala
+</code>
 
 See <https://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html#slash> for details.
 
