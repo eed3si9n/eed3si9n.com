@@ -25,11 +25,11 @@ As sbt was taking off in the number of contributors and plugins, we had a Bintra
 
 In February 2021, JFrog announced that they will be sunsetting Bintray service. Since then, JFrog has been proactive in communicating with us, scheduling meetings, granting us [open source sponsorship](https://jfrog.com/open-source/), and providing the migration toolkit.
 
-There's now a cloud-hosted Artifactory instance licensed to **Scala Center**. Let's call this "Artsy" in this post instead of _the Artifactory instance_. With the release of sbt 1.5.1, I think we can say that the migration is done.
+There's now a cloud-hosted Artifactory instance licensed to **Scala Center**, and fully sponsored by **JFrog**. Let's call this "Artsy" in this post instead of _the Artifactory instance_. With the release of sbt 1.5.1, I think we can say that the migration is done.
 
 #### read side
 
-- As of April 18th, I have migrated all sbt plugins and sbt 0.13 artifacts to Artsy, and Lightbend IT team has redirected https://repo.scala-sbt.org/scalasbt/ to point to Artsy as well, so **existing build should continue to work without making any changes** today and after May 1st. Please check for [an issue](https://github.com/sbt/sbt/issues), and report it if this is not the case.
+- As of April 18th, I have migrated all sbt plugins and sbt 0.13 artifacts to Artsy, and Lightbend IT team has redirected https://repo.scala-sbt.org/scalasbt/ to point to Artsy as well, so **existing builds should continue to work without making any changes** today and after May 1st. Please check for [an issue](https://github.com/sbt/sbt/issues), and report it if this is not the case.
 
 #### write side
 
@@ -49,7 +49,7 @@ sudo apt-get update
 sudo apt-get install sbt
 </code>
 
-- RPM repository file is hosted at `https://www.scala-sbt.org/sbt-rpm.repo`. The RPM packages is hosted on Artsy.
+- RPM repository file is hosted at `https://www.scala-sbt.org/sbt-rpm.repo`. The RPM packages are hosted on Artsy.
 
 <code>
 # remove old Bintray repo file
