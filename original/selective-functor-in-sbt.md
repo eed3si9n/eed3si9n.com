@@ -5,7 +5,7 @@
   [core_matsuri]: https://www.youtube.com/watch?v=mY7zu21Cceg
   [Hood2018]: https://youtu.be/s_3qLMSGHkI?t=631
 
-In [sbt core concepts][core] talks I've been calling sbt a casually functional build tool. Two hallmarks of functional programming is that it uses immutable data structure instead of mutation, and that it gives attention to when and how effects are handled.
+In [sbt core concepts][core] talks I've been calling sbt a casually functional build tool. Two hallmarks of functional programming are that it uses immutable data structure instead of mutation, and that it gives attention to when and how effects are handled.
 
 ### settings and tasks
 
