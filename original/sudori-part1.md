@@ -304,7 +304,7 @@ There are two layers of filtering going on here. First, the `TreeMap` we defined
 
 #### Reified Type and turning it back into a type
 
-Some interesting bits about the tree walking is that we have the type information of the tree at this point. The type parameter of `wrapInit[A](...)` is passed in as `TypeApply(...)` tree. This is then turned into `Type[_]` data structure using `targ.tpe.asType`. [Type[T]][Type] is described as "non-erased representation of type `T`."
+Some interesting bits about the tree walking is that we have the type information of the tree at this point. The type argument of `wrapInit[A](...)` is passed in as `TypeApply(...)` tree. This is then turned into `Type[_]` data structure using `targ.tpe.asType`. [Type[T]][Type] is described as "non-erased representation of type `T`."
 
 So that's passed into the `substitute` function as `Type[_]`. Since this is grabbing any `wrapInit[A](...)`, we can't be more specific than `Type[_]`. But we would like to unmarshal this as `T` that we can use. There's a related question in Scala 3 macro FAQ called [How do I summon an expression for statically unknown types?][statically-unknown]
 
