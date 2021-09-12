@@ -43,6 +43,11 @@ crontab
 ```
 
 #### Apache
+```
+sudo stack/ctlscript.sh restart apache
+```
+
+`~/stack/apache2/conf/bitnami/bitnami.conf`:
 
 Change
 
@@ -87,4 +92,22 @@ to:
 <VirtualHost *:80>
    Redirect / https://eed3si9n.com/
 </VirtualHost>
+```
+
+#### database
+
+mysql -u root -p
+SHOW DATABASES;
+SHOW TABLES;
+
+https://docs.bitnami.com/aws/apps/redmine/administration/backup-restore-mysql-mariadb/
+
+#### Drupal
+
+```
+/apps/portal/htdocs
+```
+
+```
+cp -R drupal-x.y/* /apps/portal/htdocs
 ```
