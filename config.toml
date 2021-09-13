@@ -1,0 +1,40 @@
+baseURL = 'http://example.org/'
+languageCode = 'en-us'
+title = 'eed3si9n'
+
+theme = "hyde"
+pygmentsstyle = "monokai"
+paginate = 6
+
+[languages]
+  [languages.en]
+    weight = 1
+    languageName = 'English'
+
+  [languages.ja]
+    weight = 2
+    languageName = '日本語'
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+
+[social]
+twitter= "https://twitter.com/eed3si9n"
+github= "https://github.com/eed3si9n"
+
+[taxonomies]
+author = "authors"
+category = "categories"
+tag = "tags"
+
+[menu]
+[[menu.main]]
+  identifier = 'ja'
+  name = '日本語'
+  url = '/ja/'
+  weight = -110
+
+[params]
+  description = "works by eugene yokota"
+  themeColor = "theme-base-08"
