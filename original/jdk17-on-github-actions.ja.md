@@ -49,7 +49,7 @@ jobs:
       shell: bash
 </code>
 
-例えば、`jobtype` が 3 の場合は JDK 8 を使いたいとして、`jobtype` が 1 と 2 の場合は JDK 17 でテストしたいとする。sbt-ci-release は JDK を持ってくるのに jabba を使っているが、これを書いている時点では各社の openjdk 17.0 ディストロが jabba にまだ上がっていない。しかし、java.net にはバイナリがあるのでカスタム JDK モードを利用して強引に使うことが可能だ:
+例えば、`jobtype` が 3 の場合は JDK 8 を使いたいとして、`jobtype` が 1 と 2 の場合は JDK 17 でテストしたいとする。sbt-ci-release は JDK を持ってくるのに jabba を使っているが、これを書いている時点では各社の openjdk 17.0 ディストロが jabba にまだ上がっていない。しかし、[Eclipse Adoptium 旧名 AdoptOpenJDK](https://adoptium.net/) からバイナリが出たのでカスタム JDK モードを利用して強引に使うことが可能だ:
 
 <code>
 name: CI
@@ -63,10 +63,10 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            java: "17.0-custom=tgz+https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz"
+            java: "17.0-custom=tgz+https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17%2B35/OpenJDK17-jdk_x64_linux_hotspot_17_35.tar.gz"
             jobtype: 1
           - os: ubuntu-latest
-            java: "17.0-custom=tgz+https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz"
+            java: "17.0-custom=tgz+https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17%2B35/OpenJDK17-jdk_x64_linux_hotspot_17_35.tar.gz"
             jobtype: 2
           - os: ubuntu-latest
             java: "adopt@1.11"
@@ -107,7 +107,9 @@ WARNING: A terminally deprecated method in java.lang.System has been called
 WARNING: System::setSecurityManager has been called by sbt.TrapExit$ (file:/home/runner/.sbt/boot/scala-2.12.14/org.scala-sbt/sbt/1.5.4/run_2.12-1.5.4.jar)
 WARNING: Please consider reporting this to the maintainers of sbt.TrapExit$
 WARNING: System::setSecurityManager will be removed in a future release
-[info] welcome to sbt 1.5.4 (Oracle Corporation Java 17)
+[info] welcome to sbt 1.5.4 (Eclipse Adoptium Java 17)
 </code>
 
-[Eclipse Adoptium 旧名 AdoptOpenJDK](https://adoptium.net/) のリリースが出てきたらそれを使うのを推奨する。
+**Update**:
+
+ややこしい事にビルド済みバイナリは Eclipse Adoptium のサブプロジェクトにあたる Eclipse Temurin によって作られているらしい。しかし、上記のバナーの通り `java.vendor` は `"Eclipse Adoptium"` を返している。ということは tar ball だけが Eclipse Temurin なのだろうか?

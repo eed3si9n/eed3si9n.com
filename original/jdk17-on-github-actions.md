@@ -49,7 +49,7 @@ jobs:
       shell: bash
 </code>
 
-Let's say for `jobtype` 3 we'd like to use JDK 8, and for `jobtype` 1 and 2 we'd like to test on JDK 17. sbt-ci-release uses jabba to grab the JDKs, and at the moment the openjdk 17.0 distros are not available on jabba yet. However, java.net does have the binary available, so we can use the custom JDK mode to use it as follows:
+Let's say for `jobtype` 3 we'd like to use JDK 8, and for `jobtype` 1 and 2 we'd like to test on JDK 17. sbt-ci-release uses jabba to grab the JDKs, and at the moment the openjdk 17.0 distros are not available on jabba yet. However, [Eclipse Adoptium fka AdoptOpenJDK](https://adoptium.net/) does have the binary available, so we can use the custom JDK mode to use it as follows:
 
 <code>
 name: CI
@@ -63,10 +63,10 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            java: "17.0-custom=tgz+https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz"
+            java: "17.0-custom=tgz+https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17%2B35/OpenJDK17-jdk_x64_linux_hotspot_17_35.tar.gz"
             jobtype: 1
           - os: ubuntu-latest
-            java: "17.0-custom=tgz+https://download.java.net/java/GA/jdk17/0d483333a00540d886896bac774ff48b/35/GPL/openjdk-17_linux-x64_bin.tar.gz"
+            java: "17.0-custom=tgz+https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17%2B35/OpenJDK17-jdk_x64_linux_hotspot_17_35.tar.gz"
             jobtype: 2
           - os: ubuntu-latest
             java: "adopt@1.11"
@@ -107,9 +107,9 @@ WARNING: A terminally deprecated method in java.lang.System has been called
 WARNING: System::setSecurityManager has been called by sbt.TrapExit$ (file:/home/runner/.sbt/boot/scala-2.12.14/org.scala-sbt/sbt/1.5.4/run_2.12-1.5.4.jar)
 WARNING: Please consider reporting this to the maintainers of sbt.TrapExit$
 WARNING: System::setSecurityManager will be removed in a future release
-[info] welcome to sbt 1.5.4 (Oracle Corporation Java 17)
+[info] welcome to sbt 1.5.4 (Eclipse Adoptium Java 17)
 </code>
 
-Generally speaking, my preference would be to use [Eclipse Adoptium fka AdoptOpenJDK](https://adoptium.net/) once it comes out.
+**Update**:
 
-
+To add to the confusion, the pre-build binaries are produced by a subproject within Eclipse Adoptium called Eclipse Temurin. As the above banner shows, `java.vendor` says `"Eclipse Adoptium"`. Does that mean that the tar balls are called Eclipse Temurin?
