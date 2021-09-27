@@ -381,5 +381,5 @@ scala> List(1, 2, 3).contains(elen = 1)
 
 ### Summary
 
-- Starlark is a is a dialect of Python, designed as a configuration language for Bazel.
-- Starlark 4.2.1 is available on Maven Central, and can be used from Scala or Java to create a custom DSL with typo checks but no other side effects.
+- Starlark is a dialect of Python, designed as a configuration language for Bazel.
+- Starlark 4.2.1 is available on Maven Central (as an unofficial distribution), and can be used from Scala or Java to create a custom DSL with typo checks but no other side effects.
