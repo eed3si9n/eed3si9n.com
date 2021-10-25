@@ -27,7 +27,7 @@ In other words, the fact that locally declared implicits were being prioritized 
 
 I'm only going to check one example from the last post:
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -52,7 +52,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
 With 2.9.1,
 
@@ -108,7 +108,7 @@ On the other hand, the entire Category 2 (*implicit scope*) is wide open.
 
 The first place to consider is the companion object of an associated type (in this case a type constructor):
 
-<scala>
+```scala
 package foopkg
 
 trait CanFoo[A] {
@@ -122,7 +122,7 @@ object CanFoo {
 object `package` {
   def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
 }
-</scala>
+```
 
 Now, this can be invoked as `foopkg.foo(1)` without any import statement.
 
@@ -130,7 +130,7 @@ Now, this can be invoked as `foopkg.foo(1)` without any import statement.
 
 Another place to consider is the parent trait of package object for `foopkg`.
 
-<scala>
+```scala
 package foopkg
 
 trait CanFoo[A] {
@@ -144,7 +144,7 @@ trait Implicit {
 object `package` extends Implicit {
   def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
 }
-</scala>
+```
 
 Placing implicits into a trait consolidates them into one place, and gives opportunity for the user to reuse them if needed. Mixing it into the package object loads them into the implicit scope.
 
@@ -154,7 +154,7 @@ A popular use of implicits is for static monkey patching. For example, we can ad
 
 > A *view* from type *S* to type *T* is defined by an implicit value which has function type *S=>T* or *(=>S)=>T* or by a method convertible to a value of that type.
 
-<scala>
+```scala
 package yeller
 
 case class YellerString(s: String) {
@@ -164,16 +164,16 @@ trait Implicit {
   implicit def stringToYellerString(s: String): YellerString = YellerString(s)
 }
 object `package` extends Implicit
-</scala>
+```
 
 Unfortunately, however, `"foo".yell` won't work outside of `yeller` package because the compiler doesn't know about possible the implicit conversion. One workaround is to break into Category 1 (implicits loaded to current scope) by calling `import yeller._`:
 
-<scala>
+```scala
 object Main extends App {
   import yeller._
   println("banana".yell)
 }
-</scala>
+```
 
 This is not bad since the import is consolidated into one thing.
 
@@ -181,14 +181,14 @@ This is not bad since the import is consolidated into one thing.
 
 Can we get rid of the import statement? Another place in Category 1 is the user's package object, to which they can mixin `Implicit` trait:
 
-<scala>
+```scala
 package userpkg
 
 object `package` extends yeller.Implicit
 object Main extends App {
   println("banana".yell)
 }
-</scala>
+```
 
 This prints out `BANANA!!` successfully without an import.
 

@@ -47,7 +47,7 @@ assert(person.say(word1, word2) == "pong pong")
 
 Scala において、マクロはコンパイル時にアクションを取る方法を提供してくれ、これは Scala の型システムと直接話すことができるホットラインだ。具体例で説明すると、型 `A` があるとき、ランタイム上からこれが case class であるかを正確に確認する方法は無いと思う。マクロを使うとこれが 5行で書ける:
 
-<scala>
+```scala
 import scala.quoted.*
 
 inline def isCaseClass[A]: Boolean = ${ isCaseClassImpl[A] }
@@ -55,7 +55,7 @@ private def isCaseClassImpl[A: Type](using qctx: Quotes) : Expr[Boolean] =
   import qctx.reflect.*
   val sym = TypeRepr.of[A].typeSymbol
   Expr(sym.isClassDef && sym.flags.is(Flags.Case))
-</scala>
+```
 
 上記の `${ isCaseClassImpl[A] }` は Scala 3 マクロの一例で、スプライスと呼ばれる。
 
@@ -202,7 +202,7 @@ val res0: String = scala.List.apply[scala.Int](1).map[scala.Int](((x: scala.Int)
 
 AST の構造を見るには `Printer.TreeStructure.show(...)` を使う:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -212,16 +212,16 @@ inline def showTree[A](inline a: A): String = ${showTreeImpl[A]('{ a })}
 def showTreeImpl[A: Type](a: Expr[A])(using Quotes): Expr[String] =
   import quotes.reflect.*
   Expr(Printer.TreeStructure.show(a.asTerm))
-</scala>
+```
 
 仕切り直し:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> showTree(List(1).map(x => x + 1))
 val res0: String = Inlined(None, Nil, Apply(TypeApply(Select(Apply(TypeApply(Select(Ident("List"), "apply"), List(Inferred())), List(Typed(Repeated(List(Literal(IntConstant(1))), Inferred()), Inferred()))), "map"), List(Inferred())), List(Block(List(DefDef("$anonfun", List(TermParamClause(List(ValDef("x", Inferred(), None)))), Inferred(), Some(Apply(Select(Ident("x"), "+"), List(Literal(IntConstant(1))))))), Closure(Ident("$anonfun"), None)))))
-</scala>
+```
 
 求めていたのは、これ。注意としては、この木のエンコードは Scala 3.x を通じて安定してるか分からないので、詳細にべったり依存するのは安全では無い可能性があるので、`unapply` 抽出子を使ったほうがいいと思う (これに関して互換性が保証するのかしないのかは僕は知らない)。しかし、コンパイラが構築したものと自分が人工的に構築したものを比べるツールとしてこれは役立つと思う。
 
@@ -229,7 +229,7 @@ val res0: String = Inlined(None, Nil, Apply(TypeApply(Select(Apply(TypeApply(Sel
 
 通常は `Literal(...)` の木をこのように作る必要はあんまり無いが、基礎となる木なので、単独で説明を始めやすい:
 
-<scala>
+```scala
 /** `TypeTest` that allows testing at runtime in a pattern match if a `Tree` is a `Literal` */
 given LiteralTypeTest: TypeTest[Tree, Literal]
 
@@ -261,13 +261,13 @@ trait LiteralMethods:
     def constant: Constant
   end extension
 end LiteralMethods
-</scala>
+```
 
 抽象型の `type Literal` は `Literal` 木を表し、`LiteralModule` は、コンパニオンオブジェクト `Literal` を記述する。ここでは、`apply(...)`、`copy(...)`、`unapply(...)` を提供しているのが分かる。
 
 これを使って、`Int` リテラルを受け取ってコンパイル時に 1を加算する `addOne(...)` マクロを実装できるはずだ。これは単に `n + 1` を返すのとは違うことに注意してほしい。`n + 1` は実行時に計算する。僕たちがやりたいのは、`1` を渡すと `*.class` が計算無しで `2` を含んでいることだ。
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -279,7 +279,7 @@ def addOne_badImpl(x: Expr[Int])(using Quotes): Expr[Int] =
   x.asTerm match
     case Inlined(_, _, Literal(IntConstant(n))) =>
       Literal(IntConstant(n + 1)).asExprOf[Int]
-</scala>
+```
 
 これは意味無く冗長な書き方になっている。
 
@@ -287,17 +287,17 @@ def addOne_badImpl(x: Expr[Int])(using Quotes): Expr[Int] =
 
 `Int` を含む、`FromExpr` 型クラスのインスタンスを形成する型の場合は、`Expr` の拡張メソッドである `.value` を使った方が簡単だ。`value` は以下のように定義される:
 
-<scala>
+```scala
 def value(using FromExpr[T]): Option[T] =
   given Quotes = Quotes.this
   summon[FromExpr[T]].unapply(self)
-</scala>
+```
 
 同様に、`Expr` を `Expr.apply(...)` を使って構築できる `ToExpr` 型クラスがある。
 
 そのため、これらと `.value` の兄弟である `.valueOrError` を使うことで `addOne(...)` は 1行マクロとして書き換える事ができる:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -306,7 +306,7 @@ inline def addOne(inline x: Int): Int = ${addOneImpl('{x})}
 
 def addOneImpl(x: Expr[Int])(using Quotes): Expr[Int] =
   Expr(x.valueOrError + 1)
-</scala>
+```
 
 こっちの方がシンプルであるだけじゃなく、Reflection API を使っていないのでより型安全だというのもポイントだ。
 
@@ -316,7 +316,7 @@ def addOneImpl(x: Expr[Int])(using Quotes): Expr[Int] =
 
 以下は `Source.line` 関数の実装だ。
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -328,11 +328,11 @@ object Source:
     val pos = Position.ofMacroExpansion
     Expr(pos.startLine + 1)
 end Source
-</scala>
+```
 
 これは以下のように使うことができる:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 object PositionTest extends verify.BasicTestSuite:
@@ -340,13 +340,13 @@ object PositionTest extends verify.BasicTestSuite:
     assert(Source.line == 5)
   }
 end PositionTest
-</scala>
+```
 
 #### Apply
 
 実践的なマクロのほとんどはメソッドの呼び出しに関わると思うので `Apply` も見ていこう。`addOne` の結果を `List` で返すマクロの例だ。
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -356,13 +356,13 @@ inline def addOneList(inline x: Int): List[Int] = ${addOneListImpl('{x})}
 def addOneListImpl(x: Expr[Int])(using Quotes): Expr[List[Int]] =
   val inner = Expr(x.valueOrError + 1)
   '{ List($inner) }
-</scala>
+```
 
 手でゴリゴリ `Apply(...)` 木を作るのでは無く、普通の Scala を使って `List(...)` 呼び出しを書いて、中に式をスプライスして、それを丸っと `'{ ... }` でクォートすることができた。`List(...)` メソッドと言っても実際には `_root_.scala.collection.immutable.List.apply[Int](...)` みたいな形になることを考慮すると、それを正確に記述するだけで面倒な作業となるので、これは非常に便利だ。
 
 しかしながら、メソッド呼び出しは頻出なので `Term` 全般に対して専用の拡張メソッドが提供されている。
 
-<scala>
+```scala
 /** A unary apply node with given argument: `tree(arg)` */
 def appliedTo(arg: Term): Term
 
@@ -379,11 +379,11 @@ def appliedToArgss(argss: List[List[Term]]): Term
 
 /** The current tree applied to (): `tree()` */
 def appliedToNone: Apply
-</scala>
+```
 
 1 を加算して、`toString` を呼び出すというおかしなマクロを書いてみよう:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -394,7 +394,7 @@ def addOneToStringImpl(x: Expr[Int])(using Quotes): Expr[String] =
   import quotes.reflect.*
   val inner = Literal(IntConstant(x.valueOrError + 1))
   Select.unique(inner, "toString").appliedToNone.asExprOf[String]
-</scala>
+```
 
 #### Select
 
@@ -408,7 +408,7 @@ def addOneToStringImpl(x: Expr[Int])(using Quotes): Expr[String] =
 
 クォートを使って `val x` を定義して、その参照を返すマクロは以下のように書ける:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -421,11 +421,11 @@ def addOneXImpl(x: Expr[Int])(using Quotes): Expr[Int] =
     val x = $rhs
     x
   }
-</scala>
+```
 
 何らかの理由でこれをコードを使ってやりたいとする。まずは新しい `val` のためのシンボルを作る必要がある。そのためには、`TypoeRepr` と `Flags` も必要になる。
 
-<scala>
+```scala
 inline def addOneXv2(inline x: Int): Int = ${addOneXv2Impl('{x})}
 
 def addOneXv2Impl(x: Expr[Int])(using Quotes): Expr[Int] =
@@ -443,7 +443,7 @@ def addOneXv2Impl(x: Expr[Int])(using Quotes): Expr[Int] =
     List(vd),
     Ref(sym)
   ).asExprOf[Int]
-</scala>
+```
 
 #### Symbol と Ref
 
@@ -456,7 +456,7 @@ def addOneXv2Impl(x: Expr[Int])(using Quotes): Expr[Int] =
 
 型 `A` が case class かどうかを検査するコードは `TypeRepr` がどう取得されるかを見れる良い例だ。
 
-<scala>
+```scala
 import scala.quoted.*
 
 inline def isCaseClass[A]: Boolean = ${ isCaseClassImpl[A] }
@@ -465,11 +465,11 @@ private def isCaseClassImpl[A: Type](using qctx: Quotes) : Expr[Boolean] =
   import qctx.reflect.*
   val sym = TypeRepr.of[A].typeSymbol
   Expr(sym.isClassDef && sym.flags.is(Flags.Case))
-</scala>
+```
 
 以下が `TypeRepr` API だ。
 
-<scala>
+```scala
 /** A type, type constructors, type bounds or NoPrefix */
 type TypeRepr
 
@@ -595,11 +595,11 @@ trait TypeReprMethods {
 
   end extension
 }
-</scala>
+```
 
 `TypeRepr` の拡張メソッドを使ってみよう。以下は 2つの型が等しいかを比べるマクロだ:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -609,11 +609,11 @@ inline def typeEq[A1, A2]: Boolean = ${ typeEqImpl[A1, A2] }
 def typeEqImpl[A1: Type, A2: Type](using Quotes): Expr[Boolean] =
   import quotes.reflect.*
   Expr(TypeRepr.of[A1] =:= TypeRepr.of[A2])
-</scala>
+```
 
 `typeEq` は以下のように使うことができる:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> typeEq[scala.Predef.String, java.lang.String]
@@ -621,7 +621,7 @@ val res0: Boolean = true
 
 scala> typeEq[Int, java.lang.Integer]
 val res1: Boolean = false
-</scala>
+```
 
 #### AppliedType
 
@@ -629,7 +629,7 @@ val res1: Boolean = false
 
 `TypeTest[TypeRepr, AppliedType]` を使うことも可能だが、コンパイラがマジックを使って通常のパターンマッチと同じように書けるようになっている。型パラメータの名前を返すマクロは以下のように書ける。
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -644,11 +644,11 @@ def paramInfoImpl[A: Type](using Quotes): Expr[List[String]] =
     case AppliedType(_, args) => args
     case _                    => Nil
   Expr(targs.map(_.show))
-</scala>
+```
 
 これはこのように使える:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> paramInfo[List[Int]]
@@ -656,7 +656,7 @@ val res0: List[String] = List(scala.Int)
 
 scala> paramInfo[Int]
 val res1: List[String] = List()
-</scala>
+```
 
 #### 抽出子としての Select
 
@@ -664,18 +664,18 @@ val res1: List[String] = List()
 
 具体例で説明すると、まずは `echo` というダミー関数を作る:
 
-<scala>
+```scala
 import scala.annotation.compileTimeOnly
 
 object Dummy:
   @compileTimeOnly("echo can only be used in lines macro")
   def echo(line: String): String = ???
 end Dummy
-</scala>
+```
 
 次に、`Dummy.echo(...)` を入力された値と行番号を前置したものに置換する `Source.lines(...)` マクロを実装できる。
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.annotation.compileTimeOnly
@@ -718,11 +718,11 @@ object Dummy:
   @compileTimeOnly("echo can only be used in lines macro")
   def echo(line: String): String = ???
 end Dummy
-</scala>
+```
 
 これは以下のようにテストできる:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 object LinesTest extends verify.BasicTestSuite:
@@ -736,7 +736,7 @@ object LinesTest extends verify.BasicTestSuite:
     ))
   }
 end LinesTest
-</scala>
+```
 
 #### 抽出子としてのクォート
 
@@ -747,7 +747,7 @@ end LinesTest
 
 `Dummy.echo(...)` を置換する `lines(...)` マクロの改善版は以下のようになる。
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.annotation.compileTimeOnly
@@ -776,7 +776,7 @@ object Dummy:
   @compileTimeOnly("echo can only be used in lines macro")
   def echo(line: String): String = ???
 end Dummy
-</scala>
+```
 
 `Dummy.echo` メソッドの面倒なシンボル照会も無くすことができた。
 
@@ -786,7 +786,7 @@ end Dummy
 
 `a: A` と `String` の 2つのパラメータを受け取って、2つ目のパラメータが `"String"` ならば `Either[String, A]` を宣言して、もしも `"List[String]"` ならば `Either[List[String], A]` を作るマクロを作ってみよう。その Either を使うためには `flatMap` してゼロじゃないかをチェックする。
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -813,11 +813,11 @@ def rightImpl[A: Type](a: Expr[A], which: Expr[String])(using Quotes): Expr[Stri
         }
         e1.toString
       }
-</scala>
+```
 
 つまり、マクロ内で型情報を扱うときは `TypeRepr[_]` を召喚 (summon) するが、Scala コードにスプライスし直すときは `Type[_]` を作る必要がある。使ってみよう:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> right(1, "String")
@@ -828,7 +828,7 @@ val res1: String = Left(empty not allowed)
 
 scala> right[String](null, "List[String]")
 val res2: String = Left(List(empty not allowed))
-</scala>
+```
 
 あと、これは入力と出力は関数のシグネチャによって定義済みだが、入力によって内部実装で別の型を作っている例だ。
 
@@ -836,18 +836,18 @@ val res2: String = Left(List(empty not allowed))
 
 Restligeist マクロ、つまり地縛霊マクロは直ちに失敗するマクロだ。API を廃止した後でマイグレーションのためのメッセージを表示させるというユースケースがある。Scala 3 だとこのようなユーザランドでのコンパイルエラーが一行で書ける。
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 object SomeDSL:
   inline def <<=[A](inline a: A): Option[A] =
     compiletime.error("<<= is removed; migrated to := instead")
 end SomeDSL
-</scala>
+```
 
 使う側だとこのような感じに見える:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> SomeDSL.<<=((1, "foo"))
@@ -855,7 +855,7 @@ scala> SomeDSL.<<=((1, "foo"))
 1 |SomeDSL.<<=((1, "foo"))
   |^^^^^^^^^^^^^^^^^^^^^^^
   |<<= is removed; migrated to := instead
-</scala>
+```
 
 ### まとめ
 

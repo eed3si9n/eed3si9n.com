@@ -32,7 +32,7 @@ CyclicReference エラーが発生しており、その候補ごと捨てられ�
 
 前回の記事から一つだけ例を使って検証してみる:
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -57,7 +57,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
 2.9.1 の場合、
 
@@ -128,7 +128,7 @@ println(Main.test)
 
 関連する型の (この場合は型コンストラクタ) のコンパニオンオブジェクトに置くことをまず考えてみる:
 
-<scala>
+```scala
 package foopkg
 
 trait CanFoo[A] {
@@ -142,7 +142,7 @@ object CanFoo {
 object `package` {
   def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
 }
-</scala>
+```
 
 これは一切の import 文を使わずに `foopkg.foo(1)` として呼び出すことができる。
 
@@ -150,7 +150,7 @@ object `package` {
 
 `foopkg` のパッケージオブジェクトの親トレイトに置くことを次に考えてみる。
 
-<scala>
+```scala
 package foopkg
 
 trait CanFoo[A] {
@@ -164,7 +164,7 @@ trait Implicit {
 object `package` extends Implicit {
   def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
 }
-</scala>
+```
 
 implicit をトレイトに置くことで複数 implicit がある場合に一ヶ所にまとめることができる。また、後にユーザが再利用したい場合に使いやすくなる。これをパッケージオブジェクトにミックスインすることで暗黙のスコープ上に搭載する。
 
@@ -181,7 +181,7 @@ implicit の使い方で人気があるのが静的モンキーパッチング�
 >
 > 型*S* から 型*T* への**ビュー**は、*S=>T* もしくは *(=>S)=>T* という関数型を持つ暗黙の値もしくはそれらの型に変換可能なメソッドと定義される。
 
-<scala>
+```scala
 package yeller
 
 case class YellerString(s: String) {
@@ -191,16 +191,16 @@ trait Implicit {
   implicit def stringToYellerString(s: String): YellerString = YellerString(s)
 }
 object `package` extends Implicit
-</scala>
+```
 
 しかし、残念なことに `"foo".yell` は `yeller` パッケージの外では動作しない。これはコンパイラが暗黙の変換が可能であることを知らされていないためだ。これを回避するには、`import yeller._` を呼んでカテゴリー1 (現行のスコープに載っている implicit) に斬り込んでいくことになる。
 
-<scala>
+```scala
 object Main extends App {
   import yeller._
   println("banana".yell)
 }
-</scala>
+```
 
 import が一つにまとまっているため、そう悪くはない。
 
@@ -208,14 +208,14 @@ import が一つにまとまっているため、そう悪くはない。
 
 import を無くすことはできないだろうか? カテゴリー1 内で使えるのはユーザのパッケージオブジェクトだ。そこに、`Implicit` トレイトをミックスインできる:
 
-<scala>
+```scala
 package userpkg
 
 object `package` extends yeller.Implicit
 object Main extends App {
   println("banana".yell)
 }
-</scala>
+```
 
 これで `BANANA!!` と import 無しで表示できた。
 

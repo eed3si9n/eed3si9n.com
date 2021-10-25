@@ -50,7 +50,7 @@ Make dir structure `src/sbt-test/<test-group>/<test-name>`. For starters, try so
 
 Now ready? Create an initial build in `simple`. Like a real build using your plugin. I'm sure you already have several of them to test manually. Here's an example `build.sbt`:
 
-<scala>
+```scala
 import AssemblyKeys._
 
 version := "0.1"
@@ -60,11 +60,11 @@ scalaVersion := "2.10.2"
 assemblySettings
 
 jarName in assembly := "foo.jar"
-</scala>
+```
 
 In `project/plugins.sbt`:
 
-<scala>
+```scala
 {
   val pluginVersion = System.getProperty("plugin.version")
   if(pluginVersion == null)
@@ -72,17 +72,17 @@ In `project/plugins.sbt`:
                                   |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
   else addSbtPlugin("com.eed3si9n" % "sbt-assembly" % pluginVersion)
 }
-</scala>
+```
 
 This a trick I picked up from [JamesEarlDouglas/xsbt-web-plugin@feabb2][6], which allows us to pass version number into the test.
 
 I also have `src/main/scala/hello.scala`:
 
-<scala>
+```scala
 object Main extends App {
   println("hello")
 }
-</scala>
+```
 
 ## step 4: write a script
 Now, write a script to describe your scenario in a file called `test` located at the root dir of your test project.
@@ -132,7 +132,7 @@ The file commands are great, but not nearly enough because none of them test the
 
 For my hello project, I'd like to check if the resulting jar prints out "hello". I can take advantage of `sbt.Process` to run the jar. To express a failure, just throw an error. Here's `build.sbt`:
 
-<scala>
+```scala
 import AssemblyKeys._
 
 version := "0.1"
@@ -149,7 +149,7 @@ TaskKey[Unit]("check") <<= (crossTarget) map { (crossTarget) =>
   if (out.trim != "bye") error("unexpected output: " + out)
   ()
 }
-</scala>
+```
 
 I am intentionally testing if it matches "bye", to see how the test fails.
 Be careful not to include empty lines, since it'd be interpreted as the end of the block.

@@ -23,7 +23,7 @@ tags:        [ "scala" ]
 
 コアには `shadeDirectory` 関数を実装する `Shader` オブジェクトがある。
 
-<scala>
+```scala
 package com.eed3si9n.jarjarabrams
 
 object Shader {
@@ -34,7 +34,7 @@ object Shader {
       verbose: Boolean
   ): Unit = ...
 }
-</scala>
+```
 
 この関数は、`dir` が JAR ファイルを展開したディレクトリであることを期待する。
 
@@ -44,13 +44,13 @@ object Shader {
 
 以下を `project/plugins.sbt` に追加する:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n.jarjarabrams" % "sbt-jarjar-abrams" % "0.1.0")
-</scala>
+```
 
 `build.sbt` はこのようになる:
 
-<scala>
+```scala
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.11"
@@ -65,11 +65,11 @@ lazy val shadedJawn = project
 
 lazy val use = project
   .dependsOn(shadedJawn)
-</scala>
+```
 
 jawn-parser は `shaded` パッケージ以下にシェーディングされた。REPL を使って確認できる:
 
-<scala>
+```scala
 sbt:jarjar> use/console
 [info] Starting scala interpreter...
 Welcome to Scala 2.12.11 (OpenJDK 64-Bit Server VM, Java 1.8.0_232).
@@ -77,11 +77,11 @@ Type in expressions for evaluation. Or try :help.
 
 scala> shaded.org.typelevel.jawn.Facade
 res0: shaded.org.typelevel.jawn.Facade.type = shaded.org.typelevel.jawn.Facade$@131cedd
-</scala>
+```
 
 元の依存性グラフを真似することで複数のシェーディングライブラリを積み上げることも可能だ:
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.11"
 
@@ -104,11 +104,11 @@ lazy val shadedJawnAst = project
 
 lazy val use = project
   .dependsOn(shadedJawnAst)
-</scala>
+```
 
 REPL から使ってみる:
 
-<scala>
+```scala
 sbt:jarjar> use/console
 [info] Starting scala interpreter...
 Welcome to Scala 2.12.11 (OpenJDK 64-Bit Server VM, Java 1.8.0_232).
@@ -116,7 +116,7 @@ Type in expressions for evaluation. Or try :help.
 
 scala> shaded.org.typelevel.jawn.ast.JParser.parseUnsafe("""{ "x": 10 }""")
 res0: shaded.org.typelevel.jawn.ast.JValue = {"x":10}
-</scala>
+```
 
 ### 自己責任
 

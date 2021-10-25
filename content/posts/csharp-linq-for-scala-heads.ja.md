@@ -23,9 +23,9 @@ var x = 1;
 
 Scala にも `var` があるけど、可能なら不変 (immutable) な `val` を使うのが好ましいとされている。
 
-<scala>
+```scala
 val x = 1
-</scala>
+```
 
 ## 新しい List と Array の作成
 
@@ -40,10 +40,10 @@ var array = new [] { 0, 1, 2 };
 
 全ての Scala コレクションにファクトリメソッドがある。
 
-<scala>
+```scala
 val list = List("Adam", "Alice", "Bob", "Charlie")
 val array = Array(0, 1, 2)
-</scala>
+```
 
 ## ラムダ式を使ったフィルタ
 
@@ -59,11 +59,11 @@ var xs = array.Where(x => x >= 1);
 
 これは Scala では何通りかの書き方がある。
 
-<scala>
+```scala
 array.filter(x => x >= 1)
 array filter { _ >= 1 }
 array filter { 1 <= }
-</scala>
+```
 
 ## 投射
 
@@ -76,10 +76,10 @@ var yx = array.SelectMany(x => new [] { x, 3 });
 
 これは `map` と `flatMap` に対応する。
 
-<scala>
+```scala
 array map { _ + 1 }
 array flatMap { Array(_, 3) }
-</scala>
+```
 
 ## ソート
 
@@ -91,9 +91,9 @@ var xs = list.OrderBy(x => x.Length);
 
 Scala で何かをソートする必要があったことが思い出せないけど、`sortBy` を使えばできる。
 
-<scala>
+```scala
 list sortBy { _.length }
-</scala>
+```
 
 ## クエリ式を使ったフィルタ
 
@@ -108,10 +108,10 @@ var results =
 
 Scala でこれに近いものだと多分 for 内包表記 (for comprehension) だと思う。
 
-<scala>
+```scala
 for (x <- array if x >= 1)
   yield x
-</scala>
+```
 
 これに似たようなものも C# で書けるんだけど、Scala と違って `foreach` が値を返さないから、まるごとメソッドでラッピングする必要がある。
 
@@ -136,10 +136,10 @@ var results =
 
 Scala は for 内包表記で。
 
-<scala>
+```scala
 for (x <- array)
   yield new { def foo = x + 1 }
-</scala>
+```
 
 ## 中間値によるソート
 
@@ -160,12 +160,12 @@ var results =
 
 Scala の for 内包表記ではソートできないけど、後付けでソートできる。
 
-<scala>
+```scala
 list sortBy { x =>
   val cs = """[aeiou]""".r.replaceAllIn(x.toLowerCase, "")
   cs.length
 }
-</scala>
+```
 
 ## クロスジョイン
 
@@ -181,13 +181,13 @@ var results =
 
 Scala は for 内包表記で。
 
-<scala>
+```scala
 for {
   x <- list
   c <- x.toCharArray
   if c != 'a' && c != 'e'
 } yield c
-</scala>
+```
 
 ## インナージョイン
 
@@ -202,12 +202,12 @@ var results =
 
 Scala は for 内包表記で。
 
-<scala>
+```scala
 for {
   name <- list
   n <- array if name.length == n + 3
 } yield (name, n)
-</scala>
+```
 
 ## グループ化
 
@@ -223,10 +223,10 @@ var results =
 
 for 内包表記じゃないけど、Scala でも可能。
 
-<scala>
+```scala
 list groupBy { _(0) } filter { case (k, vs) =>
   vs.size > 1 }
-</scala>
+```
 
 ## 限定子
 
@@ -239,21 +239,21 @@ var allThree = list.All(x => x.Length == 3)
 
 Scala では。
 
-<scala>
+```scala
 val hasThree = list exists { _.length == 3 }
 val allThree = list forall { _.length == 3 }
-</scala>
+```
 
 ## パターンマッチング
 
 Scala に特徴的なのはラムダ式が期待されている所に部分関数 (partial function) を渡すことができることだ。
 
-<scala>
+```scala
 array map {
   case 1 => "foo"
   case n if n % 2 == 0 => n.toString + "!"
 }
-</scala>
+```
 
 C# でこれを真似するには自分で例外を投げる必要があると思う。
 

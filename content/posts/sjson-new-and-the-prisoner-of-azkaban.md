@@ -38,7 +38,7 @@ Naturally, my first instinct was to start reading up on the encoding of [Google 
 
 What I should've done first, is start benchmarking. Using [@ktosopl (Konrad Malawski)][ktosopl]'s [sbt-jmh][sbt-jmh], setting up a microbenchmark is easy. All you have to do is pop that plugin into your build. and create a subproject that enables `JmhPlugin`.
 
-<scala>
+```scala
 lazy val benchmark = (project in file("benchmark")).
   dependsOn(supportSpray). // add other subprojects you want to test
   enablePlugins(JmhPlugin).
@@ -50,13 +50,13 @@ lazy val benchmark = (project in file("benchmark")).
     publishLocal := {},
     PgpKeys.publishSigned := {}
   )
-</scala>
+```
 
 One caveat is that you need to add `javaOptions in (Jmh, run)` because sbt-jmh uses forked `run`.
 
 Then follow [some of the examples][jmhsample]. I created mine as an abstract class following the example of Jawn.
 
-<scala>
+```scala
 package sjsonnew
 package benchmark
 
@@ -114,15 +114,15 @@ class SprayBenchmark extends JsonBenchmark[spray.json.JsValue](
   def loadFromFile(f: File): JsValue =
     jawn.support.spray.Parser.parseFromFile(f).get
 }
-</scala>
+```
 
 This will let me compare different JSON backends under the same condition. Of course, there are many other parameters such as the hardware and the quality of the data that affects the performance metrics, but this should give me a ballpark idea.
 
 The benchmarks are executed as follows:
 
-<scala>
+```scala
 > jmh:run -i 10 -wi 3 -f1 -t1
-</scala>
+```
 
 This means:
 
@@ -265,7 +265,7 @@ First, this should allow some evolution of the schema because the reading side b
 
 Lift JSON/Json4s has a notion called `JNothing` that expresses a lack of value, but I think the modern thinking is to use `Option[J]` instead. This means changing `JsonReader` so it accepts `Option[J]` instead of `J`. Here's the modified `JsonFormat` for `Int`:
 
-<scala>
+```scala
   implicit object IntJsonFormat extends JsonFormat[Int] {
     def write[J](x: Int, builder: Builder[J]): Unit =
       builder.writeInt(x)
@@ -275,11 +275,11 @@ Lift JSON/Json4s has a notion called `JNothing` that expresses a lack of value, 
         case None     => 0
       }
   }
-</scala>
+```
 
 This covers the reading part. Next I added `def addField[J](name: String, obj: A, builder: Builder[J]): Unit` method to the `JsonWriter`. This allows the format to optionally omit the creation of a JSON field. Let's try using this:
 
-<scala>
+```scala
 scala> import sjsonnew._, BasicJsonProtocol._
 import sjsonnew._
 import BasicJsonProtocol._
@@ -325,7 +325,7 @@ res2: String = {"name":"Bob"}
 
 scala> Converter.fromJson[Person](res1.get)
 res3: scala.util.Try[Person] = Success(Person(Bob,None))
-</scala>
+```
 
 As you can see, the JSON representation for `Person("Bob", None)` does not include the field for `None` value.
 
@@ -333,7 +333,7 @@ As you can see, the JSON representation for `Person("Bob", None)` does not inclu
 
 Since gzipping is faster, smaller, and likely more reliable than rolling out my own binary format, I've decided to not include that into 0.4.0. If you want to try the feature described in this post other than that, here's 0.4.0:
 
-<scala>
+```scala
 // To use sjson-new with Spray JSON
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.4.0"
 
@@ -342,4 +342,4 @@ libraryDependencies += "com.eed3si9n" %%  "sjson-new-scalajson" % "0.4.0"
 
 // To use sjson-new with MessagePack
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-msgpack" % "0.4.0"
-</scala>
+```

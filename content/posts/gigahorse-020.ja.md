@@ -34,9 +34,9 @@ Gigahorse 0.2.0 をリリースした。新機能は 2つのバックエンド�
 
 Gigahorse 0.1.x から引き続き Gigahorse の基本の関数は、レスポンスオブジェクトを `A` に変換する `http.run(r, f)` だ。
 
-<scala>
+```scala
 val f = http.run(r, Gigahorse.asString andThen {_.take(60)})
-</scala>
+```
 
 今まで `Response` クラスと呼んでいたものは `FullResponse` に改名された。`FullResponse` は、ボディーコンテンツの全てをメモリ上に受け取ったレスポンスを表す。
 
@@ -44,7 +44,7 @@ val f = http.run(r, Gigahorse.asString andThen {_.take(60)})
 
 コンテンツが比較的小さい場合はそれでもいいかもしれないが、 例えばファイルをダウンロードする場合などはコンテンツの チャンクを受け取り次第に処理していきたい。
 
-<scala>
+```scala
 scala> import gigahorse._, support.asynchttpclient.Gigahorse
 scala> import scala.concurrent._, duration._
 scala> import ExecutionContext.Implicits._
@@ -57,20 +57,20 @@ scala> Gigahorse.withHttp(Gigahorse.config) { http =>
          Await.result(f, 120.seconds)
        }
 res0: java.io.File = target/Google_2015_logo.svg
-</scala>
+```
 
 Lightbend が Akka HTTP と AHC [#963][963] の両方に Reactive Stream を実装してくれているお陰で、Gigahorse は両方のバックエンドを byte や String の Reactive Stream として抽象化することができる。ストリーム処理は、`http.runStream(r, f)` を使う
 
-<scala>
+```scala
   /** Runs the request and return a Future of A. */
   def runStream[A](request: Request, f: StreamResponse => Future[A]): Future[A]
-</scala>
+```
 
 ここで注目してほしいのは、関数が `FullResponse` ではなくて `StreamResponse` を受け取ることだ。`FullResponse` と違って、`StreamResponse` はボディーコンテンツをまだ受け取っていない。
 
 その代わりに `StreamResponse` は、コンテンツのパーツをオンデマンドで受け取る `Stream[A]` を作ることができる。 出発点として、Gigahorse は `Gigahorse.asByteStream` と `Gigahorse.asStringStream` を提供する。
 
-<scala>
+```scala
 import org.reactivestreams.Publisher
 import scala.concurrent.Future
 
@@ -91,11 +91,11 @@ abstract class Stream[A] {
   /** Similar to fold but uses first element as zero element. */
   def reduce(f: (A, A) => A): Future[A]
 }
-</scala>
+```
 
 これを使えば比較的簡単にストリーム処理を行うことができる。 例えば、download は以下のように実装されている。
 
-<scala>
+```scala
   def download(request: Request, file: File): Future[File] =
     runStream(request, asFile(file))
 
@@ -118,7 +118,7 @@ object DownloadHandler {
       })
     }
 }
-</scala>
+```
 
 `stream.fold` はパーツが届くと `FileOutputStream` に書き込んでいる。
 
@@ -126,7 +126,7 @@ object DownloadHandler {
 
 Akka HTTP を使った例もみてみる。 `$ python -m SimpleHTTPServer 8000` を実行してカレントディレクトリを 8000番ポートでサーブしているとして、 README.markdown の各行を表示したい。
 
-<scala>
+```scala
 scala> import gigahorse._, support.akkahttp.Gigahorse
 scala> import scala.concurrent._, duration._
 
@@ -142,7 +142,7 @@ Gigahorse
 
 Gigahorse is an HTTP client for Scala with Async Http Client or Lightbend Akka HTTP underneath.
 ....
-</scala>
+```
 
 うまくいった。これは JSON が入った無限ストリームを処理するのに使える。
 

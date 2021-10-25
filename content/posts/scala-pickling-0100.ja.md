@@ -33,7 +33,7 @@ Scala Pickling は、Scala のための自動シリアライゼーション・�
 
 以下は基本形である `Defaults` モードの使用例だ。
 
-<scala>
+```scala
 scala> import scala.pickling.Defaults._, scala.pickling.json._
 scala> case class Person(name: String, age: Int)
 
@@ -47,7 +47,7 @@ JSONPickle({
 
 scala> val person = pkl.unpickle[Person]
 person: Person = Person(foo,20)
-</scala>
+```
 
 この `Defaults` モードは、プリミティブ pickler 群から `Pickler[Person]` をコンパイル時に自動的に導出する!
 コードが静的に生成されるため、文字列の操作などもインライン化して高速化している。(同じくスキーマを使わない [Java serialization や Kryo に比べても速い][Miller])
@@ -58,7 +58,7 @@ person: Person = Person(foo,20)
 
 Pickling 0.10.0 からの新機能として pickler、演算子、フォーマットが別々の trait として提供されるようになったため、サードパーティーのライブラリ側が好みで積み上げてカスタム・モードを提供することができるようになった。例えば、プリミティブ型と `Apple` だけを pickle したくて、自動的な pickler コンビネータの導出はして欲しくないとする。以下が、カスタム・モードになる:
 
-<scala>
+```scala
 scala> case class Apple(kind: String)
 scala> val appleProtocol = {
          import scala.pickling._
@@ -75,11 +75,11 @@ scala> val appleProtocol = {
              functions.unpickle[A](json.JSONPickle(s))
          }
        }
-</scala>
+```
 
 ユーザ側はこのように使う:
 
-<scala>
+```scala
 scala> import appleProtocol._
 
 scala> toJsonString(Apple("honeycrisp"))
@@ -88,7 +88,7 @@ res0: String =
   "$type": "Apple",
   "kind": "honeycrisp"
 }
-</scala>
+```
 
 より詳しくは以下の資料を参照
 

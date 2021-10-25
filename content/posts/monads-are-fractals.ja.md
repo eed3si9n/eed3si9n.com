@@ -23,26 +23,26 @@ Uppsala から帰ってくる途中、何となく思い出したのは同僚と
 
 具体例で説明する:
 
-<scala>
+```scala
 scala> List(List(1), List(2, 3), List(4))
 res0: List[List[Int]] = List(List(1), List(2, 3), List(4))
-</scala>
+```
 
 <!--more-->
 
 上は `Int` の `List` の `List` だ。これは直観的に `Int` の `List` に押し潰す (crunch) することができる:
 
-<scala>
+```scala
 scala> List(1, 2, 3, 4)
 res1: List[Int] = List(1, 2, 3, 4)
-</scala>
+```
 
 `1` から `List(1)` を作れるように、単一パラメータのコンストラクタである `unit: A => F[A]` も提供できる。これで `1` と `4` も `List(2, 3)` と一緒に押し潰せるようになった:
 
-<scala>
+```scala
 scala> List(List.apply(1), List(2, 3), List.apply(4))
 res2: List[List[Int]] = List(List(1), List(2, 3), List(4))
-</scala>
+```
 
 この押し潰す作業は `join` とも呼ばれ、型シグネチャは `F[F[A]] => F[A]` だ。
 
@@ -50,16 +50,16 @@ res2: List[List[Int]] = List(List(1), List(2, 3), List(4))
 
 この押し潰す作業は、モノイドを連想させる。モノイドは以下のように定義できる:
 
-<scala>
+```scala
 trait Monoid[A] {
   def mzero: A
   def mappend(a1: A, a2: A): A
 }
-</scala>
+```
 
 モノイドを使って以下のような二項演算を抽象化できる:
 
-<scala>
+```scala
 scala> List(1, 2, 3, 4).foldLeft(0) { _ + _ }
 res4: Int = 10
 
@@ -71,7 +71,7 @@ res6: Boolean = false
 
 scala> List(true, false, true, true).foldLeft(false) { _ || _ }
 res7: Boolean = true
-</scala>
+```
 
 ここで注目してほしいのが、データ型だけではモノイドを定義するには不十分であることだ。`(Int, +)` のペアになってモノイドを形成する。言い換えると、`Int` は加算に関してモノイドだ。これに話題に関しては https://twitter.com/jessitron/status/438432946383360000 も参照。
 
@@ -79,17 +79,17 @@ res7: Boolean = true
 
 `Int` の `List` の `List` を `Int` の `List` に押し潰すとき、`foldLeft` と `++` のようなことを行って `List[Int]` を作ってるであろうことは自明だ。
 
-<scala>
+```scala
 scala> List(List.apply(1), List(2, 3), List.apply(4)).foldLeft(List(): List[Int]) { _ ++ _ }
 res8: List[Int] = List(1, 2, 3, 4)
-</scala>
+```
 
 だけども、他の定義であった可能性もありえる。例えば、合計値のリストを返すことができる。
 
-<scala>
+```scala
 scala> List(List.apply(1), List(2, 3), List.apply(4)).foldLeft(List(): List[Int]) { (acc, xs) => acc :+ xs.sum }
 res9: List[Int] = List(1, 5, 4)
-</scala>
+```
 
 これはひねくれた例だけど、あるモナドがカプセル化する合成の意味論を考えるのは重要なことだ。
 
@@ -97,7 +97,7 @@ res9: List[Int] = List(1, 5, 4)
 
 `Option` もみてみよう。モナディックな押し潰しの型シグネチャは `F[F[A]] => F[A]` であるため、例として必要なのは `Option` のリストではなく、入れ子の `Option` だ。
 
-<scala>
+```scala
 scala> Some(None: Option[Int]): Option[Option[Int]]
 res10: Option[Option[Int]] = Some(None)
 
@@ -106,11 +106,11 @@ res11: Option[Option[Int]] = Some(Some(1))
 
 scala> None: Option[Option[Int]]
 res12: Option[Option[Int]] = None
-</scala>
+```
 
 `Int` の `Option` の `Option` を `Int` の `Option` に押し潰すコードを考えてみた。
 
-<scala>
+```scala
 scala> (Some(None: Option[Int]): Option[Option[Int]]).foldLeft(None: Option[Int]) { (_, _)._2 }
 res20: Option[Int] = None
 
@@ -119,7 +119,7 @@ res21: Option[Int] = Some(1)
 
 scala> (None: Option[Option[Int]]).foldLeft(None: Option[Int]) { (_, _)._2 }
 res22: Option[Int] = None
-</scala>
+```
 
 というわけで、`Option` は `_2` に関するモナドであるみたいだ。実装を見て自明か分からないけども、失敗を表す `None` を伝搬させるというのが基本的な考えだ。
 
@@ -133,7 +133,7 @@ res22: Option[Int] = None
 
 `List[List[List[Int]]]` があるとき、一番外から潰していくか、中から潰していくかで結合律が書ける。以下の例は Functional Programming in Scala の補足ノートから抜粋した:
 
-<scala>
+```scala
 scala> val xs: List[List[List[Int]]] = List(List(List(1,2), List(3,4)), List(List(5,6), List(7,8)))
 xs: List[List[List[Int]]] = List(List(List(1, 2), List(3, 4)), List(List(5, 6), List(7, 8)))
 
@@ -148,20 +148,20 @@ res30: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8)
 
 scala> ys2.flatten
 res31: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8)
-</scala>
+```
 
 これは以下のように一般化できる:
 
-<scala>
+```scala
 join(join(m)) assert_=== join(map(m)(join))
-</scala>
+```
 
 単位元も補足ノートから:
 
-<scala>
+```scala
 join(unit(m)) assert_=== m
 join(map(m)(unit)) assert_=== m
-</scala>
+```
 
 これは `flatMap` を使わなくてもモナドを定義できることを証明する。だけど実際のコードでモナドを扱うときは `for` 内包表記を使って `flatMap` を連鎖する形になることが多い。`flatMap` は `map` と `join` を合わせたものだと考えられる。
 
@@ -169,20 +169,20 @@ join(map(m)(unit)) assert_=== m
 
 純粋な関数型のスタイルで書いていると頻出するパターンに何らかの状態を表す値を引き回すというものがある。
 
-<scala>
+```scala
 val (d0, _) = Tetrix.init()
 val (d1, _) = Tetrix.nextBlock(d0)
 val (d2, moved0) = Tetrix.moveBlock(d1, LEFT)
 val (d3, moved1) =
   if (moved0) Tetrix.moveBlock(d2, LEFT)
   else (d2, moved0)
-</scala>
+```
 
 この状態オブジェクトを渡すのがボイラープレート化して、状態遷移を関数化して合成しようとすると間違いやすいポイントとなる。`State` モナドはこの状態遷移 `S => (S, A)` をカプセル化したモナドだ。
 
 `Tetrix.nextBlock` と `Tetrix.moveBlock` 関数が `State[GameSate, A]` を返すように書き換えると、上のコードはこういうふうに書けるようになる:
 
-<scala>
+```scala
 def nextLL: State[GameState, Boolean] = for {
   _      <- Tetrix.nextBlock
   moved0 <- Tetrix.moveBlock(LEFT)
@@ -190,13 +190,13 @@ def nextLL: State[GameState, Boolean] = for {
             else State.state(moved0)
 } yield moved1
 nextLL.eval(Tetrix.init())
-</scala>
+```
 
 `State` モナドを知らない人が見たら何をやってるのか分からないため、このように `for` 内包表記で書けるようになるのが良いことなのかはちょっと断言しかねる。だけど、`d0`、`d1`、`d2`... というような値を渡すのを自動化した型があるのは良いことだろう。
 
 ここで注目してほしいのは、`State` モナドも `List` のようにフラクタルであることだ。`moveBlock` 関数は `State` を返して、`for` 内包表記は `State` の `State` だ。上の例だと、`moveBlock` を 2回呼んでいるのを外に出すことができる:
 
-<scala>
+```scala
 def leftLeft: State[GameState, Boolean] = for {
   moved0 <- Tetrix.moveBlock(LEFT)
   moved1 <- if (moved0) Tetrix.moveBlock(LEFT)
@@ -207,7 +207,7 @@ def nextLL: State[GameState, Boolean] = for {
   moved <- leftLeft
 } yield moved
 nextLL.eval(Tetrix.init())
-</scala>
+```
 
 これで関数的に合成できる小さい命令形のプログラム群を作ることができる。`for` の意味論は一つに限られることにも注意してほしい。
 
@@ -217,7 +217,7 @@ nextLL.eval(Tetrix.init())
 
 `nextBlock` は現行のブロックを x 座標 1 に移動して、0 より左に移動させると失敗するとする。
 
-<scala>
+```scala
 scala> import scalaz._, Scalaz._
 import scalaz._
 import Scalaz._
@@ -277,7 +277,7 @@ nextRLL: StateTOption[GameState,Unit]
 
 scala> nextRLL.eval(GameState(0))
 res1: Option[Unit] = Some(())
-</scala>
+```
 
 上は左-左が失敗して、右-左-左が成功したことを示している。この簡単な例ではモナドはきれいに積まさったけども、これは複雑になることもある。
 
@@ -287,7 +287,7 @@ res1: Option[Unit] = Some(())
 
 考えてみると、scopt は `State` と同じものだ。何ならの設定 case class を最初に渡して、いくつかの遷移を経て最後にまた設定オブジェクトが返ってくる。これは scopt をモナド化した場合の仮想コードだ:
 
-<scala>
+```scala
 val parser = {
   val builder = scopt.OptionParser.builder[Config]("scopt")
   import builder._  
@@ -302,7 +302,7 @@ parser.parse("--foo a.txt b.txt c.txt", Config()) match {
   case Some(c) => 
   caes None    => 
 }
-</scala>
+```
 
 もしも `parser` の型が `OptionParser[Unit]` ならば、`opt[Int]` も `OptionParser[A]` となる。これで、いくつかのオプションをサブパーサーに外出しして再利用することができる。ただし、`Config` も再利用できるならばという仮定付きだけど。
 
@@ -313,7 +313,7 @@ parser.parse("--foo a.txt b.txt c.txt", Config()) match {
 
 結果としてフラクタルであること以外には余計なコンテキストを持たないデータ構造を得ることができる。それを分解して、何らかの有用な作業をするのはこっちの責任となる。この方法はモナド変換子を使うようよりもシンプルである可能性がある。
 
-<scala>
+```scala
 scala> import scalaz._, Scalaz._
 import scalaz._
 import Scalaz._
@@ -383,7 +383,7 @@ nextRLL: scalaz.Free[Tetrix,Unit]
 
 scala> Tetrix.eval(GameState(0), nextRLL)
 res1: Option[Unit] = Some(())
-</scala>
+```
 
 型シグネチャを除けば、プログラムの部分のコードは `StateTOption` を使ったものを全く同一のものだ。
 コンテキストの実装はこっちの責任となるというのはトレードオフだけども、最初にセットアップした後は型が複雑化しないという利点がある。

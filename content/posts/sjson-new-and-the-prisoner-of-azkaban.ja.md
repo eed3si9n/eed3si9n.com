@@ -36,7 +36,7 @@ sbt のコード内にはデータ永続化が数百メガバイトのオーダ�
 
 僕がまずやるべきだったのは、ベンチマークを取ることだ。[@ktosopl (Konrad Malawski)][ktosopl]君の [sbt-jmh][sbt-jmh] を使うとマイクロベンチマークは簡単に作ることができる。ビルドにプラグインを入れて、`JmhPlugin` を有効化したサブプロジェクトを定義するだけだ。
 
-<scala>
+```scala
 lazy val benchmark = (project in file("benchmark")).
   dependsOn(supportSpray). // add other subprojects you want to test
   enablePlugins(JmhPlugin).
@@ -48,13 +48,13 @@ lazy val benchmark = (project in file("benchmark")).
     publishLocal := {},
     PgpKeys.publishSigned := {}
   )
-</scala>
+```
 
 一つ注意が必要なのは sbt-jmh はフォークした `run` を使っているので、`javaOptions in (Jmh, run)` の設定が必要なことだ。
 
 あとは[例][jmhsample]にならってベンチマークを定義していくだけだ。僕は Jawn の真似をして abstract class にしてみた。
 
-<scala>
+```scala
 package sjsonnew
 package benchmark
 
@@ -112,15 +112,15 @@ class SprayBenchmark extends JsonBenchmark[spray.json.JsValue](
   def loadFromFile(f: File): JsValue =
     jawn.support.spray.Parser.parseFromFile(f).get
 }
-</scala>
+```
 
 これで同条件下で JSON バックエンドを比較できるようになった。当然、ハードウェアやデータの質など性能の絶対値を左右するパラメータは大量にあるんだけども、大雑把な比較はできるはずだ。
 
 ベンチマークは以下のように実行する:
 
-<scala>
+```scala
 > jmh:run -i 10 -wi 3 -f1 -t1
-</scala>
+```
 
 これは、
 
@@ -268,7 +268,7 @@ Protocol Buffers といったバイナリプロトコルから学べることは
 
 Lift JSON や Json4s には `JNothing` という値の欠如を表すものがあったけども、最近の傾向だと `Option[J]` を使うのが良いとされているみたいだ。そのため、`JsonReader` を変えて `J` の代わりに `Option[J]` を受け取るようにする必要がある。以下は変更後の `Int` の `JsonFormat` だ:
 
-<scala>
+```scala
   implicit object IntJsonFormat extends JsonFormat[Int] {
     def write[J](x: Int, builder: Builder[J]): Unit =
       builder.writeInt(x)
@@ -278,11 +278,11 @@ Lift JSON や Json4s には `JNothing` という値の欠如を表すものが�
         case None     => 0
       }
   }
-</scala>
+```
 
 これで読み込み側は改善した。次に、`JsonWriter` に `def addField[J](name: String, obj: A, builder: Builder[J]): Unit` というメソッドを追加した。これで、フォーマット側で JSON フィールドの作成を省くことができるようになる。使ってみよう:
 
-<scala>
+```scala
 scala> import sjsonnew._, BasicJsonProtocol._
 import sjsonnew._
 import BasicJsonProtocol._
@@ -328,7 +328,7 @@ res2: String = {"name":"Bob"}
 
 scala> Converter.fromJson[Person](res1.get)
 res3: scala.util.Try[Person] = Success(Person(Bob,None))
-</scala>
+```
 
 見てのとおり、`Person("Bob", None)` の JSON 表記は `None` の値のフィールドを含まないようになった。
 
@@ -336,7 +336,7 @@ res3: scala.util.Try[Person] = Success(Person(Bob,None))
 
 独自バイナリフォーマットを作るよりも gzip を使ったほうが高速で、ファイルサイズも小さくて、多分信頼性も高いので独自バイナリは 0.4.0 に含めなかった。本稿で紹介したその他の機能は 0.4.0 に入っているので試してみてほしい:
 
-<scala>
+```scala
 // To use sjson-new with Spray JSON
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.4.0"
 
@@ -345,4 +345,4 @@ libraryDependencies += "com.eed3si9n" %%  "sjson-new-scalajson" % "0.4.0"
 
 // To use sjson-new with MessagePack
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-msgpack" % "0.4.0"
-</scala>
+```

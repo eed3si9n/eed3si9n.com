@@ -16,7 +16,7 @@ tags:        [ "sbt" ]
 
 sbt-projectmatrix をビルドに追加後、以下のようにして 2つの Scala バージョンを使ったマトリックスをセットアップする。
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.10"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
@@ -26,7 +26,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.12", "2.13.3"))
-</scala>
+```
 
 これはそれぞれの `scalaVersion` にサプブロジェクトを作る。 `++` スタイルのステートフルなクロスビルドと違って、これは並列にビルドする。これは変わっていない。
 
@@ -42,7 +42,7 @@ Scala 3.0 は組み込みで Scala 2.13.x に対するインターオペラビ�
 
 sbt-projectmatrix 0.6.0 はサプブロジェクトのマトリックスを複数作って、2.13-3.0 サンドイッチが必要ならば自動的に検知して配線できるようにした:
 
-<scala>
+```scala
 val scala212 = "2.12.12"
 // TODO use 2.13.4 when it's out
 val scala213 = "2.13.4-bin-aeee8f0"
@@ -75,7 +75,7 @@ lazy val barCore = (projectMatrix in file("bar-core"))
     name := "bar core",
   )
   .jvmPlatform(scalaVersions = Seq(dottyVersion))
-</scala>
+```
 
 これは [sbt/sbt#5767](https://github.com/sbt/sbt/pull/5767) をバックポートするため、sbt 1.2 移行から 2.13-3.0 サンドイッチ機能が使えるようになる。
 

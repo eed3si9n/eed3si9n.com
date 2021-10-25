@@ -29,9 +29,9 @@ sbt 1.4.x が出たので、この機能を実際に使ってみたいという�
 
 使うには以下を `project/plugins.sbt` に追加する:
 
-<scala>
+```scala
 addSbtPlugin("org.foundweekends" % "sbt-bintray-remote-cache" % "0.6.1")
-</scala>
+```
 
 #### Bintray リポとパッケージ
 
@@ -52,10 +52,10 @@ addSbtPlugin("org.foundweekends" % "sbt-bintray-remote-cache" % "0.6.1")
 
 次に、`build.sbt` に以下を追加する:
 
-<scala>
+```scala
 ThisBuild / bintrayRemoteCacheOrganization := "your_bintray_user or organization"
 ThisBuild / bintrayRemoteCachePackage := "your_package_name"
-</scala>
+```
 
 これで `ThisBuild / pushRemoteCacheTo` セッティングの設定が自動的に行われる。
 

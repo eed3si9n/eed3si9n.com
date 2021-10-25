@@ -29,7 +29,7 @@ Instead of duplicating the code, adhoc polymorphism using `Read` typeclass can a
 
 After commenting out all the code, I started with `Read`:
 
-<scala>
+```scala
 trait Read[A] {
   def reads: String => A
 }
@@ -54,21 +54,21 @@ object Read {
         throw new IllegalArgumentException("'" + s + "' is not a boolean.")
     }}
 }
-</scala>
+```
 
 This a typeclass expressing the ability to convert from `String`. Using this, I replaced all data type specific case classes with this generic one.
 
-<scala>
+```scala
 class OptionDef[A: Read, C]() {
   ...  
 }
-</scala>
+```
 
 ### fluent interface
 
 To address the overloading caused by optional arguments, I implemented a fluent interface on `OptionDef` class. The parser would provide minimal methods to get started.
 
-<scala>
+```scala
   /** adds an option invoked by `--name x`.
    * @param name name of the option
    */
@@ -80,27 +80,27 @@ To address the overloading caused by optional arguments, I implemented a fluent 
    */
   def opt[A: Read](x: Char, name: String): OptionDef[A, C] =
     opt[A](name) shortOpt(x)
-</scala>
+```
 
 The parameter type for the short option was changed from `String` to `Char` to support grouping (`-la` is interpretted as `-l -a` for plain flags). The rest of the parameters like the callbacks and desctiption can be passed in later as methods on `OptionDef`:
 
-<scala>
+```scala
   opt[Int]("foo") action { (x, c) =>
     c.copy(foo = x) } text("foo is an integer property")
   opt[File]('o', "out") valueName("<file>") action { (x, c) =>
     c.copy(out = x) } text("out is a string property")
-</scala>
+```
 
 In the above `text("...")` and `action {...}` are both methods on `OptionDef[A, C]` that returns another `OptionDef[A, C]`:
 
-<scala>
+```scala
   /** Adds description in the usage text. */
   def text(x: String): OptionDef[A, C] =
     _parser.updateOption(copy(_desc = x))
   /** Adds value name used in the usage text. */
   def valueName(x: String): OptionDef[A, C] =
     _parser.updateOption(copy(_valueName = Some(x)))
-</scala>
+```
 
 Using `Read` and fluent interface, 34 methods were reduced to just two overloads. This is much easier to remember as an API. More importantly, the resulting usage code easier to guess for someone who is reading it for the first time.
 
@@ -108,7 +108,7 @@ Using `Read` and fluent interface, 34 methods were reduced to just two overloads
 
 A powerful aspect of typeclass is that you can define an abstract instance that derives an instance using existing instances. Key=value instance is implemented as a pair of two `Read` instances as follows:
 
-<scala>
+```scala
   implicit def tupleRead[A1: Read, A2: Read]: Read[(A1, A2)] = new Read[(A1, A2)] {
     val arity = 2
     val reads = { (s: String) =>
@@ -122,16 +122,16 @@ A powerful aspect of typeclass is that you can define an abstract instance that 
       case -1     => throw new IllegalArgumentException("Expected a key=value pair")
       case n: Int => (s.slice(0, n), s.slice(n + 1, s.length))
     }
-</scala>
+```
 
 Now not only this can parse `String=Int` as scopt2, it can parse `Int=Boolean` etc. Here's a usage example.
 
-<scala>
+```scala
   opt[(String, Int)]("max") action { case ((k, v), c) =>
     c.copy(libName = k, maxCount = v) } validate { x =>
     if (x._2 > 0) success else failure("Value <max> must be >0") 
   } keyValueName("<libname>", "<max>") text("maximum count for <libname>")
-</scala>
+```
 
 ### more Read
 
@@ -139,18 +139,18 @@ Since the API footprint is not going to expand for each datatype, I've added mor
 
 `Read` was modified a bit to support plain flags that do not take any values as `opt[Unit]`("verbose"):
 
-<scala>
+```scala
   implicit val unitRead: Read[Unit] = new Read[Unit] {
     val arity = 0
     val reads = { (s: String) => () }
   }
-</scala>
+```
 
 ### specs2 2.0 (RC-1)
 
 You don't want to fly blind when you rewrite a library. scopt3 has more lines in specs2 2.0 specs than the code itself. The newly added [string interpolation](http://etorreborre.blogspot.com.au/2013/05/the-latest-release-of-specs2-2.html) makes it much easier to write acceptance specs. Here's an excerpt from the [ImmutableParserSpec](https://github.com/scopt/scopt/blob/94b35beb4b9586d9200ec6577bfdf9cd5e9e28a9/src/test/scala/scopt/ImmutableParserSpec.scala):
 
-<scala>
+```scala
 class ImmutableParserSpec extends Specification { def is =      s2"""
   This is a specification to check the immutable parser
   
@@ -175,7 +175,7 @@ class ImmutableParserSpec extends Specification { def is =      s2"""
     val result = intParser1.parse(args.toSeq, Config())
     result === None
   }
-</scala>
+```
 
 ### occurrences
 
@@ -183,31 +183,31 @@ With `Read` in place, polymorphic arguments came almost automatically. `arg[File
 
 scopt2 implemented four variations of arguments: `arg`, `argOpt`, `arglist`, and `arglistOpt`. To reduce the API footprint, scopt3 just implements `arg[A: Read](name: String): OptionDef[A, C]`, and supports the others using fluent-style methods `def minOccurs(n: Int)` and `def maxOccurs(n: Int)`. Using these, "syntactic sugars" are provided to the DSL:
 
-<scala>
+```scala
   /** Requires the option to appear at least once. */
   def required(): OptionDef[A, C] = minOccurs(1)
   /** Chanages the option to be optional. */
   def optional(): OptionDef[A, C] = minOccurs(0)
   /** Allows the argument to appear multiple times. */
   def unbounded(): OptionDef[A, C] = maxOccurs(UNBOUNDED)
-</scala>
+```
 
 As the result, scopt3 supports not only optional argument lists, but also required options:
 
-<scala>
+```scala
 opt[String]('o', "out") required()
 arg[String]("<file>...") optional() unbounded()
-</scala>
+```
 
 ### custom validation
 
 Expanding the fluent interface, scopt3 also adds custom validation:
 
-<scala>
+```scala
 opt[Int]('f', "foo") action { (x, c) => c.copy(intValue = x) } validate { x =>
   if (x > 0) success else failure("Option --foo must be >0") } validate { x =>
   failure("Just because") }
-</scala>
+```
 
 Multiple validation clauses are all evaluated, and recognized as successful only when all evaluates to `success`.
 
@@ -217,17 +217,17 @@ In scopt2, the implementation was split into three packages: `generic`, `immutab
 
 In scopt3, immutable parsing is supported using `action` method:
 
-<scala>
+```scala
 opt[Int]('f', "foo") action { (x, c) =>
   c.copy(foo = x) } text("foo is an integer property")
-</scala>
+```
 
 and mutable parsing is support using `foreach` method:
 
-<scala>
+```scala
 opt[Int]('f', "foo") foreach { x =>
   c = c.copy(foo = x) } text("foo is an integer property")
-</scala>
+```
 
 The internal structure is unified to the mutable parser. It's a bit of a compromise, but it's better than having two DSL cakes that are slightly different in semantics.
 
@@ -235,7 +235,7 @@ The internal structure is unified to the mutable parser. It's a bit of a comprom
 
 One of the motivating factor to unify the parsers was the addition on commands. This is a feature to allow something like `git [commit|push|pull]` where the name of the argument means something, and could enable series of options based on it.
 
-<scala>
+```scala
 cmd("update") action { (_, c) =>
   c.copy(mode = "update") } text("update is a command.") children(
   opt[Unit]("not-keepalive") abbr("nk") action { (_, c) =>
@@ -243,7 +243,7 @@ cmd("update") action { (_, c) =>
   opt[Boolean]("xyz") action { (x, c) =>
     c.copy(xyz = x) } text("xyz is a boolean property")
 )
-</scala>
+```
 
 As scopt3 progressed, I got many useful feedback from Leif in the form of tweets and commit comments. For example [efe45ed](https://github.com/scopt/scopt/commit/efe45ed99fbc8ceecde4eb0c6f000f7802b8fee1#commitcomment-3352444):
 
@@ -255,7 +255,7 @@ After considering this, the command was changed so it's only valid as the first 
 
 Here's an example of how to use scopt3:
 
-<scala>
+```scala
 val parser = new scopt.OptionParser[Config]("scopt") {
   head("scopt", "3.x")
   opt[Int]('f', "foo") action { (x, c) =>
@@ -286,7 +286,7 @@ parser.parse(args, Config()) map { config =>
 } getOrElse {
   // arguments are bad, usage message will have been displayed
 }
-</scala>
+```
 
 As with scopt2, this automatically generates usage text:
 

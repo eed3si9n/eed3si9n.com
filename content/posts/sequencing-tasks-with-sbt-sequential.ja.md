@@ -26,7 +26,7 @@ Mark 曰く:
 
 ### 直列実行 (serial execution)
 
-<scala>
+```scala
 class Test {
   def startServer(): Unit = {
     println("starting...")
@@ -47,7 +47,7 @@ class Test {
     n
   }
 }
-</scala>
+```
 
 誰かが `integrationTest0()` を呼び出すと、コードは書かれたのと全く同じ順序で実行される。まず `numberTask` が呼び出され、次に `startServer()` が呼ばれこの実行は 0.5 秒間かかる。メソッドが実行している間は戻ってくるまで制御はブロックされる。次に `println("testing...")` が呼ばれるといった具合だ。このような順序の入れ替えを伴わず、またオーバーラップを伴わない実行は**直列実行** (serial execution) と呼ばれる。
 
@@ -57,7 +57,7 @@ class Test {
 
 例えば、`integrationTest0` メソッド内において、全般的な結果を変えずに `val n = numberTask` を `startServer()` の後に移動することができる。さらに、結果を変えることなく `startServer()` の実行を `numberTask` の実行とインターリーブ (interleave; 同時実行させる) させることもできる:
 
-<scala>
+```scala
 class Test {
   def startServer(): Unit = {
     println("starting...")
@@ -78,13 +78,13 @@ class Test {
     n
   }
 }
-</scala>
+```
 
 ### 並行実行 (concurrent execution)
 
 似たようなビルド定義を sbt を使って書こうすると、まずはこのようになると思う。
 
-<scala>
+```scala
 val startServer = taskKey[Unit]("start server")
 val stopServer = taskKey[Unit]("stop server")
 val numberTask = taskKey[Int]("number task")
@@ -110,7 +110,7 @@ integrationTest2 := {
   stopServer.value
   n
 }
-</scala>
+```
 
 一見うまくいっているように見えるけども、プログラムの実行は並行 (concurrent) で、順序を無視した (out-of-order) なものとなっている。上の例では、`startServer`、`numberTask`、`stopServer` はタスクの始めに並行的なコンテキストで実行される。並列で実行されるかもしれないし、されないかもしれないけども、順序は保証されない。これらの依存タスクが戻ってきた時点で残りの Scala コードが実行される。sbt では命令型のスタイルでコードを書くのではなく、タスクの依存性のグラフを構築するため、このような並行実行でも普通は問題無い。
 
@@ -126,7 +126,7 @@ sbt でタスクを逐次化するための現行の解決方法は普通のタ�
 
 `andFinally` は任意の Scala ブロックを追加した新たなタスクを作成する:
 
-<scala>
+```scala
 lazy val integrationTestBody = Def.task {
   startServer.value
   val n = 1
@@ -140,11 +140,11 @@ lazy val integrationTestImpl = integrationTestBody andFinally {
 }
 
 integrationTest3 := integrationTestImpl.value
-</scala> 
+``` 
 
 もしも cleanup コードがタスの場合は `doFinally` もある:
 
-<scala>
+```scala
 lazy val integrationTestBody = Def.task {
   startServer.value
   val n = 1
@@ -155,15 +155,15 @@ lazy val integrationTestBody = Def.task {
 integrationTest4 <<= (integrationTestBody, stopServer) { (body, stop) =>
   body doFinally stop
 }
-</scala>
+```
 
 ### addCommandAlias
 
 いくつかのタスクをシェルから打ち込んだかのように実行するだけが目的ならば、sbt はコマンドに対してエイリアスを定義する `addCommandAlias` も提供する。以下を `build.sbt` 内に追加する:
 
-<scala>
+```scala
 addCommandAlias("sts", ";startServer;test;stopServer")
-</scala>
+```
 
 sbt シェル内から `sts` と打ち込むと指定されたタスクが順次実行される。
 
@@ -175,7 +175,7 @@ sbt-sequential は僕が[このスレッド][1]と [#1001][1001] で提案した
 
 sbt-sequential は `sbt.Def` オブジェクトに対して `sequentialTask[T](t: T)` メソッドを注入して逐次的タスクを追加する。例えば、`integrationTest2` は以下のように書き換えれる:
 
-<scala>
+```scala
 val startServer = taskKey[Unit]("start server")
 val stopServer = taskKey[Unit]("stop server")
 val numberTask = taskKey[Int]("number task")
@@ -203,7 +203,7 @@ val integrationTestImpl = Def.sequentialTask {
 }
 
 integrationTest5 := integrationTestImpl.value
-</scala>
+```
 
 `integrationTest5` の実行順序は直列実行をエミュレートする。この特定の例においては、副作用の観測可能な結果は直列実行の場合と同一になるはずだ。普通のタスクと違って、実行は各行ごとにブロックされる。
 
@@ -227,13 +227,13 @@ sbt-sequential は各行、正確には最上レベルの式、のみをラッ�
 
 > sequence の実装は簡単で、future のように `flatMap` (別名 `taskDyn`) を使うだけでいい:
 
-<scala>
+```scala
 def sequence(tasks: List[Initialize[Task[Unit]]]): Initialize[Task[Unit]] =
   tasks match {
     case Nil => Def.task{ () }
     case x :: xs => Def.taskDyn { val _ = x.value; sequence(xs) }
   }
-</scala>
+```
 
 `taskDyn` に関する説明は [Dynamic Computations with Def.taskDyn](https://github.com/sbt/sbt/blob/818f4f96fb4885adf8bbd2f43c2c1341022d22b2/src/sphinx/Detailed-Topics/Tasks.rst#dynamic-computations-with-deftaskdyn) にもある:
 
@@ -243,7 +243,7 @@ def sequence(tasks: List[Initialize[Task[Unit]]]): Initialize[Task[Unit]] =
 
 概念的にはコードは以下のように展開される:
 
-<scala>
+```scala
 // before
 val integrationTestImpl = Def.sequentialTask {
   val n = numberTask.value
@@ -264,7 +264,7 @@ val integrationTestImpl: Def.Initialize[Task[Int]] = {
   val t4 = Def.taskDyn { val _ = t3.value; Def.task { stopServer.value; () } }
   Def.taskDyn { val _ = t4.value; Def.task { v0 } }
 }
-</scala>
+```
 
 見てのとおりコードは `Def.taskDyn` を使った Mark の `sequence` に似ている。違いとしては普通の Scala コードを混ぜ込めることと、最後に得られる型として `Def.Initialize[Task[Int]]` をキープできたことだ。
 

@@ -55,7 +55,7 @@ sbt.version=0.12.3
 
 The content of `build.scala`:
 
-<scala>
+```scala
 import sbt._
 
 object Builds extends Build {
@@ -87,7 +87,7 @@ object Builds extends Build {
   lazy val core = Project("core", file("core"), settings = coreSettings)
 }
 
-</scala>
+```
 
 Since Dispatch 0.10.0 uses SIP-14 Future, it's currently available only for Scala 2.10 and 2.9.3.
 
@@ -103,7 +103,7 @@ Let's try wrapping [`GET search/tweets`][search].
 
 First, we'll define a `Method` by extending `Req => Req`. It will accept a `Req` object from authentication wrapper and return a `Req`:
 
-<scala>
+```scala
 package repatch.twitter.request
 
 import dispatch._
@@ -113,11 +113,11 @@ trait Method extends (Req => Req) {
   def complete: Req => Req
   def apply(req: Req): Req = complete(req)
 }
-</scala>
+```
 
 Now we'll define a case class that represents the API end point:
 
-<scala>
+```scala
 // https://api.twitter.com/1.1/search/tweets.json
 case class Search(params: Map[String, String]) extends Method {
   def complete = _ / "search" / "tweets.json" <<? params
@@ -125,13 +125,13 @@ case class Search(params: Map[String, String]) extends Method {
 case object Search {
   def apply(q: String): Search = Search(Map("q" -> q))
 }
-</scala><!-- ?>> -->
+```<!-- ?>> -->
 
 ### authentication wrapper
 
 We need a few more steps to use this. First, during the runtime, each API call needs to be signed by an OAuth access token.
 
-<scala>
+```scala
 package repatch.twitter.request
 
 import dispatch._
@@ -150,7 +150,7 @@ trait AbstractClient extends (Method => Req) {
 case class OAuthClient(consumer: ConsumerKey, token: RequestToken) extends AbstractClient {
   override def apply(method: Method): Req = method(host) sign(consumer, token)
 }
-</scala>
+```
 
 We'll create an `OAuthClient` once, which extends `Method => Req` and pass in a `Method` into it to generate a `Req`. We'll get back to this later.
 
@@ -160,7 +160,7 @@ The application page should show Consumer key and secret under OAuth settings, a
 
 Start Scala REPL from sbt shell after switching to core project:
 
-<scala>
+```scala
 scala> import dispatch._, Defaults._
 import dispatch._
 import Defaults._
@@ -189,7 +189,7 @@ res0: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$Default
 scala> res0()
 res1: org.json4s.JValue = 
 JObject(List((statuses,JArray(List(JObject(List((metadata,JObject(List((result_type,JString(recent)), (iso_language_code,JString(es))))), (created_at,JString(Mon May 06 00:46:14 +0000 2013)), (id,JInt(331208247845462016)), (id_str,JString(331208247845462016)), (text,JString(Emanuel Goette, alias Crespo: Migration Manager for #Scala http://t.co/bzr028uEwe)), (source,JString(<a href="http://twitter.com/tweetbutton" rel="nofollow">Tweet Button</a>)), (truncated,JBool(false)), (in_reply_to_status_id,JNull), (in_reply_to_status_id_str,JNull), (in_reply_to_user_id,JNull), (in_reply_to_user_id_str,JNull), (in_reply_to_screen_name,JNull), (user,JObject(List((id,JInt(121934271)), (id_str,JString(121934271)), (name,JString(Emanuel)), (screen_name,JString(emanuelpeg)), (...
-</scala>
+```
 
 Looks like we got some tweets! But remember currently it's using access token on behalf of you, so we need a way of acquiring an access token for the app user.
 
@@ -199,7 +199,7 @@ Note: When using sbt console with Dispatch 0.10.0 causes CPU to get pegged at 10
 
 This is where `OAuthExchange` comes in:
 
-<scala>
+```scala
 trait TwitterEndpoints extends SomeEndpoints {
   def requestToken: String = "https://api.twitter.com/oauth/request_token"
   def accessToken: String = "https://api.twitter.com/oauth/access_token"
@@ -209,11 +209,11 @@ trait TwitterEndpoints extends SomeEndpoints {
 case class OAuthExchange(http: HttpExecutor, consumer: ConsumerKey, callback: String) extends
   SomeHttp with SomeConsumer with TwitterEndpoints with SomeCallback with Exchange {
 }
-</scala>
+```
 
 The basic idea is to create a request token, let the user authorize the request token using the browser, and then retrieve the access token using the verification code. I'm going to assume we're developing a desktop application, which requires out-of-band authorization:
 
-<scala>
+```scala
 scala> val exchange = OAuthExchange(http, consumer, "oob")
 exchange: repatch.twitter.request.OAuthExchange = OAuthExchange(Http(com.ning.http.client.AsyncHttpClient@4293aa50),{Consumer key, key="abcd", secret="secret"},oob)
 
@@ -228,11 +228,11 @@ reqToken: com.ning.http.client.oauth.RequestToken = { key="rxyz", secret="rsecre
 
 scala> val authorizeUrl = exchange.signedAuthorize(reqToken)
 authorizeUrl: String = https://api.twitter.com/oauth/authorize?oauth_token=rxyz&oauth_signature=xxxxx%3D
-</scala>
+```
 
 Now make the app user open the browser and open the `authorizeUrl` to retrieve the PIN.
 
-<scala>
+```scala
 scala> val x2 = exchange.fetchAccessToken(reqToken, "1234567")
 x2: scala.concurrent.Future[Either[String,com.ning.http.client.oauth.RequestToken]] = scala.concurrent.impl.Promise$DefaultPromise@5ae1b5e6
 
@@ -244,11 +244,11 @@ accessToken: com.ning.http.client.oauth.RequestToken = { key="xyz", secret="secr
 
 scala> val client = OAuthClient(consumer, accessToken)
 client: repatch.twitter.request.OAuthClient = <function1>
-</scala>
+```
 
 You can save the access token somewhere safe to reuse it next time. To avoid dealing with tokens in the examples, let's define `ProperitesClient` that creates `OAuthClient` from a properties file:
 
-<scala>
+```scala
 object ProperitesClient {
   def apply(props: Properties): OAuthClient = {
     val consumer = new ConsumerKey(props getProperty "repatch.twitter.consumerKey",
@@ -263,7 +263,7 @@ object ProperitesClient {
     apply(props)
   }
 }
-</scala>
+```
 
 Now we can write both consumer key and the access token in a properities file as follows:
 
@@ -276,7 +276,7 @@ repatch.twitter.accessTokenSecret=secret2
 
 Here's how to load these up:
 
-<scala>
+```scala
 scala> import dispatch._, Defaults._
 import dispatch._
 import Defaults._
@@ -291,7 +291,7 @@ scala> val client = PropertiesClient(prop)
 client: repatch.twitter.request.OAuthClient = <function1>
 
 scala> val http = new Http
-</scala>
+```
 
 Enough about OAuth. Let's talk about Dispatch.
 
@@ -301,7 +301,7 @@ Now that we can sign requests on behalf of the app user, this could be considere
 
 Looking at [`GET search/tweets`][search], there are number of parameters we can pass in, so we can provide them as methods on `Search` class.
 
-<scala>
+```scala
 import java.util.Calendar
 import java.text.SimpleDateFormat
 
@@ -321,11 +321,11 @@ object Show {
     def shows(a: Calendar): String = yyyyMmDd.format(a.getTime)
   }
 }
-</scala>
+```
 
 The above is a `Show` typeclass, which lets us control how to print each types as `String`. Except for `Calendar` I'm just using the default `toString`.
 
-<scala>
+```scala
 // https://api.twitter.com/1.1/search/tweets.json
 case class Search(params: Map[String, String]) extends Method with Param[Search] {
   def complete = _ / "search" / "tweets.json" <<? params
@@ -358,20 +358,20 @@ trait Param[R] {
     def apply[A: Show]: A => R = param(sym.name)_
   }
 }
-</scala> <!-- '?>> -->
+``` <!-- '?>> -->
 
 This is inspired by dispatch-twitter's [`param`](https://github.com/n8han/dispatch-twitter/blob/a2dff17b7ba85b53e94dbfd4891430638de7a607/src/main/scala/Twitter.scala#L19), but it's typesafe and more concise. I'm injecting `apply` method to `Symbol`, which then partially applies its name to `param`. As the result `val lang = 'lang[String]` defines `String => Search` point-free style.
 
 Here's how we can use this to query two tweets about "#scala" in the 10 mile radius from New York City:
 
-<scala>
+```scala
 scala> val x = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) OK as.json4s.Json)
 x: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$DefaultPromise@3252d2de
 
 scala> val json = x()
 json: org.json4s.JValue = 
 JObject(List((statuses,JArray(List(JObject(List((metadata,JObject(List((result_type,JString(recent)), (iso_language_code,JString(en))))), (created_at,JString(Sun May 05 06:27:50 +0000 2013)), (id,JInt(330931826879234049)), (id_str,JString(330931826879234049)), (text,JString(Rocking the contravariance. Hard. #nerd #scala)), (source,JString(web)), (truncated,JBool(false)), (in_reply_to_status_id,JNull), (in_reply_to_status_id_str,JNull), (in_reply_to_user_id,JNull), (in_reply_to_user_id_str,JNull), (in_reply_to_screen_name,JNull), (user,JObject(List((id,JInt(716931690)), (id_str,JString(716931690)), (name,JString(Alex Lo)), (screen_name,JString(alexlo03)), (location,JString(New York, New York)), (description,JString(what?)), (url,JString(http://t.co/jMjRuK7h19))...
-</scala>
+```
 
 ### providing response parsing support
 
@@ -387,7 +387,7 @@ A hybrid approach is to provide both, so the app developer can try the case clas
 
 Again, we'll start by defining a basic typeclass.
 
-<scala>
+```scala
 package repatch.twitter.response
 
 import dispatch._
@@ -420,11 +420,11 @@ object ReadJs {
       c
     }
 }
-</scala>
+```
 
 This lets me abstract json parsing. Using this as a building block, we can again enrich `Symbol` to inject methods into it:
 
-<scala>
+```scala
 object Search extends Parse {
   val statuses        = 'statuses.![List[JValue]]
   val search_metadata = 'search_metadata.![JObject]
@@ -441,11 +441,11 @@ trait Parse {
     def ![A: ReadJs]: JValue => A = parseField_![A](sym.name)_
   }
 }
-</scala>
+```
 
 Note that we are now in `response` package, so this is different `Search` object than before. In the above `statuses` is a function `JValue => List[JValue]` again defined in point-free style. To actually parse the content of a tweet, we need to go one step further and look at [Tweets][tweets].
 
-<scala>
+```scala
 /** https://dev.twitter.com/docs/platform-objects/tweets 
  */
 object Tweet extends Parse {
@@ -478,11 +478,11 @@ object Tweet extends Parse {
   val withheld_in_countries = 'withheld_in_countries[List[JValue]]
   val withheld_scope        = 'withheld_scope[String]
 }
-</scala>
+```
 
 Here's how we can use the field parsers:
 
-<scala>
+```scala
 scala> {
          import repatch.twitter.response.Search._
          import repatch.twitter.response.Tweet._
@@ -491,7 +491,7 @@ scala> {
          } yield(id_str(t), text(t))
        }
 res0: List[(String, String)] = List((330931826879234049,Rocking the contravariance. Hard. #nerd #scala), (330877539461500928,RT @mhamrah: Excellent article on structuring distributed systems with #rabbitmq. Thanks @heroku Scaling Out with #Scala and #Akka http://t…))
-</scala>
+```
 
 Next, let's look into the case class converters.
 
@@ -499,7 +499,7 @@ Next, let's look into the case class converters.
 
 We start with picking out useful fields and ordering them in some way that makes sense.
 
-<scala>
+```scala
 case class Tweet(
   id: BigInt,
   text: String,
@@ -517,11 +517,11 @@ case class Tweet(
   in_reply_to_status_id: Option[BigInt],
   in_reply_to_user_id: Option[BigInt]
 )
-</scala>
+```
 
 That should satisfy majority of the use cases. Next, implement an `apply` method that parses `JValue` into the case class.
 
-<scala>
+```scala
 /** https://dev.twitter.com/docs/platform-objects/tweets 
  */
 object Tweet extends Parse {
@@ -546,13 +546,13 @@ object Tweet extends Parse {
     in_reply_to_user_id = in_reply_to_user_id(js)   
   )
 }
-</scala>
+```
 
 It's tedious to repeat the field name twice, but it's better than making sure you get the order right.
 
 We should make a case class for `Search` too:
 
-<scala>
+```scala
 case class Search(
   statuses: List[Tweet],
   search_metadata: JObject
@@ -569,11 +569,11 @@ object Search extends Parse {
     search_metadata = search_metadata(js)
   )
 }
-</scala>
+```
 
 Next is a bit weird. We're going to define a package object for `dispatch.as.repatch.twitter.response` package. This is because the package name `as` is used by `displatch.as`, which is where you're suppose to hang your response converters. We probably could get away with something shorter, I'm just going to append `repatch.twitter.response`.
 
-<scala>
+```scala
 package dispatch.as.repatch.twitter
 
 package object response {
@@ -583,18 +583,18 @@ package object response {
 
   val Search: Response => r.Search = Json andThen r.Search.apply
 }
-</scala>
+```
 
 This will make sense soon. Remember the search call? Now we can convert the result strait to a case class:
 
-<scala>
+```scala
 scala> val x2 = http(client(Search("#scala").geocode_mi(40.7142, -74.0064, 10).count(2)) OK
          as.repatch.twitter.response.Search)
 x2: dispatch.Future[repatch.twitter.response.Search] = scala.concurrent.impl.Promise$DefaultPromise@6bc9806d
 
 scala> val search = x2()
 search: repatch.twitter.response.Search = Search(List(Tweet(330931826879234049,Rocking the contravariance. Hard. #nerd #scala,java.util.GregorianCalendar[time=1367735270000,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id="America/New_York",offset=-18000000,dstSavings=3600000,useDaylight=true,transitions=235,lastRule=java.util.SimpleTimeZone[id=America/New_York,offset=-18000000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=3,startMonth=2,startDay=8,startDayOfWeek=1,startTime=7200000,startTimeMode=0,endMode=3,endMonth=10,endDay=1,endDayOfWeek=1,endTime=7200000,endTimeMode=0]],firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2013,MONTH=4,WEEK_OF_YEAR=19,WEEK_OF_MONTH=2,DAY_OF_MONTH=5,DAY_OF_YEAR=125,DAY_OF_WEEK=1,DAY_OF_WEEK_IN_MONTH=1...
-</scala>
+```
 
 As you can see, the usage code is simpler with this one. This is pretty much the idea.
 
@@ -602,7 +602,7 @@ As you can see, the usage code is simpler with this one. This is pretty much the
 
 Tweet object embeds [User][users] object, so let's create fields support and case classes for it too.
 
-<scala>
+```scala
 case class User(
   id: BigInt,
   screen_name: String,
@@ -656,11 +656,11 @@ trait CommonField { self: Parse =>
   val withheld_in_countries = 'withheld_in_countries[List[JValue]]
   val withheld_scope        = 'withheld_scope[String]
 }
-</scala>
+```
 
 Replace `Tweet`'s `user` field with `User`.
 
-<scala>
+```scala
 case class Tweet(
   id: BigInt,
   text: String,
@@ -668,13 +668,13 @@ case class Tweet(
   user: Option[User],
   ....
 )
-</scala>
+```
 
 ### Statuses
 
 Now that we have `Tweet` and `User`, we should be close to getting normal statuses. See [`GET statuses/home_timeline`][home_timeline].
 
-<scala>
+```scala
 object Status {
   /** See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline.
    * Wraps https://api.twitter.com/1.1/statuses/home_timeline.json
@@ -698,31 +698,31 @@ trait CommonParam[R] { self: Param[R] =>
   val since_id        = 'since_id[BigInt]
   val max_id          = 'max_id[BigInt]
 }
-</scala><!--'?>> -->
+```<!--'?>> -->
 
 Let's try using this:
 
-<scala>
+```scala
 scala> val x = http(client(Status.home_timeline.count(2)) OK as.json4s.Json)
 x: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$DefaultPromise@42d2d985
 
 scala> x()
 res1: org.json4s.JValue = 
 JArray(List(JObject(List((created_at,JString(Tue May 07 08:06:09 +0000 2013)), (id,JInt(...
-</scala>
+```
 
 Since this returns an array of tweets, we can convert the result into `List[Tweet]`. The following goes into `response` package:
 
-<scala>
+```scala
 object Tweets extends Parse {
   def apply(js: JValue): List[Tweet] =
     parse_![List[JValue]](js) map { x => Tweet(x) }
 }
-</scala>
+```
 
 And here are the converters:
 
-<scala>
+```scala
 package object response {
   ....
   val Tweets: Response => List[response.Tweet] = Json andThen response.Tweets.apply
@@ -730,24 +730,24 @@ package object response {
   val Tweet: Response => response.Tweet = Json andThen response.Tweet.apply
   val Status: Response => response.Tweet = Tweet
 }
-</scala>
+```
 
 We got the timelines.
 
-<scala>
+```scala
 scala> val x = http(client(Status.home_timeline) OK as.repatch.twitter.response.Tweets)
 x: dispatch.Future[repatch.twitter.response.Statuses] = scala.concurrent.impl.Promise$DefaultPromise@41ad625a
 
 scala> x()
 res0: List[repatch.twitter.response.Tweet] = 
 List(Tweet(331691122629951489,Partially applying a function that has an implicit parameter http://t.co/CwWQAkkBAN,....
-</scala>
+```
 
 ### Sending tweets
 
 Sending tweets is also simple. See [`POST statuses/update`][update].
 
-<scala>
+```scala
 object Status {
   ...
 
@@ -767,17 +767,17 @@ object Status {
     val trim_user       = 'trim_user[Boolean]
   }
 }
-</scala>
+```
 
 Here's how to use it.
 
-<scala>
+```scala
 scala> val x = http(client(Status.update("testing from REPL")) OK as.json4s.Json)
 x: dispatch.Future[org.json4s.JValue] = scala.concurrent.impl.Promise$DefaultPromise@65056d18
 
 scala> x()
 res4: org.json4s.JValue = JObject(List((user,JObject(List((time_zone,JString(Eastern Time (US & Canada))), (created_at,JString(Fri Dec 22 15:19:02 +0000 2006)), (default_profile_image,JBool(false)), (name,JString(eugene yokota))...
-</scala>
+```
 
 A friend replied to the above tweet.
 
@@ -785,7 +785,7 @@ A friend replied to the above tweet.
 
 Let's send him a reply, but this time getting the result as a `Tweet`.
 
-<scala>
+```scala
 scala> val timeline = http(client(Status.home_timeline) OK as.repatch.twitter.response.Tweets)
 timeline: dispatch.Future[List[repatch.twitter.response.Tweet]] = scala.concurrent.impl.Promise$DefaultPromise@515b96e5
 
@@ -798,7 +798,7 @@ x2: dispatch.Future[repatch.twitter.response.Tweet] = scala.concurrent.impl.Prom
 
 scala> x2()
 res8: repatch.twitter.response.Tweet = Tweet(331776040668102656,@LordOmlette wrapping Twitter API for an async http lib...
-</scala>
+```
 
 ### summary
 

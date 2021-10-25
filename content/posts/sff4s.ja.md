@@ -32,24 +32,24 @@ future値のもう一つの側面は、そのうちに計算結果を得られ�
 
 これまでで、最も単純な形の future値を記述した。実際に役に立つには他の機能も必要だけど、これでも使えないことはない。ちょっと使用例をみてみよう:
 
-<scala>
+```scala
 val factory = sff4s.impl.ActorsFuture
 val f = factory future {
   Thread.sleep(1000)
   1
 }
 f() // => これは 1秒間ブロックした後で 1 を返す
-</scala>
+```
 
 細かい事は気にしないで、最後の一行の振る舞いだけ見てほしい。このように、計算結果を取得することを、強要(forcing)するともいう。最小限の API は以下のようになる。
 
 Future v0.1
-<scala>
+```scala
 abstract class Future[+A] {
   /** 計算結果を強要して無期限にブロックする */
   def apply(): A
 }
-</scala>
+```
 
 Scala から使用可能な future値の実装にはいくつかあるけど、どれも一から書かれてる。上のような共通な親クラスがあれば、特定のライブラリに依存しないコードを書くことができる。
 
@@ -60,14 +60,14 @@ Future v0.1 に対して唯一できる事が計算結果が戻ってくるま�
 - 計算結果が用意できたかを確かめるノンブロッキングな方法。
 
 Future v0.2
-<scala>
+```scala
 abstract class Future[+A] {
   def apply(): A
   
   /** 計算結果が用意できたかを確かめる */
   def isDefined: Boolean
 }
-</scala>
+```
 
 タイムアウト
 ----------
@@ -76,7 +76,7 @@ abstract class Future[+A] {
 - 計算結果を強要するために有限の時間だけブロックする。
 
 Future v0.3
-<scala>
+```scala
 abstract class Future[+A] {
   def apply(): A
   
@@ -84,7 +84,7 @@ abstract class Future[+A] {
   
   def isDefined: Boolean
 }
-</scala>
+```
 
 まだ最小限という感じだけど、この状態で使い始めることができる。
 
@@ -92,11 +92,11 @@ abstract class Future[+A] {
 -----------------
 タイムアウトというのは方法として根本的な問題がある。裏で行われている演算が長時間に渡った場合、計算結果を待つためにいくつものループを管理しなくてはいけないということだ。より単純なのは、コールバックのためのクロージャを渡しておいて、計算結果の用意ができた時点で future値に呼び出してもらうという方法だ。いよいよ話が非同期になったきた。twitter の future で使われている `def onSuccess(f: A => Unit): Future[A]` を採用した。使用例を見てみよう:
 
-<scala>
+```scala
 f onSuccess { value =>
   println(value) // => "1" と表示する
 }
-</scala>
+```
 
 名前渡し(call-by-name)のお陰で Scala は上のブロックのコードを直ちには実行しない。
 また、future値にイベントハンドラが追加されるだけで、計算値そのものは変わらないことに注意。
@@ -115,12 +115,12 @@ f onSuccess { value =>
 
 エラー状態が `Either` として捕捉されるため、強要は `def get: Either[Throwable, A]` として実装され、`apply()` はそれを以下のように呼び出すことにした:
 
-<scala>
+```scala
 def apply(): A = get.fold(throw _, x => x)
-</scala>
+```
 
 Future v0.4:
-<scala>
+```scala
 abstract class Future[+A] {
   def apply(): A = get.fold(throw _, x => x)
   def apply(timeoutInMsec: Long): A = get(timeoutInMsec).fold(throw _, x => x)
@@ -150,7 +150,7 @@ abstract class Future[+A] {
       case _ =>
     }
 }
-</scala>
+```
 
 だんだん良くなってきた。事実、これらの機能は既に [`java.util.concurrent.Future`][3] で提供されている基本機能を追い越しているため、独自の実装を提供する必要があった。
 
@@ -158,15 +158,15 @@ abstract class Future[+A] {
 --------
 これで（やっと）実際の future を使った話をする下地が整った。これまでは、計算結果を取り出す話ばっかりをしたきたが、それは未来値というよりは現在値だ。計算値の用意ができる前に future値を用いて別の future値を計算する方が面白いことができる。[ある物の値から別の物を計算する][6]... モナドだろ、これは。使用例に進む!
 
-<scala>
+```scala
 val g = f map { _ + 1 }
-</scala>
+```
 
 さっき打ち込んだばっかりだから `f()` がどう解決するかを知っているが、知らないフリをしよう。つまり、ここに未知の `Future[Int]` があるとする。その値がなんであろうと、1 を加える。これは、また別の未知の future値となる。何らかの理由で `f` が失敗した場合、`Option` を `map` するときのように、全体が失敗する。
 
 これらを for 式から使うこともできる:
 
-<scala>
+```scala
 val xFuture = factory future {1}
 val yFuture = factory future {2}
 
@@ -176,15 +176,15 @@ for {
 } {
   println(x + y) // => prints "3"
 }
-</scala>
+```
 
 長くなるので、これらのシグネチャだけを書きだす。
-<scala>
+```scala
   def foreach(f: A => Unit)
   def flatMap[B](f: A => Future[B]): Future[B]
   def map[B](f: A => B): Future[B]
   def filter(p: A => Boolean): Future[A]
-</scala>
+```
 
 select と join
 --------------
@@ -194,7 +194,7 @@ twitter の Future からもう二つ面白いメソッド `select(other)` と `
 同様に、`join` も別の `Future` を引数に取り、一つの `Future` に組み合わせる。
 
 Future v0.5:
-<scala>
+```scala
 abstract class Future[+A] {
   def apply(): A = get.fold(throw _, x => x)
   def apply(timeoutInMsec: Long): A = get(timeoutInMsec).fold(throw _, x => x)
@@ -225,7 +225,7 @@ abstract class Future[+A] {
   def or[U >: A](other: Future[U]): Future[U] = select(other)
   def join[B](other: Future[B]): Future[(A, B)] 
 }
-</scala>
+```
 
 これで使いやすい future値の抽象体ができあがった。
 
@@ -242,13 +242,13 @@ future値は未完の計算を表現する。この計算は最初にコンシ�
 -----
 sff4s は上記の四つの future 実装に対するディスパッチャ（dispatcher、発送員）オブジェクトを提供する。これは内部システムに計算を発送（dispatch）する `future` メソッドを定義する。最初の使用例をもう一度みてみよう:
 
-<scala>
+```scala
 val factory = sff4s.impl.ActorsFuture
 val f = factory future {
   Thread.sleep(1000)
   1
 }
-</scala>
+```
 
 これは内部で [`scala.acotors.Futures`][7] の `future` メソッドをによりブロックの計算を発送している。
 ここで注意が必要なのは `sff4s.impl.TwitterUtilFuture` の `future` メソッドは、`ActorsFuture` のような非同期な振る舞いを期待しているとガッカリする結果となるということだ。
@@ -257,12 +257,12 @@ val f = factory future {
 --------
 ディスパッチャは、ネイティブな future値からラッピングされたものに変える暗黙の変換（implicit converter）も実装する。
 
-<scala>
+```scala
 import factory._
 val native = scala.actors.Futures future {5}
 val w: sff4s.Future[Int] = native
 w() // => This blocks for the futures result (and eventually returns 5)
-</scala>
+```
 
 感想とか
 ------

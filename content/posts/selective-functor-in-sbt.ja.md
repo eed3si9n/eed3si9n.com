@@ -29,23 +29,23 @@ tags:        [ "sbt" ]
 
 匿名セッティングは `Initialize[A]` で表され、以下のようになっている:
 
-<scala>
+```scala
   sealed trait Initialize[A] {
     def dependencies: Seq[ScopedKey[_]]
     def evaluate(build: BuildStructure): A // approx
     ....
   }
-</scala>
+```
 
 名前の付いたセッティングは `Setting` クラスで表される:
 
-<scala>
+```scala
   sealed class Setting[A] private[Init] (
       val key: ScopedKey[A],
       val init: Initialize[A],
       val pos: SourcePosition
   ) ....
-</scala>
+```
 
 `sbt.Task` は副作用関数 `() => A` のラッパーだと便宜的に考えていい。ただし、僕たちが「compile はタスクだ」と言うとき、の文脈でのタスクは `Initialize[Task[A]]` で表される。つまり、これは `Task[A]` 型を返すセッティングだ。
 
@@ -55,7 +55,7 @@ tags:        [ "sbt" ]
 
 `Def.task` はタスク (`Def.Initialize[Task[A]]`) の Applicative 合成をエンコードするためのマクロだ。以下の `task1`、`task2`、`task3` を考察する:
 
-<scala>
+```scala
 lazy val task1 = taskKey[Int]("")
 lazy val task2 = taskKey[Int]("")
 lazy val task3 = taskKey[Int]("")
@@ -68,15 +68,15 @@ task3 := {
   val t2 = task2.value
   t1 + t2
 }
-</scala>
+```
 
 これを旧タプル構文で書き下すとこうなる:
 
-<scala>
+```scala
 task3 := ((task1, task2) map { case (t1, t2) =>
   t1 + t2
 }).value
-</scala>
+```
 
 ここから色々な情報を得ることができる。
 
@@ -98,7 +98,7 @@ sbt:selective> inspect tree task3
 
 もし 1つのタスクの結果を使って次にどのタスクを走らせるかを決めたいとしたらどうだろうか? sbt では `Def.taskDyn` を使ってこれを実現できる。
 
-<scala>
+```scala
 lazy val condition = taskKey[Boolean]("")
 lazy val trueAction = taskKey[Unit]("")
 lazy val falseAction = taskKey[Unit]("")
@@ -113,16 +113,16 @@ foo := (Def.taskDyn {
   if (c) trueAction
   else falseAction
 }).value
-</scala>
+```
 
 このマクロを展開するとこのようになる:
 
-<scala>
+```scala
 foo := (condition flatMap { c =>
   if (c) trueAction
   else falseAction
 }).value
-</scala>
+```
 
 これはビルド作者の点から見るとよりパワフルだ。しかしいくつかの欠点もある。
 
@@ -148,23 +148,23 @@ inspect tree の結果から `trueAction` と `falseAction` が抜けている�
 
 Chris Birchall さんの [cats-selective][Birchall] における `Selective` の定義は以下のようになっている:
 
-<scala>
+```scala
 trait Selective[F[_]] {
   def select[A, B](fab: F[Either[A, B]])(fn: F[A => B]): F[B]
   
   ...
 }
-</scala>
+```
 
 意味論としては、もし `fab` が `Right(b)` を格納していればそれをそのまま返し、`Left(a)` を格納していれば `fn` を適用する。ただし、全て `F[_]` というコンテキストで実行するということみたいだ。これをコンポーネントとして Mokhov さんは `if` ファンクターもエンコードできることを示している。(実装は [cats-selective][Birchall] 参照):
 
-<scala>
+```scala
 trait Selective[F[_]] {
   def select[A, B](fab: F[Either[A, B]])(fn: F[A => B]): F[B]
   def branch[A, B, C](x: F[Either[A, B]])(l: F[A => C])(r: F[B => C]): F[C] = ...
   def ifS[A](x: F[Boolean])(t: F[A])(e: F[A]): F[A] = ....
 }
-</scala>
+```
 
 論文によると `Selective` の利点は inspect を犠牲にせずに条件的タスクを表現できるらしい。どのような仕組みでこれは可能になっているのだろう?
 
@@ -174,7 +174,7 @@ trait Selective[F[_]] {
 >
 > `select` はモナドを使って率直に実装できる。 
 
-<scala>
+```scala
 // This is Scala implementation from cats-selective
 def selectM[F[_]](implicit M: Monad[F]): Selective[F] =
   new Selective[F] {
@@ -184,14 +184,14 @@ def selectM[F[_]](implicit M: Monad[F]): Selective[F] =
         case Left(a)  => fn.map(_(a))
       }
   }
-</scala>
+```
 
 > One can also implement a function with the type signature of `select` using applicative functors,
 but it will always execute the effects associated with the second argument, rendering any conditional execution of effects impossible...
 >
 > Applicative ファンクターを使って `select` と同じ型シグネチャを持つ関数を実装することも可能だが、これは常に 2つめの引数に関連付けられた作用を実行して、作用の条件的実行を無効化してしまう。
 
-<scala>
+```scala
 // This is Scala implementation
 def selectA[F[_]](implicit Ap: Applicative[F]): Selective[F] =
   new Selective[F] {
@@ -203,7 +203,7 @@ def selectA[F[_]](implicit Ap: Applicative[F]): Selective[F] =
         }
       }
   }
-</scala>
+```
 
 > While `selectM` is useful for conditional execution of effects, `selectA` is useful for static analysis.
 >
@@ -215,49 +215,49 @@ def selectA[F[_]](implicit Ap: Applicative[F]): Selective[F] =
 
 `foo` タスクは `Selective` を使って以下のように実装できる:
 
-<scala>
+```scala
 foo := (Def.ifS(condition)(trueAction)(falseAction)).value,
-</scala>
+```
 
 これを実行してみよう:
 
-<scala>
+```scala
 sbt:selective> foo
 true
-</scala>
+```
 
 うまくいった。`inspect` はどうだろう?
 
-<scala>
+```scala
 sbt:selective> inspect tree foo
 [info] foo = Task[Unit]
 [info]   +-condition = Task[Boolean]
 [info]   +-falseAction = Task[Unit]
 [info]   +-trueAction = Task[Unit]
-</scala>
+```
 
 `inspect` も動作している。
 
 `Def` 内の `selectITask` の実装はこうなっている:
 
-<scala>
+```scala
   private[sbt] def selectITask[A, B](
       fab: Initialize[Task[Either[A, B]]],
       fin: Initialize[Task[A => B]]
   ): Initialize[Task[B]] =
     fab.zipWith(fin)((ab, in) => TaskExtra.select(ab, in))
-</scala>
+```
 
 `Initialize[_]` レイヤーでは `fab.zipWith(fin)` は Applicative 的な意味論を使っている。ここで呼ばれている `TaskExtra.select(...)` は以下のように定義されている:
 
-<scala>
+```scala
   def select[A, B](fab: Task[Either[A, B]], f: Task[A => B]): Task[B] =
     Task(newInfo(fab.info), new Selected[A, B](fab, f))
-</scala>
+```
 
 構築時には取り敢えず作用の捕捉だけを行って何もしていない。タスク・エンジンがこのタスクをスケジュールする直前に `Selected` を Monadic 合成に書き換える:
 
-<scala>
+```scala
   private[sbt] def asFlatMapped: FlatMapped[B, K] = {
     val f: Either[A, B] => Task[B] = {
       case Right(b) => std.TaskExtra.task(b)
@@ -267,7 +267,7 @@ sbt:selective> inspect tree foo
       f compose std.TaskExtra.successM
     }, ml)
   }
-</scala>
+```
 
 つまり、セッティング層は Applicative 的に合成して、タスク層は Monad 的に合成することで `Selective` の両方の側面を利用している。
 
@@ -275,7 +275,7 @@ sbt:selective> inspect tree foo
 
 `Def.taskDyn` を使っている実用例を `Def.ifS` を使って書き換えてみよう。以下は `dependencyResolutionTask` だ:
 
-<scala>
+```scala
 def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
   Def.taskDyn {
     if (useCoursier.value) {
@@ -285,7 +285,7 @@ def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
         IvyDependencyResolution(ivyConfiguration.value, CustomHttp.okhttpClient.value)
       }
   }
-</scala>
+```
 
 `dependencyResolution` タスクの inspect を阻害しているのが確認できる:
 
@@ -298,12 +298,12 @@ sbt:selective> inspect tree dependencyResolution
 
 `dependencyResolutionTask` は以下のように書き換えられる:
 
-<scala>
+```scala
 def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
   Def.ifS(useCoursier.toTask)(Def.task { CoursierDependencyResolution(csrConfiguration.value) })(
     Def.task { IvyDependencyResolution(ivyConfiguration.value, CustomHttp.okhttpClient.value) }
   )
-</scala>
+```
 
 <code>
 sbt:selective> inspect tree dependencyResolution
@@ -321,7 +321,7 @@ sbt:selective> inspect tree dependencyResolution
 
 他の例も試してみよう。
 
-<scala>
+```scala
 def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
   Def.taskDyn {
     val s = streams.value
@@ -330,11 +330,11 @@ def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
     if (skp) Def.task { s.log.debug(s"Skipping publish* for ${ref.project}") } else
       Def.task { IvyActions.publish(ivyModule.value, config.value, s.log) }
   } tag (Tags.Publish, Tags.Network)
-</scala>
+```
 
 これは `publish / skip` が true ならば publish タスクをスキップするという `Def.taskDyn` の用例だ。
 
-<scala>
+```scala
 def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
   Def.ifS((publish / skip).toTask)(Def.task {
     val s = streams.value
@@ -344,7 +344,7 @@ def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
     val s = streams.value
     IvyActions.publish(ivyModule.value, config.value, s.log)
   }) tag (Tags.Publish, Tags.Network)
-</scala>
+```
 
 以前と同じように動作し、かつ `inspect` を取り戻すことができた。
 
@@ -354,7 +354,7 @@ def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
 
 `Def.task(...)` 内のトップレベルの式が `if`式の場合、そのコンテンツを `Def.ifS(...)(...)(...)` の中に持ち上げるということを行う。使用例のコードはこうなる:
 
-<scala>
+```scala
 def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
   Def.task {
     if (useCoursier.value) CoursierDependencyResolution(csrConfiguration.value)
@@ -372,7 +372,7 @@ def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
       IvyActions.publish(ivyModule.value, config.value, s.log)
     }
   } tag (Tags.Publish, Tags.Network)
-</scala>
+```
 
 何が起こっているのかというドキュメンテーションが必要になるが、`Def.ifS(...)(...)(...)` よりも取っつきやすいのではと思う。
 
@@ -380,7 +380,7 @@ def publishTask(config: TaskKey[PublishConfiguration]): Initialize[Task[Unit]] =
 
 本稿では、入っていきやすそうだった `ifS` に焦点を置いて考えてみたが、[Selective applicative functor][Mokhov2019] は他のコンビネーターも定義してある。
 
-<scala>
+```scala
 trait Selective[F[_]] {
   def select[A, B](fab: F[Either[A, B]])(fn: F[A => B]): F[B]
   def branch[A, B, C](x: F[Either[A, B]])(l: F[A => C])(r: F[B => C]): F[C] = ...
@@ -393,19 +393,19 @@ trait Selective[F[_]] {
   def anyS[G[_]: Foldable, A](test: A => F[Boolean])(ga: G[A]): Eval[F[Boolean]] = ...
   def allS[G[_]: Foldable, A](test: A => F[Boolean])(ga: G[A]): Eval[F[Boolean]] = ...
 }
-</scala>
+```
 
 `branch` は特に面白そうだ。sbt の内部では `Applicative` を扱うとき arity (引数の数) を `AList[X[F[A]]]` というインターフェイスを使って抽象化する。その延長線で考えると、`Either[A, B]` は `Tuple2[A, B]` の逆だと考えられる。つまり、`Either[A, B]` は `A1`、 `A2`、`A3`... の Coproduct を作るための部品でもある。
 
 Scala だと関連する構文はパターンマッチかもしれない:
 
-<scala>
+```scala
 something match {
   case pattern1 => something1
   case pattern2 => something2
   case pattern3 => something3
 }
-</scala>
+```
 
 これがあれば、if 式はその上にエンコードできる。
 
@@ -415,12 +415,12 @@ Selective ファンクターは `inspect` コマンドを犠牲にせずにタ�
 
 sbt では、Selective 合成は条件的タスク (conditional task) として表すことができる:
 
-<scala>
+```scala
 Def.task {
   if (Boolean) something1
   else something2
 }
-</scala>
+```
 
 sbt への pull req は [sbt/sbt#5558](https://github.com/sbt/sbt/pull/5558)だ。
 

@@ -16,7 +16,7 @@ This is part 4 of the post about [sbt-projectmatrix](https://github.com/sbt/sbt-
 
 After adding sbt-projectmatrix to your build, here's how you can set up a matrix with two Scala versions.
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.12"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
@@ -26,7 +26,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.12", "2.13.3"))
-</scala>
+```
 
 This will create subprojects for each `scalaVersion`. Unlike `++` style stateful cross building, these will build in parallel. This part has not changed.
 
@@ -42,7 +42,7 @@ Scala 3.0 will have built-in interoperability with Scala 2.13.x, and 2.13.x bran
 
 sbt-projectmatrix 0.6.0 allows you to create matrices of subprojects that will detect 2.13-3.0 sandwich and automatically wire them when available:
 
-<scala>
+```scala
 val scala212 = "2.12.12"
 // TODO use 2.13.4 when it's out
 val scala213 = "2.13.4-bin-aeee8f0"
@@ -75,7 +75,7 @@ lazy val barCore = (projectMatrix in file("bar-core"))
     name := "bar core",
   )
   .jvmPlatform(scalaVersions = Seq(dottyVersion))
-</scala>
+```
 
 This backports [sbt/sbt#5767](https://github.com/sbt/sbt/pull/5767) so using this 2.13-3.0 sandwich becomes available to sbt 1.2 and above.
 

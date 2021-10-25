@@ -25,30 +25,30 @@ Lukas Rytz さんが書いたスクリプトを使って scala/scala のコミ�
 
 #### build.sbt
 
-<scala>
+```scala
 ThisBuild / resolvers += "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
-</scala>
+```
 
 ビルドファイルはこれだけ。
 
 #### Test.scala
 
-<scala>
+```scala
 object Test extends App {
   val x = Set[AnyVal](1L, (), 28028, -3.8661012E-17, -67)
   val y = Set[AnyVal](1, 3.3897517E-23, ())
   val z = x ++ y
   assert(z.size == 6)
 }
-</scala>
+```
 
 これは吉田さんが Scala 2.13.0-RC3 で見つけた [scala/bug#11551](https://github.com/scala/bug/issues/11551) を再現する。2つの集合を足したときに 6要素ではなく 7要素が返ってくるというやつだ。
 
 #### project/build.properties
 
-<scala>
+```scala
 sbt.version=1.2.8
-</scala>
+```
 
 最近の Zinc だと 2.13 のベータ付近が扱えなくなっているので、枯れた 1.2.8 を使う。
 

@@ -15,7 +15,7 @@ aliases:     [ /node/311 ]
 
 sbt-projectmatrix をビルドに追加後、以下のようにして 2つの Scala バージョンを使ったマトリックスをセットアップする。
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.10"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
@@ -25,7 +25,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.10", "2.11.12"))
-</scala>
+```
 
 これは `coreJVM2_11` と `coreJVM2_12` というサブプロジェクトを作る。 `++` スタイルのステートフルなクロスビルドと違って、これは並列にビルドする。これは変わっていない。
 
@@ -35,14 +35,14 @@ lazy val core = (projectMatrix in file("core"))
 
 [Support for mixed-style matrix dependencies #13](https://github.com/sbt/sbt-projectmatrix/issues/13) と [Support for pure Java subprojects #14](https://github.com/sbt/sbt-projectmatrix/issues/14) という 2つの issue が立てられて、0.2.0 の設計に限界があることに気づいた。0.2.0 は各列は以下のように表現される:
 
-<scala>
+```scala
 final class ProjectRow(
     val idSuffix: String,
     val directorySuffix: String,
     val scalaVersions: Seq[String],
     val process: Project => Project
 ) {}
-</scala>
+```
 
 これは、列が追跡できるもの (例えばプラットフォーム) を 1つの次元とプラスで特定の Scala バージョンに限定する。報告された issue はマトリックス内の列を別のマトリックス内の列へと少し弱めた制限を用いて関連付けようとしていると意味で同じ問題の変種であると言える。
 
@@ -50,7 +50,7 @@ final class ProjectRow(
 
 sbt-projectmatrix 0.4.0 は `VirtualAxis` を導入するが、最初はこれが何かを理解しなくても sbt-projectmatrix 自体は使い始めることができる。
 
-<scala>
+```scala
 /** A row in the project matrix, typically representing a platform + Scala version.
  */
 final class ProjectRow(
@@ -81,20 +81,20 @@ object VirtualAxis {
   
   ....
 }
-</scala>
+```
 
 `ProjectRow` は `VirtualAxis` の集合となった。`VirtualAxis` の典型的な使いみちはプラットフォーム (JVM, JS, Native) や Scala バージョンを表すのに使う。`VirtualAxis` クラスは `WeakAxis` と `StrongAxis` という 2つのサブクラスに分かれる。
 
 `StrongAxis` は関連する列が同値を持つことを要請し、これはプラットフォームなどを表すのに便利だ。一方、`WeakAxis` は同じ値または全く値を持たないことを許容する。Scala バージョンはその 1例だ。
 
-<scala>
+```scala
 lazy val intf = (projectMatrix in file("intf"))
   .jvmPlatform(autoScalaLibrary = false)
 
 lazy val core = (projectMatrix in file("core"))
   .dependsOn(intf)
   .jvmPlatform(scalaVersions = Seq("2.12.10", "2.11.12"))
-</scala>
+```
 
 上の例では `core` マトリックスは Scala バージョン 2.12.10 と 2.11.12 に対応する 2つの JVM 列を持つ。`ScalaVersionAxis` は `WeakAxis` であるため、Scala バージョンを持たない `intf` マトリックスの JVM 列に依存することができる。
 
@@ -102,16 +102,16 @@ lazy val core = (projectMatrix in file("core"))
 
 並列クロスライブラリビルドもカスタム `VirtualAxis` を定義することで実装できる。`project/LightbendConfigAxis.scala` 内に以下を書く:
 
-<scala>
+```scala
 import sbt._
 
 case class LightbendConfigAxis(idSuffix: String, directorySuffix: String) extends VirtualAxis.WeakAxis {
 }
-</scala>
+```
 
 次に `build.sbt`:
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -141,7 +141,7 @@ lazy val app = (projectMatrix in file("app"))
       libraryDependencies += "com.typesafe" % "config" % "1.3.3",
     )
   )
-</scala>
+```
 
 `LightbendConfigAxis` は `VirtualAxis.WeakAxis` を継承することに注目してほしい。これによって、`app` マトリックスは `LightbendConfigAxis` を持たない他のマトリックスにも依存することができる。
 
@@ -149,27 +149,27 @@ lazy val app = (projectMatrix in file("app"))
 
 サブプロジェクトを `build.sbt` 内で参照したい場合は、以下のようにする:
 
-<scala>
+```scala
 lazy val core212 = core.jvm("2.12.10")
 
 lazy val appConfig12_212 = app.finder(config13, VirtualAxis.jvm)("2.12.10")
   .settings(
     publishMavenStyle := true
   )
-</scala>
+```
 
 ### Scala Native サポート
 
 Tatsuno さん ([@exoego](https://github.com/exoego)) のお蔭で、sbt-projectmatrix は 0.3.0 から Scala.JS も Scala Native にも対応している。これを使うには別に sbt-scala-native もセットアップする必要がある:
 
-<scala>
+```scala
 lazy val core = (projectMatrix in file("core"))
   .settings(
     name := "core",
     Compile / run mainClass := Some("a.CoreMain")
   )
   .nativePlatform(scalaVersions = Seq("2.11.12"))
-</scala>
+```
 
 ### まとめ
 

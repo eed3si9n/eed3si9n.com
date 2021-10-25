@@ -30,14 +30,14 @@ TFSP においては、トレイトやクラスの本文内では型注釈 `T` �
 
 素の val を使って値を定義すると、定義した順番に気を使う必要がある。初期化する前に値を参照してしまうと実行時に `NullPointerException` が発生してしまう。値を `lazy` だと書くことで最初に参照されるまで初期化を遅延することができる。
 
-<scala>
+```scala
   implicit val m: MachineModule = new MachineModule {
     val left: State => State   = buildTrans(pm.moveBy((-1, 0)))
     lazy val buildTrans: (Piece => Piece) => State => State = f => s0 => {
       // ....
     }
   }
-</scala>
+```
 
 上の例では、`left` が後にくる `buildTrans` を参照しているため、 `buildTrans` を `lazy` だと定義した。
 
@@ -45,9 +45,9 @@ TFSP においては、トレイトやクラスの本文内では型注釈 `T` �
 
 パターンマッチが値定義の左辺項にくると、抽出子を使ったデータ型の分解が行われる。
 
-<scala>
+```scala
 val x :: xs = list
-</scala>
+```
 
 ### var を避ける
 
@@ -77,7 +77,7 @@ TFSP においては、後置記法を禁止する。
 
 Scala においては、`if-else` 構文は値を返す。TFSP においては、常に `else` 節を書く。
 
-<scala>
+```scala
 scala> val x = 1
 x: Int = 1
 
@@ -88,18 +88,18 @@ if (x > 1) x
 else 0
 
 res1: Int = 0
-</scala>
+```
 
 ### for 内包表記
 
 Scala において、`for` は `yield` と共に使うと for 内包表記になり、`yield` を使わないと for ループになる。TFSP においては、常に `yield` を書く。丸括弧か波括弧によって微妙に構文が異なる。TFSP においては、常に波括弧を使う。
 
-<scala>
+```scala
 scala> for {
          x <- 1 to 10
        } yield x + 1
 res2: scala.collection.immutable.IndexedSeq[Int] = Vector(2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
-</scala>
+```
 
 ### 例外よりも `Either[A, B]`
 
@@ -112,7 +112,7 @@ TFSP は例外よりも `Either[A, B]` その他の失敗をエンコードす�
 
 Scala の case class は代数的データ型をエミュレートするのに便利な方法だ。個々の case class は ADT のコンストラクタに相当し、AST そのものは sealed trait を使って表す。
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -122,7 +122,7 @@ case class Leaf(x: Int) extends Tree
 case class Node(left: Tree, right: Tree) extends Tree
 
 // Exiting paste mode, now interpreting.
-</scala>
+```
 
 内部では、case class は自動的に `equals`、`toString`、`hashcode`、`copy` メソッドを実装する。さらに、コンパニオンオブジェクトは `apply` と `unapply` を自動的に実装する。
 
@@ -130,7 +130,7 @@ case class Node(left: Tree, right: Tree) extends Tree
 
 パターンマッチを使って case class を分解することができる:
 
-<scala>
+```scala
 scala> val badDepth: Tree => Int = {
          case Leaf(_)    => 1
          case Node(l, r) => 1 + math.max(depth(l), depth(r))
@@ -140,11 +140,11 @@ It would fail on the following input: Empty()
        val badDepth: Tree => Int = {
                                    ^
 badDepth: Tree => Int = <function1>
-</scala>
+```
 
 trait は sealed であるため、パターンマッチの完全性をコンパイラがチェックしてくれる。
 
-<scala>
+```scala
 scala> val depth: Tree => Int = {
          case Empty()    => 0
          case Leaf(_)    => 1
@@ -154,7 +154,7 @@ depth: Tree => Int = <function1>
 
 scala> depth(Node(Empty(), Leaf(1)))
 res5: Int = 2
-</scala>
+```
 
 ### case class 内のメソッドの禁止
 
@@ -170,16 +170,16 @@ TFSP においては、case class 内にメソッドを定義することを禁�
 
 Scala では、trait を使った型クラスを定義することが最も柔軟なモジュールの実装方法だ。まず、型クラスのコントラクトを関数のシグネチャのみを宣言する trait によって定義する。
 
-<scala>
+```scala
 scala> trait TreeModule {
          val depth: Tree => Int
        }
 defined trait TreeModule
-</scala>
+```
 
 次に、型クラスのインスタンスを実装する別の trait を以下のように定義する:
 
-<scala>
+```scala
 scala> trait TreeInstance {
          val resolveTreeModule: Unit => TreeModule = { case () =>
            implicitly[TreeModule]
@@ -193,13 +193,13 @@ scala> trait TreeInstance {
          }
        }
 defined trait TreeInstance
-</scala>
+```
 
 ### 細別型 (オブジェクトリテラル)
 
 `TreeModule` のデフォルトのインスタンスを定義した方法は細別付きの無名型、略して細別型の例だ。この型は名前を持たないため、型内で定義される `depth` 以外のフィールドは全て外部から隠蔽される。
 
-<scala>
+```scala
 scala> val treeModule2: TreeModule = new TreeModule {
          val depth: Tree => Int = { case _ => 0 }
          val foo = 2
@@ -210,7 +210,7 @@ scala> treeModule2.foo
 <console>:11: error: value foo is not a member of TreeModule
               treeModule2.foo
                           ^
-</scala>
+```
 
 ### 暗黙のスコープよりも import
 
@@ -218,7 +218,7 @@ Scala には `TreeModule` を使えるようにする方法がいくつかある
 
 `TreeModule` は以下のようにして使う:
 
-<scala>
+```scala
 scala> {
          val allInstances = new TreeInstance {}
          import allInstances._
@@ -226,7 +226,7 @@ scala> {
          m.depth(Empty())
        }
 res1: Int = 0
-</scala>
+```
 
 モジュールが取り扱うデータ型は外に出してあり、`TreeModule` は抽象的であるため、`depth` 関数の実装は完全に置換可能だ。
 
@@ -246,7 +246,7 @@ Scala には第一級関数、つまり値として扱うことのできる関�
 
 Scala において、case を並べることで無名部分関数を定義できる。「パターンマッチング無名関数」は長すぎるので、ここでは **case 関数** と呼ぶ。
 
-<scala>
+```scala
 scala> type =>?[A, R] = PartialFunction[A, R]
 defined type alias $eq$greater$qmark
 
@@ -254,7 +254,7 @@ scala> val f: Tree =>? Int = {
          case Empty() => 0
        }
 f: =>?[Tree,Int] = <function1>
-</scala>
+```
 
 `PartialFunction` は `Function1` を継承するため、case 関数は関数が期待される全ての所で使うことできる。
 
@@ -262,20 +262,20 @@ f: =>?[Tree,Int] = <function1>
 
 Scala において、関数は複数のパラメータを取るか、カリー化することでただ一つのパラメータのみを受け取り別の関数を返すように書くことができる。TFSP においては、タプルを渡すことが好ましい場合を除いてカリー化された関数をデフォルトのスタイルとする。
 
-<scala>
+```scala
 scala> val add: Int => Int => Int = x => y => x + y
 add: Int => (Int => Int) = <function1>
-</scala>
+```
 
 これによって部分適用がデフォルトの振る舞いとなる。
 
-<scala>
+```scala
 scala> val add3 = add(3)
 add3: Int => Int = <function1>
 
 scala> add3(1)
 res5: Int = 4
-</scala>
+```
 
 ### プレースホルダー構文の禁止
 
@@ -299,7 +299,7 @@ TFSP はサブタイプ化よりも型クラスを使ったアドホック多相
 
 例えば、`TreeModule` を `Depth[A]` と一般化して `List[Int]` と `Tree` の両方をサポートすることができる。
 
-<scala>
+```scala
 trait Depth[A] {
   val depth: A => Int
 }
@@ -318,13 +318,13 @@ trait DepthInstances {
     }
   }
 }
-</scala>
+```
 
 ### context-bound 型パラメータ
 
 `Depth` 型クラスを利用するためには、context-bound な型パラメータを受け取る def メソッドを定義する。
 
-<scala>
+```scala
 scala> {
          val allInstances = new DepthInstances {}
          import allInstances._
@@ -333,7 +333,7 @@ scala> {
          halfDepth(List(1, 2, 3, 4))
        }
 res2: Int = 2
-</scala>
+```
 
 ### モジュール間の依存性
 
@@ -341,7 +341,7 @@ res2: Int = 2
 
 ここで `MainModule` と `ColorModule` という2つのモジュールを考える。
 
-<scala>
+```scala
 import swing._
 import java.awt.{Color => AWTColor}
 
@@ -352,11 +352,11 @@ trait MainModule {
 trait ColorModule {
   val background: AWTColor
 }
-</scala>
+```
 
 `ColorModule` に依存した `MainModule` を定義したい。
 
-<scala>
+```scala
 trait MainInstance {
   def resolveMainModule(x: Unit)(implicit cm: ColorModule,
     f: ColorModule => MainModule): MainModule = f(cm)
@@ -365,11 +365,11 @@ trait MainInstance {
       // use cm to define MainModule
     }
 }
-</scala>
+```
 
 `MainModule` は普通にインスタンス化することができる。
 
-<scala>
+```scala
 scala> {
          val allInstances = new MainInstance with ColorInstance {}
          import allInstances._
@@ -377,7 +377,7 @@ scala> {
          m.mainFrame()
        }
 res1: scala.swing.Frame = ...
-</scala>
+```
 
 ### 変位指定を避ける
 
@@ -389,7 +389,7 @@ Scala において、既存の型を暗黙にラッピングして元の型に�
 
 型クラスをつかったメソッド注入のテクニックは Scalaz 7 の実装に倣った。
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -406,11 +406,11 @@ trait ToDepthOps {
 }
 
 // Exiting paste mode, now interpreting.
-</scala>
+```
 
 以下のようにして `Depth` 型クラスをサポートする全てのデータ型に対して `depth` メソッドを注入する。
 
-<scala>
+```scala
 scala> {
          val allInstances = new DepthInstances {}
          import allInstances._
@@ -419,7 +419,7 @@ scala> {
          List(1, 2, 3, 4).depth
        }
 res4: Int = 4
-</scala>
+```
 
 ## ケーススタディ: Tetrix
 
@@ -429,17 +429,17 @@ Scala の構文を並べてきたが、このサブセットがどれほど変�
 
 まず、Swing UI をラッピングするために `MainModule` を定義する。
 
-<scala>
+```scala
 import swing._
 
 trait MainModule {
   val mainFrame: Unit => Frame
 }
-</scala>
+```
 
 `MainModule` は `ColorModule` と `MachineModule` という2つのモジュールに依存する。依存性は以下のように書かれる:
 
-<scala>
+```scala
 trait MainInstance {
   def resolveMainModule(x: Unit)(implicit cm: ColorModule,
     mm: MachineModule,
@@ -449,11 +449,11 @@ trait MainInstance {
       // ...
     }
 }
-</scala>
+```
 
 `SimpleSwingApplication` を継承する必要があったので、アプリ用の trait を定義して、そこから `MainModule` を使う:
 
-<scala>
+```scala
 object Main extends TetrixApp {}
 trait TetrixApp extends SimpleSwingApplication {
   val allInstances = new MainInstance with ColorInstance
@@ -463,13 +463,13 @@ trait TetrixApp extends SimpleSwingApplication {
   val main: MainModule = MainModule()
   lazy val top: Frame = main.mainFrame()
 }
-</scala>
+```
 
 ### ColorModule
 
 `ColorModule` はアプリで使われる色の設定を決定する。
 
-<scala>
+```scala
 trait ColorModule {
   val background: AWTColor
   val foreground: AWTColor
@@ -483,7 +483,7 @@ trait ColorInstance {
     val foreground = new AWTColor(79, 130, 130)  // bluishLigherGray
   }
 }
-</scala>
+```
 
 これがモジュールの全てだ。2つのフィールドのためだけにオーバーヘッドが有り過ぎると思うかもしれないが、これはアプリが出来上がった後から設定を差し替えられることを説明するために入れた。
 
@@ -491,18 +491,18 @@ trait ColorInstance {
 
 例えば、`ColorModule` の新しいインスタンスをデフォルトのインスタンスを継承して以下のように定義できる:
 
-<scala>
+```scala
 trait CustomColorInstance extends ColorInstance {
   implicit val colorModule: ColorModule = new ColorModule {
     val background = new AWTColor(255, 255, 255) // white
     val foreground = new AWTColor(0, 0, 0)  // black
   } 
 }
-</scala>
+```
 
 これは以下のように implicit の検索空間に入れることができる:
 
-<scala>
+```scala
 trait TetrixApp extends SimpleSwingApplication {
   val allInstances = new MainInstance with ColorInstance
     with MachineInstance with PieceInstance
@@ -512,7 +512,7 @@ trait TetrixApp extends SimpleSwingApplication {
   val main: MainModule = resolveMainModule()
   lazy val top: Frame = main.mainFrame()
 }
-</scala>
+```
 
 ![after](/images/scala-tfsp2.png)
 
@@ -522,7 +522,7 @@ trait TetrixApp extends SimpleSwingApplication {
 
 `MachineModule` はゲームの状態機械を表す。まず、以下のように case class を定義した。
 
-<scala>
+```scala
 import scala.collection.concurrent.TrieMap
 
 // this is mutable
@@ -532,11 +532,11 @@ case class State(current: Piece, gridSize: (Int, Int),
   blocks: Seq[Block])
 
 case class Block(pos: (Int, Int))
-</scala>
+```
 
 `Machine` は現在の `State` を並行マップに保持する。今のところ `MachineModule` は以下の関数を定義する:
 
-<scala>
+```scala
 trait MachineModule {
   val init: Unit => Machine
   val state: Machine => State
@@ -553,13 +553,13 @@ trait MachineInstance {
       // ...
     }
 }
-</scala>
+```
 
 このモジュールは `PieceModule` という別のモジュールに依存するため、モジュールのインスタンスは暗黙の関数 `toMachineModule` として定義される。暗黙のパラメータはコールサイトにおいて解決されるため、`PieceModule` のインスタンスはトップレベルのアプリにおいて置換することができる。
 
 状態機会は以下のように実装される。
 
-<scala>
+```scala
     val state: Machine => State = { case m =>
       m.stateMap(())
     }
@@ -569,11 +569,11 @@ trait MachineInstance {
       m.stateMap replace((), s0, s1)
       m
     }
-</scala>
+```
 
 見てのとおり、全ての関数はカリー化された関数値として実装されている。以下にこのカリー化を利用した例を挙げる。
 
-<scala>
+```scala
     val left: State => State   = buildTrans(pm.moveBy((-1, 0)))
     val right: State => State  = buildTrans(pm.moveBy((1, 0)))
     val rotate: State => State = buildTrans(pm.rotateBy(-Math.PI / 2.0))
@@ -583,7 +583,7 @@ trait MachineInstance {
       val u = unload(p0)(s0)
       load(p)(u) getOrElse s0
     }
-</scala>
+```
 
 `buildTrans` は `Piece` の変換関数と初期 `State` を受け取って別の `State` を返す関数だ。最初のパラメータのみを適用することで `State => State` 関数を返す関数だと考えることもできる。
 
@@ -591,13 +591,13 @@ trait MachineInstance {
 
 `PieceModule` はピースの動きを記述する。例えば、`left` や `right` で使われている `moveBy` は以下のように実装される:
 
-<scala>
+```scala
     val moveBy: Tuple2[Int, Int] => Piece => Piece = {
       case (deltaX, deltaY) => p0 =>
         val (x0, y0) = p0.pos
         p0.copy(pos = (x0 + deltaX, y0 + deltaY))
     }
-</scala>
+```
 
 ### 観察
 

@@ -21,7 +21,7 @@ Here are a few questions I've been thinking about:
 
 The sealed trait and case class is the idiomatic way to represent datatypes in Scala, but it's impossible to add fields in binary compatible way. Take for example a simple case class `Greeting`, and see how it would expand into a class and a companion object:
 
-<scala>
+```scala
 package com.example
 
 class Greeting(name: String) {
@@ -34,11 +34,11 @@ object Greeting {
   def apply(name: String): Greeting = ???
   def unapply(v: Greeting): Option[String] = ???
 }
-</scala>
+```
 
 Next, add a new field `x`:
 
-<scala>
+```scala
 package com.example
 
 class Greeting(name: String, x: Int) {
@@ -51,7 +51,7 @@ object Greeting {
   def apply(name: String): Greeting = ???
   def unapply(v: Greeting): Option[(String, Int)] = ???
 }
-</scala>
+```
 
 As you can see, both `copy` method and `unapply` method breaks the binary compatibility.
 
@@ -64,18 +64,18 @@ I've made a dialect of GraphQL's schema language, and called it Contraband. Ther
 
 In Contraband, the `Greeting` example would look like this:
 
-<scala>
+```scala
 package com.example
 @target(Scala)
 
 type Greeting {
   name: String
 }
-</scala>
+```
 
 This would generate:
 
-<scala>
+```scala
 // DO NOT EDIT MANUALLY
 package com.example
 final class Greeting private (
@@ -105,7 +105,7 @@ object Greeting {
   def apply(name: Option[String]): Greeting = new Greeting(name)
   def apply(name: String): Greeting = new Greeting(Option(name))
 }
-</scala>
+```
 
 Instead of `copy`, you would use `withName("foo")`. Also note that GraphQL/Contraband's `String` would map to Scala's `Option[String]`. This is also similar in Protocol Buffer v3 where a singular field means zero-or-one.
 
@@ -113,7 +113,7 @@ Instead of `copy`, you would use `withName("foo")`. Also note that GraphQL/Contr
 
 Let's see how we can evolve this data. Here's how we add a new field `x`.
 
-<scala>
+```scala
 package com.example
 @target(Scala)
 
@@ -121,13 +121,13 @@ type Greeting {
   name: String @since("0.0.0")
   x: Int @since("0.1.0")
 }
-</scala>
+```
 
 In Contraband, we can denote each field with a version name using `@since`.
 
 This would generate:
 
-<scala>
+```scala
 // DO NOT EDIT MANUALLY
 package com.example
 final class Greeting private (
@@ -149,7 +149,7 @@ object Greeting {
   def apply(name: Option[String], x: Option[Int]): Greeting = new Greeting(name, x)
   def apply(name: String, x: Int): Greeting = new Greeting(Option(name), Option(x))
 }
-</scala>
+```
 
 I've omitted `equals`, `hashCode`, `toString`, and `withName` from above.
 The point here is that overloads of `apply` is generated as of version 0.0.0 and 0.1.0.
@@ -158,20 +158,20 @@ The point here is that overloads of `apply` is generated as of version 0.0.0 and
 
 Adding `JsonCodecPlugin` to the subproject will generate sjson-new JSON codes for the Contraband types.
 
-<scala>
+```scala
 lazy val root = (project in file("."))
   .enablePlugins(ContrabandPlugin, JsonCodecPlugin)
   .settings(
     scalaVersion := "2.12.1",
     libraryDependencies += "com.eed3si9n" %% "sjson-new-scalajson" % "0.7.1"
   )
-</scala>
+```
 
 [sjson-new](http://eed3si9n.com/sjson-new) is a codec toolkit that lets you define a code that supports Sray JSON’s AST, SLIP-28 Scala JSON, and MessagePack as the backend.
 
 Here are a few more things to specify in the schema:
 
-<scala>
+```scala
 package com.example
 @target(Scala)
 @codecPackage("com.example.codec")
@@ -182,11 +182,11 @@ type Greeting {
   name: String @since("0.0.0")
   x: Int @since("0.1.0")
 }
-</scala>
+```
 
 This will generate `GreetingFormat` trait that can be used as backend-independent JSON codec. Here's a REPL session that demonstrates `Greeting`-to-JSON roundtrip.
 
-<scala>
+```scala
 scala> import sjsonnew.support.scalajson.unsafe.{ Converter, CompactPrinter, Parser }
 import sjsonnew.support.scalajson.unsafe.{Converter, CompactPrinter, Parser}
 
@@ -212,7 +212,7 @@ scala> val h = Converter.fromJsonUnsafe[Greeting](x)
 h: com.example.Greeting = Greeting(Some(Bob), None)
 
 scala> assert(g == h)
-</scala>
+```
 
 For now the target language is Java and Scala only, but given that Contraband is a dialect of GraphQL, it might be able to reuse some of the tooling to cross over to other languages as well if there are interests.
 

@@ -23,26 +23,26 @@ Monads are fractals. Given a monadic data structure, its values can be composed 
 
 Let's look at some examples:
 
-<scala>
+```scala
 scala> List(List(1), List(2, 3), List(4))
 res0: List[List[Int]] = List(List(1), List(2, 3), List(4))
-</scala>
+```
 
 <!--more-->
 
 The above is a `List` of `List` of `Int`. We can intuitively crunch this into a `List` of `Int` like this:
 
-<scala>
+```scala
 scala> List(1, 2, 3, 4)
 res1: List[Int] = List(1, 2, 3, 4)
-</scala>
+```
 
 For `1` to form `List(1)` we can also provide a single-parameter constructor `unit: A => F[A]`. This allows us to crunch `1` and `4` along with `List(2, 3)`:
 
-<scala>
+```scala
 scala> List(List.apply(1), List(2, 3), List.apply(4))
 res2: List[List[Int]] = List(List(1), List(2, 3), List(4))
-</scala>
+```
 
 The type signature of crunching, also known as `join` is `F[F[A]] => F[A]`.
 
@@ -50,16 +50,16 @@ The type signature of crunching, also known as `join` is `F[F[A]] => F[A]`.
 
 The crunching operation reminded me of monoids, which consists of:
 
-<scala>
+```scala
 trait Monoid[A] {
   def mzero: A
   def mappend(a1: A, a2: A): A
 }
-</scala>
+```
 
 We can use monoid to abstract out operations on two items:
 
-<scala>
+```scala
 scala> List(1, 2, 3, 4).foldLeft(0) { _ + _ }
 res4: Int = 10
 
@@ -71,7 +71,7 @@ res6: Boolean = false
 
 scala> List(true, false, true, true).foldLeft(false) { _ || _ }
 res7: Boolean = true
-</scala>
+```
 
 One aspect of monoid I want to highlight here is that data type alone is not enough to define the monoid. The pair `(Int, +)` forms a monoid. Or `Int`s are monoid under addition. See https://twitter.com/jessitron/status/438432946383360000 for more on this.
 
@@ -79,17 +79,17 @@ One aspect of monoid I want to highlight here is that data type alone is not eno
 
 When `List` of `List` of `Int` crunches into a `List` of `Int`, it's obvious that it uses something like `foldLeft` and `++` to make `List[Int]`.
 
-<scala>
+```scala
 scala> List(List.apply(1), List(2, 3), List.apply(4)).foldLeft(List(): List[Int]) { _ ++ _ }
 res8: List[Int] = List(1, 2, 3, 4)
-</scala>
+```
 
 But it could have been something else. For example, it could return a list of sums.
 
-<scala>
+```scala
 scala> List(List.apply(1), List(2, 3), List.apply(4)).foldLeft(List(): List[Int]) { (acc, xs) => acc :+ xs.sum }
 res9: List[Int] = List(1, 5, 4)
-</scala>
+```
 
 That's a contrived example, but it's important to think of the composition semantics that a monad encapsulates.
 
@@ -97,7 +97,7 @@ That's a contrived example, but it's important to think of the composition seman
 
 Let's look at `Option` too. Remember the type signature of monadic crunching is `F[F[A]] => F[A]`, so what we need as examples are nested `Option`s, not a list of `Option`s.
 
-<scala>
+```scala
 scala> Some(None: Option[Int]): Option[Option[Int]]
 res10: Option[Option[Int]] = Some(None)
 
@@ -106,11 +106,11 @@ res11: Option[Option[Int]] = Some(Some(1))
 
 scala> None: Option[Option[Int]]
 res12: Option[Option[Int]] = None
-</scala>
+```
 
 Here's what I came up with to crunch `Option` of `Option` of `Int` into an `Option` of `Int`.
 
-<scala>
+```scala
 scala> (Some(None: Option[Int]): Option[Option[Int]]).foldLeft(None: Option[Int]) { (_, _)._2 }
 res20: Option[Int] = None
 
@@ -119,7 +119,7 @@ res21: Option[Int] = Some(1)
 
 scala> (None: Option[Option[Int]]).foldLeft(None: Option[Int]) { (_, _)._2 }
 res22: Option[Int] = None
-</scala>
+```
 
 So `Option` apparenlty is a monad under `_2`. In this case I don't know if it's immediately obvious from the implemetation, but the idea is to propagate `None`, which represents a failure.
 
@@ -133,7 +133,7 @@ So far we have two functions `join` and `unit`. We actually need one more, which
 
 Given `List[List[List[Int]]]`, we can write the accociative law by crunching the outer most list first or middle list first. The following is from one of the chapter notes of Functional Programming in Scala:
 
-<scala>
+```scala
 scala> val xs: List[List[List[Int]]] = List(List(List(1,2), List(3,4)), List(List(5,6), List(7,8)))
 xs: List[List[List[Int]]] = List(List(List(1, 2), List(3, 4)), List(List(5, 6), List(7, 8)))
 
@@ -148,20 +148,20 @@ res30: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8)
 
 scala> ys2.flatten
 res31: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8)
-</scala>
+```
 
 This can be generalized as:
 
-<scala>
+```scala
 join(join(m)) assert_=== join(map(m)(join))
-</scala>
+```
 
 Here are the identity laws also from the same notes:
 
-<scala>
+```scala
 join(unit(m)) assert_=== m
 join(map(m)(unit)) assert_=== m
-</scala>
+```
 
 This illustrates that we can define a monad without using `flatMap`. In actual coding, however, we tend to deal with monads by chaining `flatMap`s using `for` comprehension, which combines `map` and `join`.
 
@@ -169,20 +169,20 @@ This illustrates that we can define a monad without using `flatMap`. In actual c
 
 When writing in purely functional style, one pattern that arises often is passing a value that represents some state.
 
-<scala>
+```scala
 val (d0, _) = Tetrix.init()
 val (d1, _) = Tetrix.nextBlock(d0)
 val (d2, moved0) = Tetrix.moveBlock(d1, LEFT)
 val (d3, moved1) =
   if (moved0) Tetrix.moveBlock(d2, LEFT)
   else (d2, moved0)
-</scala>
+```
 
 The passing of the state object becomes boilerplate, and error-prone especially when you start to compose the state transition using function calls. `State` monad is a monad that encapsulates state transition `S => (S, A)`.
 
 After rewriting `Tetrix.nextBlock` and `Tetrix.moveBlock` functions to return `State[GameSate, A]`, we can write the above code as:
 
-<scala>
+```scala
 def nextLL: State[GameState, Boolean] = for {
   _      <- Tetrix.nextBlock
   moved0 <- Tetrix.moveBlock(LEFT)
@@ -190,13 +190,13 @@ def nextLL: State[GameState, Boolean] = for {
             else State.state(moved0)
 } yield moved1
 nextLL.eval(Tetrix.init())
-</scala>
+```
 
 It's hard to say whether it's good thing to be able to write `for` comprehension since it possibly makes less sense to those who are not informed about the `State` monad. One good thing is that we now have a type that automates passing `d0`, `d1`, `d2`, ...
 
 What I want to highlight here is that `State` monad is a fractal just like `List`. `moveBlock` function returns a `State` and `for` comprehension is `State` of `State`. In the above example, two calls to `moveBlock` function can be factored out:
 
-<scala>
+```scala
 def leftLeft: State[GameState, Boolean] = for {
   moved0 <- Tetrix.moveBlock(LEFT)
   moved1 <- if (moved0) Tetrix.moveBlock(LEFT)
@@ -207,7 +207,7 @@ def nextLL: State[GameState, Boolean] = for {
   moved <- leftLeft
 } yield moved
 nextLL.eval(Tetrix.init())
-</scala>
+```
 
 This allows us to create mini imperative style programs that can be combined functionally. Note the semantics of `for` is limited to one monad at a time.
 
@@ -217,7 +217,7 @@ In the above, my hypothetical `moveBlock` returns `State[GameState, Boolean]`. W
 
 Suppose `nextBlock` will place the current block at x position 1, and moving left beyond 0 will fail.
 
-<scala>
+```scala
 scala> import scalaz._, Scalaz._
 import scalaz._
 import Scalaz._
@@ -277,7 +277,7 @@ nextRLL: StateTOption[GameState,Unit]
 
 scala> nextRLL.eval(GameState(0))
 res1: Option[Unit] = Some(())
-</scala>
+```
 
 The above shows that moving left-left failed, but calling right-left-left succeeded. In this simple example monad stacked nicely, but this could get hairly.
 
@@ -287,7 +287,7 @@ Another thing I was thinking on the plane was scopt, which is a command line par
 
 If you think about it, scopt is essentially a `State`. You pass in a config case class in one end, and after series of transformations you get the config back. Here's a hypothetical code of how scopt could look like:
 
-<scala>
+```scala
 val parser = {
   val builder = scopt.OptionParser.builder[Config]("scopt")
   import builder._  
@@ -302,7 +302,7 @@ parser.parse("--foo a.txt b.txt c.txt", Config()) match {
   case Some(c) => 
   caes None    => 
 }
-</scala>
+```
 
 If the `parser`'s type is `OptionParser[Unit]`, then `opt[Int]` will also be a `OptionParser[A]`. This allows us to factor out some of the options into a sub-parser and reuse it given `Config` can be reused.
 
@@ -312,7 +312,7 @@ Perhaps no other monads feels more fractal-like than `Free` monads. `List` and `
 For example, using `Tuple2[A, Next]`, `Free` can form a monad that acts like a list by embedding another `Tuple2[A, Next]` into `Next` like `Tuple2[A, Tuple2[A, Next]]`, and so on.
 What we end up is a data structure that's free of additional context other than the fact that it's a fractal. You're responsible for destructuring the result and do something meaningful. This approach could be simpler than monad transformer.
 
-<scala>
+```scala
 scala> import scalaz._, Scalaz._
 import scalaz._
 import Scalaz._
@@ -382,7 +382,7 @@ nextRLL: scalaz.Free[Tetrix,Unit]
 
 scala> Tetrix.eval(GameState(0), nextRLL)
 res1: Option[Unit] = Some(())
-</scala>
+```
 
 Except for the type signature, the program portion of the code is identical to the one using `StateTOption`.
 There's a bit of tradeoff on using this since we'll be responsible for implementing the context, but there's less mess on the type after the initial setup.

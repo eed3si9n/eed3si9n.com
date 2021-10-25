@@ -21,7 +21,7 @@ tags:        [ "scala" ]
 
 Scala でデータ型を表現する慣用的な方法は sealed trait と case class だが、バイナリ互換性を保ったままフィールドを追加することができない。簡単な `Greeting` という case class を例に取って、それがどのようなクラスとコンパニオンオブジェクトに展開されるか考察してみよう:
 
-<scala>
+```scala
 package com.example
 
 class Greeting(name: String) {
@@ -34,11 +34,11 @@ object Greeting {
   def apply(name: String): Greeting = ???
   def unapply(v: Greeting): Option[String] = ???
 }
-</scala>
+```
 
 次に、`x` という新しいフィールドを追加する:
 
-<scala>
+```scala
 package com.example
 
 class Greeting(name: String, x: Int) {
@@ -51,7 +51,7 @@ object Greeting {
   def apply(name: String): Greeting = ???
   def unapply(v: Greeting): Option[(String, Int)] = ???
 }
-</scala>
+```
 
 見て分かる通り、`copy` メソッドと `unapply` メソッドはバイナリ互換性を崩す。
 
@@ -64,18 +64,18 @@ object Greeting {
 
 Contraband では `Greeting` の例は以下のように書ける:
 
-<scala>
+```scala
 package com.example
 @target(Scala)
 
 type Greeting {
   name: String
 }
-</scala>
+```
 
 これは以下のようなコードを生成する:
 
-<scala>
+```scala
 // DO NOT EDIT MANUALLY
 package com.example
 final class Greeting private (
@@ -105,7 +105,7 @@ object Greeting {
   def apply(name: Option[String]): Greeting = new Greeting(name)
   def apply(name: String): Greeting = new Greeting(Option(name))
 }
-</scala>
+```
 
 `copy` の代わりに `withName("foo")` を使う。GraphQL/Contraband での `String` は、Scala の `Option[String]` に対応することにも注意してほしい。これは Protocol Buffer v3 の単一フィールドが「ゼロ個か1個」の意味を持つのと似ている。
 
@@ -113,7 +113,7 @@ object Greeting {
 
 データをどう進化できるかみていく。新しいフィールド `x` を追加するとこうなる。
 
-<scala>
+```scala
 package com.example
 @target(Scala)
 
@@ -121,13 +121,13 @@ type Greeting {
   name: String @since("0.0.0")
   x: Int @since("0.1.0")
 }
-</scala>
+```
 
 Contraband では `@since` を使ってフィールドにバージョン名を併記できる。
 
 これは以下を生成する:
 
-<scala>
+```scala
 // DO NOT EDIT MANUALLY
 package com.example
 final class Greeting private (
@@ -149,7 +149,7 @@ object Greeting {
   def apply(name: Option[String], x: Option[Int]): Greeting = new Greeting(name, x)
   def apply(name: String, x: Int): Greeting = new Greeting(Option(name), Option(x))
 }
-</scala>
+```
 
 簡単のため `equals`、`hashCode`、`toString`、`withName` などは上から省いた。
 バージョン 0.0.0 と 0.1.0 それぞれに対応した `apply` のオーバーロードが生成されることがポイントだ。
@@ -158,20 +158,20 @@ object Greeting {
 
 JsonCodecPlugin をサブプロジェクトに追加することで Contraband 型に対する sjson-new の JSON コーデックが生成される。
 
-<scala>
+```scala
 lazy val root = (project in file("."))
   .enablePlugins(ContrabandPlugin, JsonCodecPlugin)
   .settings(
     scalaVersion := "2.12.1",
     libraryDependencies += "com.eed3si9n" %% "sjson-new-scalajson" % "0.7.1"
   )
-</scala>
+```
 
 [sjson-new](http://eed3si9n.com/ja/sjson-new) はコーデック・ツールキットで、一つのコーデック定義から Spray JSON の AST、SLIP-28 Scala JSON、MessagePack と複数のバックエンドをサポートすることができる。
 
 スキーマにもういくつか項目を指定してやる:
 
-<scala>
+```scala
 package com.example
 @target(Scala)
 @codecPackage("com.example.codec")
@@ -182,11 +182,11 @@ type Greeting {
   name: String @since("0.0.0")
   x: Int @since("0.1.0")
 }
-</scala>
+```
 
 ここからバックエンド独立な JSON コーデックとして使うことができる `GreetingFormat` trait が生成される。`Greeting` から JSON に変換して、また戻ってくるラウンドトリップを REPL でデモするとこうなる。
 
-<scala>
+```scala
 scala> import sjsonnew.support.scalajson.unsafe.{ Converter, CompactPrinter, Parser }
 import sjsonnew.support.scalajson.unsafe.{Converter, CompactPrinter, Parser}
 
@@ -212,7 +212,7 @@ scala> val h = Converter.fromJsonUnsafe[Greeting](x)
 h: com.example.Greeting = Greeting(Some(Bob), None)
 
 scala> assert(g == h)
-</scala>
+```
 
 今の所対象言語は Java と Scala のみだけど、Contraband は GraphQL の派生言語なので、興味がある人は既存のツールを再利用するなどして他の言語への対応も試してみることができるかもしれない。
 

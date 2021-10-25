@@ -29,9 +29,9 @@ For people who want to use remote caching now, I've created sbt-bintray-remote-c
 
 To try put the following in `project/plugins.sbt`:
 
-<scala>
+```scala
 addSbtPlugin("org.foundweekends" % "sbt-bintray-remote-cache" % "0.6.1")
-</scala>
+```
 
 #### Bintray repo and package
 
@@ -52,10 +52,10 @@ This is so you can use different authentication in case you're using both sbt-bi
 
 Then in your `build.sbt`:
 
-<scala>
+```scala
 ThisBuild / bintrayRemoteCacheOrganization := "your_bintray_user or organization"
 ThisBuild / bintrayRemoteCachePackage := "your_package_name"
-</scala>
+```
 
 This will automatically configure `ThisBuild / pushRemoteCacheTo` setting.
 

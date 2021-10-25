@@ -29,7 +29,7 @@ Ruby の [OptionParser](http://ruby-doc.org/stdlib-2.0/libdoc/optparse/rdoc/Opti
 
 全てのコードをコメントアウトした後、`Read` から書き始めた:
 
-<scala>
+```scala
 trait Read[A] {
   def reads: String => A
 }
@@ -54,21 +54,21 @@ object Read {
         throw new IllegalArgumentException("'" + s + "' is not a boolean.")
     }}
 }
-</scala>
+```
 
 これは `String` から変換できるという能力を表す型クラスだ。これを用いて、データ型に特定だった case class の全ての以下のジェネリックなものに置き換えることができる。
 
-<scala>
+```scala
 class OptionDef[A: Read, C]() {
   ...  
 }
-</scala>
+```
 
 ### fluent interface
 
 省略可能な引数により発生したオーバーロードの乱発を解決するために、`OptionDef` 上で [fluent interface](http://capsctrl.que.jp/kdmsnr/wiki/bliki/?FluentInterface) を実装した。パーサは始めるための最小限のメソッドを提供するだけでいい。
 
-<scala>
+```scala
   /** adds an option invoked by `--name x`.
    * @param name name of the option
    */
@@ -80,27 +80,27 @@ class OptionDef[A: Read, C]() {
    */
   def opt[A: Read](x: Char, name: String): OptionDef[A, C] =
     opt[A](name) shortOpt(x)
-</scala>
+```
 
 頭文字のオプションのデータ型は、グルーピング (`-la` は `-l -a` と解釈される) のために `String` から `Char` に変更された。コールバックや説明文などの残りのパラメータは `OptionDef` へのメソッドとして後で呼び出すことができる:
 
-<scala>
+```scala
   opt[Int]("foo") action { (x, c) =>
     c.copy(foo = x) } text("foo is an integer property")
   opt[File]('o', "out") valueName("<file>") action { (x, c) =>
     c.copy(out = x) } text("out is a string property")
-</scala>
+```
 
 上の例で `text("...")` と `action {...}` は両方とも `OptionDef[A, C]` のメソッドで新しい `OptionDef[A, C]` を返す:
 
-<scala>
+```scala
   /** Adds description in the usage text. */
   def text(x: String): OptionDef[A, C] =
     _parser.updateOption(copy(_desc = x))
   /** Adds value name used in the usage text. */
   def valueName(x: String): OptionDef[A, C] =
     _parser.updateOption(copy(_valueName = Some(x)))
-</scala>
+```
 
 `Read` と fluent interface を併用することで 32個あったメソッドを 2つのオーバーロードに減らすことができた。API としてはこっちの方が覚えやすい。より重要なのは、これを使った使用コードが初見で読みやすくなったことだ。
 
@@ -108,7 +108,7 @@ class OptionDef[A: Read, C]() {
 
 型クラスの強力な側面として、既存のインスタンスを派生させて別のインスタンスを返すという抽象的なインスタンスを定義できることがある。 key=value インスタンスは 2つの `Read` インスタンスのペアとして以下のように実装されている:
 
-<scala>
+```scala
   implicit def tupleRead[A1: Read, A2: Read]: Read[(A1, A2)] = new Read[(A1, A2)] {
     val arity = 2
     val reads = { (s: String) =>
@@ -122,16 +122,16 @@ class OptionDef[A: Read, C]() {
       case -1     => throw new IllegalArgumentException("Expected a key=value pair")
       case n: Int => (s.slice(0, n), s.slice(n + 1, s.length))
     }
-</scala>
+```
 
 scopt2 のように `String=Int` をパースできるだけでなく、これは `Int=Boolean` のような組み合わせもパースできるようになった。以下に使用例をみてみる。
 
-<scala>
+```scala
   opt[(String, Int)]("max") action { case ((k, v), c) =>
     c.copy(libName = k, maxCount = v) } validate { x =>
     if (x._2 > 0) success else failure("Value <max> must be >0") 
   } keyValueName("<libname>", "<max>") text("maximum count for <libname>")
-</scala>
+```
 
 ### さらに Read
 
@@ -139,18 +139,18 @@ scopt2 のように `String=Int` をパースできるだけでなく、これ�
 
 `Read` に手を加えて値を取らない `opt[Unit]("verbose")` のようなフラグを扱えるようにした:
 
-<scala>
+```scala
   implicit val unitRead: Read[Unit] = new Read[Unit] {
     val arity = 0
     val reads = { (s: String) => () }
   }
-</scala>
+```
 
 ### specs2 2.0 (RC-1)
 
 ライブラリの書き換えを行う場合、テスト無しではやりたくはない。scopt3 は本体のコード以上に specs2 2.0 spec の行数がある。新しく追加された[文字列補間子](http://etorreborre.blogspot.com.au/2013/05/the-latest-release-of-specs2-2.html)によって acceptance spec が書きやすくなった。以下は [ImmutableParserSpec](https://github.com/scopt/scopt/blob/94b35beb4b9586d9200ec6577bfdf9cd5e9e28a9/src/test/scala/scopt/ImmutableParserSpec.scala) からの抜粋だ:
 
-<scala>
+```scala
 class ImmutableParserSpec extends Specification { def is =      s2"""
   This is a specification to check the immutable parser
   
@@ -175,7 +175,7 @@ class ImmutableParserSpec extends Specification { def is =      s2"""
     val result = intParser1.parse(args.toSeq, Config())
     result === None
   }
-</scala>
+```
 
 ### 出現回数
 
@@ -183,31 +183,31 @@ class ImmutableParserSpec extends Specification { def is =      s2"""
 
 scopt2 は、`arg`、 `argOpt`、 `arglist`、 `arglistOpt` という4種類の引数を実装していた。API を縮小させるため、scopt3 は `arg[A: Read](name: String): OptionDef[A, C]` のみを実装して、残りは fluent スタイルのメソッド `def minOccurs(n: Int)` と `def maxOccurs(n: Int)` を使ってサポートする。これを使って「糖衣構文」を DSL に提供することができる:
 
-<scala>
+```scala
   /** Requires the option to appear at least once. */
   def required(): OptionDef[A, C] = minOccurs(1)
   /** Chanages the option to be optional. */
   def optional(): OptionDef[A, C] = minOccurs(0)
   /** Allows the argument to appear multiple times. */
   def unbounded(): OptionDef[A, C] = maxOccurs(UNBOUNDED)
-</scala>
+```
 
 この結果、scopt3 は省略可能な引数のリストだけではなく、省略不可能なオプションもサポートする:
 
-<scala>
+```scala
 opt[String]('o', "out") required()
 arg[String]("<file>...") optional() unbounded()
-</scala>
+```
 
 ### カスタム validation
 
 fluent interface を使って、scopt3 はカスタム validation も提供する:
 
-<scala>
+```scala
 opt[Int]('f', "foo") action { (x, c) => c.copy(intValue = x) } validate { x =>
   if (x > 0) success else failure("Option --foo must be >0") } validate { x =>
   failure("Just because") }
-</scala>
+```
 
 複数の validate 節は全て評価され、全てが `success` に評価されたときのみ成功とされる。
 
@@ -217,17 +217,17 @@ scopt2 において、実装は `generic`、`immutable`、`mutable` という 3�
 
 scopt3 において、不変パーシングは `action` メソッドを用いて行われる:
 
-<scala>
+```scala
 opt[Int]('f', "foo") action { (x, c) =>
   c.copy(foo = x) } text("foo is an integer property")
-</scala>
+```
 
 可変パーシングは `foreach` を用いて行われる:
 
-<scala>
+```scala
 opt[Int]('f', "foo") foreach { x =>
   c = c.copy(foo = x) } text("foo is an integer property")
-</scala>
+```
 
 内部構造は可変パーサに統合された。これは妥協点だが、微妙に意味が異なる 2つの DSL cake があるよりはいいと思う。
 
@@ -235,7 +235,7 @@ opt[Int]('f', "foo") foreach { x =>
 
 パーサを統合する理由となった動機の一つとしてコマンドの追加がある。この機能は引数の名前そのものが意味を持ち、他のオプションなどを使える状態にする `git [commit|push|pull]` のようなものを定義する機能だ。
 
-<scala>
+```scala
 cmd("update") action { (_, c) =>
   c.copy(mode = "update") } text("update is a command.") children(
   opt[Unit]("not-keepalive") abbr("nk") action { (_, c) =>
@@ -243,7 +243,7 @@ cmd("update") action { (_, c) =>
   opt[Boolean]("xyz") action { (x, c) =>
     c.copy(xyz = x) } text("xyz is a boolean property")
 )
-</scala>
+```
 
 scopt3 が進むにつれて Leif さんから多くの役に立つ感想や指摘を tweet やコミットへのコメントという形でいただいた。例えば、 [efe45ed](https://github.com/scopt/scopt/commit/efe45ed99fbc8ceecde4eb0c6f000f7802b8fee1#commitcomment-3352444):
 
@@ -257,7 +257,7 @@ scopt3 が進むにつれて Leif さんから多くの役に立つ感想や指�
 
 以下が scopt3 の使用例だ:
 
-<scala>
+```scala
 val parser = new scopt.OptionParser[Config]("scopt") {
   head("scopt", "3.x")
   opt[Int]('f', "foo") action { (x, c) =>
@@ -288,7 +288,7 @@ parser.parse(args, Config()) map { config =>
 } getOrElse {
   // arguments are bad, usage message will have been displayed
 }
-</scala>
+```
 
 scopt2 同様に、これは自動的に usage text を生成する:
 

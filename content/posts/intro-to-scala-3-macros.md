@@ -201,7 +201,7 @@ It might be interesting to see the inferred types fully spelled out, but often t
 
 To see the structure of AST, we can use `Printer.TreeStructure.show(...)`:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -211,16 +211,16 @@ inline def showTree[A](inline a: A): String = ${showTreeImpl[A]('{ a })}
 def showTreeImpl[A: Type](a: Expr[A])(using Quotes): Expr[String] =
   import quotes.reflect.*
   Expr(Printer.TreeStructure.show(a.asTerm))
-</scala>
+```
 
 Let's try again:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> showTree(List(1).map(x => x + 1))
 val res0: String = Inlined(None, Nil, Apply(TypeApply(Select(Apply(TypeApply(Select(Ident("List"), "apply"), List(Inferred())), List(Typed(Repeated(List(Literal(IntConstant(1))), Inferred()), Inferred()))), "map"), List(Inferred())), List(Block(List(DefDef("$anonfun", List(TermParamClause(List(ValDef("x", Inferred(), None)))), Inferred(), Some(Apply(Select(Ident("x"), "+"), List(Literal(IntConstant(1))))))), Closure(Ident("$anonfun"), None)))))
-</scala>
+```
 
 Yes. This is the stuff. Note that this tree encoding may or may not be stable across Scala 3.x versions, so it might be safe not to rely too much on the exact details, and use the provided `unapply` extractors (I don't know if there's been a promise one way or the other). But this is useful tool to have to compare what the compiler would construct against what you need to construct synthetically.
 
@@ -228,7 +228,7 @@ Yes. This is the stuff. Note that this tree encoding may or may not be stable ac
 
 We don't typically need to construct `Literal(...)` tree in this way, but since it's the foundational tree, it's easier to explain on its own:
 
-<scala>
+```scala
 /** `TypeTest` that allows testing at runtime in a pattern match if a `Tree` is a `Literal` */
 given LiteralTypeTest: TypeTest[Tree, Literal]
 
@@ -260,13 +260,13 @@ trait LiteralMethods:
     def constant: Constant
   end extension
 end LiteralMethods
-</scala>
+```
 
 The abstract type `type Literal` represents the `Literal` tree, and `LiteralModule` describes the companion object `Literal`. Here we see that it provides `apply(...)`, `copy(...)`, and `unapply(...)`.
 
 Using this, we should be able implement `addOne(...)` macro that takes an `Int` literal and inlines with that number plus one at compile-time. Note that this is different from returning `n + 1`. `n + 1` would compute that at runtime. What we want is for the `*.class` to contain `2` if we passed in `1` so there's no calculation.
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -278,7 +278,7 @@ def addOne_badImpl(x: Expr[Int])(using Quotes): Expr[Int] =
   x.asTerm match
     case Inlined(_, _, Literal(IntConstant(n))) =>
       Literal(IntConstant(n + 1)).asExprOf[Int]
-</scala>
+```
 
 This looks too verbose without much benefit.
 
@@ -286,17 +286,17 @@ This looks too verbose without much benefit.
 
 For any types that form `FromExpr` typeclass instance, such as `Int`, it would be easier to use `.value` extension method on `Expr`, which is defined as follows:
 
-<scala>
+```scala
 def value(using FromExpr[T]): Option[T] =
   given Quotes = Quotes.this
   summon[FromExpr[T]].unapply(self)
-</scala>
+```
 
 Similarly, there's `ToExpr` typeclass that can use `Expr.apply(...)` to construct `Expr` easier.
 
 So, using these and `.value`'s sibling `.valueOrError`, `addOne(...)` macro can be written as one-liner macro:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -305,7 +305,7 @@ inline def addOne(inline x: Int): Int = ${addOneImpl('{x})}
 
 def addOneImpl(x: Expr[Int])(using Quotes): Expr[Int] =
   Expr(x.valueOrError + 1)
-</scala>
+```
 
 Not only is this simpler, we're not using Reflection API, so it's more typesafe.
 
@@ -315,7 +315,7 @@ As another demonstration of a feature available to macros, let's look into `Posi
 
 Here's a macro that implements `Source.line` function.
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -327,11 +327,11 @@ object Source:
     val pos = Position.ofMacroExpansion
     Expr(pos.startLine + 1)
 end Source
-</scala>
+```
 
 This can be used like this:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 object PositionTest extends verify.BasicTestSuite:
@@ -339,13 +339,13 @@ object PositionTest extends verify.BasicTestSuite:
     assert(Source.line == 5)
   }
 end PositionTest
-</scala>
+```
 
 #### Apply
 
 Most practical macros would involve method invocations, so let's look at `Apply`. Here's an example of a macro that returns `addOne` result in a `List`.
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -355,13 +355,13 @@ inline def addOneList(inline x: Int): List[Int] = ${addOneListImpl('{x})}
 def addOneListImpl(x: Expr[Int])(using Quotes): Expr[List[Int]] =
   val inner = Expr(x.valueOrError + 1)
   '{ List($inner) }
-</scala>
+```
 
 Instead of manually creating `Apply(...)` tree, we used plain Scala to write the `List(...)` invocation, splice the inner expression in, and quote the whole thing using `'{ ... }`. This is really nice because accurately describing `List(...)` method is tedious, considering that it's actually `_root_.scala.collection.immutable.List.apply[Int](...)`.
 
 In general however, method invocation comes up fairly frequently so there are a few convenient extension methods on all `Term`.
 
-<scala>
+```scala
 /** A unary apply node with given argument: `tree(arg)` */
 def appliedTo(arg: Term): Term
 
@@ -378,11 +378,11 @@ def appliedToArgss(argss: List[List[Term]]): Term
 
 /** The current tree applied to (): `tree()` */
 def appliedToNone: Apply
-</scala>
+```
 
 Here's a silly macro that adds one and then calls `toString` method.
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -393,7 +393,7 @@ def addOneToStringImpl(x: Expr[Int])(using Quotes): Expr[String] =
   import quotes.reflect.*
   val inner = Literal(IntConstant(x.valueOrError + 1))
   Select.unique(inner, "toString").appliedToNone.asExprOf[String]
-</scala>
+```
 
 #### Select
 
@@ -407,7 +407,7 @@ def addOneToStringImpl(x: Expr[Int])(using Quotes): Expr[String] =
 
 We can define a value `x` and return a reference to it using quotes as follows:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -420,11 +420,11 @@ def addOneXImpl(x: Expr[Int])(using Quotes): Expr[Int] =
     val x = $rhs
     x
   }
-</scala>
+```
 
 But let's say for some reason you want to do this programmatically. First you need to create a symbol for the new `val`. For that you'd need `TypeRepr` and `Flags`.
 
-<scala>
+```scala
 inline def addOneXv2(inline x: Int): Int = ${addOneXv2Impl('{x})}
 
 def addOneXv2Impl(x: Expr[Int])(using Quotes): Expr[Int] =
@@ -442,7 +442,7 @@ def addOneXv2Impl(x: Expr[Int])(using Quotes): Expr[Int] =
     List(vd),
     Ref(sym)
   ).asExprOf[Int]
-</scala>
+```
 
 #### Symbol and Ref
 
@@ -455,7 +455,7 @@ Symbols are created when we define entities like `val`, and we can later use tha
 
 The example of checking if a given type `A` is a case class or not is a good example of obtaining `TypeRepr`.
 
-<scala>
+```scala
 import scala.quoted.*
 
 inline def isCaseClass[A]: Boolean = ${ isCaseClassImpl[A] }
@@ -464,11 +464,11 @@ private def isCaseClassImpl[A: Type](using qctx: Quotes) : Expr[Boolean] =
   import qctx.reflect.*
   val sym = TypeRepr.of[A].typeSymbol
   Expr(sym.isClassDef && sym.flags.is(Flags.Case))
-</scala>
+```
 
 Here's the `TypeRepr` API.
 
-<scala>
+```scala
 /** A type, type constructors, type bounds or NoPrefix */
 type TypeRepr
 
@@ -594,11 +594,11 @@ trait TypeReprMethods {
 
   end extension
 }
-</scala>
+```
 
 Let's try using some of the extension methods under `TypeRepr`. Here's a macro to check if two types are equal:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -608,11 +608,11 @@ inline def typeEq[A1, A2]: Boolean = ${ typeEqImpl[A1, A2] }
 def typeEqImpl[A1: Type, A2: Type](using Quotes): Expr[Boolean] =
   import quotes.reflect.*
   Expr(TypeRepr.of[A1] =:= TypeRepr.of[A2])
-</scala>
+```
 
 `typeEq` can be used as follows:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> typeEq[scala.Predef.String, java.lang.String]
@@ -620,7 +620,7 @@ val res0: Boolean = true
 
 scala> typeEq[Int, java.lang.Integer]
 val res1: Boolean = false
-</scala>
+```
 
 #### AppliedType
 
@@ -628,7 +628,7 @@ One of the information that is erased is type parameters in a parameterized type
 
 We can use `TypeTest[TypeRepr, AppliedType]`, but the compiler performs some magic so we can write it as a normal pattern matching. Here's a macro to return the type parameter names.
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -643,11 +643,11 @@ def paramInfoImpl[A: Type](using Quotes): Expr[List[String]] =
     case AppliedType(_, args) => args
     case _                    => Nil
   Expr(targs.map(_.show))
-</scala>
+```
 
 This can be used like this:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> paramInfo[List[Int]]
@@ -655,7 +655,7 @@ val res0: List[String] = List(scala.Int)
 
 scala> paramInfo[Int]
 val res1: List[String] = List()
-</scala>
+```
 
 #### Select as extractor
 
@@ -663,18 +663,18 @@ Thus far we have been using plain values like `1` to pass to the macros. We can 
 
 For example we can create a dummy function `echo`:
 
-<scala>
+```scala
 import scala.annotation.compileTimeOnly
 
 object Dummy:
   @compileTimeOnly("echo can only be used in lines macro")
   def echo(line: String): String = ???
 end Dummy
-</scala>
+```
 
 We can implement `Source.lines(...)` macro that will substitute `Dummy.echo(...)` with the input prepended by the line number.
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.annotation.compileTimeOnly
@@ -717,11 +717,11 @@ object Dummy:
   @compileTimeOnly("echo can only be used in lines macro")
   def echo(line: String): String = ???
 end Dummy
-</scala>
+```
 
 This is tested as follows:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 object LinesTest extends verify.BasicTestSuite:
@@ -735,7 +735,7 @@ object LinesTest extends verify.BasicTestSuite:
     ))
   }
 end LinesTest
-</scala>
+```
 
 #### Quotes as extractor
 
@@ -745,7 +745,7 @@ In the above, I'm doing a lot of work just to extract the argument of `List(...)
 
 Here's an improved version of `lines(...)` macro that substitutes `Dummy.echo(...)`.
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.annotation.compileTimeOnly
@@ -774,7 +774,7 @@ object Dummy:
   @compileTimeOnly("echo can only be used in lines macro")
   def echo(line: String): String = ???
 end Dummy
-</scala>
+```
 
 Note that we were able to remove the awkward symbol lookup for `Dummy.echo` method as well.
 
@@ -784,7 +784,7 @@ Going back to `TypeRepr`, there's a common pattern where you want to construct s
 
 Let's create a macro that takes two parameters `a: A` and `String`, and if the second parameter is `"String"` declare an `Either[String, A]`, and if the second parameter is `"List[String]"`, make `Either[List[String], A]`. We can then do some operation on top like `flatMap` to check if the value is zero.
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 import scala.quoted.*
@@ -811,11 +811,11 @@ def rightImpl[A: Type](a: Expr[A], which: Expr[String])(using Quotes): Expr[Stri
         }
         e1.toString
       }
-</scala>
+```
 
 In other words, when we need to manipulate type information within a macro we summon `TypeRepr[_]`, but when it's time to splice a type back into the Scala code, we need to create `Type[_]`. Here's how we can use this:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> right(1, "String")
@@ -826,7 +826,7 @@ val res1: String = Left(empty not allowed)
 
 scala> right[String](null, "List[String]")
 val res2: String = Left(List(empty not allowed))
-</scala>
+```
 
 Also this is an example of a macro where the input and output are pre-determined by the function signature, but the internal implementation create different types depending on the input.
 
@@ -834,18 +834,18 @@ Also this is an example of a macro where the input and output are pre-determined
 
 Restligeist macro is a macro that immediately fails. One use case is displaying a migration message for a removed API. In Scala 3, it's a one-liner to cause a user-land compilation error:
 
-<scala>
+```scala
 package com.eed3si9n.macroexample
 
 object SomeDSL:
   inline def <<=[A](inline a: A): Option[A] =
     compiletime.error("<<= is removed; migrated to := instead")
 end SomeDSL
-</scala>
+```
 
 Here's how it would look using it:
 
-<scala>
+```scala
 scala> import com.eed3si9n.macroexample.*
 
 scala> SomeDSL.<<=((1, "foo"))
@@ -853,7 +853,7 @@ scala> SomeDSL.<<=((1, "foo"))
 1 |SomeDSL.<<=((1, "foo"))
   |^^^^^^^^^^^^^^^^^^^^^^^
   |<<= is removed; migrated to := instead
-</scala>
+```
 
 ### Summary
 

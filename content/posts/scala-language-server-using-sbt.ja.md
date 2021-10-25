@@ -48,7 +48,7 @@ type ServerCapabilities {
 
 これは、疑似 case class と JSON バインディングを生成するのに使われる。リクエスト・レスポンスのコードはこんな感じになる:
 
-<scala>
+```scala
   protected def onRequestMessage(request: JsonRpcRequestMessage): Unit = {
 
     import sbt.internal.langserver.codec.JsonProtocol._
@@ -60,13 +60,13 @@ type ServerCapabilities {
       case _ => ()
     }
   }
-</scala>
+```
 
 ### textDocument/didSave
 
 僕がエディタと sbt で通常やっていることにならってファイルの保存時に `compile` を呼んでみよう。マルチ・プロジェクトを無視すると、パターンマッチングを追加するだけの簡単な処理となる。
 
-<scala>
+```scala
   protected def onRequestMessage(request: JsonRpcRequestMessage): Unit = {
 
     import sbt.internal.langserver.codec.JsonProtocol._
@@ -80,7 +80,7 @@ type ServerCapabilities {
       case _ => ()
     }
   }
-</scala>
+```
 
 ### textDocument/publishDiagnostics
 
@@ -123,7 +123,7 @@ type Diagnostic {
 
 Zinc では、コンパイラ警告やエラーは `xsbti.Problem` と `xsbti.Position` というデータ型で送られ、それぞれ Scala コンパイラの reporter と [`Position`](http://www.scala-lang.org/api/2.12.3/scala-reflect/scala/reflect/api/Position.html) にもとづいている。VS Code は警告の通知に `Diagnostic` を用いるので、`xsbt.Problem` から変換する必要がある:
 
-<scala>
+```scala
   protected def onObjectEvent(event: ObjectEvent[_]): Unit = {
     import sbt.internal.langserver.codec.JsonProtocol._
 
@@ -161,7 +161,7 @@ Zinc では、コンパイラ警告やエラーは `xsbti.Problem` と `xsbti.Po
       )
     }
   }
-</scala>
+```
 
 保存ボタンを押すと、コンパイラエラーが表示されるようになった。
 

@@ -19,7 +19,7 @@ aliases:     [ /node/207 ]
 
 レポジトリ情報を取得する使用例はこんな感じだ:
 
-<scala>
+```scala
 scala> import gigahorse._, gigahorse.github.Github, scala.concurrent._, duration._
 
 scala> val client = Github.localConfigClient
@@ -30,7 +30,7 @@ scala> Gigahorse.withHttp { http =>
          Await.result(f, 2.minutes)
        }
 res0: gigahorse.github.response.Repo = Repo(https://api.github.com/repos/eed3si9n/gigahorse-github, gigahorse-github, 64614221, User(https://api.github.com/users/eed3si9n, eed3si9n, 184683, Some(https://github.com/eed3si9n), Some(https://avatars.githubusercontent.com/u/184683?v=3), Some(), Some(User), Some(true), None, None), eed3si9n/gigahorse-github, Some(Gigahorse plugin for Github API v3),...
-</scala>
+```
 
 gigahorse-github 本体に興味がある人は、[README][1] にドキュメンテーションがあるのでそちらを参照してほしい。
 

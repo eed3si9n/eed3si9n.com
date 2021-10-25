@@ -27,7 +27,7 @@ On my development machine, I currently do not have `scala` on my path. It's not 
 
 One solution I'm trying out now is sbt's [script runner][2]:
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error
 
 /***
@@ -35,7 +35,7 @@ ThisBuild / scalaVersion := "2.13.4"
 */
 
 println("hello")
-</scala> <!-- ***/ -->
+``` <!-- ***/ -->
 
 Next,
 
@@ -49,7 +49,7 @@ Now we have a script that specifies its own Scala version to 2.13.4. Including t
 
 Here's an example of reading from stdandard input. Following the example in Przemek's 'Truly standalone Scala scripts' talk, here's a script that would read an HTML file from the stdin, and print out all the URLs in it.
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error 
 /***
 ThisBuild / scalaVersion := "2.13.4"
@@ -66,7 +66,7 @@ for {
   line <- stdinStr.linesIterator
   m <- r.findAllMatchIn(line)
 } println(m)
-</scala> <!-- ***/ -->
+``` <!-- ***/ -->
 
     $ chmod +x urlgrep.scala
     $ curl -s https://www.scala-sbt.org/ | ./urlgrep.scala
@@ -95,7 +95,7 @@ A few lines of familiar looking Scala code, and we got it done.
 
 For a slighly more complicated example, I want to traverse all `*.rst` file in all the subdirectories of `src/` without using `find` command. sbt's `sbt.IO` is good at this, and I'm familiar with it.
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error 
 /***
 ThisBuild / scalaVersion := "2.13.4"
@@ -113,7 +113,7 @@ val srcDir = file("./src/")
 
 val fs: Seq[File] = (srcDir ** "*.rst").get()
 fs foreach { x => println(x.toString) }
-</scala> <!-- ***/ -->
+``` <!-- ***/ -->
 
 `sbt.io.syntax` object contains an implicit converter from `File` to `PathFinder`, which implements `**` method. This looks for the file pattern into subdirectories. Here's what you'd see if you run `script.scala`:
 
@@ -129,7 +129,7 @@ Now that we have the list of files, let's try reading the lines from each file a
 
 Reading and writing of lines are called `IO.readLines` and `IO.writeLines` respectively. Here's a script that adds "!" at the end of each line:
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error 
 /***
 ThisBuild / scalaVersion := "2.13.4"
@@ -157,7 +157,7 @@ def processFile(f: File): Unit = {
 
 val fs: Seq[File] = (srcDir ** "*.rst").get()
 fs foreach { processFile }
-</scala> <!-- ***/ -->
+``` <!-- ***/ -->
 
 Here's the output:
 
@@ -175,21 +175,21 @@ The reStructuredText files I have contain three interpreted text roles (`doc`, `
 
 First, construct a pure function generator that removes a single role:
 
-<scala>
+```scala
 def removeRole(role: String): String => String =
   _.replaceAll("""(:""" + role + """:)(\`[^`]+\`)""", """$2""")
-</scala> <!--_ -->
+``` <!--_ -->
 
 Next, chain the functions using `andThen` method on `Function1`:
 
-<scala>
+```scala
 val processRest: String => String =
   removeRole("doc") andThen removeRole("key") andThen removeRole("ref")
-</scala>
+```
 
 To unify the single ticks and double ticks, convert all double ticks into single ticks first, and then make them all double ticks.
 
-<scala>
+```scala
 def nTicks(n: Int): String = """(\`{""" + n.toString + """})"""
 def toSingleTicks: String => String = 
   _.replaceAll(nTicks(2), "`")
@@ -198,7 +198,7 @@ def toDoubleTicks: String => String =
 val preprocessRest: String => String =
   removeRole("doc") andThen removeRole("key") andThen removeRole("ref") andThen 
   toSingleTicks andThen toDoubleTicks
-</scala>
+```
 
 ### sys.process
 
@@ -206,10 +206,10 @@ Another common operation in shell scripting is calling other programs. sbt's `Pr
 
 `Process.apply` takes `Seq[String]` and returns `ProcessBuilder`, and this provides `lazyLines` method that returns the resulting lines from running the given shell command. For example, here's how to run `pandoc`:
 
-<scala>
+```scala
 def runPandoc(f: File): Seq[String] =
   Process(Seq("pandoc", "-f", "rst", "-t", "markdown", f.toString)).lazyLines.toVector
-</scala>
+```
 
 ### processing args
 
@@ -217,7 +217,7 @@ One of the motivation to use Scala is to reduce reliance on Unix commands, but i
 
 The following is another script that I wrote to extract custom `howto` tag.
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error 
 /***
 ThisBuild / scalaVersion := "2.13.4"
@@ -268,7 +268,7 @@ def processFile(f: File): Unit = {
 }
 
 args foreach { x => processFile(file(x)) }
-</scala>
+```
 
 ### summary
 

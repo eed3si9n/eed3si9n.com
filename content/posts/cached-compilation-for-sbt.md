@@ -79,9 +79,9 @@ The second part of the proposal is to remove timestamp as the invalidation key. 
 
 Here's the workflow using my locally built sbt 1.4.0-SNAPSHOT. First we need to add the following line to `build.sbt`:
 
-<scala>
+```scala
 ThisBuild / pushRemoteCacheTo := Some(MavenCache("local-cache", file("/tmp/remote-cache")))
-</scala>
+```
 
 This could be any Maven-style repository. You'd likely not want to mix this with the repository you use for the actual artifacts.
 

@@ -37,7 +37,7 @@ sjons の型クラスによるシリアライゼーションは David MacIver �
 
 これは sjson でデフォルトのシリアライゼーションプロトコルを使った REPL セッションの一例だ...
 
-<scala>
+```scala
 scala> import sjson.json._
 import sjson.json._
 
@@ -55,11 +55,11 @@ res0: dispatch.json.JsValue = "debasish"
 
 scala> fromjson[String](res0)
 res1: String = debasish
-</scala>
+```
 
 ここで Scala のジェネリックなデータ型である `List` を考える．デフォルトのプロトコルはこのように動く...
 
-<scala>
+```scala
 scala> val list = List(10, 12, 14, 18)
 list: List[Int] = List(10, 12, 14, 18)
 
@@ -68,7 +68,7 @@ res2: dispatch.json.JsValue = [10, 12, 14, 18]
 
 scala> fromjson[List[Int]](res2)
 res3: List[Int] = List(10, 12, 14, 18)
-</scala>
+```
 
 ### 任意のクラスとカスタムプロトコル
 
@@ -76,7 +76,7 @@ res3: List[Int] = List(10, 12, 14, 18)
 
 例えば，`Person` という抽象体を定義する Scala の case class を考えてみよう．しかし，これをどうやって JSON にシリアル化してまた戻すのかを見る前に，まずは sjson の*ジェネリックなシリアライゼーションプロトコル*を見てみよう:
 
-<scala>
+```scala
 trait Writes[T] {
   def writes(o: T): JsValue
 }
@@ -86,11 +86,11 @@ trait Reads[T] {
 }
 
 trait Format[T] extends Writes[T] with Reads[T]
-</scala>
+```
 
 `Format[]` はシリアライゼーションのためのコントラクト(契約)を規定する型クラスだ．あなた独自の抽象体のためには，それに対する `Format[]` 型クラスの実装を提供する必要がある．何らかの Scala モジュールの中で実際に `Person` に対する型クラスを実装してみよう．Scala の型クラスを使った設計について復習すると，モジュールは言語が提供する静的型検査によって適当なインスタンスを選択することを可能としている．これは Haskell には真似できない．
 
-<scala>
+```scala
 object Protocols {
   // 人を表す抽象体
   case class Person(lastName: String, firstName: String, age: Int)
@@ -116,11 +116,11 @@ object Protocols {
     }
   }
 }
-</scala>
+```
 
 プロトコルの実装に Nathan Hamblen による [dispatch-json](http://github.com/n8han/Databinder-Dispatch/tree/master/json/) ライブラリが使われていることに注目してほしい．基本的には `writes` と `reads` というメソッドが `Person` オブジェクトがどのように JSON シリアル化するのかということを規定している．Scala REPL を起ち上げてどう動くか見てみよう:
 
-<scala>
+```scala
 scala> import sjson.json._
 import sjson.json._
 
@@ -141,11 +141,11 @@ res1: dispatch.json.JsValue = {"lastName" : "ghosh", "firstName" : "debasish", "
 
 scala> fromjson[Person](res1)
 res2: sjson.json.Protocols.Person = Person(ghosh,debasish,20)
-</scala>
+```
 
 これでオブジェクトの JSON構造へシリアル化して，またオブジェクトに戻すことができた．`tojson` と `fromjson` というメソッドは型クラス `Format` を*暗黙*(implicit)のパラメータとして利用する．この二つのメソッドを定義する Scala モジュールはこのようになっている:
 
-<scala>
+```scala
 object JsonSerialization {
   def tojson[T](o: T)(implicit tjs: Writes[T]): JsValue = {
     tjs.writes(o)
@@ -155,7 +155,7 @@ object JsonSerialization {
     fjs.reads(json)
   }
 }
-</scala>
+```
 
 ### 冗長すぎ?
 
@@ -163,7 +163,7 @@ object JsonSerialization {
 
 case class のみに使える簡潔な API を使ってどのようにして独自のクラスのためのプロトコルに拡張できるかを見てみよう．REPL のセッションだ...
 
-<scala>
+```scala
 scala> case class Shop(store: String, item: String, price: Int)
 defined class Shop
 
@@ -187,6 +187,6 @@ res4: dispatch.json.JsValue = {"store" : "Shoppers Stop", "item" : "dress materi
 
 scala> fromjson[Shop](res4)
 res5: Shop = Shop(Shoppers Stop,dress material,1000)
-</scala>
+```
 
 `asProduct3` メソッドが裏で何をやっているのか興味がある人は是非ソースを見てほしい．

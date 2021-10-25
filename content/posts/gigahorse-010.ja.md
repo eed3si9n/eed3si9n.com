@@ -30,7 +30,7 @@ aliases:     [ /node/205 ]
 
 Gigahorse 0.1.0 をリリースした。これは Scala のための HTTP クライアントで、内部にAsync Http Client を使っている。詳しくは [Gigahorse ドキュメント][1]を書いたので、それを参照してほしい。ライブラリがどういう感じなのかを例でみるとこんな感じだ。
 
-<scala>
+```scala
 scala> import gigahorse._
 scala> import scala.concurrent._, duration._
 scala> Gigahorse.withHttp(Gigahorse.config) { http =>
@@ -42,7 +42,7 @@ scala> Gigahorse.withHttp(Gigahorse.config) { http =>
          val f = http.run(r, Gigahorse.asString andThen {_.take(60)})
          Await.result(f, 120.seconds)
        }
-</scala>
+```
 
 <!--more-->
 
@@ -77,34 +77,34 @@ Gigahorse で使われている immutable なデータ型は [sbt-datatype][data
 
 擬似 case class を使う理由は、バイナリ互換を保ったまま API の変更を行うようにするためだ。これを growable と言ったりする。`since` フィールドを使うことで複数の `apply` コンストラクタを生成することができる。また、バイナリ互換の無い `unapply` は生成せず、`copy` も内部では使っているが外部には公開していない。`copy` の代わりに fluent スタイルのメソッドを生成する:
 
-<scala>
+```scala
   def withConnectTimeout(connectTimeout: scala.concurrent.duration.Duration): Config = {
     copy(connectTimeout = connectTimeout)
   }
-</scala>
+```
 
 使ってみていくつか追加の機能を付ける必要があって、その一つは手書きで便利関数を追加できる `extra` というフィールドだ。例えばこれを使って `Some(...)` のラッピングを行う:
 
-<scala>
+```scala
   def withAuth(auth: Realm): Config = copy(authOpt = Some(auth))
-</scala>
+```
 
 ### 関数を使う
 
 Gigahorse の API 設計は [@n8han][@n8han] の [Dispatch Reboot][dispatch] にも影響を受けている。具体的には、Dispatch は `Response => A` 関数を使って初っ端からレスポンスを変換することができるが、WS API は返ってきた `Future` に map をかける必要がある。Gigahorse はどちらのスタイルも使えるけども、ドキュメントは `http.run(r, f)` を強調して書かれている:
 
-<scala>
+```scala
 val f = http.run(r, Gigahorse.asString andThen {_.take(60)})
-</scala>
+```
 
 ### Either を使う
 
 `Future[A]` から `Future[Either[Throwable, A]]` への持ち上げ (lifting) も Dispatch からの影響だと言える。LGPL を回避するために実装は見てないけども、Dispatch は `Future` に implicit で `either` という拡張メソッドを付けている。
 僕は implicit をここでは使いたくなかったので、`FutureLifter` というちょっと雑な方法を考えた:
 
-<scala>
+```scala
 val f = http.run(r, Gigahorse.asEither map { Gigahorse.asString })
-</scala>
+```
 
 `asEither` はなんとなく関数っぽく見えるけど、`Right(...)` に map するだけじゃなくて `Left(...)` に `recoverWith(...)` するという作業もしている。それはそれでいいんだけども、複数の `Future[Either[Throwable, A]]` を合成することになると結局 Cats ([Future と Either の積み上げ][stacking]) とか Scalaz とか [@wheaties][@wheaties] の [AutoLift][AutoLift] が必要になるんじゃないかと思う。
 

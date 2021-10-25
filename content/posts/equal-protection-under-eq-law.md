@@ -39,7 +39,7 @@ The bar freezes. The person who joined turns back to the camera and says:
 
 The above is how I visualize the expression problem. Typeclass allows datatypes to acquire capabilities as an add-on, and provides a solution to the expression problem. In Scala 2.x typeclass and generic operators can be expressed as implicits. Scala 3.x splits these concepts as `given` instances and extension methods.
 
-<scala>
+```scala
 scala> trait Powerable[A]
          def pow(a: A, b: A): A
       
@@ -62,7 +62,7 @@ val res0: Int = 1
 
 scala> 2 ** 2
 val res1: Int = 4
-</scala>
+```
 
 This ability to extend the language after the fact is one of the fundamental aspects to a modern statically typed language.
 
@@ -79,7 +79,7 @@ Spire runs into this issue. In 2014, Bill Venners [reported][2]:
 
 > I also noticed that `==` is overloaded in some places, leading to apparent inconsistencies, like:
 
-<scala>
+```scala
 scala> import spire.math._
 import spire.math._
 
@@ -94,7 +94,7 @@ scala> 3 == u
               3 == u
                 ^
 res7: Boolean = false
-</scala>
+```
 
 Erik Osheim's reply says:
 
@@ -104,10 +104,10 @@ Erik Osheim's reply says:
 
 [Multiversal Equality][dotty-multiversal] in Dotty will not resolve this discrimination against custom number types either because unlike a normal typeclass `Eql` has no implementation:
 
-<scala>
+```scala
 @implicitNotFound("Values of types ${L} and ${R} cannot be compared with == or !=")
 sealed trait Eql[-L, -R]
-</scala>
+```
 
 This means that `Int`'s `==` operator will still be used even if we introduce a given instance for `Eql[Int, UInt]`.
 
@@ -115,7 +115,7 @@ This means that `Int`'s `==` operator will still be used even if we introduce a 
 
 Starting from Scala 3.x, the user can opt-into `strictEquality` where `Int` will no longer equal with types like `String`, but `Long` and `Int` will be compared because of there's a `Eql[Number, Number]` instance for built-in numbers.
 
-<scala>
+```scala
 sbt:dotty-simple> console
 
 scala> import scala.language.strictEquality
@@ -129,11 +129,11 @@ scala> val oneI = 1; val oneL = 1L; oneI == oneL
 val oneI: Int = 1
 val oneL: Long = 1
 val res1: Boolean = true
-</scala>
+```
 
 For the sake of consistency, we should remove this given instance. Removing the Java-like comparison would also open the door for removing the need for cooperative equality in boxed primitive types in the future. In the non-cooperative world, `UInt` and `Int` could just fail to be compared:
 
-<scala>
+```scala
 scala> class UInt(val signed: Int) extends AnyVal
       
        object UInt
@@ -151,7 +151,7 @@ scala> 3 == UInt(3)
 1 |3 == UInt(3)
   |^^^^^^^^^^^^
   |Values of types Int and UInt cannot be compared with == or !=
-</scala>
+```
 
 ### constant expression
 
@@ -167,14 +167,14 @@ Dotty [dropped weak conformance][dotty-weak] and introduced [constant expression
 
 This seems like a somewhat ad-hoc fix for bad cases of [lubbing][lubbing]. For example it won't work once it's nested into Option:
 
-<scala>
+```scala
 scala> List(Option(1), Option(1L))
 val res2: List[Option[Int | Long]] = List(Some(1), Some(1))
-</scala>
+```
 
 Using `FromDigits` we can coerce `Int` literal into `UInt`, but it doesn't seem to participate into the constant expression conversion:
 
-<scala>
+```scala
 scala> import scala.util.FromDigits
 
 scala> given FromDigits[UInt]
@@ -189,7 +189,7 @@ val res4: List[AnyVal] = List(3, rs$line$3$UInt@3)
 
 scala> List(3.0, 3)
 val res5: List[Double] = List(3.0, 3.0)
-</scala>
+```
 
 It seems unfair that `UInt` cannot participate in the vararg conversion.
 
@@ -197,30 +197,30 @@ It seems unfair that `UInt` cannot participate in the vararg conversion.
 
 If constant conversion could be based on the `FromDigits` typeclass, I wonder if this be used for `==` as opposed to the cooperative equality. In other words, an expression like this would be an error:
 
-<scala>
+```scala
 scala> val oneI = 1; val oneL = 1L; oneI == oneL
-</scala>
+```
 
 but
 
-<scala>
+```scala
 scala> 1 == 1L
-</scala>
+```
 
 can be converted into
 
-<scala>
+```scala
 scala> (1: Long) == 1L
-</scala>
+```
 
 This could be a way of retaining `1 == 1L` without creating second-class numeric types. However, this could quickly get out of hand:
 
-<scala>
+```scala
 scala> Option(1) == Option(1L)
 1 |Option(1) == Option(1L)
   |^^^^^^^^^^^^^^^^^^^^^^^
   |Values of types Option[Int] and Option[Long] cannot be compared with == or !=
-</scala>
+```
 
 So extending constant expression conversion to `==` would probably be a bad idea.
 

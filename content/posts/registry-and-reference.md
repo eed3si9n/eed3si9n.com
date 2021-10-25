@@ -17,7 +17,7 @@ There's a "pattern" that I've been thinking about, which arises in some situatio
 
 To motivate this, consider the following case class:
 
-<scala>
+```scala
 scala> case class User(name: String, parents: List[User])
 defined class User
 
@@ -33,7 +33,7 @@ charles: User = User(Charles,List(User(Bob,List(User(Alice,List())))))
 scala> val users = List(alice, bob, charles)
 users: List[User] = List(User(Alice,List()), User(Bob,List(User(Alice,List()))),
   User(Charles,List(User(Bob,List(User(Alice,List()))))))
-</scala>
+```
 
 The important part is that it contains `parents` field, which contains a list of other users.
 Now let's say you want to turn `users` list of users into JSON.
@@ -69,28 +69,28 @@ What I want to do is come up with a data structure that works for an arbitrary p
 
 Before getting into the implementation, let's look at how this will be used.
 
-<scala>
+```scala
 scala> case class UserRef(name: String)
 defined class UserRef
-</scala>
+```
 
 You first have to define an appropriate reference type for `User`. This would the addressing system for your value such as ids, and URLs.
 
-<scala>
+```scala
 scala> implicit val userReg = Registerable[User, UserRef](u => UserRef(u.name))
 userReg: sbt.Registerable.Aux[User,UserRef] = sbt.Registerable$$anon$1@69154910
-</scala>
+```
 
 Next you have to tell how one can create `UserRef` from a user.
 
-<scala>
+```scala
 scala> val aliceRef: UserRef = Registry[User].append(alice)
 aliceRef: UserRef = UserRef(Alice)
-</scala>
+```
 
 When you append `alice` to `Registry[User]`, it returns a reference to Alice.
 
-<scala>
+```scala
 scala> val bobRef: UserRef = Registry[User].append(bob)
 bobRef: UserRef = UserRef(Bob)
 
@@ -99,7 +99,7 @@ charlesRef: UserRef = UserRef(Charles)
 
 scala> val xs = List(aliceRef, bobRef, charlesRef)
 xs: List[UserRef] = List(UserRef(Alice), UserRef(Bob), UserRef(Charles))
-</scala>
+```
 
 We will be using `UserRef` in place of actual `User`. To express a list of users, we can now use `List[UserRef]`. `xs` can then be persisted as `["Alice", "Bob", "Charles"]`.
 
@@ -109,14 +109,14 @@ Another way of looking at this, is that we are trying to provide a form of indir
 
 If you need to turn the reference into the actual `User`s, you can look them up from the registry:
 
-<scala>
+```scala
 scala> val users = xs map { x => Registry[User].get(x).get }
 users: List[User] = List(User(Alice,List()), User(Bob,List(User(Alice,List()))), User(Charles,List(User(Bob,List(User(Alice,List()))))))
-</scala>
+```
 
 Note that `Registry` acts as a `Map` and it will only accept the reference type for the given datatype. If you pass in an `Int` by mistake, it will be caught during compilation.
 
-<scala>
+```scala
 scala> val bad = Registry[User].get(0)
 <console>:15: error: inferred type arguments [Int] do not conform to method get's type parameter bounds [B <: userReg.R]
        val bad = Registry[User].get(0)
@@ -126,13 +126,13 @@ scala> val bad = Registry[User].get(0)
  required: B
        val bad = Registry[User].get(0)
                                     ^
-</scala>
+```
 
 ### implemetation
 
 There are two parts the implementation. First is the `Registerable`:
 
-<scala>
+```scala
 trait Registerable[A] {
   type R
   def toRef(a: A): R
@@ -147,14 +147,14 @@ object Registerable {
     def toRef(a: A): R = toRef0(a)
   }
 }
-</scala>
+```
 
 Since we need the datatype `A` and the reference type `R`, the typeclass instance takes two type parameters.
 But at the same time we want to look up this instance only using `A`. To achieve this we can use `Aux` type, which is a technique popularized by Miles Sabin's shapeless.
 
 Next part is `Registry`, which is a mutable concurrent TrieMap wrapper.
 
-<scala>
+```scala
 import scala.collection.concurrent.TrieMap
 
 object Registry {
@@ -177,7 +177,7 @@ class Registry[A, R](ev: Registerable.Aux[A, R]) {
     key
   }
 }
-</scala>
+```
 
 The only notable bit is `def get`, which accepts a type parameter `B` with a constraint `B <: R`.
 We can also use `B =:= R` as an implicit proof, but `B <: R` would allow subtypes of `R` as a key as well.
@@ -204,19 +204,19 @@ Even though global object is not ideal, I think it's helpful in a situation wher
 
 See `ModuleID` for example. This is a frequently occuring datatype that the build user will define.
 
-<scala>
+```scala
 final case class ModuleID(organization: String, name: String, revision: String,
   configurations: Option[String] = None, ....
   crossVersion: CrossVersion = CrossVersion.Disabled)
-</scala>
+```
 
 One of the fields on `ModuleID` is of type `CrossVersion`. This is a sealed trait whose children includes a function wrapper called `Binary`:
 
-<scala>
+```scala
   final class Binary(val remapVersion: String => String) extends CrossVersion {
     override def toString = "Binary"
   }
-</scala>
+```
 
 If we agree that we can't persist  `String => String`, then basically `ModuleID` and the entire dependency graph are not possible to persist. To persist the dependency graph, sbt 0.13 currently throws out the function value when it persists the dependency graph into JSON, and uses the default value, which is the identity function. (This should be ok since the persisted `ModuleID` only appears in `UpdateReport`, and not used during the actual dependency resolution.)
 

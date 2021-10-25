@@ -43,9 +43,9 @@ Good reference for the VT100 control sequences can be found at:
 
 In the above, `ESC` stands for `0x1B`. Here's a Scala code to display "hello" at (2, 4):
 
-<scala>
+```scala
 print("\u001B[4;2Hhello")
-</scala>
+```
 
 <img src='/images/console0.png' style='width: 271px;'>
 
@@ -57,13 +57,13 @@ print("\u001B[4;2Hhello")
 
 This is a useful control sequence to implement a progress bar.
 
-<scala>
+```scala
 (1 to 100) foreach { i =>
   val dots = "." * ((i - 1) / 10)
   print(s"\u001B[100D$i% $dots")
   Thread.sleep(10)
 }
-</scala>
+```
 
 ![console1](/images/console1.gif)
 
@@ -87,9 +87,9 @@ These can be used to save and restore the current cursor position.
 
 Using this sequence, we can change the color of the text. For example, 36 is Foreground Cyan, 1 is Bold, and 0 is reset to default.
 
-<scala>
+```scala
 print("\u001B[36mhello, \u001B[1mhello\u001B[0m")
-</scala>
+```
 
 <img src='/images/console2.png' style='width: 468px;'>
 
@@ -101,9 +101,9 @@ print("\u001B[36mhello, \u001B[1mhello\u001B[0m")
 
 Specifying `2` for `<n>` means erasing the entire viewport:
 
-<scala>
+```scala
 print("\u001B[2J")
-</scala>
+```
 
 ### EL (Erase in Line)
 
@@ -113,9 +113,9 @@ print("\u001B[2J")
 
 Especially when the text is scrolling up and down, it's convenient to be able to erase the entire line. Specifying `2` for `<n>` does that:
 
-<scala>
+```scala
 println("\u001B[2K")
-</scala>
+```
 
 ### SU (Scroll Up)
 
@@ -134,13 +134,13 @@ On REPL, we can do something like:
 5. Print something
 6. Restore the cursor position
 
-<scala>
+```scala
 scala> print("\u001B[s\u001B[4;1H\u001B[S\u001B[2Ksomething 1\u001B[u")
 
 scala> print("\u001B[s\u001B[4;1H\u001B[S\u001B[2Ksomething 2\u001B[u")
 
 scala> print("\u001B[s\u001B[4;1H\u001B[S\u001B[2Ksomething 3\u001B[u")
-</scala>
+```
 
 ### Jansi
 
@@ -148,14 +148,14 @@ On JVM, there's a library called [Jansi][jansi] that provides support for ANSI X
 
 Here's how we can write the cursor position example using Jansi.
 
-<scala>
+```scala
 scala> import org.fusesource.jansi.{ AnsiConsole, Ansi }
 import org.fusesource.jansi.{AnsiConsole, Ansi}
 
 scala> AnsiConsole.out.print(Ansi.ansi().cursor(6, 10).a("hello"))
 
          hello
-</scala>
+```
 
 ### Box drawing characters
 
@@ -169,7 +169,7 @@ Another innovation of VT100 was adding custom characters for box drawing. Today,
 
 Here's a small app that draws a box and a Tetris block.
 
-<scala>
+```scala
 package example
 
 import org.fusesource.jansi.{ AnsiConsole, Ansi }
@@ -200,7 +200,7 @@ object ConsoleGame extends App {
     walls.cursor(y0 + h - 1, x0).a(bottomStr)
   }
 }
-</scala>
+```
 
 <img src='/images/console3.png' style='width: 182px;'>
 
@@ -209,7 +209,7 @@ object ConsoleGame extends App {
 
 A minor annoyance with Jansi is that if you want to compose the drawings, we need to keep passing the `Ansi` object arround in the correct order. This can be solved quickly using State datatype. Since the name State might get confusing with game's state, I am going to call it `BuilderHelper`.
 
-<scala>
+```scala
 package example
 
 class BuilderHelper[S, A](val run: S => (S, A)) {
@@ -232,11 +232,11 @@ object BuilderHelper {
   def apply[S, A](run: S => (S, A)): BuilderHelper[S, A] = new BuilderHelper(run)
   def unit[S](run: S => S): BuilderHelper[S, Unit] = BuilderHelper(s0 => (run(s0), ()))
 }
-</scala>
+```
 
 This lets us refactor the drawing code as follows:
 
-<scala>
+```scala
 package example
 
 import org.fusesource.jansi.{ AnsiConsole, Ansi }
@@ -286,7 +286,7 @@ object Draw {
     walls.cursor(y0 + h - 1, x0).a(bottomStr)
   }
 }
-</scala>
+```
 
 All I am doing is here is avoiding creation of `b0`, `b1`, `b2` etc, so if this code is confusing you don't have to use `BuilderHelper`.
 
@@ -296,7 +296,7 @@ Thus far we've looked at control sequences sent by the program, but the same pro
 
 In other words, when you hit Left arrow key `ESC + "[D"`, or  `"\u001B[D"`, is sent to the standard input. We can read bytes off of the standard input one by one and try to parse the control sequence.
 
-<scala>
+```scala
 var isGameOn = true
 var pending = ""
 val escStr = "\u001B"
@@ -327,7 +327,7 @@ while (isGameOn) {
       }
   } // if
 }
-</scala>
+```
 
 This is not that bad for simple games, but it could get more tricky if the combination gets more advanced, or we if start to take Windows terminals into consideration.
 
@@ -337,7 +337,7 @@ On JVM, there's JLine2 that implements a concept called [KeyMap](https://github.
 
 Because JLine is meant to be a line editor, like what you see on Bash or sbt shell with history and tab completion, the operations reflect that. For example, the up arrow is bound to `Operation.PREVIOUS_HISTORY`. Using JLine2, the code above can be written as follows:
 
-<scala>
+```scala
 import jline.console.{ ConsoleReader, KeyMap, Operation }
 var isGameOn = true
 val reader = new ConsoleReader()
@@ -353,7 +353,7 @@ while (isGameOn) {
     case _                            => println(k)
   }
 }
-</scala>
+```
 
 I kind of like the raw simplicity of reading from `System.in`, but the JLine2 looks a bit more cleaned up, so it's up whatever you are more confortable with.
 
@@ -365,7 +365,7 @@ We can do this by writing the keypress events into Apache Kafka. Haha, I am just
 
 Here's what I did:
 
-<scala>
+```scala
 import jline.console.{ ConsoleReader, KeyMap, Operation }
 import scala.concurrent.{ blocking, Future, ExecutionContext }
 import java.util.concurrent.atomic.AtomicBoolean
@@ -405,7 +405,7 @@ while (isGameOn.get) {
   // draw game etc..
   Thread.sleep(100)
 }
-</scala>
+```
 
 To spawn a new thread, I am using `scala.concurrent.Future` with the default global execution context. It blocks for user input, and then appends the key press into a `ArrayBlockingQueue`.
 
@@ -421,14 +421,14 @@ Left(FORWARD_CHAR)
 
 We can now move the current block using the key press. To track the position, let's declare `GameState` datatype as follows:
 
-<scala>
+```scala
   case class GameState(pos: (Int, Int))
   var gameState: GameState = GameState(pos = (6, 4))
-</scala>
+```
 
 Next we can define a state transition function based on the key press:
 
-<scala>
+```scala
   def handleKeypress(k: Either[Operation, String], g: GameState): GameState =
     k match {
       case Right("q") | Left(Operation.VI_EOF_MAYBE) =>
@@ -453,11 +453,11 @@ Next we can define a state transition function based on the key press:
         // println(k)
         g
     }
-</scala>
+```
 
 Finally we can call `handleKeyPress` inside the main while loop:
 
-<scala>
+```scala
   // inside the main thread
   while (isGameOn.get) {
     while (!keyPressses.isEmpty) {
@@ -479,7 +479,7 @@ Finally we can call `handleKeyPress` inside the main while loop:
     val result = drawing.run(Ansi.ansi())._1
     AnsiConsole.out.println(result)
   }
-</scala>
+```
 
 Running this looks like this:
 
@@ -489,7 +489,7 @@ Running this looks like this:
 
 Let's see if we can combine this with the Scroll Up technique.
 
-<scala>
+```scala
   var tick: Int = 0
   // inside the main thread
   while (isGameOn.get) {
@@ -513,7 +513,7 @@ Let's see if we can combine this with the Scroll Up technique.
       .eraseLine()
       .a(msg))
   }
-</scala>
+```
 
 Here, I am outputing a log every second at `(1, 5)` after scrolling the text upwards. This should retain all the logs in scroll buffer since I am not overwriting them.
 

@@ -27,7 +27,7 @@ aliases:     [ /node/31 ]
 
 まずは、`UserRepository` (DAO、Data Access Object) を実装しよう。
 
-<scala>
+```scala
 // 実際の永続化は何もしていなくて、画面にユーザを表示するだけのダミー。 
 class UserRepository {  
   def authenticate(user: User): User = {   
@@ -37,13 +37,13 @@ class UserRepository {
   def create(user: User) = println("creating user: " + user)  
   def delete(user: User) = println("deleting user: " + user)  
 }
-</scala>
+```
 
 trait インターフェイスとその実装に分けて実装することもできたが、話を簡単にするために、敢えてここではそうしなかった。
 
 次に、ユーザサービスを作成しよう（これも、単にリポジトリへ委譲するだけのダミーだ）。
 
-<scala>
+```scala
 class UserService {  
   def authenticate(username: String, password: String): User =   
     userRepository.authenticate(new User(username, password))    
@@ -54,7 +54,7 @@ class UserService {
   def delete(user: User) =    
     userRepository.delete(user)  
 }
-</scala>
+```
 
 ここで `UserRepository` のインスタンスが参照されている。これが、インジェクト (inject、注入)[^1] されて欲しい依存オブジェクトだ。
 
@@ -62,7 +62,7 @@ class UserService {
 
 面白くなるのはここからだ。`UserRepository` を包囲 trait でラッピングして、そこでユーザリポジトリのインスタンスを生成してみよう。
 
-<scala>
+```scala
 trait UserRepositoryComponent {  
   val userRepository = new UserRepository  
   class UserRepository {  
@@ -74,13 +74,13 @@ trait UserRepositoryComponent {
     def delete(user: User) = println("deleting user: " + user)  
   }  
 }
-</scala>
+```
 
 これによってリポジトリのコンポーネント名前空間が作成される。どうしてかって？　続きを読んでくれれば、この名前空間がどう役立つのかすぐに説明する。
 
 まず、このリポジトリの利用者である `UserService` に注目してほしい。`userRepository` インスタンスを `UserService` にインジェクトしてほしいという事を宣言するためには、まず上でリポジトリでしたことを繰り返す。つまり、包囲（名前空間） trait でラッピングする。そして、[自分型アノテーション (self-type annotation)](http://www.scala-lang.org/node/124) を用いて `UserRepository` への依存性を宣言する。こう書くとややこしそうだが、コードを見ればそうでもない。
 
-<scala>
+```scala
 // 自分型アノテーションを用いてこのコンポーネントの依存性、
 // この場合 UserRepositoryComponent を宣言する。
 trait UserServiceComponent { this: UserRepositoryComponent =>  
@@ -93,29 +93,29 @@ trait UserServiceComponent { this: UserRepositoryComponent =>
     def delete(user: User) = userRepository.delete(user)  
   }  
 }
-</scala>
+```
 
 自分型アノテーションとはここの部分だ:
 
-<scala>
+```scala
 this: UserRepositoryComponent =>  
-</scala>
+```
 
 複数の依存性を宣言するには以下のように記述する:
 
-<scala>
+```scala
 this: Foo with Bar with Baz =>  
-</scala>
+```
 
 これで、`UserRepository` の依存性の宣言をすることができた。残りは、実際の配線だ。
 
 そのためには異なる名前空間を一つのアプリケーション（もしくは、レジストリ）名前空間に合併させるだけだ。これは全てのコンポーネントから構成されるレジストリ・オブジェクトを作成することで達成される。その時に全ての配線は自動的に行われる。
 
-<scala>
+```scala
 object ComponentRegistry extends  
   UserServiceComponent with  
   UserRepositoryComponent  
-</scala>
+```
 
 この方法の美点として、全ての配線が静的に型付けされていることが挙げられる。例えば、依存性の宣言が欠けていたり、誤字があったり、何かが間違っていれば、それはコンパイルエラーとなる。また、これはとても高速だ。
 
@@ -123,11 +123,11 @@ object ComponentRegistry extends
 
 アプリケーションを使用するためには、レジストリ・オブジェクトから「最上位」サービスを取り出すだけでいい。（Guice や Spring 同様に）他の依存性は自動的に配線が行われる。
 
-<scala>
+```scala
 val userService = ComponentRegistry.userService  
 ...  
 val user = userService.authenticate(..)   
-</scala>
+```
 
 順調かな？
 
@@ -139,7 +139,7 @@ val user = userService.authenticate(..)
 
 サービスを包囲（名前空間）trait 内でインスタンスを生成せずに、抽象メンバーに変更する。
 
-<scala>
+```scala
 trait UserRepositoryComponent {  
   val userRepository: UserRepository  
   
@@ -147,9 +147,9 @@ trait UserRepositoryComponent {
     ...  
   }  
 }   
-</scala>
+```
 
-<scala>
+```scala
 trait UserServiceComponent {   
   this: UserRepositoryComponent =>   
   
@@ -159,11 +159,11 @@ trait UserServiceComponent {
     ...   
   }  
 }
-</scala>
+```
 
 これで、サービスのインスタンスの生成（と設定）を `ComponentRegistry` モジュールに移すことができる。
 
-<scala>
+```scala
 object ComponentRegistry extends   
   UserServiceComponent with   
   UserRepositoryComponent   
@@ -171,7 +171,7 @@ object ComponentRegistry extends
   val userRepository = new UserRepository  
   val userService = new UserService  
 }  
-</scala>
+```
 
 こうすることで、実際のコンポーネントのインスタンスの生成とその配線を単一の構成オブジェクト (configuration object) に抽象化することができた。
 
@@ -181,7 +181,7 @@ object ComponentRegistry extends
 
 実際のサービスのインスタンスを生成する代わりに、それぞれに対してモックオブジェクト (mock) を作成することにする。また、ここでは、「世界」を trait に変更する（何故かは、すぐに説明する）。
 
-<scala>
+```scala
 trait TestingEnvironment extends  
   UserServiceComponent with  
   UserRepositoryComponent with   
@@ -190,13 +190,13 @@ trait TestingEnvironment extends
   val userRepository = mock(classOf[UserRepository])  
   val userService = mock(classOf[UserService])  
 }   
-</scala>
+```
 
 ここでは、モックオブジェクトを作成しただけではなく、作成されたモックオブジェクトは宣言された依存性へと結合されている。
 
 次が、面白い所だ。全てのモックオブジェクトを持つ `TestEnvironment` を mix in して単体テストを作成してみよう。
 
-<scala>
+```scala
 class UserServiceSuite extends TestNGSuite with TestEnvironment {  
   
   @Test { val groups=Array("unit") }  
@@ -217,7 +217,7 @@ class UserServiceSuite extends TestNGSuite with TestEnvironment {
     
   ...  
 }  
-</scala>
+```
 
 この例で全て言い尽くしたが、これも必要に応じて構成できるコンポーネントの一例にすぎない。
 
@@ -229,7 +229,7 @@ Scala で DI を行う他の方法もみていこう。この記事は既に長�
 
 少し前に Jamie Webb により Scala User メーリングリストに投稿された次のテクニックは[構造的部分型 (structural typing)](http://d.hatena.ne.jp/yuroyoro/20110126/1296044588) を用いる。この方法は結構好きだ。エレガントで、不変で、型安全だ。
 
-<scala>
+```scala
 // =======================  
 // サービスインターフェイス  
 trait OnOffDevice {  
@@ -276,13 +276,13 @@ object Config {
 }  
   
 new Client(Config)  
-</scala>
+```
 
 ## 暗黙の (implicit) パラメータを用いる
 
 この方法は単純明快だ。しかし、実際の配線 (暗黙の値を import する)　が散らばってて、アプリケーションのコードとからまっているのは好みではない。
 
-<scala>
+```scala
 // =======================  
 // サービスインターフェイス
 trait OnOffDevice {  
@@ -329,13 +329,13 @@ import Services._
   
 val warmer = new Warmer  
 warmer.trigger  
-</scala>
+```
 
 ## Google Guice を用いる
 
 Scala は単体の DI フレームワークとも相性が良く、初期には我々は [Google Guice](http://code.google.com/p/google-guice/) を使っていた。Guice は色々は方法で使うことができるが、Jan Kriesten が教えてくれた `ServiceInjector` という巧妙な方法を紹介しよう。
 
-<scala>
+```scala
 // =======================  
 // サービスインターフェイス
 trait OnOffDevice {  
@@ -407,13 +407,13 @@ object ServiceInjector {
 val client = new MyClient with ServiceInjector  
   
 println(client)  
-</scala>
+```
 
 以上で、この記事で書く予定だったことは書き終えた。言語にそなわった抽象化や、単体の DI フレームワークなど、Scala における DI の方法を理解するのに役立っただろうか。どれがうまくいくかは、その時の状況や、要求仕様、そして好みによる。
 
 おまけに、他の DI 戦略と比較し易いように、後半の例の Cake パターンのバージョンを示した。注意して欲しいのが、この素朴な例だけで他の方法と比べると、Cake パターンは包囲（名前空間）trait のせいで必要以上に複雑に見えるが、複数のコンポーネントによる複雑な依存性が出てくる些細ではない例においてその効果を発揮することだ。
 
-<scala>
+```scala
 // =======================  
 // サービスインターフェイス
 trait OnOffDeviceComponent {  
@@ -470,4 +470,4 @@ object ComponentRegistry extends
 // =======================  
 val warmer = ComponentRegistry.warmer  
 warmer.trigger  
-</scala>
+```

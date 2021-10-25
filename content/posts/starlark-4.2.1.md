@@ -70,7 +70,7 @@ Let's look into how we can define a Starlark-based DSL. This could be for Bazel-
 
 #### build.sbt
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "2.13.6"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 
@@ -83,7 +83,7 @@ lazy val root = (project in file("."))
     name := "starlark-example",
     libraryDependencies ++= List(deps.starlark),
   )
-</scala>
+```
 
 #### Main.scala
 
@@ -199,9 +199,9 @@ sbt:starlark-example> run BUILD.example
 
 This is because we're looking to see if there's been a variable named `CALC`:
 
-<scala>
+```scala
   println(module.getGlobal("CALC"))
-</scala>
+```
 
 In other words, we've just calculated `1 + 1` using Starlark.
 
@@ -209,7 +209,7 @@ In other words, we've just calculated `1 + 1` using Starlark.
 
 Since we're interested in `foo_library` than the result of `CALC`, let's collect them as a side effect of the function bindings.
 
-<scala>
+```scala
 package example
 
 import com.google.common.collect.ImmutableMap
@@ -306,17 +306,17 @@ class Functions(buf: ListBuffer[Definition]) {
       deps = deps.toArray.toList.asInstanceOf[List[String]],
     )
 }
-</scala>
+```
 
 Now if you `run BUILD.example`, you should see the following output:
 
-<scala>
+```scala
 sbt:starlark-example> run BUILD.example
 [info] compiling 1 Scala source to /Users/eed3si9n/work/starlark-example/target/scala-2.13/classes ...
 [info] running example.Main BUILD.example
 FooBinaryDef(hello-bin,com.example.Greeter,List(),List())
 FooLibraryDef(hello-lib,List(),List())
-</scala>
+```
 
 What you do with this collected information is up to the application.
 
@@ -332,7 +332,7 @@ foo_library(
 
 Here's the output:
 
-<scala>
+```bash
 sbt:starlark-example> run BUILD.example
 [info] running example.Main BUILD.example
 [error] (run-main-30) Traceback (most recent call last):
@@ -378,17 +378,17 @@ sbt:starlark-example> run BUILD.example
 [error]   at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 [error]   at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 [error]   at java.lang.reflect.Method.invoke(Method.java:498)
-</scala>
+```
 
 The stacktrace is showing up beause we're not handling the exception, but the syntax error of Starlark portion is pretty good. "(did you mean 'name'?)" for a named parameter is something not even Scala 3 would offer:
 
-<scala>
+```scala
 scala> List(1, 2, 3).contains(elen = 1)
 -- Error:
 1 |List(1, 2, 3).contains(elen = 1)
   |                       ^^^^^^^^
   |method contains in class List: (elem: A1): Boolean does not have a parameter elen
-</scala>
+```
 
 ### Summary
 

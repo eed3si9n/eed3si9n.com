@@ -23,9 +23,9 @@ var x = 1;
 
 Scala also has `var`, but the preferred way is to use immutable `val` if possible.
 
-<scala>
+```scala
 val x = 1
-</scala>
+```
 
 ## Creating a new List or an Array
 
@@ -40,10 +40,10 @@ var array = new [] { 0, 1, 2 };
 
 All collections in Scala comes with a factory method.
 
-<scala>
+```scala
 val list = List("Adam", "Alice", "Bob", "Charlie")
 val array = Array(0, 1, 2)
-</scala>
+```
 
 ## Filtering using lambda expression
 
@@ -59,11 +59,11 @@ var xs = array.Where(x => x >= 1);
 
 There are several ways to write this in Scala.
 
-<scala>
+```scala
 array.filter(x => x >= 1)
 array filter { _ >= 1 }
 array filter { 1 <= }
-</scala>
+```
 
 ## Projection
 
@@ -76,10 +76,10 @@ var yx = array.SelectMany(x => new [] { x, 3 });
 
 These correspond to `map` and `flatMap`.
 
-<scala>
+```scala
 array map { _ + 1 }
 array flatMap { Array(_, 3) }
-</scala>
+```
 
 ## Sorting
 
@@ -91,9 +91,9 @@ var xs = list.OrderBy(x => x.Length);
 
 I can't remember the last time I had to sort something in Scala, but you can do that using `sortBy`.
 
-<scala>
+```scala
 list sortBy { _.length }
-</scala>
+```
 
 ## Filtering using query expression
 
@@ -108,10 +108,10 @@ var results =
 
 The closest thing Scala got probably is for-comprehension.
 
-<scala>
+```scala
 for (x <- array if x >= 1)
   yield x
-</scala>
+```
 
 You can write something similar in C#, but unlike Scala `foreach` does not return a value, so the whole thing needs to be wrapped in a method.
 
@@ -136,10 +136,10 @@ var results =
 
 Scala using for-comprehension.
 
-<scala>
+```scala
 for (x <- array)
   yield new { def foo = x + 1 }
-</scala>
+```
 
 ## Sorting by intermediate values
 
@@ -160,12 +160,12 @@ var results =
 
 Scala's for-comprehension does not support sorting, but you can always sort things afterwards.
 
-<scala>
+```scala
 list sortBy { x =>
   val cs = """[aeiou]""".r.replaceAllIn(x.toLowerCase, "")
   cs.length
 }
-</scala>
+```
 
 ## Cross join
 
@@ -181,13 +181,13 @@ var results =
 
 Using Scala for-comprehension.
 
-<scala>
+```scala
 for {
   x <- list
   c <- x.toCharArray
   if c != 'a' && c != 'e'
 } yield c
-</scala>
+```
 
 ## Inner join
 
@@ -202,12 +202,12 @@ var results =
 
 Using Scala for-comprehension.
 
-<scala>
+```scala
 for {
   name <- list
   n <- array if name.length == n + 3
 } yield (name, n)
-</scala>
+```
 
 ## Grouping
 
@@ -223,10 +223,10 @@ var results =
 
 Not for-comprehension, but still doable in Scala.
 
-<scala>
+```scala
 list groupBy { _(0) } filter { case (k, vs) =>
   vs.size > 1 }
-</scala>
+```
 
 ## Quantifiers
 
@@ -239,21 +239,21 @@ var allThree = list.All(x => x.Length == 3)
 
 In Scala.
 
-<scala>
+```scala
 val hasThree = list exists { _.length == 3 }
 val allThree = list forall { _.length == 3 }
-</scala>
+```
 
 ## Pattern matching
 
 One unique aspect of Scala is that it accepts a partial function where a lambda expression is expected.
 
-<scala>
+```scala
 array map {
   case 1 => "foo"
   case n if n % 2 == 0 => n.toString + "!"
 }
-</scala>
+```
 
 You probably have to throw an exception to mimic this in C#.
 

@@ -32,7 +32,7 @@ tags:        [ "scala" ]
 
 2008年12月に [Programming in Scala][pins] の初版が出て、JSON はパーサ・コンビネータの一例として出てきて、JSON パーサが 10行ぐらいのコードで書けることを示した:
 
-<scala>
+```scala
 import scala.util.parsing.combinator._
 class JSON extends JavaTokenParsers {
   def value : Parser[Any] = obj | arr |
@@ -43,7 +43,7 @@ class JSON extends JavaTokenParsers {
   def arr   : Parser[Any] = "["~repsep(value, ",")~"]"
   def member: Parser[Any] = stringLiteral~":"~value
 }
-</scala>
+```
 
 同年の一ヶ月前に [Real World Haskell](http://book.realworldhaskell.org/) という本も出てて、これも JSON ライブラリを例をして使った ([Chapter 5. Writing a library: working with JSON data][rwh5])。これは JSON データが `JValue` と呼ばれる代数的データ型によって記述できることを解説した:
 
@@ -84,19 +84,19 @@ sjson-new は型クラスベースの JSON コーデックライブラリで、J
 
 Json4s-AST と使う場合:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-json4s" % "0.1.0"
-</scala>
+```
 
 Spray と使う場合:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.1.0"
-</scala>
+```
 
 sjson-new を使うには、まず `Converter` オブジェクトを探す必要がある。`sjsonnew.support.XYZ.Converter` の `XYZ` 部分を `json4s` か `spray` に置き換えてほしい。REPL から使ってみよう:
 
-<scala>
+```scala
 scala> import sjsonnew.support.spray.Converter
 import sjsonnew.support.spray.Converter
 
@@ -108,16 +108,16 @@ res0: scala.util.Try[spray.json.JsValue] = Success(42)
 
 scala> Converter.fromJson[Int](res0.get)
 res1: scala.util.Try[Int] = Success(42)
-</scala>
+```
 
 どのように実装されているだろうか? 普通の JSON コーデックは、何らかの型 `A` を受け取ってそれを `JValue` にエンコードする。sjson-new の `JsonWriter` 型クラスの `write` メソッドは 2つ追加でパラメータを受け取る:
 
-<scala>
+```scala
 @implicitNotFound(msg = "Cannot find JsonWriter or JsonFormat type class for ${A}")
 trait JsonWriter[A] {
   def write[J](obj: A, builder: Builder[J], facade: Facade[J]): Unit
 }
-</scala>
+```
 
 `obj` はエンコードしたいオブジェクト。`builder` は、sjson-new が中間値を追加できる可変のデータ構造だ。`StringBuilder` とか `ListBuffer` みたいなものだと考えてほしい。`facade` は JSON AST を抽象化したものだ。このファサードの実装は Jawn に似ているけども、これは値の抽出も行えるように拡張してある。
 

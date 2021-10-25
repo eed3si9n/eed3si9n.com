@@ -25,11 +25,11 @@ In between the April post and the last weekend, there were [flatMap(Oslo) 2016][
 
 sbt internally uses HList for caching using sbinary:
 
-<scala>
+```scala
 implicit def mavenCacheToHL = (m: MavenCache) => m.name :*: m.rootFile.getAbsolutePath :*: HNil
 implicit def mavenRToHL = (m: MavenRepository) => m.name :*: m.root :*: HNil
 ...
-</scala>
+```
 
 and I've been thinking something like an HList or Shapeless's `LabelledGeneric` would be a good intermediate datatype to represent JSON object, so Daniel's talk became the last push on my back.
 In this post, I will introduce a special purpose HList called LList.
@@ -39,7 +39,7 @@ In this post, I will introduce a special purpose HList called LList.
 sjson-new comes with a datatype called **LList**, which stands for labelled heterogeneous list.
 `List[A]` that comes with the Standard Library can only store values of one type, namely `A`. Unlike the standard `List[A]`, LList can store values of different types per cell, and it can also store a label per cell. Because of this reason, each LList has its own type. Here's how it looks in the REPL:
 
-<scala>
+```scala
 scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
@@ -52,7 +52,7 @@ x: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) 
 
 scala> val y: String :*: Int :*: LNil = x
 y: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) :*: (value, 1) :*: LNil
-</scala>
+```
 
 Can you find `String` and `Int` mentioned in that long type name of `x`? `String :*: Int :*: LNil` is a short form of writing that as demonstrated by `y`.
 
@@ -62,7 +62,7 @@ Can you find `String` and `Int` mentioned in that long type name of `x`? `String
 
 Because LList is able to turn itself into a JSON object, all we need now is a way to going back and forth between your custom type and an LList. This notion is called isomorphism.
 
-<scala>
+```scala
 scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
@@ -77,17 +77,17 @@ scala> implicit val personIso = LList.iso(
          { p: Person => ("name", p.name) :*: ("value", p.value) :*: LNil },
          { in: String :*: Int :*: LNil => Person(in.head, in.tail.head) })
 personIso: sjsonnew.IsoLList.Aux[Person,sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]]] = sjsonnew.IsoLList$$anon$1@4140e9d0
-</scala>
+```
 
 We can use the implicit value as a proof that `Person` is isomorphic to an LList, and sjson-new can then use that to derive a `JsonFormat`.
 
-<scala>
+```scala
 scala> import sjsonnew.support.spray.Converter
 import sjsonnew.support.spray.Converter
 
 scala> Converter.toJson[Person](Person("A", 1))
 res0: scala.util.Try[spray.json.JsValue] = Success({"name":"A","value":1})
-</scala>
+```
 
 As you can see, `Person("A", 1)` was encoded as `{"name":"A","value":1}`.
 
@@ -95,7 +95,7 @@ As you can see, `Person("A", 1)` was encoded as `{"name":"A","value":1}`.
 
 Suppose now that we have an algebraic datatype represented by a sealed trait. There's a function to compose the `JsonFormat` called `unionFormat2`, `unionFormat3`, ...
 
-<scala>
+```scala
 scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
@@ -125,7 +125,7 @@ import sjsonnew.support.spray.Converter
 
 scala> Converter.toJson[Contact](Organization("Company", 2))
 res0: scala.util.Try[spray.json.JsValue] = Success({"value":{"name":"Company","value":2},"type":"Organization"})
-</scala>
+```
 
 The `unionFormatN[U, A1, A2, ...]` functions assume that type `U` is the sealed parent trait of the passed in types. In the JSON object this is encoded by putting the simple type name (just the class name portion) into `type` field. I am using Java reflection to retrieve the runtime class name.
 
@@ -133,14 +133,14 @@ The `unionFormatN[U, A1, A2, ...]` functions assume that type `U` is the sealed 
 
 If you want to drop down to a more lower level JSON writing, for example, to encode something as JString, sjon-new offers Builder and Unbuilder. This is a procedural style API, and it's closer to the AST. For instance, `IntJsonFormat` is defined as follows:
 
-<scala>
+```scala
 implicit object IntJsonFormat extends JsonFormat[Int] {
   def write[J](x: Int, builder: Builder[J]): Unit =
     builder.writeInt(x)
   def read[J](js: J, unbuilder: Unbuilder[J]): Int =
     unbuilder.readInt(js)
 }
-</scala>
+```
 
 `Builder` provides other `writeX` methods to write primitive values. `Unbuilder` on the other hand provides `readX` methods.
 
@@ -148,7 +148,7 @@ implicit object IntJsonFormat extends JsonFormat[Int] {
 
 To write a JSON object, you can use the LList isomorphism as described above, or use `beginObject()`, pairs of `addField("...")` and `writeX` methods, and `endObject()`. Here's an example codec of the same case class `Person` using Builder/Unbuilder:
 
-<scala>
+```scala
 implicit object PersonFormat extends JsonFormat[Person] {
   def write[J](x: Person, builder: Builder[J]): Unit = {
     builder.beginObject()
@@ -172,7 +172,7 @@ implicit object PersonFormat extends JsonFormat[Person] {
     Person(name, value)
   }
 }
-</scala>
+```
 
 The other one was three lines of iso, but this is 25 lines of code. Since it doesn't create LList, it might run faster.
 
@@ -180,7 +180,7 @@ The other one was three lines of iso, but this is 25 lines of code. Since it doe
 
 The features described in this post is available in 0.2.0 and above. Here's how to use with Json4s-AST:
 
-<scala>
+```scala
 // To use sjson-new with Spray JSON
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.4.0"
 
@@ -189,7 +189,7 @@ libraryDependencies += "com.eed3si9n" %%  "sjson-new-scalajson" % "0.4.0"
 
 // To use sjson-new with MessagePack
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-msgpack" % "0.4.0"
-</scala>
+```
 
 Thus far, no macros are used, and the use of reflection is limited to pattern matching and retrieving class names.
 

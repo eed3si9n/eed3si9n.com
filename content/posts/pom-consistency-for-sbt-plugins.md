@@ -24,7 +24,7 @@ Fast forward 2021, Bintray was discontinued, and now that more plugins are publi
 
 First clone the plugins you want to republish, and make sure sbt-bintray is removed, since it takes over the publishing. Next add the following to the plugin build:
 
-<scala>
+```scala
 // set some unique postfix
 ThisBuild / version := "0.15.0-Pets1"
 
@@ -65,7 +65,7 @@ def sbtPluginModuleName2021Draft(n: String, sbtV: String): String =
 def sbtPluginExtra2021Draft(m: ModuleID): ModuleID =
   m.withExtraAttributes(Map.empty)
    .withCrossVersion(CrossVersion.binary)
-</scala>
+```
 
 Now run sbt with the environment variable `POM_CONSISTENCY=1` and publish to your Nexus or Artifactory or use `publishM2` to test locally:
 
@@ -93,7 +93,7 @@ This should produce a POM like this:
 
 To use this, put the following in `project/plugins.sbt`:
 
-<scala>
+```scala
 // add resolver to your Nexus or Artifactory
 // resolvers += Resolver.mavenLocal
 addPomConsisntentSbtPlugin2021Draft("com.eed3si9n" % "sbt-assembly" % "0.15.0-Pets1")
@@ -111,7 +111,7 @@ def addPomConsisntentSbtPlugin2021Draft(m: ModuleID): Setting[Seq[ModuleID]] =
     sbtPluginExtra2021Draft(m)
       .withName(sbtPluginModuleName2021Draft(m.name, sbtV))
   }
-</scala>
+```
 
 This should resolve the plugin from your Maven repository.
 

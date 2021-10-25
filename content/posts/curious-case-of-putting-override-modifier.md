@@ -30,7 +30,7 @@ However, I realized a rare, but an actual case that *not putting `override` migh
 
 Let's see the code first. This will compile:
 
-<scala>
+```scala
 trait A{
   def foo: Int
 }
@@ -45,11 +45,11 @@ trait C extends A{
 
 trait D extends C with B
 // Later mixin has precedence, so B's implementation is used
-</scala>
+```
 
 This, on the other hand would result to a compiler error:
 
-<scala>
+```scala
 trait A{
   def foo: Int
 }
@@ -71,7 +71,7 @@ error: trait D inherits conflicting members:
        trait D extends C with B
              ^
 */
-</scala>
+```
 
 In short, this is a case in which there's a possibility of a diamond inheritance, and when *one would prefer to explicitly override conflicts* instead of depending on the mixin order of the traits.
 
@@ -83,9 +83,9 @@ In Scalaz,
 - `Traverse` inherits `Functor`.[^3]
 - In `Traverse`, `map` could be implemented from other methods, so it's overridden as follows:
 
-<scala>
+```scala
 override def map[A,B](fa: F[A])(f: A => B): F[B] = traversal[Id](Id.id).run(fa)(f)
-</scala>
+```
 
 Further discussion require a bit of an internal knowledge of Scalaz:
 
@@ -99,7 +99,7 @@ Further discussion require a bit of an internal knowledge of Scalaz:
 
 For instance, here's from `OneOr` as of 7.1.0-M4. https://github.com/scalaz/scalaz/blob/v7.1.0-M4/core/src/main/scala/scalaz/OneOr.scala#L112:
 
-<scala>
+```scala
 private sealed trait OneOrFunctor[F[_]]
     extends Functor[({type λ[α] = OneOr[F, α]})#λ] {
   implicit def F: Functor[F]
@@ -119,7 +119,7 @@ private sealed trait OneOrTraverse[F[_]]
   override def foldMap[A, B](fa: OneOr[F, A])(f: A => B)(implicit M: Monoid[B]) =
     fa.foldMap(f)
 }
-</scala>
+```
 
 `OneOrTraverse` is inheriting `OneOrFunctor` to use the implementation of `map` overridden by `OneOrFunctor`. Or at least, that's the intention.
 

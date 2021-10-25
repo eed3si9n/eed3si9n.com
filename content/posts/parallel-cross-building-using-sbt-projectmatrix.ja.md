@@ -16,7 +16,7 @@ tags:        [ "sbt" ]
 
 sbt-projectmatrix をビルドに追加後、以下のようにして 2つの Scala バージョンを使ったマトリックスをセットアップする。
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
@@ -26,7 +26,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.8", "2.11.12"))
-</scala>
+```
 
 これは `coreJVM2_11` と `coreJVM2_12` というサブプロジェクトを作る。
 `++` スタイルのステートフルなクロスビルドと違って、これは並列にビルドする。
@@ -35,7 +35,7 @@ lazy val core = (projectMatrix in file("core"))
 
 1つ以上のマトリックスがあると面白くなる。
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
@@ -58,7 +58,7 @@ lazy val app = (projectMatrix in file("app"))
     name := "app"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.8"))
-</scala>
+```
 
 この例では `core` は Scala 2.11 と 2.12 に対してビルドするが、`app` はそのうちの 1つのみ対応している。
 
@@ -67,13 +67,13 @@ lazy val app = (projectMatrix in file("app"))
 Tatsuno さん ([@exoego](https://github.com/exoego)) のお蔭で sbt-projectmatrix 0.2.0 から Scala.js にも対応するようになった。
 この機能を使うには、sbt-scalajs も事前にセットアップする必要がある。
 
-<scala>
+```scala
 lazy val core = (projectMatrix in file("core"))
   .settings(
     name := "core"
   )
   .jsPlatform(scalaVersions = Seq("2.12.8", "2.11.12"))
-</scala>
+```
 
 これは、`coreJS2_11` と `coreJS2_12` を作成する。
 
@@ -82,7 +82,7 @@ lazy val core = (projectMatrix in file("core"))
 列を使って、並列クロスライブラリビルドを行うことも可能だ。
 例えば、Config 1.2 と Config 1.3 向けのビルドを作りたいとする。
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -104,7 +104,7 @@ lazy val core = (projectMatrix in file("core"))
       libraryDependencies += "com.typesafe" % "config" % "1.3.3"
     )
   )
-</scala>
+```
 
 これは `coreConfig1_22_11`、 `coreConfig1_22_12`、 `coreConfig1_32_12` という 3つのサブプロジェクトを作って、それぞれ `core_config1.3_2.12`、 `core_config1.2_2.11`、 `core_config1.2_2.12` というアーティファクトを生成する。
 
@@ -112,9 +112,9 @@ lazy val core = (projectMatrix in file("core"))
 
 サブプロジェクトを build.sbt 内で参照したい場合は、以下のようにする。
 
-<scala>
+```scala
 lazy val core12 = core.crossLib("Config1.2")("2.12.8")
-</scala>
+```
 
 上記では `core12` は `Project` 型を返す。
 

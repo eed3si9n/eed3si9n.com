@@ -32,14 +32,14 @@ In TFSP, do not omit the type annotation `T` inside the body of traits and class
 
 The order in which the values are defined is critical when using plain vals. Referencing the values prior to initialization will cause `NullPointerException` at the runtime. By annotating the values as `lazy`, initialization can be delayed until the name is first referenced.
 
-<scala>
+```scala
   implicit val m: MachineModule = new MachineModule {
     val left: State => State   = buildTrans(pm.moveBy((-1, 0)))
     lazy val buildTrans: (Piece => Piece) => State => State = f => s0 => {
       // ....
     }
   }
-</scala>
+```
 
 In the above, `buildTrans` is marked as `lazy`, since it's referenced by `left` that is defined earlier.
 
@@ -47,9 +47,9 @@ In the above, `buildTrans` is marked as `lazy`, since it's referenced by `left` 
 
 When pattern matching appears in the left hand side of a value definition, it deconstructs date types using extractors.
 
-<scala>
+```scala
 val x :: xs = list
-</scala>
+```
 
 ### avoid vars
 
@@ -79,7 +79,7 @@ In TFSP, postfix operations are not allowed.
 
 In Scala, `if-else` syntax returns a value. Always provide an `else` clause.
 
-<scala>
+```scala
 scala> val x = 1
 x: Int = 1
 
@@ -90,18 +90,18 @@ if (x > 1) x
 else 0
 
 res1: Int = 0
-</scala>
+```
 
 ### for comprehensions
 
 In Scala, `for` can be used as for comprehensions with `yield` and for loops without `yield`. Always provide an `yield`. There's a minor syntactic difference based on parentheses or curly braces. In TFSP, always use curly braces.
 
-<scala>
+```scala
 scala> for {
          x <- 1 to 10
        } yield x + 1
 res2: scala.collection.immutable.IndexedSeq[Int] = Vector(2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
-</scala>
+```
 
 ### prefer `Either[A, B]` over expceptions
 
@@ -114,7 +114,7 @@ TFSP prefers `Either[A, B]` or similar data types that encodes failure over thro
 
 Case classes in Scala is a good way of emulating algebraic data types. Each case class would correspond to a constructor of an ADT, and the ADT itself would be represented by a sealed trait.
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -124,7 +124,7 @@ case class Leaf(x: Int) extends Tree
 case class Node(left: Tree, right: Tree) extends Tree
 
 // Exiting paste mode, now interpreting.
-</scala>
+```
 
 Under the hood, case classes are classes with automatically implemented `equals`, `toString`, `hashcode`, and `copy`. In addition, their companion objects automatically implement `apply` and `unapply`. 
 
@@ -132,7 +132,7 @@ Under the hood, case classes are classes with automatically implemented `equals`
 
 We can use pattern matching to decontruct the case classes:
 
-<scala>
+```scala
 scala> val badDepth: Tree => Int = {
          case Leaf(_)    => 1
          case Node(l, r) => 1 + math.max(depth(l), depth(r))
@@ -142,11 +142,11 @@ It would fail on the following input: Empty()
        val badDepth: Tree => Int = {
                                    ^
 badDepth: Tree => Int = <function1>
-</scala>
+```
 
 Because the trait is sealed, the compiler can help us in exhastiveness.
 
-<scala>
+```scala
 scala> val depth: Tree => Int = {
          case Empty()    => 0
          case Leaf(_)    => 1
@@ -156,7 +156,7 @@ depth: Tree => Int = <function1>
 
 scala> depth(Node(Empty(), Leaf(1)))
 res5: Int = 2
-</scala>
+```
 
 ### no methods in case classes
 
@@ -172,16 +172,16 @@ Modularity is about defining cohesive modules that are loosely-coupled, and it's
 
 In Scala, defining typeclasses with trait would be the most flexible way of implementing the modules. First, the typeclass contract would be defined with a trait that only declares function signatures.
 
-<scala>
+```scala
 scala> trait TreeModule {
          val depth: Tree => Int
        }
 defined trait TreeModule
-</scala>
+```
 
 Next, we can define another trait to implement the typeclass as follows:
 
-<scala>
+```scala
 scala> trait TreeInstance {
          val resolveTreeModule: Unit => TreeModule = { case () =>
            implicitly[TreeModule]
@@ -195,13 +195,13 @@ scala> trait TreeInstance {
          }
        }
 defined trait TreeInstance
-</scala>
+```
 
 ### refined types (object literal)
 
 The way the default instance of `TreeModule` was defined is an example of an anonymous type with refinement, or a refined type for short. Since the type doesn't have a name, any fields that are defined in the type should be hidden from the outside except for `depth`.
 
-<scala>
+```scala
 scala> val treeModule2: TreeModule = new TreeModule {
          val depth: Tree => Int = { case _ => 0 }
          val foo = 2
@@ -212,7 +212,7 @@ scala> treeModule2.foo
 <console>:11: error: value foo is not a member of TreeModule
               treeModule2.foo
                           ^
-</scala>
+```
 
 ### prefer imports over implicit scopes
 
@@ -220,7 +220,7 @@ In Scala there are several ways of enabling `TreeModule`. One way is to create a
 
 Here's how we can use `TreeModule`:
 
-<scala>
+```scala
 scala> {
          val allInstances = new TreeInstance {}
          import allInstances._
@@ -228,7 +228,7 @@ scala> {
          m.depth(Empty())
        }
 res1: Int = 0
-</scala>
+```
 
 The implementation of the `depth` function is completely substitutable, because the data that deals with it is separated from the module and because `TreeModule` is abstract.
 
@@ -248,7 +248,7 @@ Scala has first-class functions, which are functions that can be treated like va
 
 In Scala, a sequence of cases defines an anonymous partial function. I'm going to call this a _case function_ since "pattern matching anonymous function" is too long.
 
-<scala>
+```scala
 scala> type =>?[A, R] = PartialFunction[A, R]
 defined type alias $eq$greater$qmark
 
@@ -256,7 +256,7 @@ scala> val f: Tree =>? Int = {
          case Empty() => 0
        }
 f: =>?[Tree,Int] = <function1>
-</scala>
+```
 
 Since `PartialFunction` extends `Function1`, a case function can appear in any place where a function is expected.
 
@@ -264,20 +264,20 @@ Since `PartialFunction` extends `Function1`, a case function can appear in any p
 
 In Scala, a function may take multiple parameters, or it could be curried as a function that takes only one parameter and returns another function. In TFSP, curried functions will be the default style unless it makes sense to pass tuples.
 
-<scala>
+```scala
 scala> val add: Int => Int => Int = x => y => x + y
 add: Int => (Int => Int) = <function1>
-</scala>
+```
 
 This makes partial application the default behavior.
 
-<scala>
+```scala
 scala> val add3 = add(3)
 add3: Int => Int = <function1>
 
 scala> add3(1)
 res5: Int = 4
-</scala>
+```
 
 ### no placeholder syntax
 
@@ -301,7 +301,7 @@ TFSP prefers ad-hoc polymorphism using typeclasses over subtyping. Typeclasses o
 
 For example, we can generalize the `TreeModule` as `Depth[A]` that supports both `List[Int]` and `Tree`.
 
-<scala>
+```scala
 trait Depth[A] {
   val depth: A => Int
 }
@@ -320,13 +320,13 @@ trait DepthInstances {
     }
   }
 }
-</scala>
+```
 
 ### context-bound type parameters
 
 To take advantage of the `Depth` typeclass, define a def method with a context-bound type parameter.
 
-<scala>
+```scala
 scala> {
          val allInstances = new DepthInstances {}
          import allInstances._
@@ -335,7 +335,7 @@ scala> {
          halfDepth(List(1, 2, 3, 4))
        }
 res2: Int = 2
-</scala>
+```
 
 ### modular dependencies
 
@@ -343,7 +343,7 @@ I've mentioned that in modular programming, modules must communicate indirectly 
 
 Suppose we have two modules `MainModule` and `ColorModule`.
 
-<scala>
+```scala
 import swing._
 import java.awt.{Color => AWTColor}
 
@@ -354,11 +354,11 @@ trait MainModule {
 trait ColorModule {
   val background: AWTColor
 }
-</scala>
+```
 
 I would like to define a `MainModule` instance that depends on a `ColorModule`.
 
-<scala>
+```scala
 trait MainInstance {
   def resolveMainModule(x: Unit)(implicit cm: ColorModule,
     f: ColorModule => MainModule): MainModule = f(cm)
@@ -367,11 +367,11 @@ trait MainInstance {
       // use cm to define MainModule
     }
 }
-</scala>
+```
 
 A `MainModule` can be instantiated normally.
 
-<scala>
+```scala
 scala> {
          val allInstances = new MainInstance with ColorInstance {}
          import allInstances._
@@ -379,7 +379,7 @@ scala> {
          m.mainFrame()
        }
 res1: scala.swing.Frame = ...
-</scala>
+```
 
 ### avoid variance
 
@@ -391,7 +391,7 @@ In Scala, an existing type may be wrapped implicitly to inject method that did n
 
 The technique of injecting methods using typeclass was inspired by Scalaz 7's implementation.
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -408,11 +408,11 @@ trait ToDepthOps {
 }
 
 // Exiting paste mode, now interpreting.
-</scala>
+```
 
 Here's how we can inject `depth` method to all data types that supports `Depth` typeclass.
 
-<scala>
+```scala
 scala> {
          val allInstances = new DepthInstances {}
          import allInstances._
@@ -421,7 +421,7 @@ scala> {
          List(1, 2, 3, 4).depth
        }
 res4: Int = 4
-</scala>
+```
 
 ## case study: Tetrix
 
@@ -431,17 +431,17 @@ I've been listing the language constructs from Scala, but it's hard to see just 
 
 First, `MainModule` was defined to wrap the Swing UI.
 
-<scala>
+```scala
 import swing._
 
 trait MainModule {
   val mainFrame: Unit => Frame
 }
-</scala>
+```
 
 `MainModule` depends on two other modules called `ColorModule` and `MachineModule`. Here's how the dependencies are set up:
 
-<scala>
+```scala
 trait MainInstance {
   def resolveMainModule(x: Unit)(implicit cm: ColorModule,
     mm: MachineModule,
@@ -451,11 +451,11 @@ trait MainInstance {
       // ...
     }
 }
-</scala>
+```
 
 This is used by application trait that I had to extend from `SimpleSwingApplication`:
 
-<scala>
+```scala
 object Main extends TetrixApp {}
 trait TetrixApp extends SimpleSwingApplication {
   val allInstances = new MainInstance with ColorInstance
@@ -465,13 +465,13 @@ trait TetrixApp extends SimpleSwingApplication {
   val main: MainModule = MainModule()
   lazy val top: Frame = main.mainFrame()
 }
-</scala>
+```
 
 ### ColorModule
 
 `ColorModule` determines the color setting used in the application.
 
-<scala>
+```scala
 trait ColorModule {
   val background: AWTColor
   val foreground: AWTColor
@@ -485,7 +485,7 @@ trait ColorInstance {
     val foreground = new AWTColor(79, 130, 130)  // bluishLigherGray
   }
 }
-</scala>
+```
 
 This is the module in its entirety. It is a bit of overhead to express just two fields, but the point is to demonstrate that these settings can be configured to something else after the fact.
 
@@ -493,18 +493,18 @@ This is the module in its entirety. It is a bit of overhead to express just two 
 
 For example, we can define a new instance of `ColorModule` by extending the default instance:
 
-<scala>
+```scala
 trait CustomColorInstance extends ColorInstance {
   implicit val customColorModule: ColorModule = new ColorModule {
     val background = new AWTColor(255, 255, 255) // white
     val foreground = new AWTColor(0, 0, 0)  // black
   } 
 }
-</scala>
+```
 
 This can be loaded into the implicit search space as follows:
 
-<scala>
+```scala
 trait TetrixApp extends SimpleSwingApplication {
   val allInstances = new MainInstance with ColorInstance
     with MachineInstance with PieceInstance
@@ -514,7 +514,7 @@ trait TetrixApp extends SimpleSwingApplication {
   val main: MainModule = resolveMainModule()
   lazy val top: Frame = main.mainFrame()
 }
-</scala>
+```
 
 ![after](/images/scala-tfsp2.png)
 
@@ -524,7 +524,7 @@ Now the blocks are rendered in another color configuration. This alternative set
 
 `MachineModule` represents the state machine of the game. First, I defined a case classes as follows:
 
-<scala>
+```scala
 import scala.collection.concurrent.TrieMap
 
 // this is mutable
@@ -534,11 +534,11 @@ case class State(current: Piece, gridSize: (Int, Int),
   blocks: Seq[Block])
 
 case class Block(pos: (Int, Int))
-</scala>
+```
 
 `Machine` keeps current `State` in a concurrent `Map`. Currently `MachineModule` defines the following functions:
 
-<scala>
+```scala
 trait MachineModule {
   val init: Unit => Machine
   val state: Machine => State
@@ -555,13 +555,13 @@ trait MachineInstance {
       // ...
     }
 }
-</scala>
+```
 
 This module depends on another module called `PieceModule`, so module instance is defined as the implicit function `toMachineModule`. Since implicit parameters are resolved at the call-site, `PieceModule` can be substituted to an alternative instance at the top-level application.
 
 The state machine is implemented as follows:
 
-<scala>
+```scala
     val state: Machine => State = { case m =>
       m.stateMap(())
     }
@@ -571,11 +571,11 @@ The state machine is implemented as follows:
       m.stateMap replace((), s0, s1)
       m
     }
-</scala>
+```
 
 As you can see, all functions are implemented as curried function values. Here is an example that takes advantage of the currying.
 
-<scala>
+```scala
     val left: State => State   = buildTrans(pm.moveBy((-1, 0)))
     val right: State => State  = buildTrans(pm.moveBy((1, 0)))
     val rotate: State => State = buildTrans(pm.rotateBy(-Math.PI / 2.0))
@@ -585,7 +585,7 @@ As you can see, all functions are implemented as curried function values. Here i
       val u = unload(p0)(s0)
       load(p)(u) getOrElse s0
     }
-</scala>
+```
 
 `buildTrans` is a function that takes `Piece` transformation function, and the initial `State` and returns another `State`. By applying only the first parameter, it can be also seen as a function that returns `State => State` function. 
 
@@ -593,13 +593,13 @@ As you can see, all functions are implemented as curried function values. Here i
 
 `PieceModule` describes the movements of the pieces. For example, `moveBy` used in `left` and `right` is implemented as follows:
 
-<scala>
+```scala
     val moveBy: Tuple2[Int, Int] => Piece => Piece = {
       case (deltaX, deltaY) => p0 =>
         val (x0, y0) = p0.pos
         p0.copy(pos = (x0 + deltaX, y0 + deltaY))
     }
-</scala>
+```
 
 ### observations
 

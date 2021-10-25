@@ -25,11 +25,11 @@ tags:        [ "scala" ]
 
 sbt の内部では、sbinary を用いたキャッシングに HList が用いられてたりする:
 
-<scala>
+```scala
 implicit def mavenCacheToHL = (m: MavenCache) => m.name :*: m.rootFile.getAbsolutePath :*: HNil
 implicit def mavenRToHL = (m: MavenRepository) => m.name :*: m.root :*: HNil
 ...
-</scala>
+```
 
 そういう影響もあって、HList とか Shapeless の `LabelledGeneric` みたいなのがあれば JSON object を表す中間値としていいのではないかと思っていたので、Daniel のトークには最後に背中を押してもらった気がする。
 
@@ -40,7 +40,7 @@ implicit def mavenRToHL = (m: MavenRepository) => m.name :*: m.root :*: HNil
 sjson-new には **LList** というデータ型があって、これは labelled heterogeneous list、ラベル付された多型リストだ。
 標準ライブラリについてくる `List[A]` は、`A` という同じ型しか格納することができない。標準の `List[A]` と違って、LList はセルごとに異なる型の値を格納でき、またラベルも格納することができる。このため、LList はそれぞれ独自の型を持つ。REPL で見てみよう:
 
-<scala>
+```scala
 scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
@@ -53,7 +53,7 @@ x: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) 
 
 scala> val y: String :*: Int :*: LNil = x
 y: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) :*: (value, 1) :*: LNil
-</scala>
+```
 
 `x` の長い型の名前の中に `String` と `Int` が書かれているのが分かるだろうか。`y` の例が示すように、`String :*: Int :*: LNil` は同じ型の略記法だ。
 
@@ -63,7 +63,7 @@ y: sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]] = (name, A) 
 
 LList は JSON object に変換可能なので、あとはカスタムの型から LList に行ったり来たりできるようになればいいだけだ。この概念は isomorphism (同型射) と呼ばれる。
 
-<scala>
+```scala
 scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
@@ -78,17 +78,17 @@ scala> implicit val personIso = LList.iso(
          { p: Person => ("name", p.name) :*: ("value", p.value) :*: LNil },
          { in: String :*: Int :*: LNil => Person(in.head, in.tail.head) })
 personIso: sjsonnew.IsoLList.Aux[Person,sjsonnew.LList.:*:[String,sjsonnew.LList.:*:[Int,sjsonnew.LNil]]] = sjsonnew.IsoLList$$anon$1@4140e9d0
-</scala>
+```
 
 上のような implicit 値を `Person` が*ある* LList と同型である「証明」として使って、sjson-new はここから `JsonFormat` を導出することができる。
 
-<scala>
+```scala
 scala> import sjsonnew.support.spray.Converter
 import sjsonnew.support.spray.Converter
 
 scala> Converter.toJson[Person](Person("A", 1))
 res0: scala.util.Try[spray.json.JsValue] = Success({"name":"A","value":1})
-</scala>
+```
 
 見てのとおり、`Person("A", 1)` は `{"name":"A","value":1}` にエンコードすることができた。
 
@@ -96,7 +96,7 @@ res0: scala.util.Try[spray.json.JsValue] = Success({"name":"A","value":1})
 
 sealed trait を使った代数的データ型があるとする。`JsonFormat` を合成するために、`unionFormat2`, `unionFormat3`, ... という関数を用意した。
 
-<scala>
+```scala
 scala> import sjsonnew._, LList.:*:
 import sjsonnew._
 import LList.$colon$plus$colon
@@ -126,7 +126,7 @@ import sjsonnew.support.spray.Converter
 
 scala> Converter.toJson[Contact](Organization("Company", 2))
 res0: scala.util.Try[spray.json.JsValue] = Success({"value":{"name":"Company","value":2},"type":"Organization"})
-</scala>
+```
 
 
 `unionFormatN[U, A1, A2, ...]` 関数は、型 `U` が sealed な親 trait であることを前提としている。JSON object 中では、これは簡単な型名 (クラス名の部分だけ) を `type` というフィールドに書くことでエンコードしている。実行時クラス名を取得するのに Java リフレクションを使った。
@@ -135,14 +135,14 @@ res0: scala.util.Try[spray.json.JsValue] = Success({"value":{"name":"Company","v
 
 例えば JString を使ったエンコードを行いたいなど、もっと低レベルな JSON 書き出しを支援するために、sjson-new は Builder と Unbuilder というものを提供する。これは命令型スタイルの API で、より AST に近い。例えば、`IntJsonFormat` はこのように定義されている:
 
-<scala>
+```scala
 implicit object IntJsonFormat extends JsonFormat[Int] {
   def write[J](x: Int, builder: Builder[J]): Unit =
     builder.writeInt(x)
   def read[J](js: J, unbuilder: Unbuilder[J]): Int =
     unbuilder.readInt(js)
 }
-</scala>
+```
 
 `Builder` はプリミティブ値を書き出すための `writeX` メソッド群を提供する。一方 `Unbuilder` は、`readX` メソッド群を提供する。
 
@@ -150,7 +150,7 @@ implicit object IntJsonFormat extends JsonFormat[Int] {
 
 JSON object を書き出すには、上記のように LList への isomorphism を使うか、`beginObject()` を呼び、`addField("...")` と `writeX` メソッド群をペアで呼んで、最後に `endObject()` を呼ぶ。先ほど見た `Person` case class のカスタムコーデックを Builder/Unbuilder を直接使って定義するとこうなる:
 
-<scala>
+```scala
 implicit object PersonFormat extends JsonFormat[Person] {
   def write[J](x: Person, builder: Builder[J]): Unit = {
     builder.beginObject()
@@ -174,7 +174,7 @@ implicit object PersonFormat extends JsonFormat[Person] {
     Person(name, value)
   }
 }
-</scala>
+```
 
 さっきのは 3行だったけど、これは 25行になった。LList を作らない分速くはなるかもしれない。
 
@@ -182,15 +182,15 @@ implicit object PersonFormat extends JsonFormat[Person] {
 
 本稿で紹介した機能は 0.3.0 に入っている。Json4s-AST と使う場合は:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-json4s" % "0.3.0"
-</scala>
+```
 
 Spray と使う場合は:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.3.0"
-</scala>
+```
 
 今の所マクロは一切使用してなくて、リフレクションもパターンマッチングとクラス名の取得に限られている。
 

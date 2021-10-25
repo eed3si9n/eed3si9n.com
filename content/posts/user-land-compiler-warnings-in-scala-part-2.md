@@ -14,7 +14,7 @@ aliases:     [ /node/321 ]
 
 [Last week](http://eed3si9n.com/user-land-compiler-warnings-in-scala) I wrote about [#8820][8820], my proposal to add user-land compiler warnings in Scala. The example I had was implementing `ApiMayChange` annotation.
 
-<scala>
+```scala
 package foo
 
 import scala.annotation.apiStatus, apiStatus._
@@ -28,7 +28,7 @@ import scala.annotation.apiStatus, apiStatus._
 implicit class ShouldDSL(s: String) {
   def should(o: String): Unit = ()
 }
-</scala>
+```
 
 This was ok as a start, but a bit verbose. If we want some API status to be used frequently, it would be cool if library authors could define their own status annotation. We're going to look into doing that today.
 
@@ -38,7 +38,7 @@ Before we get into that, we need to step into a bit of behind-the-scenes. When t
 
 The annotations designed specifically for annotations are called meta-annotations (yo dawg), and that's how we can extend `apiStatus`:
 
-<scala>
+```scala
 import scala.annotation.{ apiStatus, apiStatusCategory, apiStatusDefaultAction }
 import scala.annotation.meta._
 
@@ -49,26 +49,26 @@ final class apiMayChange(
   message: String,
   since: String = "",
 ) extends apiStatus(message, since = since)
-</scala>
+```
 
 Instead of passing `category` and `defaultAction` into the `extends apiStatus(....)`, we will pass that along using `@apiStatusCategory` and `@apiStatusDefaultAction`.
 
 Once this is defined, tagging of the API becomes much cleaner:
 
-<scala>
+```scala
 @apiMayChange("can DSL is incubating, and future compatibility is not guaranteed")
 implicit class CanDSL(s: String) {
   def can(o: String): Unit = ()
 }
-</scala>
+```
 
 As a reminder, the point of all this is so library authors can tag the APIs to trigger compiler errors and warnings.
 
-<scala>
+```scala
 scala> "foo" can "say where the road goes?"
        ^
        warning: can DSL is incubating, and future compatibility is not guaranteed
-</scala>
+```
 
 ### user-land warnings and errors
 

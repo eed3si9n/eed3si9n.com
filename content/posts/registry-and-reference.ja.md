@@ -16,7 +16,7 @@ aliases:     [ /node/203 ]
 
 問題提起として、以下のような case class を考えてみてほしい:
 
-<scala>
+```scala
 scala> case class User(name: String, parents: List[User])
 defined class User
 
@@ -32,7 +32,7 @@ charles: User = User(Charles,List(User(Bob,List(User(Alice,List())))))
 scala> val users = List(alice, bob, charles)
 users: List[User] = List(User(Alice,List()), User(Bob,List(User(Alice,List()))),
   User(Charles,List(User(Bob,List(User(Alice,List()))))))
-</scala>
+```
 
 注目してほしいのは `parents` という他のユーザを参照するリストを保持してることだ。
 次に、`users` リストを JSON に変換したいとする。
@@ -68,28 +68,28 @@ users: List[User] = List(User(Alice,List()), User(Bob,List(User(Alice,List()))),
 
 実装に入る前に使ってみるとどうなのかをみてみよう。
 
-<scala>
+```scala
 scala> case class UserRef(name: String)
 defined class UserRef
-</scala>
+```
 
 まずは `User` のための適当な参照型を定義する必要がある。これは、値に対するアドレスシステムで ID や URL のようなものと考えるといいと思う。
 
-<scala>
+```scala
 scala> implicit val userReg = Registerable[User, UserRef](u => UserRef(u.name))
 userReg: sbt.Registerable.Aux[User,UserRef] = sbt.Registerable$$anon$1@69154910
-</scala>
+```
 
 次に、一ユーザからどのようにして `UserRef` を作成するのかを教える必要がある。
 
-<scala>
+```scala
 scala> val aliceRef: UserRef = Registry[User].append(alice)
 aliceRef: UserRef = UserRef(Alice)
-</scala>
+```
 
 `alice` を `Registry[User]` に追加すると、Alice への参照値が返ってくる。
 
-<scala>
+```scala
 scala> val bobRef: UserRef = Registry[User].append(bob)
 bobRef: UserRef = UserRef(Bob)
 
@@ -98,7 +98,7 @@ charlesRef: UserRef = UserRef(Charles)
 
 scala> val xs = List(aliceRef, bobRef, charlesRef)
 xs: List[UserRef] = List(UserRef(Alice), UserRef(Bob), UserRef(Charles))
-</scala>
+```
 
 実際の `User` の代わりに `UserRef` を使うようにする。例えば、ユーザのリストを表現するには `List[UserRef]` を使う。そうすると `xs` は `["Alice", "Bob", "Charles"]` というふうに永続化できる。
 
@@ -108,14 +108,14 @@ xs: List[UserRef] = List(UserRef(Alice), UserRef(Bob), UserRef(Charles))
 
 参照値を実際の `User` に変換するには registry を参照すればいい:
 
-<scala>
+```scala
 scala> val users = xs map { x => Registry[User].get(x).get }
 users: List[User] = List(User(Alice,List()), User(Bob,List(User(Alice,List()))), User(Charles,List(User(Bob,List(User(Alice,List()))))))
-</scala>
+```
 
 `Registry` は `Map` のように振舞っていて、与えられたデータ型に対してその参照型しか受け付けないことに注目してほしい。間違って `Int` を渡すとコンパイル時にエラーになる。
 
-<scala>
+```scala
 scala> val bad = Registry[User].get(0)
 <console>:15: error: inferred type arguments [Int] do not conform to method get's type parameter bounds [B <: userReg.R]
        val bad = Registry[User].get(0)
@@ -125,13 +125,13 @@ scala> val bad = Registry[User].get(0)
  required: B
        val bad = Registry[User].get(0)
                                     ^
-</scala>
+```
 
 ### 実装
 
 実装は 2つの部分から構成されている。まずは `Registerable`:
 
-<scala>
+```scala
 trait Registerable[A] {
   type R
   def toRef(a: A): R
@@ -146,14 +146,14 @@ object Registerable {
     def toRef(a: A): R = toRef0(a)
   }
 }
-</scala>
+```
 
 データ型 `A` とその参照型 `R` が必要なので、型クラスのインスタンスは 2つの型パラメータを受け付ける。
 ただし、このインスタンスを照会するときは `A` だけで探したい。これを実現するために、ここでは `Aux` 型という Miles Sabin さんが shapeless で使って流行り始めたテクニックを使っている。
 
 次が `Registry` で、基本的には可変な並行 TrieMap のラッパーだ。
 
-<scala>
+```scala
 import scala.collection.concurrent.TrieMap
 
 object Registry {
@@ -176,7 +176,7 @@ class Registry[A, R](ev: Registerable.Aux[A, R]) {
     key
   }
 }
-</scala>
+```
 
 だいたい普通だけども、ちょっと変わっているのが `def get` で、これは型制約 `B <: R` の付いた型パラメータ `B` を受け取る。
 代わりに `B =:= R` を implicit な証明として受け取ることも可能だけど、`B <: R` にしておくと `R` のサブタイプも受け付けることができる。
@@ -203,19 +203,19 @@ registry は必ずしもグローバルにする必要は無いけども、何�
 
 `ModuleID` を例にみてみよう。これはビルドユーザも定義する頻出するデータ型だ。
 
-<scala>
+```scala
 final case class ModuleID(organization: String, name: String, revision: String,
   configurations: Option[String] = None, ....
   crossVersion: CrossVersion = CrossVersion.Disabled)
-</scala>
+```
 
 この `ModuleID` のフィールドに `CrossVersion` 型というものがある。これは sealed trait でその子型として関数ラッパーの `Binary` というものを持つ:
 
-<scala>
+```scala
   final class Binary(val remapVersion: String => String) extends CrossVersion {
     override def toString = "Binary"
   }
-</scala>
+```
 
 `String => String` を永続化するが不可能だと合意できるならば、すなわち `ModuleID` も依存性グラフも永続化することは不可能だということになる。依存性グラフを永続化するために sbt 0.13 が現在何をやっているかと言うと、JSON に永続化する時点で関数値は捨てられている。 (永続化された `ModuleID` は `UpdateReport` にだけ出てきて実際の依存性解決には使われていないので大丈夫なはず。)
 

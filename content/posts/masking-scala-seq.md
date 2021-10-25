@@ -35,9 +35,9 @@ A simple fix is to import `scala.colletion.Seq` in all source code. But I want t
 
 First thing I thought of is unimporting the name `scala.Seq`, so I would be forced to import either `scala.collection.Seq` or `scala.collection.immutable.Seq`.
 
-<scala>
+```scala
 import scala.{ Seq => _, _ }
-</scala>
+```
 
 This does not work, since the name `Seq` is bound by the default `import scala._` in the outermost scope. Even if it did work, this would require remembering to put the import statement in all source code, so it's not good.
 
@@ -47,7 +47,7 @@ Jasper-M reminded me about `-Yno-imports`, which might be an option to consider.
 
 Next, I tried defining a trait named `Seq` under my package:
 
-<scala>
+```scala
 package scopt
 
 import scala.annotation.compileTimeOnly
@@ -62,7 +62,7 @@ import scala.annotation.compileTimeOnly
   * This Seq trait is a dummy type to prevent the use of `Seq`.
   */
 @compileTimeOnly("Use ISeq or CSeq") private[scopt] trait Seq[A1, F1[A2], A3]
-</scala>
+```
 
 I am using nonsensical type parameters so the existing code won't compile. For example, `Seq[String]` in my code will be caught as follows:
 
@@ -76,10 +76,10 @@ I am using nonsensical type parameters so the existing code won't compile. For e
 
 As long as the code is within `scopt` package, this should prevent the use of `Seq`. To use actual Seqs, we would import them as follows:
 
-<scala>
+```scala
 import scala.collection.{ Seq => CSeq }
 import scala.collection.immutable.{ Seq => ISeq }
-</scala>
+```
 
 If you care about your API semantics being the same across cross builds you might opt for `CSeq` for anything public. And maybe when you bump your API, you can change them all to `ISeq`.
 
@@ -91,25 +91,25 @@ Sciss (Hanns) pointed out that `scala.IndexedSeq` are affected in the same way. 
 
 Sciss (Hanns) also [reminded](https://www.reddit.com/r/scala/comments/a71pi3/masking_scalaseq/) me about Heiko Seq, which Heiko wrote in [Seq is not immutable!][heiko] post back in 2013:
 
-<scala>
+```scala
 package object scopt {
   type Seq[+A] = scala.collection.immutable.Seq[A]
   val Seq = scala.collection.immutable.Seq
   type IndexedSeq[+A] = scala.collection.immutable.IndexedSeq[A]
   val IndexedSeq = scala.collection.immutable.IndexedSeq
 }
-</scala>
+```
 
 This will adopt the `scala.immutable.Seq` across all Scala versions. If you want to stay on `scala.collection.Seq`, you can use the Sciss variation:
 
-<scala>
+```scala
 package object scopt {
   type Seq[+A] = scala.collection.Seq[A]
   val Seq = scala.collection.Seq
   type IndexedSeq[+A] = scala.collection.IndexedSeq[A]
   val IndexedSeq = scala.collection.IndexedSeq
 }
-</scala>
+```
 
 If you don't want to go through your source deciding whether to use `CSeq`, `ISeq`, or `List`, this might be a solution for you.
 

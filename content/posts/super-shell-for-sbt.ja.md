@@ -42,17 +42,17 @@ tags:        [ "sbt" ]
 
 super shell は二部から構成される。第一にロガーを変更して、ログがターミナルの上方向へ移動するようにする。このテクニックは「コンソール・ゲーム」で既に解説したが、ScrollUp を使うことでターミナルで同じ位置を保ったままログを表示させ続けることができる。
 
-<scala>
+```scala
   private final val ScrollUp = "\u001B[S"
   private final val DeleteLine = "\u001B[2K"
   private final val CursorLeft1000 = "\u001B[1000D"
 ....
         out.print(s"$ScrollUp$DeleteLine$msg${CursorLeft1000}")
-</scala>
+```
 
 次に、現在実行中のタスクを表示させる必要がある。タスクのトレーシングを行うために `ExecuteProgress[Task]` というものがあるので、それを実装して現在アクティブなタスクを集めてくる。開始時間を hash map に入れておいて現在の時間を引けば経過時間が分かる。
 
-<scala>
+```scala
   final val DeleteLine = "\u001B[2K"
   final val CursorDown1 = cursorDown(1)
   def cursorUp(n: Int): String = s"\u001B[${n}A"
@@ -69,7 +69,7 @@ def report0: Unit = {
   }
   console.print(cursorUp(currentTasks.size + 1))
 }
-</scala>
+```
 
 表示する前に、ログを上書きしないようにカーソルを 1行下げる必要がある。アクティブなタスクは各行に `DeleteLine` と共に表示する。最後に `CursorUp` を使ってカーソル位置を元に戻す。
 

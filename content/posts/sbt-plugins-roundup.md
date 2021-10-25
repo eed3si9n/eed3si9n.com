@@ -27,7 +27,7 @@ For example, if I am unsure if a plugin that I am developing if being cached by 
 
 In the past, I have whipped out ad hoc `sourceGenerators` to generate an object that contains version number, but making it a plugin made sense since others may needs it too. By extracting the values from `state` sbt-buildinfo is able to grab generate Scala source containing arbitrary keys. Add the following to the `build.sbt`:
 
-<scala>
+```scala
 buildInfoSettings
 
 sourceGenerators in Compile <+= buildInfo
@@ -35,11 +35,11 @@ sourceGenerators in Compile <+= buildInfo
 buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion)
 
 buildInfoPackage := "hello"
-</scala>
+```
 
 and it generates:
 
-<scala>
+```scala
 package hello
 
 object BuildInfo {
@@ -48,7 +48,7 @@ object BuildInfo {
   val scalaVersion = "2.9.1"
   val sbtVersion = "0.11.2"
 }
-</scala>
+```
 
 ## sbt-scalashim
 

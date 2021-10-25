@@ -32,7 +32,7 @@ Here's [a demo app][app] I wrote that uses Scalafix to add an import statement t
 Next, suppose you want to run rewritedemo against some subproject in your build and derive another subproject.
 Here's a plugin you can write using sbt-sidedish.
 
-<scala>
+```scala
 package sbtrewritedemo
 
 import sbt._
@@ -95,7 +95,7 @@ trait RewriteDemoKeys {
 }
 
 object RewriteDemoKeys extends RewriteDemoKeys
-</scala>
+```
 
 This uses synthetic subproject feature that was added in sbt 0.13.13.
 
@@ -105,19 +105,19 @@ The tricky part is passing the right arguments to the app from the user's build.
 
 build.properties:
 
-<scala>
+```scala
 sbt.version=0.13.13
-</scala>
+```
 
 plugins.sbt:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-rewritedemo" % "0.1.2")
-</scala>
+```
 
 build.sbt:
 
-<scala>
+```scala
 lazy val example = (project in file("example"))
   .settings(
     name := "example",
@@ -131,27 +131,27 @@ lazy val derived1 = (project in file("derived1"))
     rewritedemoOrigin := "example",
     scalaVersion := "2.12.1"
   )
-</scala>
+```
 
 Now suppose we have `Example.scala` under `example/src/main/scala/Example.scala`:
 
-<scala>
+```scala
 package foo
 
 object Example extends App {
   println(Seq(1, 2, 3))
 }
-</scala>
+```
 
 When you run `derived1/compile` from the sbt shell, it runs the rewrite app using Scala 2.12 and generates the following file under the managed source directory:
 
-<scala>
+```scala
 package foo
 
 import scala.collection.immutable.Seq
 object Example extends App {
   println(Seq(1, 2, 3))
 }
-</scala>
+```
 
 In other words, using sbt-sidedish we could run 2.12 app from an sbt plugin.

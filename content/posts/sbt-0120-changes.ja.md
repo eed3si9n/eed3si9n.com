@@ -174,41 +174,41 @@ Scala のバージョン 2.10 シリーズと sbt のバージョン 0.12 シリ
 
 以下は等価だ:
 
-<scala>
+```scala
 "a" % "b" % "1.0"
 "a" % "b" % "1.0" cross CrossVersion.Disabled
-</scala>
+```
 
 以下は等価だ:
 
-<scala>
+```scala
 "a" %% "b" % "1.0"
 "a" % "b" % "1.0" cross CrossVersion.binary
-</scala>
+```
 
 これは、Scala のバイナリバージョンの代わりにフルバージョンを使う:
 
-<scala>
+```scala
 "a" % "b" % "1.0" cross CrossVersion.full
-</scala>
+```
 
 これは Scala のバイナリバージョンを元にカスタム関数を使って Scala バージョンを決定する:
 
-<scala>
+```scala
 "a" % "b" % "1.0" cross CrossVersion.binaryMapped {
   case "2.9.1" => "2.9.0" // 2.10 以前なのでバイナリ==フル
   case x => x
 }
-</scala>
+```
 
 これは Scala のフルバージョンを元にカスタム関数を使って Scala バージョンを決定する:
 
-<scala>
+```scala
 "a" % "b" % "1.0" cross CrossVersion.fullMapped {
   case "2.9.1" => "2.9.0"
   case x => x
 }
-</scala>
+```
 
 全ての Scala バージョンに対して公開されていない依存ライブラリを用いてクロスビルドするときにカスタム関数を使うことができる。バイナリバージョンに移行することで、この機能の必要性が徐々に減っていくはずだ。
 

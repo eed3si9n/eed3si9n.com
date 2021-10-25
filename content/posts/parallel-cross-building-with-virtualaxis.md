@@ -15,7 +15,7 @@ This is part 2 of the post about [sbt-projectmatrix](https://github.com/sbt/sbt-
 
 After adding sbt-projectmatrix to your build, here's how you can set up a matrix with two Scala versions.
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.10"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
@@ -25,7 +25,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.10", "2.11.12"))
-</scala>
+```
 
 This will create subprojects `coreJVM2_11` and `coreJVM2_12`. Unlike `++` style stateful cross building, these will build in parallel. This part has not changed.
 
@@ -35,14 +35,14 @@ Previous post also discussed the idea of extending the idea to cross-platform an
 
 Two issues were submitted [Support for mixed-style matrix dependencies #13](https://github.com/sbt/sbt-projectmatrix/issues/13) and [Support for pure Java subprojects #14](https://github.com/sbt/sbt-projectmatrix/issues/14) that made me realize the limitation of 0.2.0 design. In 0.2.0, each row was expressed as follows:
 
-<scala>
+```scala
 final class ProjectRow(
     val idSuffix: String,
     val directorySuffix: String,
     val scalaVersions: Seq[String],
     val process: Project => Project
 ) {}
-</scala>
+```
 
 This limited the thing we can track using the row to one dimension (like platform) plus a specific Scala version. The reported issues are variants of each other in a sense that it's about relating one row in a matrix to a row in another matrix with a slighly weaker constraint.
 
@@ -50,7 +50,7 @@ This limited the thing we can track using the row to one dimension (like platfor
 
 sbt-projectmatrix 0.4.0 introduces `VirtualAxis` although you can use sbt-projectmatrix without understanding it initially.
 
-<scala>
+```scala
 /** A row in the project matrix, typically representing a platform + Scala version.
  */
 final class ProjectRow(
@@ -81,20 +81,20 @@ object VirtualAxis {
   
   ....
 }
-</scala>
+```
 
 `ProjectRow` is now a set of `VirtualAxis`. Typical use of `VirtualAxis` will be for tracking platform (JVM, JS, Native) and Scala versions. The `VirtualAxis` class splits into two subclasses `WeakAxis` and `StrongAxis`.
 
 `StrongAxis` requires that the related rows to have the same value, which is useful for things like platform. On the other hand, `WeakAxis` can either have the same value, or no value. An example of this is Scala version.
 
-<scala>
+```scala
 lazy val intf = (projectMatrix in file("intf"))
   .jvmPlatform(autoScalaLibrary = false)
 
 lazy val core = (projectMatrix in file("core"))
   .dependsOn(intf)
   .jvmPlatform(scalaVersions = Seq("2.12.10", "2.11.12"))
-</scala>
+```
 
 In the above, the matrix `core` has two JVM rows corresponding to the Scala versions 2.12.10 and 2.11.12. Because `ScalaVersionAxis` is a weak axis it's able to depend on the JVM row in `intf` without a Scala version.
 
@@ -102,16 +102,16 @@ In the above, the matrix `core` has two JVM rows corresponding to the Scala vers
 
 We can implement parallel cross-library building by defining a custom `VirtualAxis`. In `project/LightbendConfigAxis.scala`:
 
-<scala>
+```scala
 import sbt._
 
 case class LightbendConfigAxis(idSuffix: String, directorySuffix: String) extends VirtualAxis.WeakAxis {
 }
-</scala>
+```
 
 Then in `build.sbt`:
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
@@ -141,7 +141,7 @@ lazy val app = (projectMatrix in file("app"))
       libraryDependencies += "com.typesafe" % "config" % "1.3.3",
     )
   )
-</scala>
+```
 
 Note that `LightbendConfigAxis` extends `VirtualAxis.WeakAxis`. This allows `app` matrix to depend on other matrices that do not use the `LightbendConfigAxis`.
 
@@ -149,27 +149,27 @@ Note that `LightbendConfigAxis` extends `VirtualAxis.WeakAxis`. This allows `app
 
 You might want to reference one of the projects within `build.sbt`:
 
-<scala>
+```scala
 lazy val core212 = core.jvm("2.12.10")
 
 lazy val appConfig12_212 = app.finder(config13, VirtualAxis.jvm)("2.12.10")
   .settings(
     publishMavenStyle := true
   )
-</scala>
+```
 
 ### Scala Native support
 
 Thanks to Tatsuno-san ([@exoego](https://github.com/exoego)), we have Scala Native support in sbt-projectmatrix in addition to Scala.JS support since 0.3.0. To use this, you need to setup sbt-scala-native as well:
 
-<scala>
+```scala
 lazy val core = (projectMatrix in file("core"))
   .settings(
     name := "core",
     Compile / run mainClass := Some("a.CoreMain")
   )
   .nativePlatform(scalaVersions = Seq("2.11.12"))
-</scala>
+```
 
 ### summary
 

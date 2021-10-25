@@ -42,17 +42,17 @@ I posted [console games in Scala](http://eed3si9n.com/console-games-in-scala) ab
 
 There are two parts to the super shell. First is modifying the logger so the logs move upwards in the terminal. This is a technique I specifically covered in the console games post. By using scroll up, we can keep displaying the log at the same position in the terminal.
 
-<scala>
+```scala
   private final val ScrollUp = "\u001B[S"
   private final val DeleteLine = "\u001B[2K"
   private final val CursorLeft1000 = "\u001B[1000D"
 ....
         out.print(s"$ScrollUp$DeleteLine$msg${CursorLeft1000}")
-</scala>
+```
 
 Next, I need to display the work-in-progress tasks. I can collect the active tasks by implementing `ExecuteProgress[Task]` created for tracing the tasks. I can keep track of the start time in a hash map, and subtract current time to figure out the elapsed time.
 
-<scala>
+```scala
   final val DeleteLine = "\u001B[2K"
   final val CursorDown1 = cursorDown(1)
   def cursorUp(n: Int): String = s"\u001B[${n}A"
@@ -69,7 +69,7 @@ def report0: Unit = {
   }
   console.print(cursorUp(currentTasks.size + 1))
 }
-</scala>
+```
 
 Before displaying, I need to move the cursor down 1 line so not to overwrite a log entry.
 Active tasks are then displayed with `DeleteLine`. After that, the cursor position is restored using `CursorUp`.

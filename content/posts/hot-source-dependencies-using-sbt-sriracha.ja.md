@@ -17,7 +17,7 @@ tags:        [ "sbt" ]
 
 以下のようにして scopt コマンドラインパーシングライブラリの最新のコミットへのソース依存を宣言できる。
 
-<scala>
+```scala
 lazy val scoptJVMRef = ProjectRef(uri("git://github.com/scopt/scopt.git#c744bc48393e21092795059aa925fe50729fe62b"), "scoptJVM")
 
 ThisBuild / organization := "com.example"
@@ -28,7 +28,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "Hello world"
   )
-</scala>
+```
 
 sbt を起動して `compile` を走らせると、sbt は自動的に scopt/scopt をステージング・ディレクトリにクローンして、ビルドをつなぎ合わせる。
 
@@ -42,13 +42,13 @@ sbt を起動して `compile` を走らせると、sbt は自動的に scopt/sco
 
 これを実現するために sbt-sriracha という実験的なプラグインを書いた。`project/plugins.sbt` に以下を追加する:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-sriracha" % "0.1.0")
-</scala>
+```
 
 すると以下のように書けるようになる:
 
-<scala>
+```scala
 lazy val scoptJVMRef = ProjectRef(workspaceDirectory / "scopt", "scoptJVM")
 lazy val scoptJVMLib = "com.github.scopt" %% "scopt" % "3.7.0"
 
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "Hello world"
   )
-</scala>
+```
 
 デフォルトでは、これは普通のバイナリ依存性を用いる。`libraryDependency` セッティングを使ってそれを確認できる:
 
@@ -124,13 +124,13 @@ Scala.JS と native版もあり、かつこれを書いている時点では 2.1
 
 `project/plugins.sbt` に以下を追加する:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-sriracha" % "0.1.0")
-</scala>
+```
 
 sbt-sriracha を使って、µTest へのハイブリッド依存性は以下のように定義できる:
 
-<scala>
+```scala
 lazy val utestJVMRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#5b19f47c"), "utestJVM")
 lazy val utestJVMLib = "com.lihaoyi" %% "utest" % "0.6.4"
 
@@ -140,7 +140,7 @@ lazy val root = (project in file("."))
     name := "Hello world",
     testFrameworks += new TestFramework("utest.runner.Framework"),
   )
-</scala>
+```
 
 これらの変更によって改造版の µTest を Scala 2.13.0-M4 上で走らせられるようになった。
 
@@ -167,13 +167,13 @@ X foo.HelloTests.test1 28ms
 
 Scala 2.13.0-RC1 だと以下のようになる:
 
-<scala>
+```scala
 lazy val utestVersion = "0.6.6"
 lazy val utestJVMRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#79950544"), "utestJVM")
 lazy val utestJVMLib = "com.lihaoyi" %% "utest" % utestVersion
 lazy val utestJSRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#79950544"), "utestJS")
 lazy val utestJSLib = "com.lihaoyi" %% "utest_sjs0.6" % utestVersion
-</scala>
+```
 
 ### まとめ
 

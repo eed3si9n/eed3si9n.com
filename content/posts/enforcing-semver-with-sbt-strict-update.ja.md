@@ -25,19 +25,19 @@ tags:        [ "scala" ]
 
 `project/plugins.sbt` に以下を追加:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-strict-update" % "0.1.0")
-</scala>
+```
 
 そして `build.sbt` にこれを書く:
 
-<scala>
+```scala
 ThisBuild / libraryDependencySchemes += "org.typelevel" %% "cats-effect" % "early-semver"
-</scala>
+```
 
 それだけだ。
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "2.13.3"
 ThisBuild / libraryDependencySchemes += "org.typelevel" %% "cats-effect" % "early-semver"
 
@@ -49,7 +49,7 @@ lazy val root = (project in file("."))
       "org.typelevel" %% "cats-effect" % "3.0-8096649",
     ),
   )
-</scala>
+```
 
 もし Rob さんが上のビルドを `compile` しようとすると以下のように失敗するはずだ:
 

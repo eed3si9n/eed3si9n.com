@@ -42,11 +42,11 @@ sbt 0.10 の心臓部と言えるのは `settings` と呼ばれる key-value テ
 
 0.10 では、設定値もタスクも単に `settings` 列のエントリーにすぎない。
 
-<scala>
+```scala
 val name = SettingKey[String]("name", "Name.")
 ...
 val publishLocal = TaskKey[Unit]("publish-local", "Publishes artifacts to the local repository.")
-</scala>
+```
 
 設定値もタスクもキー名で呼ばれるので、プラグインを書く場合は、キー名とお近づきになっておくのがポイントだ。 [Key.scala][1] が組み込みのキーを定義する。
 
@@ -60,11 +60,11 @@ val publishLocal = TaskKey[Unit]("publish-local", "Publishes artifacts to the lo
 sbt 0.10 に深みを与えているのが、`settings` のエントリーのそれぞれが別のキーへの依存性（dependencies、"deps" とも略す）を宣言できるということにある（僕が「キー」と言う時は、設定値とタスクという意味だが、分かってくれたと思う）。
 例えば、`publishLocalConfiguration` の依存性は以下のように宣言されている:
 
-<scala>
+```scala
 publishLocalConfiguration <<= (packagedArtifacts, deliverLocal, ivyLoggingLevel) map {
 	(arts, ivyFile, level) => publishConfig(arts, Some(ivyFile), logging = level )
 },
-</scala>
+```
 
 上記は sbt 0.10 の Quick Configuration DSL の一例だ。これは、`publishLocalConfiguration` から `packagedArtifacts`、`deliverLocal`、と `ivyLoggingLevel` への依存性を宣言し、依存したキーからの値を用いて `publishConfig` を呼び出すことで値を計算している。さらに、全てのキーをクラス継承なしに `build.sbt` の中で任意の値に配線することができる。
 
@@ -87,12 +87,12 @@ publishLocalConfiguration <<= (packagedArtifacts, deliverLocal, ivyLoggingLevel)
 ## 基本的な概念 (コンフィギュレーション)
 `settings` のもう一つの興味深い側面は、エントリーと宣言された依存性の両者がコンフィギュレーションの中にスコープする (scope) ことができることだ。
 
-<scala>
+```scala
 libraryDependencies ++= Seq(
   "org.specs2" %% "specs2" % "1.6.1" % "test",
   "org.specs2" %% "specs2-scalaz-core" % "6.0.1" % "test"
 )
-</scala>
+```
 
 上のコードは `"test"` へのスコープ付き依存性だが、`"test"` は `"test->compile"` の略だ。これは、このプロジェクトの `"test"` コンフィギュレーションは specs2 が `"compile"` コンフィギュレーションのもとで公開する成果物に依存していることを表す。
 
@@ -121,13 +121,13 @@ libraryDependencies ++= Seq(
 ## 基本的な概念 (プロジェクト)
 sbt を build.sbt だけで立ち上げると、自動的にデフォルトプロジェクトの中に置かれる。Full Configuration を使うことで、sbt は一つのビルド下で複数のモジュールを管理することができる。また、これによりサブモジュール間の依存性なども宣言することもできる。
 
-<scala>
+```scala
 object FooBuild extends Build {
    lazy val root = Project("root", file("."), settings = buildSettings) aggregate(library, jetty)
    lazy val library = Project("library", file("library"))
    lazy val jetty = Project("foo-jetty", file("jetty")) dependsOn(library)
 }
-</scala>
+```
 
 シェルからは `project` コマンドを使ってプロジェクトを切り替える:
 
@@ -144,7 +144,7 @@ sbt では合計四つの軸（axis）のスコープがあり、それらはプ
 
 例えば、テストを走らせた後で実行可能な jar ファイルを作成する assembly というタスクを定義するとする。プラグインの定義では、こんな感じになる:
  
-<scala>
+```scala
 val assembly = TaskKey[File]("assembly")
 
 lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
@@ -152,11 +152,11 @@ lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     // do something
   }
 )
-</scala>
+```
 
 これではユーザは `test in Test` への依存性から抜け出せないと見ることもできる。これを直すには、`test` を `assembly` タスクの下にスコープ付けすればいい。
 
-<scala>
+```scala
 val assembly = TaskKey[File]("assembly")
 
 lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
@@ -165,50 +165,50 @@ lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
   },
   test in assembly <<= (test in Test).identity
 )
-</scala>
+```
 
 もし、なんらかの理由でユーザがテストを走らせたくなければ、本家の `test` タスクに影響を与えずに `test in assembly` を再配線することができる。
 
-<scala>
+```scala
 test in assembly := {}
-</scala>
+```
 
 ## スコープの変更
 上記の通り、キーは四つの軸においてスコープ付けすることができる。だけど、ただ `sources` と言ったときはどのコンフィギュレーションにいるのだろう？答は `Scope.ThisScope` で、これは `Scope(This, This, This, This)` と定義されている。`This` という値はスコープ付けされていないことを表す。
 
 `compile` のようなコンフィギュレーション中立な設定値のチェインを作ることで、複数のコンフィギュレーション間でそれを再利用できる。例のため  `Default.configTasks` を簡略化したものを以下に示す:
 
-<scala>
+```scala
 lazy val baseCompileSettings = Seq(
   compile <<= (compileInputs) map { i => Compiler(i) },
   compileInputs <<= (dependencyClasspath, sources) map { (cp, srcs) =>
     Compiler.inputs(classpath, srcs)
   }
 )
-</scala>
+```
 
 大切なのは、上のどのキーもコンフィギュレーション軸でスコープ付けされていないということだ。sbt は強力なユーティリティ関数 `inConfig(conf: Configuration)(ss: Seq[Setting[_]])` を提供し、これは設定値のシーケンス `ss` のうち、が既にコンフィギュレーションにスコープ付けされていないものだけを `conf` にスコープ付けするというスグレモノだ。例えば、
 
-<scala>
+```scala
 inConfig(Compile)(baseCompileSettings)
-</scala>
+```
 
 これは以下と等価だ
 
-<scala>
+```scala
 lazy val compileSettings = Seq(
   compile in Compile <<= (compileInputs in Compile) map { i => Compiler(i) },
   compileInputs in Compile <<= (dependencyClasspath in Compile, sources in Compile) map { (cp, srcs) =>
     Compiler.inputs(classpath, srcs)
   }
 )
-</scala>
+```
 
 同様に、この設定値を `Test` にも配線できる:
 
-<scala>
+```scala
 inConfig(Test)(baseCompileSettings)
-</scala>
+```
 
 <a name="per-task-keys"></a>
 ## キーをタスクの下にスコープ付けするときの注意 (sbt 0.12+ では必要ない)
@@ -250,40 +250,40 @@ inConfig(Test)(baseCompileSettings)
 
 ### バージョン番号
 0.7 (build.properties にて):
-<scala>
+```scala
 project.version=0.1.1
-</scala>
+```
 
 0.10 のプラグイン (build.sbt にて):
-<scala>
+```scala
 posterousNotesVersion := "0.4"
 
 version <<= (sbtVersion, posterousNotesVersion) { (sv, nv) => "sbt" + sv + "_" + nv }
-</scala>
+```
 
 ソースパッケージとして配布されていた 0.7 プラグインと違い、0.10 プラグインはバイナリとしてパッケージされる。これにより特定の sbt のバージョンへの依存性が出てくるようになった。これまでのところ 0.10.0 と 0.10.1 が出ているけど、0.10.0 を使ってコンパイルされたプラグインは 0.10.1 では動作しない。回避策として、上記のバージョン番号規約を採用している。
 
 0.11 (build.sbt にて):
-<scala>
+```scala
 version := "0.4"
-</scala>
+```
 
 0.11 は RC しか今のところ出ていないが、これはアーティファクト名を自動改変することでバージョン番号問題を解決する。
 
 ### スーパークラス
 ビフォー:
-<scala>
+```scala
 package assembly
 
 trait AssemblyBuilder extends BasicScalaProject {
-</scala>
+```
 
 アフター:
-<scala>
+```scala
 package sbtassembly
 
 object Plugin extends sbt.Plugin { 
-</scala>
+```
 
 この変更は、細かいけど sbt 0.10 におけるプラグインの立ち位置を示す大切なものだ。0.7 では、プラグインはプロジェクトのオブジェクトにミックスインするトレイトだった（is-a、つまり継承関係）。一方 0.10 では、プラグインはプロジェクトの実行環境に読み込まれるライブラリだ（has-a、つまり集約関係）。
 
@@ -292,24 +292,24 @@ object Plugin extends sbt.Plugin {
 trait の中。
 
 アフター:
-<scala>
+```scala
   ...
   lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = inConfig(Runtime)(baseAssemblySettings)
   lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     ...
   )
-</scala>
+```
 
 オーバーライド可能なメソッドを定義する代わりに、プラグインでは後からユーザが `seq(...)` で読み込める `sbt.Project.Setting[_]` 列を作る。こうすることで、ビルドの作者はプラグインの設定値を読み込むかどうかをプロジェクトごとに決めることができる。唯一の例外としては、グローバルなコマンドを定義する場合で、そのときは `settings` をオーバーライドする。
 
 ### オーバーライドされることを想定した設定値
 ビフォー:
-<scala>
+```scala
   def assemblyJarName = name + "-assembly-" + this.version + ".jar"
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   object AssemblyKeys {
     lazy val jarName           = SettingKey[String]("assembly-jar-name")
   }
@@ -319,20 +319,20 @@ trait の中。
     jarName in assembly <<= (name, version) { (name, version) => name + "-assembly-" + version + ".jar" },
     ...
   )
-</scala>
+```
 
 `baseAssemblySettings` の中に他のキー (`name` と `version`) への依存性を宣言したエントリーを定義する。Quick Configuration DSL は、このペアに対して[`apply`][24] を injected method として加えるため、直後に関数値を渡すことで `jarName` キーの値を計算することができる。`AssemblyKeys` に入れることで、この設定値は `assembly` というプレフィックス無しで `jarName` と名付けることができる。build.sbt からは `AssemblyKeys.jarName` 、もしくは `AssemblyKeys._` をファイルの先頭で　import した後 `jarName` として呼び出す。
   
 ### Quick Configuration DSL の静的型は `Initialize[A]`
 ビフォー:
-<scala>
+```scala
   def assemblyTask(...)
 
   lazy val assembly = assemblyTask(...) dependsOn(test) describedAs("Builds an optimized, single-file deployable JAR.")
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   object AssemblyKeys {
     val assembly = TaskKey[File]("assembly", "Builds a single-file deployable jar.")
   }
@@ -346,18 +346,18 @@ trait の中。
     assembly <<= assemblyTask,
     ...
   )
-</scala>
+```
 
 全てを `baseAssemblySettings` を詰め込むこともできるが、それはすぐに散らかってしまう。Keith Irwin 氏の [coffeescripted-sbt][15] の実装を真似て僕もコードを整理してみた。
 
 ### `outputPath` は `target` であり、`Path` は `sbt.File` だ
 ビフォー:
-<scala>
+```scala
   def assemblyOutputPath = outputPath / assemblyJarName
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   object AssemblyKeys {
     val outputPath        = SettingKey[File]("assembly-output-path")
   }
@@ -367,7 +367,7 @@ trait の中。
     outputPath in assembly <<= (target in assembly, jarName in assembly) { (t, s) => t / s },
     ...
   )
-</scala>
+```
 
 以前 `outputPath` と呼ばれていたものは、今は `target: SettingKey[File]` と呼ばれるキーだ。
 
@@ -375,56 +375,56 @@ trait の中。
 
 ### `runClasspath` は `fullClasspath in Runtime`
 ビフォー:
-<scala>
+```scala
   def assemblyClasspath = runClasspath
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     fullClasspath in assembly <<= fullClasspath or (fullClasspath in Runtime).identity,
     ...
   )
-</scala>
+```
   
 ### 既存のキーを再利用する
 ビフォー:
-<scala>
+```scala
   def assemblyClasspath = runClasspath
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     fullClasspath in assembly <<= fullClasspath or (fullClasspath in Runtime).identity,
     ...
   )
-</scala>
+```
 
 `fullClasspath in Assembly` は `fullClasspath in Runtime` からの初期値が与えられているが、もしユーザが望めば、フックメソッドを定義することなく後からオーバーライドすることができる。便利だよね？
 
 ### クラスパスの型は `Pathfinder` ではなく、`Classpath` 
 ビフォー:
-<scala>
+```scala
   classpath: Pathfinder
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   classpath: Classpath
-</scala>
+```
 
 ### オーバーライドされることを想定した関数
 ビフォー:
-<scala>
+```scala
   def assemblyExclude(base: PathFinder) =
     (base / "META-INF" ** "*") --- 
       (base / "META-INF" / "services" ** "*") ---
       (base / "META-INF" / "maven" ** "*")
-</scala>
+```
       
 アフター:
-<scala>
+```scala
   val excludedFiles     = SettingKey[Seq[File] => Seq[File]]("excluded-files")  
 
   private def assemblyExcludedFiles(base: Seq[File]): Seq[File] =
@@ -436,36 +436,36 @@ trait の中。
     excludedFiles in assembly := assemblyExcludedFiles _,
     ...
   )
-</scala>
+```
 
 これは少し複雑だ。sbt 0.10 は振る舞いをオーバーライドをするのに継承関係に頼らなくなったから、このメソッドを key-value の `baseAssemblySettings` のもとで管理する必要がある。Scala では、メソッドを変数に代入するには関数値に変更する必要があるから、`assemblyExcludedFiles _` と書く。この関数値の型は `Seq[File] => Seq[File]` だ。
 
 ### `Pathfinder` よりも `Seq[File]` を選ぶ
 ビフォー:
-<scala>
+```scala
   base: PathFinder
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   base: Seq[File]
-</scala>
+```
 
 `Seq[File]` は暗黙に `Pathfinder` に変換することができ、0.10 では拡張のために露出しているメソッドでは標準の Scala 型の `File` や `Seq[File]` を使うことが好まれる。
 
 ### `##` はファイルマッピングにより実現される
 ビフォー:
-<scala>
+```scala
   val base = (Path.lazyPathFinder(tempDir :: directories) ##)
   (descendents(base, "*") --- exclude(base)).get
-</scala>
+```
   
 アフター:
-<scala>
+```scala
   val base = tempDir +: directories
   val descendants = ((base ** (-DirectoryFilter)) --- exclude(base)).get
   descendants x relativeTo(base)
-</scala>
+```
 
 詳細は[ファイルのマッピング][25]を参照。
 > `package`、`packageSrc`、や `packageDoc` のようなタスクは入力ファイルから成果物のアーティファクト (jar) 内でのパスへのマッピングを受け取る。
@@ -474,41 +474,41 @@ trait の中。
 
 ### `FileUtilities` は `IO`
 ビフォー:
-<scala>
+```scala
   FileUtilities.clean(assemblyConflictingFiles(tempDir), true, log)
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   IO.delete(conflicting(Seq(tempDir)))
-</scala>
+```
 
 この名前の変更に関しては、最初分からなかったので、メーリングリストに聞いて親切な誰かに教えてもらった。[API Documentation][22] のコンパニオンオブジェクトを眺めて他にも面白いメソッドが見つかるか試してみると面白いだろう。
 
 ### `packageTask` は `Package`
 ビフォー:
-<scala>
+```scala
   packageTask(...)
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   Package(config, cacheDir, s.log)
-</scala>
+```
 
 ### `streams` から `logger` を取得する
 ビフォー:
-<scala>
+```scala
   log.info("Including %s".format(jarName))
-</scala>
+```
 
 アフター:
-<scala>
+```scala
   (streams) map { (s) =>
     val log = s.log 
     log.info("Including %s".format(jarName))
   }
-</scala>
+```
 
 [基本的なタスク][6]より:
 > sbt 0.10 より登場したタスクごとのロガーは、Streams と呼ばれる、より一般的なタスク特定データのためのシステムの一部だ。これは、タスクごとにスタックトレースやログの冗長さを調節したり、タスクの最後のログを呼び出すことができる。

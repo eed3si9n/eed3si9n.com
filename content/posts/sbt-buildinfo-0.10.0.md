@@ -47,29 +47,29 @@ This was contributed as [#150][150] by [@smarter][@smarter].
 
 sbt-buildinfo 0.10.0 will output build time in local time (using JSR-310 `java.time.Instant`) with timezone string.
 
-<scala>
+```scala
 buildInfoOptions += BuildInfoOption.BuildTime
-</scala>
+```
 
 This was contributed as [#156][156]/[#157][157] by [@xerial][@xerial] and [@leviramsey][@leviramsey]
 
 ### BuildInfoOption.PackagePrivate
 
-<scala>
+```scala
 buildInfoOptions += BuildInfoOption.PackagePrivate
-</scala>
+```
 
 sbt-buidinfo 0.10.0 adds a new option to make `BuildInfo` package private. This was contributed as [#151][151] by [@pcejrowski][@pcejrowski].
 
 ### BuildInfoOption.ConstantValue
 
-<scala>
+```scala
 buildInfoOptions ++= Seq(BuildInfoOption.ConstantValue, BuildInfoOption.PackagePrivate)
-</scala>
+```
 
 sbt-buidinfo 0.10.0 adds a new option to make `BuildInfo` fields [constant value definitions](https://www.scala-lang.org/files/archive/spec/2.12/04-basic-declarations-and-definitions.html#value-declarations-and-definitions) when possible.
 
-<scala>
+```scala
 package hello
 
 import scala.Predef._
@@ -82,7 +82,7 @@ private[hello] case object BuildInfo {
 
   ....
 }
-</scala>
+```
 
 We recommend making `BuildInfo` package private if you use this option. [#164][164] by [@eed3si9n][@eed3si9n]
 

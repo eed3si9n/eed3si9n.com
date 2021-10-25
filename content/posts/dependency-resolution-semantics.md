@@ -166,7 +166,7 @@ The current default conflict manager is the "latest-revision" conflict manager.
 
 Apache Ivy is the internal dependency resolver that's been used by sbt until sbt 1.3.x. sbt describes the above `pom.xml` in a slightly shorter way:
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / organization := "com.example"
 ThisBuild / version      := "1.0.0-SNAPSHOT"
@@ -176,7 +176,7 @@ lazy val root = (project in file("."))
     name := "foo",
     libraryDependencies += "com.typesafe.play" %% "play-ws-standalone" % "1.0.1",
   )
-</scala>
+```
 
 After entering sbt shell, type `show externalDependencyClasspath` to show the resolved classspath. It should show `com.typesafe:config:1.3.1`. It should also print the following warning:
 
@@ -216,7 +216,7 @@ Cool thing about Coursier is that there's a [version reconciliation][coursier1] 
 
 It says "take the highest", so it's a latest-wins semantics. We can confirm this using sbt 1.3.0-RC3 that internally uses Coursier.
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / organization := "com.example"
 ThisBuild / version      := "1.0.0-SNAPSHOT"
@@ -226,7 +226,7 @@ lazy val root = (project in file("."))
     name := "foo",
     libraryDependencies += "com.typesafe.play" %% "play-ws-standalone" % "1.0.1",
   )
-</scala>
+```
 
 Running `show externalDependencyClasspath` from sbt shell on sbt 1.3.0-RC3 returns `com.typesafe:config:1.3.1` as expected. The `evicted` report is the same too:
 
@@ -262,13 +262,13 @@ My read is that `force="true"` was meant to override the latest-wins logic and e
 
 We can still observe the effect of the `force="true"` when we use the _strict_ conflict manager, which seems broken.
 
-<scala>
+```scala
 ThisBuild / conflictManager := ConflictManager.strict
-</scala>
+```
 
 The problem is that strict conflict manager doesn't seem to prevent eviction. `show externalDependencyClasspath` happily returns `com.typesafe:config:1.3.1`. Related problem is that adding `com.typesafe:config:1.3.1`, which the strict conflict manager resolved back into the graph triggers a failure.
 
-<scala>
+```scala
 ThisBuild / scalaVersion    := "2.12.8"
 ThisBuild / organization    := "com.example"
 ThisBuild / version         := "1.0.0-SNAPSHOT"
@@ -282,7 +282,7 @@ lazy val root = (project in file("."))
       "com.typesafe" % "config" % "1.3.1",
     )
   )
-</scala>
+```
 
 Here's how it looks like:
 
@@ -305,7 +305,7 @@ We've been mentioning latest-wins semantics, which implies that two version stri
 
 We can test the version ordering by writing a small function.
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -325,7 +325,7 @@ def sortVersionsIvy(versions: String*): List[String] = {
 
 scala> sortVersionsIvy("1.0", "2.0", "1.0-alpha", "1.0+alpha", "1.0-X1", "1.0a", "2.0.2")
 res7: List[String] = List(1.0-X1, 1.0a, 1.0-alpha, 1.0+alpha, 1.0, 2.0, 2.0.2)
-</scala>
+```
 
 #### Coursier's version ordering
 
@@ -339,7 +339,7 @@ The resolution semantics page on [GitHub][coursier2] contains a section about ve
 
 To write a test, create a subproject with `libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC2-6"`, and run `console`:
 
-<scala>
+```scala
 
 sbt:foo> helper/console
 [info] Starting scala interpreter...
@@ -355,7 +355,7 @@ sortVersionsCoursier: (versions: String*)List[String]
 
 scala> sortVersionsCoursier("1.0", "2.0", "1.0-alpha", "1.0+alpha", "1.0-X1", "1.0a", "2.0.2")
 res0: List[String] = List(1.0-alpha, 1.0, 1.0-X1, 1.0+alpha, 1.0a, 2.0, 2.0.2)
-</scala>
+```
 
 As it turns out, Coursier orders version number in a completely different way from Ivy.
 
@@ -369,7 +369,7 @@ I usually avoid the use of version ranges, but they are used a lot in webjars, n
 
 In the following build, `angular-boostrap:0.14.2` depends on `angular:[1.3.0,)`.
 
-<scala>
+```scala
 ThisBuild / scalaVersion  := "2.12.8"
 ThisBuild / organization  := "com.example"
 ThisBuild / version       := "1.0.0-SNAPSHOT"
@@ -382,7 +382,7 @@ lazy val root = (project in file("."))
       "org.webjars.bower" % "angular-bootstrap" % "0.14.2",
     )
   )
-</scala>
+```
 
 Using sbt 1.2.8, `show externalDependencyClasspath` yields `angular-bootstrap:0.14.2` and `angular:1.7.8`. Where did `1.7.8` come from? When Ivy sees a version range, it basically goes out to the Internet and find what it can get, sometimes using screenscraping.
 
@@ -410,7 +410,7 @@ Using the same build with `angular-bootstrap:0.14.2`, `show externalDependencyCl
 
 What's a bit more tricky if if there are multiple version ranges that do not overlap. Here is an example:
 
-<scala>
+```scala
 ThisBuild / scalaVersion  := "2.12.8"
 ThisBuild / organization  := "com.example"
 ThisBuild / version       := "1.0.0-SNAPSHOT"
@@ -423,7 +423,7 @@ lazy val root = (project in file("."))
       "org.webjars.npm" % "is-odd" % "2.0.0",
     )
   )
-</scala>
+```
 
 Using sbt 1.3.0-RC3, `show externalDependencyClasspath` results to the following error:
 

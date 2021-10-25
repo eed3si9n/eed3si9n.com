@@ -43,9 +43,9 @@ VT100 制御シーケンスのレファレンスは以下が参考になる:
 
 ここで `ECS` は `0x1B` を意味する。"hello" と (2, 4) の位置に表示する Scala のコードはこう書ける:
 
-<scala>
+```scala
 print("\u001B[4;2Hhello")
-</scala>
+```
 
 <img src='/images/console0.png' style='width: 271px;'>
 
@@ -57,13 +57,13 @@ print("\u001B[4;2Hhello")
 
 これはプログレスバーを実装するのに便利な制御シーケンスだ。
 
-<scala>
+```scala
 (1 to 100) foreach { i =>
   val dots = "." * ((i - 1) / 10)
   print(s"\u001B[100D$i% $dots")
   Thread.sleep(10)
 }
-</scala>
+```
 
 ![console1](/images/console1.gif)
 
@@ -87,9 +87,9 @@ print("\u001B[4;2Hhello")
 
 このシーケンスを使って、テキストの色を変えることができる。例えば 36 は Foreground Cyan、1 は Bold で 0 がデフォルトへのリセットとなっている。
 
-<scala>
+```scala
 print("\u001B[36mhello, \u001B[1mhello\u001B[0m")
-</scala>
+```
 
 <img src='/images/console2.png' style='width: 468px;'>
 
@@ -101,9 +101,9 @@ print("\u001B[36mhello, \u001B[1mhello\u001B[0m")
 
 `<n>` に `2` を指定すると、ビューポート全体を消去する。
 
-<scala>
+```scala
 print("\u001B[2J")
-</scala>
+```
 
 ### EL (Erase in Line)
 
@@ -113,9 +113,9 @@ print("\u001B[2J")
 
 テキストが上下にスクロールしている場合に行を丸ごと消せると便利だ。`<n>` に `2` を指定するとそれができる:
 
-<scala>
+```scala
 println("\u001B[2K")
-</scala>
+```
 
 ### SU (Scroll Up)
 
@@ -134,13 +134,13 @@ REPL から実験するには以下の手順を取る:
 5. 何かを表示させる
 6. カーソル位置を復元する
 
-<scala>
+```scala
 scala> print("\u001B[s\u001B[4;1H\u001B[S\u001B[2Ksomething 1\u001B[u")
 
 scala> print("\u001B[s\u001B[4;1H\u001B[S\u001B[2Ksomething 2\u001B[u")
 
 scala> print("\u001B[s\u001B[4;1H\u001B[S\u001B[2Ksomething 3\u001B[u")
-</scala>
+```
 
 ### Jansi
 
@@ -148,14 +148,14 @@ JVM上には [Jansi][jansi] というライブラリがあって ANSI X3.64 制�
 
 カーソル位置の例は Jansi を使うとこう書ける。
 
-<scala>
+```scala
 scala> import org.fusesource.jansi.{ AnsiConsole, Ansi }
 import org.fusesource.jansi.{AnsiConsole, Ansi}
 
 scala> AnsiConsole.out.print(Ansi.ansi().cursor(6, 10).a("hello"))
 
          hello
-</scala>
+```
 
 ### Box drawing characters
 
@@ -169,7 +169,7 @@ VT100 のイノベーションの一つとして箱を描くための拡張文�
 
 以下は箱とテトリスのブロックを表示する小さなアプリだ。
 
-<scala>
+```scala
 package example
 
 import org.fusesource.jansi.{ AnsiConsole, Ansi }
@@ -200,7 +200,7 @@ object ConsoleGame extends App {
     walls.cursor(y0 + h - 1, x0).a(bottomStr)
   }
 }
-</scala>
+```
 
 <img src='/images/console3.png' style='width: 182px;'>
 
@@ -209,7 +209,7 @@ object ConsoleGame extends App {
 
 Jansi を使っていて個人的に気になるのは、お絵描きを合成しようとすると `Ansi` オブジェクトを正しい順番で渡して回る必要があるということだ。これは State データ型を使うことで簡単に解決する。ただし、State という名前がゲームの状態管理と紛らわしいので、ここでは `BuilderHelper` と呼んでしまう。
 
-<scala>
+```scala
 package example
 
 class BuilderHelper[S, A](val run: S => (S, A)) {
@@ -232,11 +232,11 @@ object BuilderHelper {
   def apply[S, A](run: S => (S, A)): BuilderHelper[S, A] = new BuilderHelper(run)
   def unit[S](run: S => S): BuilderHelper[S, Unit] = BuilderHelper(s0 => (run(s0), ()))
 }
-</scala>
+```
 
 これを使うと描画コードをこんなふうに書けるようになる:
 
-<scala>
+```scala
 package example
 
 import org.fusesource.jansi.{ AnsiConsole, Ansi }
@@ -286,7 +286,7 @@ object Draw {
     walls.cursor(y0 + h - 1, x0).a(bottomStr)
   }
 }
-</scala>
+```
 
 `b0`, `b1`, `b2` といった変数をいちいち作るのを回避しているだけなので、こっちのほうがかえって分かりづらいという人は `BuilderHelper` を使わなくても大丈夫。
 
@@ -296,7 +296,7 @@ object Draw {
 
 つまり、左矢印キーを押下すると `ESC + "[D"`、つまり `"\u001B[D"` が標準入力に送られる。標準入力から 1バイトづつ読み込んで制御シーケンスをパースすることが可能だ。
 
-<scala>
+```scala
 var isGameOn = true
 var pending = ""
 val escStr = "\u001B"
@@ -327,7 +327,7 @@ while (isGameOn) {
       }
   } // if
 }
-</scala>
+```
 
 簡単なゲームを書くにはこの方法で十分だと思うが、組み合わせがもっと複雑になったり Windows ターミナルの振る舞いなども勘案すると結構面倒になるかもしれない。
 
@@ -337,7 +337,7 @@ JVM 上には JLine2 というライブラリがあって、これは [KeyMap](h
 
 JLine はもともと、Bash とか sbt shell みたいな履歴とかタブ補完があるラインエディタのためのものなので Operation もそれを反映している。例えば、上矢印は `Operation.PREVIOUS_HISTORY` に関連付けされている。JLine2 を使うとさっきのコードはこう書ける:
 
-<scala>
+```scala
 import jline.console.{ ConsoleReader, KeyMap, Operation }
 var isGameOn = true
 val reader = new ConsoleReader()
@@ -353,7 +353,7 @@ while (isGameOn) {
     case _                            => println(k)
   }
 }
-</scala>
+```
 
 個人的には `System.in` を直に読みにいく率直さが嫌いではないんだけども、JLine2 の方がキレイにまとまっている感じはするので、これも自分が納得できる方法を使えばいいと思う。
 
@@ -365,7 +365,7 @@ while (isGameOn) {
 
 こんな感じで書いてみた:
 
-<scala>
+```scala
 import jline.console.{ ConsoleReader, KeyMap, Operation }
 import scala.concurrent.{ blocking, Future, ExecutionContext }
 import java.util.concurrent.atomic.AtomicBoolean
@@ -405,7 +405,7 @@ while (isGameOn.get) {
   // draw game etc..
   Thread.sleep(100)
 }
-</scala>
+```
 
 スレッドを立ち上げるために、`scala.concurrent.Future` をデフォルトの global execution context で使っている。これはユーザからの入力待ちでブロックして、受け取ったキープレスは `ArrayBlockingQueue` に追加する。
 
@@ -421,14 +421,14 @@ Left(FORWARD_CHAR)
 
 これで現在のブロックをキープレスに応じて動かせるようになった。位置を追跡するために、`GameState` データ型を定義する:
 
-<scala>
+```scala
   case class GameState(pos: (Int, Int))
   var gameState: GameState = GameState(pos = (6, 4))
-</scala>
+```
 
 次に、状態遷移関数を定義する:
 
-<scala>
+```scala
   def handleKeypress(k: Either[Operation, String], g: GameState): GameState =
     k match {
       case Right("q") | Left(Operation.VI_EOF_MAYBE) =>
@@ -453,11 +453,11 @@ Left(FORWARD_CHAR)
         // println(k)
         g
     }
-</scala>
+```
 
 この `handleKeyPress` をメインの while ループから呼び出す:
 
-<scala>
+```scala
   // inside the main thread
   while (isGameOn.get) {
     while (!keyPressses.isEmpty) {
@@ -479,7 +479,7 @@ Left(FORWARD_CHAR)
     val result = drawing.run(Ansi.ansi())._1
     AnsiConsole.out.println(result)
   }
-</scala>
+```
 
 実行すると以下のようになる:
 
@@ -489,7 +489,7 @@ Left(FORWARD_CHAR)
 
 これを Scroll Up テクニックと合わせてみよう。
 
-<scala>
+```scala
   var tick: Int = 0
   // inside the main thread
   while (isGameOn.get) {
@@ -513,7 +513,7 @@ Left(FORWARD_CHAR)
       .eraseLine()
       .a(msg))
   }
-</scala>
+```
 
 ここでは `(1, 5)` に毎秒スクロールアップさせながらログを表示している。上書きしていないため、うまくいけばスクロールバッファーには全てのログが残るはずだ。
 

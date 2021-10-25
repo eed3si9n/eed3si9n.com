@@ -32,24 +32,24 @@ So initially, when the future value is declared the calculation result may or ma
 
 So far we've described the simplest form of future value. In reality there are other features added to make it more useful, but it's still good enough. Let's see some usage:
 
-<scala>
+```scala
 val factory = sff4s.impl.ActorsFuture
 val f = factory future {
   Thread.sleep(1000)
   1
 }
 f() // => This blocks for 1 second and returns 1
-</scala>
+```
 
 Don't worry about the details, but see the behavior of the last line. The act of retrieving the calculation result is sometimes called "forcing." So the minimal API would look like this.
 
 Future v0.1
-<scala>
+```scala
 abstract class Future[+A] {
   /** blocks indefinitely to force the calculation result */
   def apply(): A
 }
-</scala>
+```
 
 There are several implementations of future values available in Scala, but they are all written from the ground up. If there were a common trait like the above, I can write stack independent code.
 
@@ -60,14 +60,14 @@ Future v0.1 is too inconvenient because the only thing it can would block till t
 - non-blocking way to check if the calculation result is ready.
 
 Future v0.2
-<scala>
+```scala
 abstract class Future[+A] {
   def apply(): A
   
   /** checks if the result ready */
   def isDefined: Boolean
 }
-</scala>
+```
 
 timeout
 -------
@@ -76,7 +76,7 @@ Another common feature is the ability to block for finite duration of time. This
 - block for finite duration of time to force the result.
 
 Future v0.3
-<scala>
+```scala
 abstract class Future[+A] {
   def apply(): A
   
@@ -84,7 +84,7 @@ abstract class Future[+A] {
   
   def isDefined: Boolean
 }
-</scala>
+```
 
 This feels minimal, but it's at least usable at this state.
 
@@ -92,11 +92,11 @@ event callback
 --------------
 So the problem with the timeout approach is that these operations could take a long time to complete and you'd rather not manage a bunch of loops polling for the results to come back. A simpler solution is to pass in a callback closure, so the future can call you when the calculation result is ready. Now we are talking asynchronously. I'm using `def onSuccess(f: A => Unit): Future[A]` from twitter's future. Let's look at the usage code:
 
-<scala>
+```scala
 f onSuccess { value =>
   println(value) // => prints "1"
 }
-</scala>
+```
 
 Thanks to call-by-name, Scala does not execute the block of code right way.
 Also note that it just adds an event handler to the future value, but it does not change the calculated value itself.
@@ -115,12 +115,12 @@ This opens up a way for error handling callback `def onFailure(rescueException: 
 
 Since the error state is captured as `Either`, the forcing is implemented as `def get: Either[Throwable, A]`, and `apply()` just called it as follows:
 
-<scala>
+```scala
 def apply(): A = get.fold(throw _, x => x)
-</scala>
+```
 
 Future v0.4:
-<scala>
+```scala
 abstract class Future[+A] {
   def apply(): A = get.fold(throw _, x => x)
   def apply(timeoutInMsec: Long): A = get(timeoutInMsec).fold(throw _, x => x)
@@ -150,7 +150,7 @@ abstract class Future[+A] {
       case _ =>
     }
 }
-</scala>
+```
 
 It's looking better. In fact these features are already beyond the basics provided by [`java.util.concurrent.Future`][3], I had to supply my own implementation.
 
@@ -158,15 +158,15 @@ monadic chaining
 ----------------
 We can (finally) talk about doing something with actual future. So far we've discussed getting the calculation result out, but that's still present value. A cooler thing would be to actually use the future value before it's available and calculate another future value. [Using the value from one thing to compute another thing][6]... it must be a monad. Usage code!
 
-<scala>
+```scala
 val g = f map { _ + 1 }
-</scala>
+```
 
 We kind of know what `f()` is going to resolve to because we typed it in, but pretend you don't for now. So here we have an unknown `Future[Int]`. Whatever the value is, add 1 to it. This becomes another unknown future value. If `f` for some reason failed, now the whole thing would fail too, just like mapping `Option`.
 
 We can also put these into for expression:
 
-<scala>
+```scala
 val xFuture = factory future {1}
 val yFuture = factory future {2}
 
@@ -176,15 +176,15 @@ for {
 } {
   println(x + y) // => prints "3"
 }
-</scala>
+```
 
 Let me just write out the signature of these
-<scala>
+```scala
   def foreach(f: A => Unit)
   def flatMap[B](f: A => Future[B]): Future[B]
   def map[B](f: A => B): Future[B]
   def filter(p: A => Boolean): Future[A]
-</scala>
+```
 
 select and join
 ---------------
@@ -194,7 +194,7 @@ I've also added two more interesting methods taken from twitter's Future, called
 Similarly, `join` takes another `Future` as a parameter, and combines it into one `Future`.
 
 Future v0.5:
-<scala>
+```scala
 abstract class Future[+A] {
   def apply(): A = get.fold(throw _, x => x)
   def apply(timeoutInMsec: Long): A = get(timeoutInMsec).fold(throw _, x => x)
@@ -225,7 +225,7 @@ abstract class Future[+A] {
   def or[U >: A](other: Future[U]): Future[U] = select(other)
   def join[B](other: Future[B]): Future[(A, B)] 
 }
-</scala>
+```
 
 Now we have a decent abstraction of a future value.
 
@@ -242,13 +242,13 @@ dispatcher
 ----------
 sff4s provides dispatcher objects for the four future implementations mentioned above. They define `future` method which dispatches calculation to the underlying system. Recall the first usage code:
 
-<scala>
+```scala
 val factory = sff4s.impl.ActorsFuture
 val f = factory future {
   Thread.sleep(1000)
   1
 }
-</scala>
+```
 
 This internally calls [`scala.acotors.Futures`][7]' `future` method to dispatch the block.
 Note `sff4s.impl.TwitterUtilFuture`'s `future` method would result to unimpressive result if you're expecting asynchronous behavior like that of `ActorsFuture`.
@@ -257,12 +257,12 @@ implicit conversion
 -------------------
 The dispatchers also implement implicit converters to turn a native future value into a wrapped one.
 
-<scala>
+```scala
 import factory._
 val native = scala.actors.Futures future {5}
 val w: sff4s.Future[Int] = native
 w() // => This blocks for the futures result (and eventually returns 5)
-</scala>
+```
 
 feedbacks?
 ----------

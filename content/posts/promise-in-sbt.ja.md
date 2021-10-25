@@ -26,7 +26,7 @@ build.sbt は、自動的な並列処理を行うタスク・グラフを定義�
 
 `scala.concurrent.Promise` のラッパーを実装して `Def.promise` と呼んだ。具体例で説明する:
 
-<scala>
+```scala
 val midpoint = taskKey[PromiseWrap[Int]]("")
 val longRunning = taskKey[Unit]("")
 val task2 = taskKey[Unit]("don't call this from shell")
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
       val y = task2.value
     }
   )
-</scala>
+```
 
 まず、`midpoint` という `PromiseWrap[Int]` のタスクを作る。コマンド呼び出しの度にフレッシュな promise が欲しいのでタスクを使う。次に、`longRunning` というタスクがあって、これは途中で promise を補完する。`task2` は `midpoint.await.value` に依存する。これは、`midpoint` に格納された promise が完了するまで sbt のスケジューラーは `task2` を開始しないことを意味する。
 

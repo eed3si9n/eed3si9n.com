@@ -25,7 +25,7 @@ tags:        [ "scala" ]
 
 2020年11月現在での実装:
 
-<scala>
+```scala
 import java.io.File
 import java.net.{ URI, URISyntaxException }
 import java.util.Locale
@@ -65,7 +65,7 @@ def toFile(uri: URI): File =
         else new File(part)
     }
   } catch { case _: URISyntaxException => new File(uri.getPath) }
-</scala>
+```
 
 ### ファイルパスとは何か?
 
@@ -157,7 +157,7 @@ file://<host>/<path>
 
 Scala/Java において残念ながら `java.io.File#toURI` は u1 記法を生成する:
 
-<scala>
+```scala
 scala> import java.io.File
 
 scala> val etcHosts = new File("/etc/hosts")
@@ -165,31 +165,31 @@ etcHosts: java.io.File = /etc/hosts
 
 scala> etcHosts.toURI
 res1: java.net.URI = file:/etc/hosts
-</scala>
+```
 
 回避方法として NIO の `java.nio.file.Path#toUri` を使うことができる:
 
-<scala>
+```scala
 scala> etcHosts.toPath.toUri
 res2: java.net.URI = file:///etc/hosts
-</scala>
+```
 
 u3 記法は `java.io.File` を使ってラウンドトリップできる:
 
-<scala>
+```scala
 scala> new File(res2)
 res3: java.io.File = /etc/hosts
-</scala>
+```
 
 u1 と u2 記法も合法な URI なので、処理できるか試してみる:
 
-<scala>
+```scala
 scala> new File(new URI("file:/etc/hosts"))
 res4: java.io.File = /etc/hosts
 
 scala> new File(new URI("file://localhost/etc/hosts"))
 java.lang.IllegalArgumentException: URI has an authority component
-</scala>
+```
 
 ### Unix-like なファイルシステムの相対パス
 
@@ -199,7 +199,7 @@ Unix-like なファイルシステムの相対パス (`../src/main/`) は相対�
 
 Scala/Java では、残念ながら `java.nio.file.Path#toUri` はフル URI を生成してしまう:
 
-<scala>
+```scala
 scala> import java.io.File
 
 scala> import java.net.URI
@@ -208,11 +208,11 @@ scala> val upSrcMain = new File("../src/main")
 
 scala> upSrcMain.toPath.toUri
 res1: java.net.URI = file:///Users/someone/io/../src/main
-</scala>
+```
 
 相対パスはこのようにして得ることができる:
 
-<scala>
+```scala
 scala> def toUri_v1(f: File): URI = {
          if (f.isAbsolute) f.toPath.toUri
          else new URI(null, f.getPath, null)
@@ -220,22 +220,22 @@ scala> def toUri_v1(f: File): URI = {
 
 scala> toUri_v1(upSrcMain)
 res2: java.net.URI = ../src/main
-</scala>
+```
 
 これは妥当な URI 参照だが、`File` コンストラクタを用いてラウンドトリップできなくなった。
 
-<scala>
+```scala
 scala> new File(res2)
 java.lang.IllegalArgumentException: URI is not absolute
   at java.io.File.<init>(File.java:416)
-</scala>
+```
 
 以下のように回避できる:
 
-<scala>
+```scala
 scala> new File(res2.getSchemeSpecificPart)
 res4: java.io.File = ../src/main
-</scala>
+```
 
 ### Windows ファイルシステムの絶対パス
 
@@ -245,7 +245,7 @@ RFC 1738 の他に、もう一つ興味深いソースがあって、それは D
 
 Scala/Java では、`java.nio.file.Path#toUri` は Windows 上で実行した場合のみ機能する:
 
-<scala>
+```scala
 scala> import java.io.File
 
 scala> val doc = new File("""C:\Documents and Settings\""")
@@ -253,20 +253,20 @@ doc: java.io.File = C:\Documents and Settings
 
 scala> doc.toPath.toUri
 res3: java.net.URI = file:///C:/Documents%20and%20Settings/
-</scala>
+```
 
 3つのスラッシュの他に、バックスラッシュがスラッシュに変換され、空白文字が `%20` に変換されていることにも注意してほしい。
 
 u1 記法、u2 記法も合法な URI なので、処理できるか試してみる:
 
-<scala>
+```scala
 scala> new File(new URI("file:/C:/Documents%20and%20Settings/"))
 res4: java.io.File = C:\Documents and Settings
 
 scala> new File(new URI("file://localhost/C:/Documents%20and%20Settings/"))
 java.lang.IllegalArgumentException: URI has an authority component
   at java.io.File.<init>(File.java:423)
-</scala>
+```
 
 Unix-like なシステム同様、Java は u2 記法が苦手のようだ。
 
@@ -280,15 +280,15 @@ file:c:/path/to/file
 
 Windows の絶対パスのために u0 記法を受け入れることができれば、全ての絶対ファイルパスを URI に変換できるエレガントな変換方法を使うことができる: パスをスラッシュ変換したあとで `file:` を前に付けるだけでいい。しかし、これはデフォルトだと動作しない:
 
-<scala>
+```scala
 scala> new File(new URI("file:C:/Documents%20and%20Settings/"))
 java.lang.IllegalArgumentException: URI is not hierarchical
   at java.io.File.<init>(File.java:418)
-</scala>
+```
 
 以下が回避方法だ:
 
-<scala>
+```scala
 scala> def toFile(uri: URI): File = {
         assert(
            Option(uri.getScheme) match {
@@ -304,7 +304,7 @@ scala> def toFile(uri: URI): File = {
 
 scala> toFile(new URI("file:C:/Documents%20and%20Settings/"))
 res6: java.io.File = C:\Documents and Settings
-</scala>
+```
 
 u0 記法を用いることはナイスな気がするが、Microsoft社からのブログ記事や RFC 1738 との互換性を考慮すると、自分が出力する側だと u3 記法が推奨される。
 
@@ -314,7 +314,7 @@ Windows ファイルシステムの相対パス `..\My Documents\test` は相対
 
 Scala/Java においては、相対パスのバックスラッシュからスラッシュへの変換を自前でやる必要がある:
 
-<scala>
+```scala
 scala> val upDocsTest = new File("""..\My Documents\test""")
 upDocsTest: java.io.File = ..\My Documents\test
 
@@ -330,14 +330,14 @@ scala> def toUri(f: File): URI = {
 
 scala> toUri(upDocsTest)
 res9: java.net.URI = ../My%20Documents/test
-</scala>
+```
 
 `URI#getSchemeSpecificPart` を使って `File` を呼び出す方法は動作する:
 
-<scala>
+```scala
 scala> new File(res9.getSchemeSpecificPart)
 res10: java.io.File = ..\My Documents\test
-</scala>
+```
 
 ### Windows の UNC パス
 
@@ -347,27 +347,27 @@ res10: java.io.File = ..\My Documents\test
 
 Scala/Java では、Windows 上で実行した場合に `java.nio.file.Path#toUri` が動くので先ほど書いた `toUri(...)` をそのまま使える:
 
-<scala>
+```scala
 scala> val unc = new File("""\\laptop\My Documents\Some.doc""")
 unc: java.io.File = \\laptop\My Documents\Some.doc
 
 scala> toUri(unc)
 res14: java.net.URI = file://laptop/My%20Documents/Some.doc
-</scala>
+```
 
 これは `URI#getSchemeSpecificPart` トリックが使える:
 
-<scala>
+```scala
 scala> new File(res14.getSchemeSpecificPart)
 res15: java.io.File = \\laptop\My Documents\Some.doc
-</scala>
+```
 
 UNC パスを path 構成要素として取り扱って、authority は空であるべきという考えもある。その場合は、u4 記法となる。
 
-<scala>
+```scala
 scala> new File(new URI("file:////laptop/My%20Documents/Some.doc"))
 res16: java.io.File = \\laptop\My Documents\Some.doc
-</scala>
+```
 
 ### 実行時性能の改善
 
@@ -375,7 +375,7 @@ res16: java.io.File = \\laptop\My Documents\Some.doc
 
 以下は高速化された `toUri` だ:
 
-<scala>
+```scala
 scala> import java.io.File
        import java.net.{ URI, URISyntaxException }
        import java.util.Locale
@@ -406,7 +406,7 @@ scala> val etcHosts = new File("/etc/hosts")
 
 scala> toURI(etcHosts)
 val res0: java.net.URI = file:///etc/hosts
-</scala>
+```
 
 この実装は Unix-like なファイルシステムの絶対パスは u3 記法を用いる。コードが Linux で実行されても Windows 上で実行されてもこの値に関しては同じように動作するようになっている。
 

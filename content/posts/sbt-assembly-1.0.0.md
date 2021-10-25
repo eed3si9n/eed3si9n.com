@@ -37,9 +37,9 @@ Over the years, it has also added various features related to über-JAR such as 
 
 In `plugins.sbt` add:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.0.0")
-</scala>
+```
 
 See below for POM consistency setup.
 
@@ -65,7 +65,7 @@ assemblyExcludedJars          assemblyMergeStrategy         assemblyShadeRules
 
 This mean that those keys can be used as:
 
-<scala>
+```scala
 ThisBuild / assemblyMergeStrategy := ...
 
 // or
@@ -75,7 +75,7 @@ lazy val app = (project in file("app"))
 
     // more settings here ...
   )
-</scala>
+```
 
 `ThisBuild / assemblyMergeStrategy` is shared across all subprojects.
 
@@ -96,7 +96,7 @@ If you're behind a corporate firewall, and you want to access Maven Central via 
 
 In `plugins.sbt` add:
 
-<scala>
+```scala
 addPomConsisntentSbtPlugin2021Draft("com.eed3si9n" % "sbt-assembly" % "1.0.0")
 
 def sbtPluginModuleName2021Draft(n: String, sbtV: String): String =
@@ -112,7 +112,7 @@ def addPomConsisntentSbtPlugin2021Draft(m: ModuleID): Setting[Seq[ModuleID]] =
     sbtPluginExtra2021Draft(m)
       .withName(sbtPluginModuleName2021Draft(m.name, sbtV))
   }
-</scala>
+```
 
 ### participation
 

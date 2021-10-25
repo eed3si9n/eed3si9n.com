@@ -27,13 +27,13 @@ tags:        [ "scala" ]
 
 特に可変長引数 (vararg) の区切り文字としてセミコロンを許せば便利そうだ。しかし、実際にはそれはうまくいかない。[@Ichoran][@Ichoran] さんが具体例を用いて指摘してくれた:
 
-<scala>
+```scala
 Seq(
   a
   b
   c
 )
-</scala>
+```
 
 これは現状の Scala では `Seq(a.b(c))` と解釈される。
 
@@ -49,20 +49,20 @@ Seq(
 >
 > パーサーを通過する必要があるので、Scala として合法な「形」(shape) がまず必要になる。例えば、
 
-<scala>
+```scala
 scala> List({
        1
        2
        3
        })
 res1: List[Int] = List(3)
-</scala>
+```
 
 > 以上は合法な Scala だ。中括弧はコンパイラの中では `Block` データ型としてパースされる。可変長 `Int*` の引数を受け取って、もし `Block` が渡された場合には各ステートメントを展開するマクロを定義することは可能かもしれない。
 
 つまり、言語の変更を目指すかわりに、構文木の書き換えを試してみることを提案したい。ブロック `{ ... }` を使うことで Rex さんが指摘してくれた問題も回避できる。
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -91,7 +91,7 @@ scala> Seq({
          c
        })
 res1: Seq[Int] = List(3)
-</scala>
+```
 
 最初のものは `a.b(c)` と解釈されるが、2番目のものは `a; b; c` となる。
 
@@ -99,7 +99,7 @@ res1: Seq[Int] = List(3)
 
 さっそく `{ ... }` を `Vector` に変換するマクロを実装してみよう。これはジェネリックなバージョンだ:
 
-<scala>
+```scala
 package example
 
 import scala.language.experimental.macros
@@ -118,11 +118,11 @@ object NoComma {
       Apply(Select(reify(Vector).tree, TermName("apply")), items))
   }
 }
-</scala>
+```
 
 以下の様に使うことができる:
 
-<scala>
+```scala
 scala> import example.NoComma.nocomma
 import example.NoComma.nocomma
 
@@ -145,7 +145,7 @@ scala> nocomma {
          c
        }
 res0: Vector[Int] = Vector(1, 2, 3)
-</scala>
+```
 
 型推論により自動的に最後の要素 `c` の型、つまり `Int` が選ばれる。用法によっては、これで十分な場合とそうじゃない場合がある。
 
@@ -158,7 +158,7 @@ bare build.sbt 記法で良かったなと思うことがあって、それは�
 
 以下のようにして `nocomma` マクロを `Setting[_]` 専用に決め打ちする:
 
-<scala>
+```scala
 package sbtnocomma
 
 import sbt._
@@ -178,11 +178,11 @@ object NoComma {
       Apply(Select(reify(Vector).tree, TermName("apply")), items))
   }
 }
-</scala>
+```
 
 これを sbt-nocomma として公開したので、このマクロは以下のように使うことができる:
 
-<scala>
+```scala
 import Dependencies._
 
 ThisBuild / organization := "com.example"
@@ -202,7 +202,7 @@ lazy val root = (project in file("."))
     Compile / scalacOptions += "-Xfatal-warnings"
     Compile / console / scalacOptions --= Seq("-deprecation", "-Xfatal-warnings", "-Xlint")
   })
-</scala>
+```
 
 `Setting[_]` に決め打ちしたおかげで、例えば `println(...)` みたいなものがまぎれ込んでも読み込み時にキャッチできる:
 
@@ -223,6 +223,6 @@ Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?
 
 試してみたい人は、sbt 1.x を使って `project/plugins.sbt` に以下を追加する:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-nocomma" % "0.1.0")
-</scala>
+```

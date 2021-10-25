@@ -73,7 +73,7 @@ Another genius of the Scala is the idea of infix operator notation. It's a notat
 
 All of these extension points allows libraries to implement feature that feels as if it's a native, built-in feature. A prime example is the combinator parser feature, which Scala ships with. According to Programming in Scala, here's the definition of `~` and `|` as a method of class `Parser`:
 
-<scala>
+```scala
 def ~ (q: => Parser[T]) = new Parser[T~U] {
   def apply(in: Input) = p(in) match {
     case Success(x, in1) =>
@@ -91,12 +91,12 @@ def | (q: => Parser[T]) = new Parser[T] {
     case failure => q(in)
   }
 }
-</scala>
+```
 
 The details seem complicated, but the point is that the parameters are using by-name parameters because it's preceded by `=>`. Now a parser can be written as follows:
 
-<scala>
+```scala
 def parens = floatingPointNumber | "("~parens~")"
-</scala>
+```
 
 This is the Scala magic. By delaying the evaluation till the very end, `parens` allows itself to be self-referential. It's tricky, yet from the user of the combinator parser, it feels natural. This is the way of writing out a grammar in BNF. Using just the cards dealt to everybody else, Scala demonstrates a great example of language extension that feels like it's part of the language. There's of course the pattern matching that's happening here, but by-name parameter essentially enables metaprogramming on Scala, treating Scala code itself as chunks of code, or a sequence of symbols.

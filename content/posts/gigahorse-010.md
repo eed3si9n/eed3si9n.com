@@ -76,34 +76,34 @@ The immutable datatypes used in Gigahorse are generated using [sbt-datatype][dat
 
 and it generates pseudo case classes that's growable over time. Using the `since` field, it can generate multiple `apply` constructor, and it does not generate `unapply` or expose `copy` because they can not grow in binary compatible way. Instead it generates fluent style method:
 
-<scala>
+```scala
   def withConnectTimeout(connectTimeout: scala.concurrent.duration.Duration): Config = {
     copy(connectTimeout = connectTimeout)
   }
-</scala>
+```
 
 This also motivated us to add a few features such as `extra` field to hand-code convenience functions, for example to do `Some(...)` wrapping:
 
-<scala>
+```scala
   def withAuth(auth: Realm): Config = copy(authOpt = Some(auth))
-</scala>
+```
 
 ### using functions
 
 The API design of Gigahorse is also influenced by that of [Dispatch Reboot][dispatch] by [@n8han][@n8han]. In particular, Dispatch uses function `Response => A` to transform the response from the beginning, while with WS API, you would map over the returned `Future`. Gigahorse allows both styles, but the docs emphasizes the `http.run(r, f)`:
 
-<scala>
+```scala
 val f = http.run(r, Gigahorse.asString andThen {_.take(60)})
-</scala>
+```
 
 ### using Either
 
 Another influence from Dispatch is lifting of `Future[A]` to `Future[Either[Throwable, A]]`. To avoid LGPL, I didn't look at the implementation, but Dispatch adds extention method `either` on `Future` using implicits that does that.
 I wanted to avoid implicits here, so instead I created a hacky solution called `FutureLifter` that looks like this:
 
-<scala>
+```scala
 val f = http.run(r, Gigahorse.asEither map { Gigahorse.asString })
-</scala>
+```
 
 `asEither` kind of feels like a function, but in addition to mapping to `Right(...)` it also does `recoverWith(...)` to `Left(...)`. This is fine, but you also would end up with multiple `Future[Either[Throwable, A]]`, so you might need Cats ([Stacking Future and Either][stacking]), Scalaz, and/or [@wheaties][@wheaties]'s [AutoLift][AutoLift] to compose them sanely.
 

@@ -26,13 +26,13 @@ During the [SIP-27 trailing commas](https://github.com/scala/docs.scala-lang/pul
 
 This doesn't actually work. [@Ichoran][@Ichoran] kindly pointed out an example:
 
-<scala>
+```scala
 Seq(
   a
   b
   c
 )
-</scala>
+```
 
 This is interpreted to be `Seq(a.b(c))` in Scala today.
 
@@ -48,20 +48,20 @@ Here's my response:
 >
 > You have to get past the parser, so you need a legal “shape” of Scala. For example,
 
-<scala>
+```scala
 scala> List({
        1
        2
        3
        })
 res1: List[Int] = List(3)
-</scala>
+```
 
 > The above is still legal Scala. The curly brace gets parsed into `Block` datatype in the compiler. It might be possible to define a macro that takes vararg `Int*` as argument, and when `Block` is passed, expands each statements as an argument.
 
 In other words, instead of pursuing a language change, I'm suggesting that we can first experiment by rewriting trees. By using blocks `{ ... }` we can get around the infix problem pointed out by Rex.
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -90,7 +90,7 @@ scala> Seq({
          c
        })
 res1: Seq[Int] = List(3)
-</scala>
+```
 
 The first is interpretted to be `a.b(c)` whereas the second is `a; b; c`.
 
@@ -98,7 +98,7 @@ The first is interpretted to be `a.b(c)` whereas the second is `a; b; c`.
 
 Let's implement the macro that would then transform `{ ... }` into a `Vector`. Here's a generic version:
 
-<scala>
+```scala
 package example
 
 import scala.language.experimental.macros
@@ -117,11 +117,11 @@ object NoComma {
       Apply(Select(reify(Vector).tree, TermName("apply")), items))
   }
 }
-</scala>
+```
 
 Here's how you can use it:
 
-<scala>
+```scala
 scala> import example.NoComma.nocomma
 import example.NoComma.nocomma
 
@@ -144,7 +144,7 @@ scala> nocomma {
          c
        }
 res0: Vector[Int] = Vector(1, 2, 3)
-</scala>
+```
 
 Using type inferencing, it will automatically pick the last item `c`'s type, which is `Int`. This may or may not be sufficient depending on your use case.
 
@@ -159,7 +159,7 @@ is its lack of commas at the end of each line.
 
 We can hardcode `nocomma` macro specifically to `Setting[_]` as follows:
 
-<scala>
+```scala
 package sbtnocomma
 
 import sbt._
@@ -179,11 +179,11 @@ object NoComma {
       Apply(Select(reify(Vector).tree, TermName("apply")), items))
   }
 }
-</scala>
+```
 
 Published as sbt-nocomma, we can use this macro as follows:
 
-<scala>
+```scala
 import Dependencies._
 
 ThisBuild / organization := "com.example"
@@ -203,7 +203,7 @@ lazy val root = (project in file("."))
     Compile / scalacOptions += "-Xfatal-warnings"
     Compile / console / scalacOptions --= Seq("-deprecation", "-Xfatal-warnings", "-Xlint")
   })
-</scala>
+```
 
 Because we hardcoded the type to `Setting[_]`, it will catch things at loading time if you put `println(...)` or something:
 
@@ -224,6 +224,6 @@ Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?
 
 To try this yourself, add the following to `project/plugins.sbt` using sbt 1.x:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-nocomma" % "0.1.0")
-</scala>
+```

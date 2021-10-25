@@ -44,7 +44,7 @@ According to Sonatype, scopt 3.x was downloaded 370,325 times in November, 2018.
 
 I am introducing a new style of defining options parser in scopt 4, but I am keeping scopt 3 style "object oriented DSL" around:
 
-<scala>
+```scala
 val parser = new scopt.OptionParser[Config]("scopt") {
   head("scopt", "3.x")
 
@@ -58,7 +58,7 @@ val parser = new scopt.OptionParser[Config]("scopt") {
     .action((x, c) => c.copy(out = x))
     .text("out is a required file property")
 }
-</scala>
+```
 
 If you have been using scopt 3, and if source compiles, you should be ok.
 
@@ -74,7 +74,7 @@ In [monads are fractals][1] that I wrote in 2014, I had an idea of making the op
 
 Here's how functional DSL looks like in scopt 4:
 
-<scala>
+```scala
 import scopt.OParser
 val builder = OParser.builder[Config]
 val parser1 = {
@@ -97,7 +97,7 @@ OParser.parse(parser1, args, Config()) match {
   case _ =>
     // arguments are bad, error message will have been displayed
 }
-</scala>
+```
 
 Instead of calling methods on `OptionParser`, the functional DSL first creates a builder based on your specific `Config` datatype, and calls `opt[A](...)` functions that returns `OParser[A, Config]`.
 
@@ -109,7 +109,7 @@ Initially I was thinking about using `for` comprehension to do this composition,
 
 Here's a demonstration of composing `OParser`s using `OParser.sequence`.
 
-<scala>
+```scala
 import scopt.OParser
 val builder = OParser.builder[Config]
 import builder._
@@ -137,13 +137,13 @@ val p3 =
     p1,
     p2
   )
-</scala>
+```
 
 ### composing with cmd("...").children(...)
 
 Another way of reusing an `OParser` is passing them into `.children(...)` method of a `cmd("...")` parser.
 
-<scala>
+```scala
 val p4 = {
   import builder._
   OParser.sequence(
@@ -157,7 +157,7 @@ val p4 = {
       .children(suboptionParser1)
   )
 }
-</scala>
+```
 
 In the above, `suboptionParser1` itself would be a `OParser`. This allows common options to be reused between update and status commands.
 
@@ -167,7 +167,7 @@ In the above, `suboptionParser1` itself would be a `OParser`. This allows common
 
 Here's a demonstration of how we can split up the `Config` datatype.
 
-<scala>
+```scala
 // provide this in subproject1
 trait ConfigLike1[R] {
   def withDebug(value: Boolean): R
@@ -211,7 +211,7 @@ val parser3: OParser[_, Config1] = {
     parser2
   )
 }
-</scala>
+```
 
 In the above example, `parser1` and `parser2` are written against an abstract type `R` that meets type constraint of being a subtype of `ConfigLike1[R]` and `ConfigLike2[R]`. In `parser3`, `R` gets bound to a concrete datatype `Config1`.
 
@@ -221,7 +221,7 @@ One feedback I got during RC2 was about the management of effects. Previously we
 
 This is what I did for 4.0.0:
 
-<scala>
+```scala
 sealed trait OEffect
 object OEffect {
   case class DisplayToOut(msg: String) extends OEffect
@@ -230,11 +230,11 @@ object OEffect {
   case class ReportWarning(msg: String) extends OEffect
   case class Terminate(exitState: Either[String, Unit]) extends OEffect
 }
-</scala>
+```
 
 In addition to `OParser.parse(...)` scopt 4 adds a new way of invoking the parser called `runParser(...)`, which returns `(Option[Config], List[OEffect])`:
 
-<scala>
+```scala
 // OParser.runParser returns (Option[Config], List[OEffect])
 OParser.runParser(parser1, args, Config()) match {
   case (result, effects) =>
@@ -255,7 +255,7 @@ OParser.runParser(parser1, args, Config()) match {
         // arguments are bad, error message will have been displayed
     }
 }
-</scala>
+```
 
 Now you can do whatever with those effects.
 

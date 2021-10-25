@@ -25,7 +25,7 @@ Restligeist macro: n. A macro that fails immediately to display migration messag
 
 For example, if you try to use `<<=` in sbt 1.3.8 you'd get the following error on load:
 
-<scala>
+```scala
 /tmp/hello/build.sbt:13: error: `<<=` operator is removed. Use `key := { x.value }` or `key ~= (old => { newValue })`.
 See http://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html
     foo <<= test,
@@ -33,7 +33,7 @@ See http://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html
 [error] sbt.compiler.EvalException: Type error in expression
 [error] Use 'last' for the full log.
 Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?
-</scala>
+```
 
 It's good that it's doable, but using a macro for this is too pompous. According to [Yoshida-san][1], you can do this in Haskell just by putting `Whoops` in the type signature:
 
@@ -63,7 +63,7 @@ This would be an interesting tag for any long-supported libraries. One interesti
 
 Here are some examples. Let's say we want to make `<<=` method an error.
 
-<scala>
+```scala
 import scala.annotation.apiStatus, apiStatus._
 
 @apiStatus(
@@ -73,7 +73,7 @@ import scala.annotation.apiStatus, apiStatus._
   defaultAction = Action.Error,
 )
 def <<=(): Unit = ???
-</scala>
+```
 
 Here how it would look if someone calls this method:
 
@@ -89,7 +89,7 @@ So the custom compiler message works.
 
 Let's try implementing ApiMayChange annotation.
 
-<scala>
+```scala
 package foo
 
 import scala.annotation.apiStatus, apiStatus._
@@ -103,7 +103,7 @@ import scala.annotation.apiStatus, apiStatus._
 implicit class ShouldDSL(s: String) {
   def should(o: String): Unit = ()
 }
-</scala>
+```
 
 Following Akka, I chose the default action to be `Action.Silent` so it won't display a warning. Here's where `-Wconf` can shine. Using `-Wconf:cat=api-may-change&origin=foo\..*:warning` option, the user can enable "api-may-change" category just for `foo.*` package.
 

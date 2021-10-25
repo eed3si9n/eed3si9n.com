@@ -27,7 +27,7 @@ tags:        [ "scala" ]
 
 そこで今試してるのが sbt の [script runner][2]だ:
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error
 
 /***
@@ -35,7 +35,7 @@ ThisBuild / scalaVersion := "2.13.4"
 */
 
 println("hello")
-</scala> <!-- ***/ -->
+``` <!-- ***/ -->
 
 次に、
 
@@ -49,7 +49,7 @@ println("hello")
 
 次に標準入力の読み込みをみてみよう。Przemek さんの 'Truly standalone Scala scripts' というトークで例に出てきた標準入力で HTML ファイルを受け取って全ての URL を列挙するというのをやってみる。
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error 
 /***
 ThisBuild / scalaVersion := "2.13.4"
@@ -66,7 +66,7 @@ for {
   line <- stdinStr.linesIterator
   m <- r.findAllMatchIn(line)
 } println(m)
-</scala> <!-- ***/ -->
+``` <!-- ***/ -->
 
     $ chmod +x urlgrep.scala
     $ curl -s https://www.scala-sbt.org/ | ./urlgrep.scala
@@ -95,7 +95,7 @@ for {
 
 もう少し複雑な例として、`find` を使わずに `src/` 以下の全サブディレクトリの `*.rst` ファイルを走査したい。sbt の `sbt.IO` はこういうのが得意だし、使い方も分かってる。
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error 
 /***
 ThisBuild / scalaVersion := "2.13.4"
@@ -113,7 +113,7 @@ val srcDir = file("./src/")
 
 val fs: Seq[File] = (srcDir ** "*.rst").get()
 fs foreach { x => println(x.toString) }
-</scala> <!-- ***/ -->
+``` <!-- ***/ -->
 
 `sbt.io.syntax` オブジェクトに `File` から `PathFinder` への暗黙の変換が含まれていて、`PathFinder` は `**` メソッドを実装する。これがサブディレクトリ内のファイルパターンを参照する。`script.scala` を実行するとこんな感じになる:
 
@@ -129,7 +129,7 @@ fs foreach { x => println(x.toString) }
 
 行の読み書きはそれぞれ `IO.readLines` と `IO.writeLines` と呼ばれている。各行末に "!" を追加するスクリプトはこうなる:
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error 
 /***
 ThisBuild / scalaVersion := "2.13.4"
@@ -157,7 +157,7 @@ def processFile(f: File): Unit = {
 
 val fs: Seq[File] = (srcDir ** "*.rst").get()
 fs foreach { processFile }
-</scala> <!-- ***/ -->
+``` <!-- ***/ -->
 
 これがアウトプットだ:
 
@@ -175,21 +175,21 @@ fs foreach { processFile }
 
 まずは、単一の role を取り除く純粋な関数生成器を作る:
 
-<scala>
+```scala
 def removeRole(role: String): String => String =
   _.replaceAll("""(:""" + role + """:)(\`[^`]+\`)""", """$2""")
-</scala> <!--_ -->
+``` <!--_ -->
 
 次に、`Function1` の `andThen` メソッドを使ってそれを連鎖する:
 
-<scala>
+```scala
 val processRest: String => String =
   removeRole("doc") andThen removeRole("key") andThen removeRole("ref")
-</scala>
+```
 
 単一のバッククォートとダブルのバッククォートを統一するためには、一度全部単一にしてから、全部をダブルにする。
 
-<scala>
+```scala
 def nTicks(n: Int): String = """(\`{""" + n.toString + """})"""
 def toSingleTicks: String => String = 
   _.replaceAll(nTicks(2), "`")
@@ -198,7 +198,7 @@ def toDoubleTicks: String => String =
 val preprocessRest: String => String =
   removeRole("doc") andThen removeRole("key") andThen removeRole("ref") andThen 
   toSingleTicks andThen toDoubleTicks
-</scala>
+```
 
 ### sys.process
 
@@ -206,10 +206,10 @@ val preprocessRest: String => String =
 
 `Process.apply` は `Seq[String]` を受け取って `ProcessBuilder` を返し、これは渡されたシェルコマンドを実行して結果の行を返す `lazyLines` メソッドを提供する。例えば、以下のようにして `pandoc` を実行できる:
 
-<scala>
+```scala
 def runPandoc(f: File): Seq[String] =
   Process(Seq("pandoc", "-f", "rst", "-t", "markdown", f.toString)).lazyLines.toVector
-</scala>
+```
 
 ### 引数の処理
 
@@ -217,7 +217,7 @@ Scala を使う動機の一つが Unix コマンドへの依存を減らすこ�
 
 以下は書いた別のスクリプトでカスタムの `howto` タグを抽出している。
 
-<scala>
+```scala
 #!/usr/bin/env sbt -Dsbt.version=1.4.7 -Dsbt.main.class=sbt.ScriptMain -Dsbt.supershell=false -error 
 /***
 ThisBuild / scalaVersion := "2.13.4"
@@ -268,7 +268,7 @@ def processFile(f: File): Unit = {
 }
 
 args foreach { x => processFile(file(x)) }
-</scala>
+```
 
 ### まとめ 
 

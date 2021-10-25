@@ -55,7 +55,7 @@ Understanding equality means knowing how these combinations are compared.
 
 The language spec provides some hints, although it does not have the full information. [Chapter 12][12] contains the definition of `Any` as follows:
 
-<scala>
+```scala
 package scala
 /** The universal root class */
 abstract class Any {
@@ -69,11 +69,11 @@ abstract class Any {
 
   ....
 }
-</scala>
+```
 
 First thing to note is that both `equals` and `==` method are provided by `Any`, encompassing both the value types and reference types. This is often called *universal equality*. In Scala 2.x, this allows comparison of two completely unrelated types such as
 
-<scala>
+```scala
 scala> 1 == "1"
          ^
        warning: comparing values of types Int and String using `==` will always yield false
@@ -81,13 +81,13 @@ res0: Boolean = false
 
 scala> Option(1) == Option("1")
 res1: Boolean = false
-</scala>
+```
 
 Given that `==` is final, you might expect that the operator is strictly a symbolic alias of `equals` method. However, later in the [numeric value types] section it says:
 
 > Comparison methods for equals (`==`), not-equals (`!=`), less-than (`<`), greater-than (`>`), less-than-or-equals (`<=`), greater-than-or-equals (`>=`), which each exist in 7 overloaded alternatives. Each alternative takes a parameter of some numeric value type. Its result type is type `Boolean`. The operation is evaluated by converting the receiver and its argument to their operation type and performing the given comparison operation of that type.
 
-<scala>
+```scala
 package scala
 abstract sealed class Int extends AnyVal {
   def == (that: Double): Boolean  // double equality
@@ -100,7 +100,7 @@ abstract sealed class Int extends AnyVal {
 
   ....
 }
-</scala>
+```
 
 This gives a glimpse at the fact that `==` is not just a symbolic alias of `equals` since Scala can overload the operators.
 
@@ -178,10 +178,10 @@ $2 ==> false
 
 Scala emulates Java's widening even with boxed primitive types:
 
-<scala>
+```scala
 scala> java.lang.Integer.valueOf(1) == java.lang.Float.valueOf(1.0f)
 val res0: Boolean = true
-</scala>
+```
 
 I am not sure who coined the term, but this behavior is called *cooperative equality*.
 
@@ -189,15 +189,15 @@ In Java, whenever two values are `equal`, `hashCode` is required to return the s
 
 > The unification of primitives and boxed types in scala necessitates measures to preserve the equality contract: equal objects must have equal hash codes. To accomplish this a new method is introduced on `Any`:
 
-<scala>
+```scala
   def ##: Int
-</scala>
+```
 
 > This method should be called in preference to `hashCode` by all scala software which consumes hashCodes.
 
 Here's a demonstration of `hashCode` vs `##`:
 
-<scala>
+```scala
 scala> 1.hashCode
 res1: Int = 1
 
@@ -212,11 +212,11 @@ res4: Int = 1
 
 scala> 1.0F.##
 res5: Int = 1
-</scala>
+```
 
 The conversion to boxed primitive types happens transparently in Scala when a numeric type is upcasted to `Any`.
 
-<scala>
+```scala
 scala> (1: Any)
 res6: Any = 1
 
@@ -225,24 +225,24 @@ res7: Class[_] = class java.lang.Integer
 
 scala> (1: Any) == (1.0F: Any)
 res8: Boolean = true
-</scala>
+```
 
 This allows `Int` and `Float` to unify in Scala collections:
 
-<scala>
+```scala
 scala> Set(1, 1.0f, "foo")
 val res9: Set[Any] = Set(1, foo)
-</scala>
+```
 
 However it won't work for Java collection:
 
-<scala>
+```scala
 scala> import scala.jdk.CollectionConverters._
 import scala.jdk.CollectionConverters._
 
 scala> new java.util.HashSet(List(1, 1.0f, "foo").asJava)
 res10: java.util.HashSet[Any] = [1.0, 1, foo]
-</scala>
+```
 
 ### narrowness of Float
 
@@ -270,13 +270,13 @@ $3 ==> true
 
 This will break the `##` contract for Scala as well.
 
-<scala>
+```scala
 scala> 16777217 == 16777217F
 res7: Boolean = true
 
 scala> 16777217.## == 16777217F.##
 res8: Boolean = false
-</scala>
+```
 
 In my opinion, we should treat Float type as 24 bit integer, and Double as 53 bit integer when it comes to widening. I've reported this as [Weak conformance to Float and Double are incorrect #10773][10773]. There's also an open PR by Guillaume [Deprecate numeric conversions that lose precision #7405][7405].
 
@@ -284,7 +284,7 @@ In my opinion, we should treat Float type as 24 bit integer, and Double as 53 bi
 
 Since this comes up in the discussion of equality, I should note that the comparison with `java.lang.Double.NaN` would always return `false`. An easy way to cause NaN is dividing `0.0` by `0`. The most surprising thing about NaN comparison is that the NaN itself does not `==` NaN:
 
-<scala>
+```scala
 scala> 0.0 / 0
 res9: Double = NaN
 
@@ -293,7 +293,7 @@ res10: Boolean = false
 
 scala> (0.0 / 0) == (0.0 / 0)
 res11: Boolean = false
-</scala>
+```
 
 In other words, Java or Scala's `==` is not reflexive when NaN is involved.
 
@@ -301,15 +301,15 @@ In other words, Java or Scala's `==` is not reflexive when NaN is involved.
 
 Around 2010 was also the time when some of the Scala users started to adopt `===` operators introduced by Scalaz library. This bought in the concept of typeclass-based equality used in Haskell.
 
-<scala>
+```scala
 trait Equal[A] { self =>
   def equal(a1: A, a2: A): Boolean
 }
-</scala>
+```
 
 This was later copied by libraries like ScalaTest and Cats.
 
-<scala>
+```scala
 scala> 1 === 1
 res4: Boolean = true
 scala> 1 === "foo"
@@ -318,7 +318,7 @@ scala> 1 === "foo"
  required: Int
        1 === "foo"
              ^
-</scala>
+```
 
 I personally think this is a significant improvement over the universal equality since it's fairly common to miss the comparison of wrong types during refactoring. But the invariance also creates a fundamental issue with the way Scala 2.x defines data types through subclass inheritance. For example `Some(1)` and `None` would need to be upcasted to `Option[Int]`.
 
@@ -340,7 +340,7 @@ In May of 2016 Martin proposed [Multiversal equality for Scala][multiversal2016]
 
 Here's the definition of [Eql][eql]:
 
-<scala>
+```scala
 /** A marker trait indicating that values of type `L` can be compared to values of type `R`. */
 @implicitNotFound("Values of types ${L} and ${R} cannot be compared with == or !=")
 sealed trait Eql[-L, -R]
@@ -369,13 +369,13 @@ object Eql {
   // true asymmetry, modeling the (somewhat problematic) nature of equals on Proxies
   implicit def eqlProxy    : Eql[Proxy, AnyRef]  = derived
 }
-</scala>
+```
 
 As noted in the comment as well as the Dotty documentation for [Multiversal Equality][dotty-multiversal]:
 
 > Even though `eqlAny` is not declared a given instance, the compiler will still construct an `eqlAny` instance as answer to an implicit search for the type `Eql[L, R]`, unless `L` or `R` have `Eql` given instances defined on them, or the language feature `strictEquality` is enabled.
 
-<scala>
+```scala
 scala> class Box[A](a: A)
 // defined class Box
 
@@ -389,14 +389,14 @@ scala> {
 3 |  new Box(1) == new Box("1")
   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^
   | Values of types Box[Int] and Box[String] cannot be compared with == or !=
-</scala>
+```
 
 The documentation for [Multiversal Equality][dotty-multiversal] also shows how `Eql` instances can be derived automatically!
 
-<scala>
+```scala
 scala> class Box[A](a: A) derives Eql
 // defined class Box
-</scala>
+```
 
 ### reevaluation of cooperative equality
 
@@ -428,14 +428,14 @@ Requiring explicit conversion to `Double` when comparing `Int` and `Double` soun
 
 During 2.13.0 RC3, Kenji Yoshida reported [#11551][11551] showing that `Set` was broken under `++` operation. He also sent a fix [#8117][8117], which was a one liner change from:
 
-<scala>
+```scala
 -        if (originalHash == element0UnimprovedHash && element0.equals(element)) {
 +        if (originalHash == element0UnimprovedHash && element0 == element) {
-</scala>
+```
 
 On Twitter he also [suggested][1135374786593468416] that we should warn about calling `equals` or `hashCode` on non-AnyRef. I've sent a PR [#8120][8120] so that the following would cause a warning:
 
-<scala>
+```scala
 [info] Running (fork) scala.tools.nsc.MainGenericRunner -usejavacp
 Welcome to Scala 2.13.0-pre-db58db9 (OpenJDK 64-Bit Server VM, Java 1.8.0_232).
 Type in expressions for evaluation. Or try :help.
@@ -444,7 +444,7 @@ scala> def check[A](a1: A, a2: A): Boolean = a1.equals(a2)
                                                       ^
        warning: comparing values of types A and A using `equals` is unsafe due to cooperative equality; use `==` instead
 check: [A](a1: A, a2: A)Boolean
-</scala>
+```
 
 A few days ago I posted [a poll][1223288074895024128]:
 

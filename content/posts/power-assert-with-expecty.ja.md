@@ -31,10 +31,10 @@ power assert (もしくは power assertion) は `assert(...)` 関数の変種で
 
 例えとして `a * b` を考える。従来の `assert` を使った場合以下のように書く:
 
-<scala>
+```scala
 scala> assert(a * b == 7, s"a = $a; b = $b; a * b = ${a * b}")
 java.lang.AssertionError: assertion failed: a = 1; b = 3; a * b = 3
-</scala>
+```
 
 ごちゃごちゃと全部の変数への検査をログやエラーメッセージに書くといったことが往々にして行われる。
 
@@ -44,19 +44,19 @@ Scala には、なんと Peter Niederwieser さん本人が 2012年ごろに書�
 
 僕は Expecty を試してみたかったので、[eed3si9n/expecty][expecty2] にフォークして、sbt ビルドを追加して、コードが Scala 2.10、2.11、2.12、2.13.0-M4 で動作するようにパッチを当てて、上流に[プルリクを還元][10]した後でパッケージ名を変更して、Maven Central に公開した:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n.expecty" %% "expecty" % "0.11.0" % Test
-</scala>
+```
 
 Scala.JS か Scala Native の場合は:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n.expecty" %%% "expecty" % "0.11.0" % Test
-</scala>
+```
 
 以下のように使うことができる:
 
-<scala>
+```scala
 scala> import com.eed3si9n.expecty.Expecty.assert
 import com.eed3si9n.expecty.Expecty.assert
 
@@ -70,7 +70,7 @@ assert(a * b == 7)
   at com.eed3si9n.expecty.Expecty$ExpectyListener.expressionRecorded(Expecty.scala:25)
   at com.eed3si9n.expecty.RecorderRuntime.recordExpression(RecorderRuntime.scala:34)
   ... 38 elide
-</scala>
+```
 
 上のように、ナイスなエラーメッセージが自動的に得られる。
 
@@ -82,7 +82,7 @@ ScalaTest を使っている人は、この機能は [DiagrammedAssertions](http
 
 [小さなパッチ][14]を当てて僕は Minitest をローカル環境で走らせることができた。これを `$HOME/workspace` に置いて [sbt-sriracha][sbt-sriracha] を使うだけでいい:
 
-<scala>
+```scala
 val minitestJVMRef = ProjectRef(IO.toURI(workspaceDirectory / "minitest"), "minitestJVM")
 val minitestJVMLib = "io.monix" %% "minitest" % "2.1.1"
 
@@ -91,7 +91,7 @@ lazy val scoptJVM = scopt.jvm.enablePlugins(SiteScaladocPlugin)
   .settings(
     testFrameworks += new TestFramework("minitest.runner.Framework")
   )
-</scala>
+```
 
 Scala 2.13.0-M4 用のバイナリ版が出てくれば、この面倒なカラクリを消して普通に `libraryDependencies` に移行すればいい。
 
@@ -99,7 +99,7 @@ Scala 2.13.0-M4 用のバイナリ版が出てくれば、この面倒なカラ�
 
 Minitest と Expecty を組み合わせるのは簡単だ。まずは、Expecty fork をビルドに追加する:
 
-<scala>
+```scala
 val minitestJVMRef = ProjectRef(IO.toURI(workspaceDirectory / "minitest"), "minitestJVM")
 val minitestJVMLib = "io.monix" %% "minitest" % "2.1.1"
 
@@ -109,21 +109,21 @@ lazy val scoptJVM = scopt.jvm.enablePlugins(SiteScaladocPlugin)
     libraryDependencies += "com.eed3si9n.expecty" %% "expecty" % "0.11.0" % Test,
     testFrameworks += new TestFramework("minitest.runner.Framework")
   )
-</scala>
+```
 
 次に、以下のように trait を定義する:
 
-<scala>
+```scala
 import com.eed3si9n.expecty.Expecty
 
 trait PowerAssertions {
   lazy val assert: Expecty = new Expecty()
 }
-</scala>
+```
 
 テストは以下のように書ける:
 
-<scala>
+```scala
 import minitest._
 
 object ImmutableParserSpec extends SimpleTestSuite with PowerAssertions {
@@ -145,11 +145,11 @@ object ImmutableParserSpec extends SimpleTestSuite with PowerAssertions {
 
   ....
 }
-</scala>
+```
 
 値を 1 から 2 へ変えて、どう失敗するか見てみよう。
 
-<scala>
+```scala
 [info] - int parser should parse 1 *** FAILED ***
 [info]   AssertionError:
 [info]
@@ -177,7 +177,7 @@ object ImmutableParserSpec extends SimpleTestSuite with PowerAssertions {
 [info]     java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
 [info]     java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
 [info]     java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
-</scala>
+```
 
 これは面白い。
 

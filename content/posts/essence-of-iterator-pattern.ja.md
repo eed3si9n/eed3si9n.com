@@ -26,7 +26,7 @@ aliases:     [ /node/46 ]
 
 EIP の導入部に、（C のような添字を使った `for` ではなく）各要素を一つづつ順に返すタイプの `for` ループの例がでてくる。ここでは、Scala に[変身][1]させて書くけど、考え方は一緒だ:
 
-<scala>
+```scala
 val basket: Basket[Fruit] = Basket(orange, apple)
 var count = 0
 
@@ -35,7 +35,7 @@ for (fruit <- basket) {
   count = count + 1
   juices.add(fruit.press)
 }
-</scala>
+```
 
 まず、フルーツの「コンテナ」である `Basket` から始める。これは、`List`、`Tree`、`Map` など別に何でもいい。`for` ループは、次に以下の 3つのことを実行する:
 
@@ -59,11 +59,11 @@ EIP の目的は、上記の `for` ループで起こっている事の「本質
 
 まず、`Functor` 型クラスの話から始めなくてはいけない:
 
-<scala>
+```scala
 trait Functor[F[_]] {
   def fmap[A, B](f: A => B): F[A] => F[B]
 }
-</scala>
+```
 
 `Functor` を解釈する一つの方法は、（一つ、または複数の）型 `A` の値の計算だと考えることだ。例えば、`List[A]` は、型 `A` のいくつかの値を返す計算だし（非決定的 (non-deterministic) な計算だ）、`Option[A]` は、あるかないか分からない計算だし、`Future[A]` は、後で与えられる型 `A` の値の計算、などなど。もう一つの考え方は、型 `A` の値の「コンテナ」の一種だと考えることだ。
 
@@ -73,23 +73,23 @@ trait Functor[F[_]] {
 
 さて、型が `F[A]` の値を**作る**には、どうすればいいだろう? 一つの方法として、`F[_]` が `Pointed` であると宣言することだ:
 
-<scala>
+```scala
 trait Pointed[F[_]] {
   def point[A](a: => A): F[A]
 }
-</scala>
+```
 
 別の言い方をすると、型 `A` の値を受け取り `F[A]` を戻り値として返す `point` 関数が定義されているということだ。例えば、普通の `List` はリストのコンストラクタを使うことで `Pointed` になる:
 
-<scala>
+```scala
 object PointedList extends Pointed[List] {
   def point[A](a: => A) = List(a)
 }
-</scala>
+```
 
 この `Pointed` と `Functor` という 2つの能力を組み合わせると、`PointedFunctor` となる:
 
-<scala>
+```scala
 trait PointedFunctor[F[_]] {
   val functor: Functor[F]
   val pointed: Pointed[F]
@@ -98,7 +98,7 @@ trait PointedFunctor[F[_]] {
 
   def fmap[A, B](f: A => B): F[A] => F[B] = functor.fmap(f)
 }
-</scala>
+```
 
 `PointedFunctor` trait は、`Pointed` と `Functor` の集約にすぎない。
 
@@ -110,38 +110,38 @@ trait PointedFunctor[F[_]] {
 
 `fmap` を使って関数を計算値に適用するかわりに、関数そのものも**コンテナ `F` の中にある**計算値だと仮定して (`F[A => B]`)、その関数を `F[A]` の値に適用する `applic` というメソッドを提供する:
 
-<scala>
+```scala
 trait Applic[F[_]] {
   def applic[A, B](f: F[A => B]): F[A] => F[B]
 }
-</scala>
+```
 
 具体例で考えてみよう。市場が開いているときに `Fruit` の値段を計算する方法があると仮定する:
 
-<scala>
+```scala
 def pricer(market: Market): Option[Fruit => Double]
-</scala>
+```
 
 市場が閉じている時は、値段が分からないから `pricer` は `None` を返す。それ以外の場合は、値段付けする関数を返す。ここで、`Fruit` を返すかもしれない `grow` 関数があるとする:
 
-<scala>
+```scala
 def grow: Option[Fruit]
-</scala>
+```
 
 これで、`Applic` のインスタンスを使って `Fruit` を値付けできる:
 
-<scala>
+```scala
 val price: Option[Double] = applic(pricer(market)).apply(grow)
-</scala>
+```
 
 `price` は、`pricer` か `Fruit` が欠けている場合があるため、必然的に `Option` となる。ちょっと名前を変えたり、メソッドを[モンキーパッチ][2]することで、なぜ "Applicative" (適用可能) という用語が使われるのかが明らかになる:
 
-<scala>
+```scala
 val pricingFunction = pricer(market)
 val fruit = grow
 
 val price: Option[Double] = pricingFunction ⊛ fruit
-</scala>
+```
 
 見方によっては、これは普通の関数の適用を行なっているだけなんだけど、`Applicative` コンテナの中で実行されていると見ることができる。これで、EIP で議論されている `Applicative` Functor を作る部品がそろった。
 
@@ -149,7 +149,7 @@ val price: Option[Double] = pricingFunction ⊛ fruit
 
 `Applicative` functor は `Applic` と `PointedFunctor` の集約だ:
 
-<scala>
+```scala
 trait Applicative[F[_]] {
   val pointedFunctor: PointedFunctor[F]
   val applic: Applic[F]
@@ -165,28 +165,28 @@ trait Applicative[F[_]] {
   def point[A](a: => A): F[A]                 = pointed.point(a)
   def apply[A, B](f: F[A => B]): F[A] => F[B] = applic.applic(f)
 }
-</scala>
+```
 
 これを `List` を使って実装できるかみてみよう。`fmap` と `point` は簡単だ:
 
-<scala>
+```scala
 def fmap[A, B](f: A => B): F[A] => F[B] = (l: List[A]) => l map f
 def point[A](a: => A): F[A]             = List(a)
-</scala>
+```
 
 `apply` は 2通りの（両方とも有用な）方法で実装できるため、もう少し面白い:
 
 <ol>
 <li>関数のリストを全ての要素に適用してその結果を `List` に集める:
-<scala>
+```scala
 def apply[A, B](f: F[A => B]): F[A] => F[B] = (l: List[A]) =>
   for { a <- l; func <- f } yield func(a)
-</scala></li>
+```</li>
 <li>関数のリストと要素のリストを `zip` して、それぞれの関数をそれぞれの要素に適用する:
-<scala>
+```scala
 def apply[A, B](f: F[A => B]): F[A] => F[B] = (l: List[A]) =>
   (l zip f) map (p => p._2 apply p._1)
-</scala></li>
+```</li>
 </ol>
 
 `List` が `Monoid` であることを利用して、`List` を `Applicative` として使う 3つ目の方法まで実はある。だけど、それに関してはまた後ほど。これらが `for` ループとどう関わってくるのかをまずみていこう。
@@ -202,11 +202,11 @@ def apply[A, B](f: F[A => B]): F[A] => F[B] = (l: List[A]) =>
 
 Gibbons と Oliveira の主張は、**どんな種類の `for` ループでも**以下の `traverse` 演算を使って表すことができるというものだ:
 
-<scala>
+```scala
 trait Traversable[T[_]] {
   def traverse[F[_] : Applicative, A, B](f: A => F[B]): T[A] => F[T[B]]
 }
-</scala>
+```
 
 つまり、型 `T` のコンテナ（データ構造）に `Applicative F` を用いた `traverse` 関数があるとき、`for` ループを使ってできることなら何でもできるということだ。
 
@@ -216,15 +216,15 @@ trait Traversable[T[_]] {
 
 ここからは、とてもシンプルな二分木を例にこの問題を考えていく:
 
-<scala>
+```scala
 sealed trait BinaryTree[A]
 case class Leaf[A](a: A) extends BinaryTree[A]
 case class Bin[A](left: BinaryTree[A], right: BinaryTree[A]) extends BinaryTree[A]
-</scala>
+```
 
 一方、`Traversable` の実装の第一弾はとても読めたものじゃない!
 
-<scala>
+```scala
  def BinaryTreeIsTraversable[A]: Traversable[BinaryTree] = new Traversable[BinaryTree] {
 
    def createLeaf[B] = (n: B) => (Leaf(n): (BinaryTree[B]))
@@ -242,26 +242,26 @@ case class Bin[A](left: BinaryTree[A], right: BinaryTree[A]) extends BinaryTree[
      }
    }
  }
-</scala>
+```
 
 これに対応する Haskell はこんなに簡潔なので残念だ:
 
-<scala>
+```scala
   instance Traversable Tree where
   traverse f (Leaf x)  = pure Leaf ⊛ f x
   traverse f (Bin t u) = pure Bin  ⊛ traverse f t ⊛ traverse f u
-</scala>
+```
 
 多少の[モンキーパッチ][2]を入れて、この状況を改善しよう:
 
-<scala>
+```scala
 def traverse[F[_] : Applicative, A, B](f: A => F[B]): BinaryTree[A] => F[BinaryTree[B]] = (t: BinaryTree[A]) => {
   t match {
     case Leaf(a)   => createLeaf[B] ∘ f(a)
     case Bin(l, r) => createBin[B]  ∘ (l traverse f) <*> (r traverse f)
   }
 }
-</scala>
+```
 
 くだけた説明をすると、`traverse` メソッドは、関数 `f` を各ノードに適用して、`Applicative` functor の `apply` メソッド (`<*>`) を使って木を「再構築」する。
 
@@ -271,7 +271,7 @@ def traverse[F[_] : Applicative, A, B](f: A => F[B]): BinaryTree[A] => F[BinaryT
 
 `BinaryTree` を走査するときに、やっておくと便利かもしれないのは木の内容を `List` にしてしまうことだ。そのためには、さっきちょっと話した `List` を `Applicative` として使う 3つめの方法を使う。実は、全ての `Monoid` は `Applicative` のインスタンスと成りうるけど、ちょっと変わったやり方になっている。
 
-<scala>
+```scala
   /** Const は、型 B の「phantom」を持った型 A の値のコンテナだ。 */
  case class Const[A, +B](value: A)
 
@@ -296,7 +296,7 @@ def traverse[F[_] : Applicative, A, B](f: A => F[B]): BinaryTree[A] => F[BinaryT
    val pointedFunctor = PointedFunctor.ConstIsPointedFunctor
    val applic = Applic.ConstIsApplic
  }
-</scala> 
+``` 
 
 上記のコードで `Const` は、与えられた `Monoid` に対する `Applicative` インスタンスだ。`Const` は、型 `T` の値を格納するコンテナで、`T` は `Monoid` だ。そこから `Const` が `Applicative` であることを満たす条件を順番に示している。
 
@@ -329,20 +329,20 @@ def traverse[F[_] : Applicative, A, B](f: A => F[B]): BinaryTree[A] => F[BinaryT
 
 ここでは、`BinaryTree` の `Traversable` インスタンスと `List Monoid Applicative` を使って `BinaryTree` の内容を読み込んでみる:
 
-<scala>
+```scala
 import Applicative._
 
 val f    = (i: Int) => List(i)
 val tree = Bin(Leaf(1), Leaf(2))
 
 (tree.traverse[...](f)).value must_== List(1, 2)
-</scala>
+```
 
 単純だ。木を走査しながら各要素を `List` に格納して、`List Monoid` の魔法を使って全ての戻り値を集約していく。ただ一つ難しい所は、Scala の型推論の限界によるものだ。上の例の `...` は、コンパイラが必要とする型の注釈 (type annotation、訳注: 明示的に型を宣言してあげること) を表す:
 
-<scala>
+```scala
 tree.traverse[Int, ({type l[A]=Const[List[Int], A]})#l](f)
-</scala>
+```
 
 これはキレイじゃない :-(
 
@@ -350,55 +350,55 @@ Ittay Dror にコメントで指摘されたように、`List[Int]` はそのま
 
 これは、`Applicative` オブジェクトにより提供される暗黙の変換 (implicit conversion) メソッドである `liftConst` によって実現されている:
 
-<scala>
+```scala
 implicit def liftConst[A, B, M : Monoid](f: A => M): A => Const[M, B] = 
   (a: A) => Const[M, B](f(a))
-</scala>
+```
 
 #### 丸儲けタイム
 
 全てが失われたわけではない! この場合は、複雑さをカプセル化してやればいい。上のコードの一部を抜き出して、**全ての** `Traversable` インスタンスに対して動作する `contents` メソッドを作ることができる (以下の例では、`method(tree)` の代わりに `tree.method` と書けるようにモンキーパッチを当てていることを前提とする):
 
-<scala>
+```scala
 val tree: BinaryTree[Int] = Bin(Leaf(1), Leaf(2))
 tree.contents must_== List(1, 2)
-</scala>
+```
 
 これは、以下の定義に基づいている:
 
-<scala>
+```scala
 def contents[A]: T[A] => List[A] = {
   val f = (a: A) => Const[List[A], Any](List(a))
   (ta: T[A]) => traverse[({type l[U]=Const[List[A], U]})#l, A, Any](f).apply(ta).value
 }
-</scala>
+```
 
 実は、この `contents` 関数は、全ての `Monoid` に対して動作するより汎用的な `reduce` 関数の特殊形だ:
 
-<scala>
+```scala
 def contents[A]: T[A] => List[A] = reduce((a: A) => List(a))
 
 def reduce[A, M : Monoid](reducer: A => M): T[A] => M = {
   val f = (a: A) => Const[M, Any](reducer(a))
   (ta: T[A]) => traverse[({type l[A]=Const[M, A]})#l, A, Any](f).apply(ta).value
 }
-</scala>
+```
 
 この `reduce` 関数は、どの `Traverable` 構造でも各要素から `Monoid` の要素へと投射 (map) する 関数を用いて走査することができる。ここでは、木の内容を読み込むのに使ったけど、簡単に要素数を数えるのにも使うことができる:
 
-<scala>
+```scala
 def count[A]: T[A] => Int = reduce((a: A) => 1)
 
 tree.count must_== 2
-</scala>
+```
 
 これよりシンプルにはなりえないよね :-)? 実は、この場合はなりえる! `(a: A)` を全く使っていないため、`reduceConst` を使うことができる:
 
-<scala>
+```scala
 def reduceConst[A, M : Monoid](m: M): T[A] => M = reduce((a: A) => m)
 
 def count[A]: T[A] => Int = reduceConst(1)
-</scala>
+```
 
 これは、Scala 標準ライブラリの `reduce` をステロイド強化したようなものだ。二項演算の代わりに、`Monoid` のインスタンスを渡すだけでいいからだ。
 
@@ -410,21 +410,21 @@ def count[A]: T[A] => Int = reduceConst(1)
 
 以下の `map` メソッドを `traverse` メソッドから導き出すことができる (しかも、今回は型の注釈無しだ!):
 
-<scala>
+```scala
 def map[A, B](mapper: A => B) = (ta: T[A]) => traverse((a: A) => Ident(mapper(a))).apply(ta).value
-</scala>
+```
 
 ここでは、`Applicative` をとてもシンプルな `Ident` クラスを用いて走査している:
 
-<scala>
+```scala
 case class Ident[A](value: A)
-</scala>
+```
 
 `Ident` は、値を包むだけのシンプルなラッパーで、それ以上のものではない。こんなシンプルなクラスでも `Applicative` だ。だけど、どうやって?
 
 簡単だ。`Ident` は実は `Monad` で、全ての `Modad` から `Applicative` のインスタンスを構築できるからだ。これは、`Monad` が、`PointedFunctor` であり、`Applic` である事実からくる:
 
-<scala>
+```scala
 trait Monad[F[_]] {
   val pointed: Pointed[F]
   val bind: Bind[F]
@@ -449,11 +449,11 @@ trait Monad[F[_]] {
     val applic = Monad.this.applic
   }
 }
-</scala>
+```
 
 `Ident` が `Monad` であること (`pointed` と `bind` メンバーを持つ) を示すのは簡単だ:
 
-<scala>
+```scala
 implicit def IdentIsMonad = new Monad[Ident] {
 
   val pointed = new Pointed[Ident] {
@@ -464,19 +464,19 @@ implicit def IdentIsMonad = new Monad[Ident] {
       (i: Ident[A]) => f(i.value)
   }
 }
-</scala>
+```
 
 新品の `map` 関数を使ってみよう:
 
-<scala>
+```scala
 tree.map((i: Int) => i.toString) must_== Bin(Leaf("1"), Leaf("2"))
-</scala>
+```
 
 これを使って、例えばコンテナの全ての要素を破棄して「形」だけを得ることさえできる:
 
-<scala>
+```scala
 tree.shape must_== Bin(Leaf(()), Leaf(()))
-</scala>
+```
 
 `shape` メソッドは、各要素を `()` に投射する。
 
@@ -486,11 +486,11 @@ tree.shape must_== Bin(Leaf(()), Leaf(()))
 
 具体的には、木の内容 (`contents`) とその形 (`shape`) を得ることができた。これらの 2つの演算を合成して、内容と形の両方を得られる分解 (`decompose`) 演算にすることはできないだろうか? 最初の試みとしてはこんな感じになるかもしれない:
 
-<scala>
+```scala
 def decompose[A] = (t: T[A]) => (shape(t), contents(t))
 
 tree.decompose must_== (Bin(Leaf(()), Leaf(())), List(1, 2))
-</scala>
+```
 
 これは、一応動作するけど、木の走査を 2回行なっているという点が未熟だ。一回で済ませる方法はないだろうか?
 
@@ -500,15 +500,15 @@ tree.decompose must_== (Bin(Leaf(()), Leaf(())), List(1, 2))
 
 証明、証明。`Product` (積) は以下のように定義する:
 
-<scala>
+```scala
 case class Product[F1[_], F2[_], A](first: F1[A], second: F2[A]) {
   def tuple = (first, second)
 }
-</scala>
+```
 
 `Applicative` としての `Product` の完全な定義を書きだすと冗長なので、`Applic` のインスタンスに焦点を当てて考えてみよう:
 
-<scala>
+```scala
 implicit def ProductIsApplic[F1[_] : Applic, F2[_] : Applic] =
   new Applic[({type l[A]=Product[F1, F2, A]})#l] {
     val f1 = implicitly[Applic[F1]]
@@ -518,17 +518,17 @@ implicit def ProductIsApplic[F1[_] : Applic, F2[_] : Applic] =
       Product[F1, F2, B](f1.applic(f.first).apply(c.first), 
                          f2.applic(f.second).apply(c.second))
 }
-</scala>
+```
 
 使われている型さえ追っていけば、そこまで複雑ではない。ちょっと残念なのは、`decompose` の実装に必要な型解釈の量だ。理想的には以下のように書きたい:
 
-<scala>
+```scala
 def decompose[A] = traverse((t: T[A]) => shape(t) ⊗ contents(t))
-</scala>
+```
 
 ここで `⊗` は、2つの `Applicative` を受け取り、それらの積を返す。`Const` に対する型の部分適用ができないせいで、またしても全体的に分かりづらくなってしまっている ([SI-2712][3] に投票して下さい!):
 
-<scala>
+```scala
 val shape   = (a: A) => Ident(())
 val content = (a: A) => Const[List[A], Unit](List(a))
 
@@ -542,17 +542,17 @@ implicit val productApplicative =
    apply(ta).tuple
   (s, c)
 }
-</scala>
+```
 
 `productApplicative` の `implicit` の定義を `Applicative` のコンパニオンオブジェクトに移動することで、多少はコードが改善する:
 
-<scala>
+```scala
 object Applicative {
   ...
   implicit def ProductWithListIsApplicative[A[_] : Applicative, B] = 
     ProductIsApplicative[A, ({type l1[U] = Const[List[B], U]})#l1]
 }
-</scala> 
+``` 
 
 これで、`Applicative` を `import` するだけで `implicit val productApplicative` が必要無くなる。
 
@@ -569,11 +569,11 @@ object Applicative {
 
 `State` Monad は以下のように定義される:
 
-<scala>
+```scala
 trait State[S, +A] {
   def apply(s: S): (S, A)
 }
-</scala>
+```
 
 基本的には、以下のものから構成される:
 
@@ -583,19 +583,19 @@ trait State[S, +A] {
 
 例えば、`List[Int]` 内の要素を数える簡単なカウンターは以下のように実装できる:
 
-<scala>
+```scala
 val count = state((n: Int) => (n+1, ()))
-</scala>
+```
 
 これは、以前の「カウント」数 `n` を受け取り、新しい状態 `n+1` と抽出された値 (特に抽出すべきものが無いので、ここでは`()`) を返す。
 
 上の `State` 型は、`Monad` だ。この話題に関してより理解を深めるには、["Learn You a Haskell"][4] を読むことをお勧めする。ここでは、`Monad` 型クラスの `flatMap` (別名 `bind`) メソッドが `State` を使う上で中心的なものだということを示すにとどめる:
 
-<scala>
+```scala
 val count = (s: String) => state((n: Int) => (n+1, s + n))
 
 (count("a-") flatMap count flatMap count).apply(0) must_== (3, "a-012")
-</scala>
+```
 
 この `count` 関数は、最後に計算された文字列を受け取り、現在の「状態」に 1 を加えた `State` と、現在のカウント値を文字列に追加した新たな文字列を返す。そのため、文字列 `"a-"` から始めて、`count` を 2回 `flatMap` すると、`(3, "a-012")` が得られる。`3` は、`n+1` が適用された回数で、`a-012` は、現在の文字列に追加された結果だ。
 
@@ -607,7 +607,7 @@ val count = (s: String) => state((n: Int) => (n+1, s + n))
 
 それでは、カウントするのに役立つように `Traversable` に対する `collect` 演算を定義しよう:
 
-<scala>
+```scala
 def collect[F[_] : Applicative, A, B](f: A => F[Unit], g: A => B) = {
   val applicative = implicitly[Applicative[F]]
   import applicative._
@@ -615,7 +615,7 @@ def collect[F[_] : Applicative, A, B](f: A => F[Unit], g: A => B) = {
   val application = (a: A) => point((u: Unit) => g(a)) <*> f(a)
   traverse(application)
 }
-</scala>
+```
 
 この EIP で定義される `collect` 演算は、`filter + map` と等価である Scala コレクションの `collect` 演算とは別物だ。EIP版の `collect` は 2つの関数を使っている:
 
@@ -624,22 +624,22 @@ def collect[F[_] : Applicative, A, B](f: A => F[Unit], g: A => B) = {
 
 このため、EIP版の `collect` は、`fold + map` に似てるとも言える。早速 `collect` を使って要素数を数えて、投射を行なってみよう:
 
-<scala>
+```scala
 val count = (i: Int) => state((n: Int) => (n+1, ()))
 val map   = (i: Int) => i.toString
 
 tree.collect[({type l[A]=State[Int, A]})#l, String](count, map).apply(0) must_== 
 (2, Bin(Leaf("1"), Leaf("2")))
-</scala>
+```
 
 またしても型注釈がコードの意図を少し分かりづらくしているけど、型推論が完全なら以下のように書ける:
 
-<scala>
+```scala
 val count = (i: Int) => state((n: Int) => (n+1, ()))
 val map   = (i: Int) => i.toString
 
 tree.collect(count, map).apply(0) must_== (2, Bin(Leaf("1"), Leaf("2")))
-</scala>
+```
 
 どう思う? 僕は、これは魔法だと思う。この `Applicative` と `Traversable` の抽象化を使えば、全く別の所で開発されテストされた独立した 2つの関数を組み合わせてプログラムを組むといったことができるからだ。
 
@@ -647,9 +647,9 @@ tree.collect(count, map).apply(0) must_== (2, Bin(Leaf("1"), Leaf("2")))
 
 EIP で提唱される次のユーティリティ関数は `disperse` 関数だ。シグネチャはこうなる:
 
-<scala>
+```scala
 def disperse[F[_] : Applicative, A, B, C](f: F[B], g: A => B => C): F[A] => F[T[C]]
-</scala>
+```
 
 何をするのかって?
 
@@ -660,7 +660,7 @@ def disperse[F[_] : Applicative, A, B, C](f: F[B], g: A => B => C): F[A] => F[T[
 
 例えば、`BinaryTree` 内の各要素を `Traversal` 内の「数」を用いて「ラベル」としてマーク付けしたいとする。さらに、このラベルを要素名を使って修飾したいとする:
 
-<scala>
+```scala
 // Double の BinaryTree
 val tree: BinaryTree[Double] = Bin(Leaf(1.1), Bin(Leaf(2.2), Leaf(3.3)))
 
@@ -675,23 +675,23 @@ val naming: Double => Int => String = (p1: Double) => (p2: Int) => p1+" node is 
 // の 2つ目の要素を取ることでテストする
 tree.disperse[elided for sanity](labelling, naming).apply(0)._2 must_==
   Bin(Leaf("1.1 node is 1"), Bin(Leaf("2.2 node is 2"), Leaf("3.3 node is 3")))
-</scala>
+```
 
 上の命名関数はカリー化されていることに注意。より親しみやすい方法で書くとこうなる:
 
-<scala>
+```scala
 val naming: (Double, Int) => String = (p1: Double, p2: Int) => p1+" node is "+p2
-</scala>
+```
 
 だけど、この関数は `disperse` 関数で使うにはカリー化しなければいけない:
 
-<scala>
+```scala
 tree.disperse[...](labelling, naming.curried)
-</scala>
+```
 
 `disperse` の実装はこうなる:
 
-<scala>
+```scala
 def disperse[F[_] : Applicative, A, B, C](f: F[B], g: A => B => C) = {
   val applicative = implicitly[Applicative[F]]
   import applicative._
@@ -699,7 +699,7 @@ def disperse[F[_] : Applicative, A, B, C](f: F[B], g: A => B => C) = {
   val application = (a: A) => point(g(a)) <*> f
   traverse(application)
 }
-</scala>
+```
 
 これは、`point` メソッドと `<*>` 適用という Applicative ファンクタならではの機能を使っている。
 
@@ -720,20 +720,20 @@ def disperse[F[_] : Applicative, A, B, C](f: F[B], g: A => B => C) = {
 
 まだ見ていない関数は `measure` だけだ。これは、投射を行い、状態も累計するが、累計は現在の要素に依存しない。以下に具体例で説明する:
 
-<scala>
+```scala
 val crosses = state((s: String) => (s+"x", ()))
 val map     = (i: Int) => i.toString
 
 tree.measure(crosses, map).apply("") must_==
 ("xxx", Bin(Leaf("1"), Bin(Leaf("2"), Leaf("3"))))
-</scala>
+```
 
 これはあまり役に立たなさげであるだけでなく、上のコードには嘘が含まれている! 恒例の醜い型注釈無しでは `measure` 関数は `State` モナドを受け取ることができない。そのため、実際の例はこうなる:
 
-<scala>
+```scala
   tree.measureState(crosses, map).apply("") must_== 
   ("xxx", Bin(Leaf("1"), Bin(Leaf("2"), Leaf("3"))))
-</scala>
+```
 
 このとき、`measureState` は `State` のための `measure` の特殊形だ。今回の記事で分かった事の一つは、`traverse` や `collect` などのジェネリックな関数のいくつかは、型注釈を回避するために `Const` や `State` のための特殊形を作ってしまったほうが役立つかもしれないということだ。
 
@@ -743,28 +743,28 @@ tree.measure(crosses, map).apply("") must_==
 
 `for` ループならば、特に考えることなく以下のように書ける:
 
-<scala>
+```scala
 for (a <- as) {
   val currentSize = a.size
   total += currentSize
   result.add(total)
 }
-</scala>
+```
 
 この `for` ループの本文中にはお互いに依存しあっている文がある。Applicative な走査では、これは `Applicative` の**順次的合成** (sequential composition) に翻訳される。2つの `Applicative` を準じ的に合成して 3つ目のものを作るというわけだ。より正確には、`F1[_]` と `F2[_]` が `Applicative` であるとき `F1[F2[_]]` もまた `Applicative` だ。具体例? よし、いこう。
 
 まず、`ApplicFunctor` にユーティリティ関数を導入する:
 
-<scala>
+```scala
 def liftA2[A, B, C](function: A => B => C): F[A] => F[B] => F[C] = 
   fa => applic.applic(functor.fmap(function)(fa))
-</scala>
+```
 
 `liftA2` は、2つの引数を取る普通の関数を `Applicative` へ引数として渡せる関数へと持ち上げる (lift)。これは、`ApplicFunctor` が `Functor` であることを利用して、`function: A => B => C` を「箱に入った `a`」に適用して、「箱に入った」`F[B => C]` を得ることができる。さらに、`ApplicFunctor` は `Applic` であるため、`F[B]` を「適用」して `F[C]` を得ることができる。
 
 この関数を利用して、`F1[F2[_]]` の `applic` メソッドは以下のように書ける:
 
-<scala>
+```scala
 implicit val f1ApplicFunctor = implicitly[ApplicFunctor[F1]]
 implicit val f2ApplicFunctor = implicitly[ApplicFunctor[F2]]
 
@@ -773,7 +773,7 @@ val applic = new Applic[({type l[A]=F1[F2[A]]})#l] {
     f1ApplicFunctor.liftA2((ff: F2[A => B]) => f2ApplicFunctor.apply(ff))(f).apply(c)
   }
 }
-</scala>
+```
 
 その前の定義を使って `F1[F2[A => B]]` が `F1[F2[A]]` 適用できるようにしているという以外は、上のコードが何をやっているのかの直観的な理解を得るのは容易ではない。
 
@@ -783,7 +783,7 @@ val applic = new Applic[({type l[A]=F1[F2[A]]})#l] {
 
 `assemble` 関数は、`Traversable` の**形**と要素のリストを受け取る。十分な要素がそろっていれば、要素を詰めた `Some[Traversable]` (と残りの要素) を返す。そろっていなければ、`None` (と空のリスト) を返す。実際に使ってみよう:
 
-<scala>
+```scala
 // 詰むための「形」
 val shape: BinaryTree[Unit] = Bin(Leaf(()), Leaf(()))
 
@@ -795,7 +795,7 @@ shape.assemble(List(1, 2, 3)) must_== (List(3), Some(Bin(Leaf(1), Leaf(2))))
 
 // 足りない要素で木を組み立てる
 shape.assemble(List(1)) must_== (List(), None)
-</scala>
+```
 
 `assemble` 関数の実装はどうなっているだろう? 実装には 2つの `Monad` (`Applicative` でもあることは今なら分かる) を使う:
 
@@ -805,14 +805,14 @@ shape.assemble(List(1)) must_== (List(), None)
 
 あとは `BinaryTree` を関数をつかって走査するだけだ:
 
-<scala>
+```scala
 def takeHead: State[List[B], Option[B]] = state { s: List[B] =>
   s match {
     case Nil     => (Nil, None)
     case x :: xs => (xs, Some(x))
   }
 }
-</scala>
+```
 
 この `takeHead` 関数は、`state` を適用するたびに、リストに最初の要素があれば、それを削除して Option に包んで返す `State` のインスタンスだ。
 これが `assemble` 関数の戻り値が、要素のリストに適用した後で `(List[Int], Option[BinaryTree[Int]])` になる理由だ。
@@ -821,7 +821,7 @@ def takeHead: State[List[B], Option[B]] = state { s: List[B] =>
 
 比較のために、同じ事を実行する再帰的なバージョンも書いてみた:
 
-<scala>
+```scala
 def assemble(es: List[Int], s: BinaryTree[Unit]) : (List[Int], Option[BinaryTree[Int]]) = {
   (es, s) match {
     case (Nil, _)                      => (es, None)
@@ -839,7 +839,7 @@ def assemble(es: List[Int], s: BinaryTree[Unit]) : (List[Int], Option[BinaryTree
   }
 }
 assemble(List(1, 2, 3), shape) must_== (List(3), Some(Bin(Leaf(1), Leaf(2))))
-</scala>
+```
 
 動作するけど、頭が混乱しそうだよ!
 
@@ -847,7 +847,7 @@ assemble(List(1, 2, 3), shape) must_== (List(3), Some(Bin(Leaf(1), Leaf(2))))
 
 ところで、**本物の** `for` ループを使って実装したらどうなるだろう? 僕の知る限り `BinaryTree` を走査して似たような `BinaryTree` を `for` ループ一つだけで得る簡単な方法は無いから、これは簡単ではない! そのため、話を先に進めるため `List` データ構造を使って似たようなことを行なってみる:
 
-<scala>
+```scala
 def assemble[T](es: List[T], shape: List[Unit]) = {
   var elements = es
   var list: Option[List[T]] = None
@@ -865,17 +865,17 @@ def assemble[T](es: List[T], shape: List[Unit]) = {
   (elements, list)
 }
 assemble(List(1, 2, 3), List((), ())) must_== (List(3), Some(List(1, 2)))
-</scala>
+```
 
 以下と比較してみよう:
 
-<scala>
+```scala
 List((), ()).assemble(List(1, 2, 3)) must_== (List(3), Some(List(1, 2)))
-</scala>
+```
 
 これは、`Traversable` としての `List` を定義するだけでいい:
 
-<scala>
+```scala
 implicit def ListIsTraversable[A]: Traversable[List] = new Traversable[List] {
 
   def traverse[F[_] : Applicative, A, B](f: A => F[B]): List[A] => F[List[B]] = 
@@ -889,7 +889,7 @@ implicit def ListIsTraversable[A]: Traversable[List] = new Traversable[List] {
   }
 
 }
-</scala>
+```
 
 `Applicative` 合成はたしかに強力だけど、他にも関数を合成して `Traversable` と一緒に使える方法があるので、それをみていく。
 
@@ -897,22 +897,22 @@ implicit def ListIsTraversable[A]: Traversable[List] = new Traversable[List] {
 
 この節では、走査時の Applicative 合成と Monadic 合成の関係を探索してよう。`Applicative` のインスタンスが合成可能で `Monad` を `Applicative` として扱うことができることは既にみた。だけど、`Monad` もいわゆる Kleisli 合成を使って合成することができる。以下を仮定する:
 
-<scala>
+```scala
 val f: B => M[C]
 val g: A => M[B]
-</scala>
+```
 
 このとき、
 
-<scala>
+```scala
 val h: A => M[C] = f ∎ g // これも値から Monad への関数だ
-</scala>
+```
 
 2つの「モナディックな」(monadic) 関数 `f` と `g` があるとき、これを Kleisli 的な意味で合成して、その合成されたものを走査に使うことができる。確かにそれはできるけど、この走査は「便利な特性」を満たしているだろうか? 具体的には:
 
-<scala>
+```scala
 traverse(f ∎ g) == traverse(f) ∎ traverse(g)
-</scala>
+```
 
 答は... 場合による。
 
@@ -922,7 +922,7 @@ EIP は、`Monad` が可換 (commutative) であれば、これが常に真で�
 
 もし全ての `mx: M[X]` と `my: M[Y]` に対して以下が成り立つとき、その `Monad` は可換であると言える:
 
-<scala>
+```scala
 val xy = for {
   x <- mx
   y <- my
@@ -934,58 +934,58 @@ val yx = for {
 } yield (x, y)
 
 xy == yx
-</scala>
+```
 
 例えば、`State Monad` はこれに該当しない:
 
-<scala>
+```scala
 val mx = state((n: Int) => (n+1, n+1))
 val my = state((n: Int) => (n+1, n+1))
 
 xy.apply(0) must_== (2, (1, 2))
 yx.apply(0) must_== (2, (2, 1))
-</scala>
+```
 
 #### モナディック関数の可換性
 
 これとは少し異なる状況として、非可換な `Monad` と可換な関数というものがある:
 
-<scala>
+```scala
 val plus1  = (a: A) => state((n: Int) => (n+1, a))
 val plus2  = (a: A) => state((n: Int) => (n+2, a))
 val times2 = (a: A) => state((n: Int) => (n*2, a))
-</scala>
+```
 
 ここでは `plus1` と `times2` は可換ではない (交換できない):
 
-<scala>
+```scala
 (0 + 1) * 2 != (0 * 2) + 1
-</scala>
+```
 
 だけど、`plus1` と `plus2` なら可換であることは明らかだ。これは走査時に何を意味するだろうか?
 
 モナド合成を用いてシンプルな要素のリストを走査した場合、以下を得られる:
 
-<scala>
+```scala
 List(1, 2, 3).traverse(times2 ∎ plus1)                         === 22
 List(1, 2, 3).traverse(times2) ∎ List(1, 2, 3).traverse(plus1) === 32
-</scala>
+```
 
 異なる結果となった。しかし、`f` と `g` が交換可能の場合は同じ結果となる:
 
-<scala>
+```scala
 List(1, 2, 3).traverse(plus2 ∎ plus1)                         === 10
 List(1, 2, 3).traverse(plus2) ∎ List(1, 2, 3).traverse(plus1) === 10
-</scala>
+```
 
 #### Applicative 合成 vs Monadic 合成
 
 もう一つの疑問は、モナディックな関数を Applicative な関数とみなした場合 (全ての `Monad` は `Applicative` であるため)、便利な「分配則」は成り立つだろうか? 答は、たとえ関数が可換ではなくても分配則は成り立つ:
 
-<scala>
+```scala
 List(1, 2, 3).traverse(times2 ⊡ plus1)                         === 4
 List(1, 2, 3).traverse(times2) ⊡ List(1, 2, 3).traverse(plus1) === 4
-</scala>
+```
 
 ま... 一応成り立つという方が正しい。実際の状況はもう少し複雑だ。`List(1, 2, 3).traverse(times2 ⊡ plus1)` は `State[Int, State[Int, List[Int]]]` を返すけど、第二の式は `State[Int, List[State[Int, Int]]` を返すため、ここでは最終結果を問い合わせるために `join` を用いた操作が少し入るけどそれは隠してある。
 

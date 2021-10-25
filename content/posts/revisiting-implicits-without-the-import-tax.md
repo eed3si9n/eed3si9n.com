@@ -90,28 +90,28 @@ The specific one wins if there are no inheritance; and being enclosed in a subty
 
 If you're familiar with scalac code (I am not), there's Implicits.scala under nsc/typeckecker directory, which defines a method called `inferImplicit`. This calls `bestImplicit`, which says:
 
-<scala>
+```scala
 /** The result of the implicit search:
   * First search implicits visible in current context.
-</scala>
+```
 
 in the comment. This looks promising. After starting timer, it does:
 
-<scala>
+```scala
 var result = searchImplicit(context.implicitss, true)
-</scala>
+```
 
 this turns into:
 
-<scala>
+```scala
 new ImplicitComputation(implicitInfoss, util.HashSet[Name](128)) findBest()
-</scala>
+```
 
 this calls:
 
-<scala>
+```scala
 rankImplicits(eligible, Nil)
-</scala>
+```
 
 and `rankImplicits` calls itself recursively evaluating one `ImplicitInfo` at a time in `typedImplicit(i, true)`. Eventually `typedImplicit1` is called, but I have no idea how it's able to reject lower priority implicits.
 
@@ -147,7 +147,7 @@ To take an example from Josh's talk, `Scala.Int` like `1` doesn't have `to` meth
 
 To demonstrate the implicit parameter resolution precedence I've come up with an example code:
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -169,7 +169,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
 `CanFoo` is the contract typeclass. Using the convention borrowing from `CanBuildFrom`, I am naming this prefixed with `Can`. Then two typeclass instances `memberIntFoo` and `localIntFoo` are defined, both implementing `foos` method. Using the convetion borrowing from sbinary/sjson, I am naming `foos` postfixed with `s`. This makes the method stand out in the code, since I wouldn't normally name a method with verb + `s`.
 
@@ -188,7 +188,7 @@ If in fact name binding precedence is in effect, that would be weird. The name b
 
 Now let's look at explicit imports.
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -213,7 +213,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
     $ scala test.scala
     localIntFoo:1
@@ -226,7 +226,7 @@ Again, `localIntFoo` wins, but both of them implement typeclass for `Int`, and n
 
 Next, let's test the precedence order between the explicit and wildcard imports:
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -258,7 +258,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
     $ scala test.scala
     test.scala:28: error: ambiguous implicit values:
@@ -276,7 +276,7 @@ There's the discrepancy with the name binding precedence right there. `name` can
 What about wildcard import and the package object?
 For this we need a few files. First `main.scala`:
 
-<scala>
+```scala
 package p
 
 trait CanFoo[A] {
@@ -311,18 +311,18 @@ object Main extends App {
   def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
   println(test())
 }
-</scala>
+```
 
 Then, second file `package.scala`:
 
-<scala>
+```scala
 package object p { 
   val name = "packageObjectIntFoo"
   implicit val packageObjectIntFoo = new CanFoo[Int] {
     def foos(x: Int) = "packageObjectIntFoo:" + x.toString
   }
 }
-</scala>
+```
 
 Then compile this as follows:
 
@@ -341,7 +341,7 @@ Boom. Using package object *alone* does not push the precedence down the wildcar
 
 How about explicit imports? Just comment out `import WildDef._`, and uncomment `import Def.{ImportIntFoo, name}`.
 
-<scala>
+```scala
 ...
 
 object Main extends App {  
@@ -358,7 +358,7 @@ object Main extends App {
   def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
   println(test())
 }
-</scala>
+```
 
     $ scalac package.scala main.scala 
     main.scala:29: error: ambiguous implicit values:
@@ -375,7 +375,7 @@ Still does not work.
 
 Finally, let's test if local declarations can win over the definitions made available by package object. Uncomment `LocalIntFoo` as follows:
 
-<scala>
+```scala
 package p
 
 trait CanFoo[A] {
@@ -394,18 +394,18 @@ object Main extends App {
   def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
   println(test())
 }
-</scala>
+```
 
 `package.scala` is not changed:
 
-<scala>
+```scala
 package object p { 
   val name = "packageObjectIntFoo"
   implicit val packageObjectIntFoo = new CanFoo[Int] {
     def foos(x: Int) = "packageObjectIntFoo:" + x.toString
   }
 }
-</scala>
+```
 
     $ scalac package.scala main.scala 
     
@@ -429,19 +429,19 @@ There are two ways a particular eligible argument A can be *more specific* than 
 
 The formal definition of "*as specific as*" is in the Scala Language Specification. For methods, it means that arguments *p<sub>1</sub>, ... p<sub>n</sub>* for *A* can be applied also to *B*, it's as specific. This could be demonstrated using view bound like this:
 
-<scala>
+```scala
 trait Bar {
   def bar: String
 }
 
 def bar[A <% Bar](x: A): String = x.bar
-</scala>
+```
 
 This gets expanded as
 
-<scala>
+```scala
 def bar[A](x: A)(implicit ev: Function1[A, Bar]): String = ev(x).bar
-</scala>
+```
 
 so the same implicit parameter resolution needs to happen, except `ev` is a parameterized type.
 
@@ -449,7 +449,7 @@ so the same implicit parameter resolution needs to happen, except `ev` is a para
 
 Here we have two views to convert `Any` and `Int` into a `Bar` loaded into the local scope. 
 
-<scala>
+```scala
 trait Bar {
   def bar: String
 }
@@ -466,7 +466,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
     $ scala test.scala
     localIntToBar:1
@@ -477,7 +477,7 @@ As expected, `localIntToBar` wins over `localAnyToBar` because it's the most spe
 
 Next, let's see if the how inheritance hierarchy affects the precedence.
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -505,7 +505,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
     $ scala test.scala
     extendedImportIntFoo:1
@@ -516,7 +516,7 @@ So here, as expected, `extendedImportIntFoo` wins over `importIntFoo` declared i
 
 As a variant, we should verify that the rule applies for members of an object vs members of parent trait.
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -538,7 +538,7 @@ object Main extends Super {
 }
 
 println(Main.test)
-</scala>
+```
 
 As expected, `memberIntFoo` wins over `superIntFoo`:
 
@@ -559,7 +559,7 @@ The natural question is which rule wins, if they are at odds with each other.
 
 This is like setting up a A-or-B dilemma to the compiler to see which rule it picks. We know it likes specific views like `localIntToBar`. We also know it likes local over imported. What if we have less specific local view and a more specific imported view?
 
-<scala>
+```scala
 trait Bar {
   def bar: String
 }
@@ -580,7 +580,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
     $ scala test.scala
     test.scala:38: error: ambiguous implicit values:
@@ -599,7 +599,7 @@ Current scope clause and specificity clause 2 cannot be put at odds with each ot
 
 We can still put specificity clause 1 and 2 at odds with each other.
 
-<scala>
+```scala
 trait Bar {
   def bar: String
 }
@@ -623,7 +623,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
 Again, the compiler cannot choose between those two rules:
 
@@ -676,7 +676,7 @@ Given that no candidates were found in Category 1, compiler moves on to Category
 
 We can't use `Int` so I am making `Automobile` class. To demonstrate that the lower precedence of the implicit scope, we should pick something lower from the local scope like an implicit declared in a package object. Here's in `main.scala`:
 
-<scala>
+```scala
 package p
 
 trait CanFoo[A] {
@@ -698,10 +698,10 @@ object Main extends App {
   def foo[A:CanFoo](x: A): String = implicitly[CanFoo[A]].foos(x)
   println(test())
 }
-</scala>
+```
 
 And here's `package.scala`:
-<scala>
+```scala
 package p
 
 object `package` {
@@ -710,7 +710,7 @@ object `package` {
     def foos(x: Automobile) = "packageObjectAutomobileFoo:" + x.toString
   }
 }
-</scala>
+```
 
     $ scalac package.scala main.scala 
     $ scala -cp . p.Main
@@ -722,7 +722,7 @@ object `package` {
 
 How about the precedence between the companion objects? We can define `Vehicle` as a parent trait of `Automobile` as follows:
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -750,7 +750,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
 Although `Automobile` trait and `Vehicle` trait have inheritance relationship, the companion classes do not. However, the rules of static overloading resolution have this covered. Recall:
 
@@ -768,7 +768,7 @@ Thus by power vested by specificity clause 2, `companionAutomobileFoo` rightly w
 
 There's another implicit scope the specification does not mention, which is the package object of type *T*. This is not to be confused with the package object of the current scope (user's scope). Suppose we have `main.scala`:
 
-<scala>
+```scala
 object Main extends App {  
   def test(): String = {    
     p.foo(p.Automobile())
@@ -776,11 +776,11 @@ object Main extends App {
   
   println(test())
 }
-</scala>
+```
 
 And `package.scala`:
 
-<scala>
+```scala
 package p
 
 object `package` {
@@ -798,7 +798,7 @@ trait CanFoo[A] {
 case class Automobile() {}
 object Automobile {
 }
-</scala>
+```
 
 This compiles and runs as follows:
 
@@ -812,7 +812,7 @@ Josh was definitely aware of this one since it's mentioned as "Package Object (y
 
 We can now load in an implicit into *T*'s companion object to find out the precedence between the two.
 
-<scala>
+```scala
 package p
 
 object `package` {
@@ -833,7 +833,7 @@ object Automobile {
     def foos(x: Automobile) = "companionAutomobileFoo:" + x.toString
   }
 }
-</scala>
+```
 
     $ scalac package.scala main.scala 
     main.scala:3: error: ambiguous implicit values:
@@ -852,7 +852,7 @@ Notable associated types of type *T* are the companions for its type constructor
 For implicit parameters like `CanFoo`, the companion object for `CanFoo` becomes relevant as well as `Automobile` object.
 For implicit views, `Function1` object comes into the scope as well as the companion object of `From` and `To` class.
 
-<scala>
+```scala
 trait CanFoo[A] {
   def foos(x: A): String
 }
@@ -879,7 +879,7 @@ object Main {
 }
 
 println(Main.test)
-</scala>
+```
 
     $ scala test.scala
     test.scala:30: error: ambiguous implicit values:
@@ -951,15 +951,15 @@ When would such a situation occur in Scala? Serialization of structured data is 
 
 scalaxb can generate two things. First, a case class:
 
-<scala>
+```scala
 case class Address(name: String,
   street: String,
   city: String)
-</scala>
+```
 
 Second, a typeclass instance to write the case class out to XML (it does parsing too, but we'll focus on writing):
 
-<scala>
+```scala
 package ipo
 
 object `package` extends XMLProtocol { }
@@ -977,13 +977,13 @@ trait XMLProtocol extends scalaxb.XMLStandardTypes {
         scalaxb.toXML[String](__obj.city, None, Some("city"), __scope, false))
   }
 }
-</scala>
+```
 
 This typeclass instance can be consumed using `scalaxb.toXML` function as follows:
 
-<scala>
+```scala
 scalaxb.toXML[ipo.Address](ipo.Address("name", "street", "city"), None, Some("address"), scope, false)
-</scala>
+```
 
 For normal usage, there's no `import` statement involved here. This is because everything is loaded up via the parent trait of the package object of type *T*, one of the lowest precedences.
 
@@ -991,7 +991,7 @@ Also note `scalaxb.toXML` is used within the typeclass instance for `Address`. F
 
 Here's the first attempt:
 
-<scala>
+```scala
 implicit val stringXMLFormat: XMLFormat[String] = new XMLFormat[String] {
   def writes(obj: String, namespace: Option[String], elementLabel: Option[String],
       scope: scala.xml.NamespaceBinding, typeAttribute: Boolean): scala.xml.NodeSeq =
@@ -999,18 +999,18 @@ implicit val stringXMLFormat: XMLFormat[String] = new XMLFormat[String] {
 }
 
 scalaxb.toXML[ipo.Address](ipo.Address("name", "street", "city"), None, Some("address"), scope, false)
-</scala>
+```
 
 This does not work because at the callsite of `scalaxb.toXML[Address](...)`, only the typeclass instance for `XMLFormat[Address]` is bound. To expand out the implicit statements:
 
-<scala>
+```scala
 scalaxb.toXML[ipo.Address](ipo.Address("name", "street", "city"), None, Some("address"), scope, false)(
   ipo.IpoAddressFormat)
-</scala>
+```
 
 Internally, `ipo.IpoAddressFormat` is bound to `ipo.__StringXMLFormat`, which it inherits from `scalaxb.XMLStandardTypes`. So the goal is to make `IpoAddressFormat` somehow use our own custom instance of `XMLFormat[String]`. Here's the solution:
 
-<scala>
+```scala
 val customProtocol = new ipo.XMLProtocol {
   override lazy val __StringXMLFormat: XMLFormat[String] = new XMLFormat[String] {
     def writes(obj: String, namespace: Option[String], elementLabel: Option[String],
@@ -1021,14 +1021,14 @@ val customProtocol = new ipo.XMLProtocol {
 import customProtocol.IpoAddressFormat
 
 scalaxb.toXML[ipo.Address](ipo.Address("name", "street", "city"), None, Some("address"), scope, false)
-</scala>
+```
 
 This will rewire all callsite bound typeclass instances to our `toXML[String](...)` calls. Again, let's see how this is expanded by the compiler:
 
-<scala>
+```scala
 scalaxb.toXML[ipo.Address](ipo.Address("name", "street", "city"), None, Some("address"), scope, false)(
   customProtocol.IpoAddressFormat)
-</scala>
+```
 
 We've covered that Category 1 wins over anything in Category 2, so `customProtocol.IpoAddressFormat` (explicit import) trumps `ipo.IpoAddressFormat` (the parent trait *Q*<sub>2</sub> of package object of *T*). Internal to `customProtocol.IpoAddressFormat`, its callsite is bound to a lazy implicit value `customProtocol.__StringXMLFormat`. So this means that the signature is known, but the actual value is not initialized yet! This allows `customProtocol` to override the lazy value and late bind the typeclass instance.
 

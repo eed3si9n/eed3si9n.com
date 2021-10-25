@@ -40,7 +40,7 @@ Eugene Burmako 著
 
 `Macros.scala` というファイルを作って以下のコードをペーストする (関連する API やインフラなどマクロシステムに大切なことが書かれているのでコメントもしっかり読んでほしい)。
 
-<scala>
+```scala
 import scala.reflect.makro.Context
 import collection.mutable.ListBuffer
 import collection.mutable.Stack
@@ -108,7 +108,7 @@ object Macros {
     c.Expr[Unit](Block(stats.toList, Literal(Constant(()))))
   }
 }
-</scala>
+```
 
 ## 3. マクロをコンパイルする
 
@@ -146,12 +146,12 @@ $ scalac -language:experimental.macros Macros.scala
 
 `Test.scala` という名前のファイルを作って以下のコードをペーストする。(マクロを使うには、インポートして普通の関数同様に呼び出すだけでいい。簡単だよね?):
 
-<scala>
+```scala
 object Test extends App {
   import Macros._
   printf("hello %s!", "world")
 }
-</scala>
+```
 
 コンパイルして、走らせてみよう。
 
@@ -165,7 +165,7 @@ hello world!
 
 ちゃんと動いてるみたいだ! `-Ymacro-debug-lite` というコンパイラフラグを付けて中の動作をみてみよう ([ScalaSettings.scala][1] には他にもマクロ関連のフラグが定義されているから、試してほしい)。
 
-<scala>
+```scala
 $ scalac -Ymacro-debug-lite Test.scala
 typechecking macro expansion Macros.printf("hello %s!", "world") at
 source-C:/Projects/Kepler/sandbox\Test.scala,line-3,offset=52
@@ -188,7 +188,7 @@ Apply(
   Select(Select(This(newTypeName("scala")), newTermName("Predef")), newTermName("println")),
   List(Literal(Constant("!"))))),
 Literal(Constant(())))
-</scala>
+```
 
 `-Ymacro-debug-lite` を使うとマクロ展開によって生成されたコードが擬似 Scala 形式と生の AST 形式で表示される。両者にはそれぞれ利点がある。前者は見た目で解析するのに便利で、後者はより細かいデバッギングに欠かすことができない。
 

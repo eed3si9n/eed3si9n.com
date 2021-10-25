@@ -96,9 +96,9 @@ $ sbt --client shutdown
 
 sbt 1.4.0 adds a new setting called `ThisBuild / versionScheme` to track version scheme of the build:
 
-<scala>
+```scala
 ThisBuild / versionScheme := Some("early-semver")
-</scala>
+```
 
 The supported values are `"early-semver"`, `"pvp"`, and `"semver-spec"`. sbt will include this information into `pom.xml` and `ivy.xml` as a property. In addition, sbt 1.4.0 will use the information to take the guessing out of eviction warning when this information is available. [#5724][5724] by [@eed3si9n][@eed3si9n]
 
@@ -108,9 +108,9 @@ sbt 1.4.0 / Zinc 1.4.0 virtualizes the file paths tracked during incremental com
 
 To demonstrate this, we've also added **experimental** [cached compilation](http://eed3si9n.com/cached-compilation-for-sbt) feature to sbt. All you need is the following setting:
 
-<scala>
+```scala
 ThisBuild / pushRemoteCacheTo := Some(MavenCache("local-cache", file("/tmp/remote-cache")))
-</scala>
+```
 
 Then from machine 1, call `pushRemoteCache`. This will publish the `*.class` and Zinc Analysis artifacts to the location. Next, from machine 2, call `pullRemoteCache`.
 
@@ -126,13 +126,13 @@ On start up, sbt 1.4.0 checks for unused settings/tasks. Because most settings a
 
 sbt 1.4.0 adds support for conditional task (or Selective task), which is a new kind of task automatically created when `Def.task { ... }` consists of an `if`-expression:
 
-<scala>
+```scala
 bar := {
   if (number.value < 0) negAction.value
   else if (number.value == 0) zeroAction.value
   else posAction.value
 }
-</scala>
+```
 
 Unlike the regular (Applicative) task composition, conditional tasks delays the evaluation of then-clause and else-clause as naturally expected of an `if`-expression. This is already possible with `Def.taskDyn { ... }`, but unlike dynamic tasks, conditional task works with `inspect` command. See [Selective functor for sbt](http://eed3si9n.com/selective-functor-in-sbt) for more details. [#5558][5558] by [@eed3si9n][@eed3si9n]
 
@@ -140,15 +140,15 @@ Unlike the regular (Applicative) task composition, conditional tasks delays the 
 
 sbt 1.4.0 adds experimental incremental build pipelining. To enable build pipelining for the build:
 
-<scala>
+```scala
 ThisBuild / usePipelining := true
-</scala>
+```
 
 To opt-out of creating an early output for some of the subprojects:
 
-<scala>
+```scala
 exportPipelining := false
-</scala>
+```
 
 [#5703][5703] by [@eed3si9n][@eed3si9n]
 
@@ -159,9 +159,9 @@ Since it injects many tasks per subprojects, the plugin is split into two parts:
 - `MiniDependencyTreePlugin` that is enabled by default, bringing in `dependencyTree` task to `Compile` and `Test` configurations
 - Full strength `DependencyTreePlugin` that is enabled by putting the following to `project/plugins.sbt`:
 
-<scala>
+```scala
 addDependencyTreePlugin
-</scala>
+```
 
 ### Fixes with compatibility implications
 

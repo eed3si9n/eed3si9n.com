@@ -14,7 +14,7 @@ tags:        [ "scala" ]
 
 以下に問題を簡略化したコード例を示す:
 
-<scala>
+```scala
 trait Functor {
   def map: String
 }
@@ -30,14 +30,14 @@ object OneOr {
   def OneOrFunctor: Functor = new OneOrFunctor {}
   def OneOrTraverse: Traverse = new OneOrTraverse {}
 }
-</scala>
+```
 
 これをテストするには以下を実行する:
 
-<scala>
+```scala
 scala> OneOr.OneOrTraverse.map
 res0: String = meh
-</scala>
+```
 
 `OneOr.OneOrTraverse.map` は `"better"` を期待しているけども、`map` の実装は意図せずに `Traverse` のデフォルトインスタンスによって乗っ取られてしまった。
 
@@ -53,7 +53,7 @@ res0: String = meh
 
 普通の trait はインターフェイスのような役割をするのに対して、Scala は [*stackable* traits][Venners] を提供して、これはクラスの振る舞いを変更する。trait を stackable にするには、まずクラスか trait から継承して、メソッドに `abstract override` という修飾子を付ける。この修飾子の目的は、メソッド本文内から `super` へのアクセスを可能とすることだ。trait の `super` は動的に束縛されるため、通常はアクセスすることができない。
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -67,11 +67,11 @@ sealed trait OneOrFunctor extends Functor {
 error: method map in class Functor is accessed from super. It may not be abstract unless it is overridden by a member declared `abstract' and `override'
          override def map: String = super.map
                                           ^
-</scala>
+```
 
 `super` にアクセスする必要があるため、stackable trait は具象実装が出てきた**後で**のみ mix in することができる。これを使って mixin の順序、つまりクラス線形化に制約を設けることができるかもしれない。
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -95,7 +95,7 @@ error: overriding method map in trait OneOrFunctor of type => String;
  method map in trait Traverse of type => String needs `abstract override' modifiers
        sealed trait OneOrTraverse extends OneOrFunctor with Traverse {
                     ^
-</scala>
+```
 
 `OneOrFunctor` は stackable であるため、mixin できる前に `map` の実装を必要とする。順序を `extends Traverse with OneOrFunctor` に直すことでコンパイルに成功する。
 
@@ -105,14 +105,14 @@ error: overriding method map in trait OneOrFunctor of type => String;
 
 `OneOrFunctor` を制御することが一応できたということは、`Traverse` が早めに来るにように強制することもできるかもしれない。喩えると、API クラスと実装クラスを分ける「壁」のようなものが欲しい。
 
-<scala>
+```scala
 sealed trait OneOrTraverse extends Traverse with !壁! with OneOrFunctor {
 }
-</scala>
+```
 
 線形化のルールで強制される不変条件の一つにクラスの階層順序は保存されなければいけないというものがある。これは典型的には抽象クラスを線形化の後の方へ押すことになる。例えば、`Functor` と `Traverse` を抽象クラスとして定義できる:
 
-<scala>
+```scala
 abstract class Functor {
   def map: String
 }
@@ -132,11 +132,11 @@ object OneOr {
 error: class Traverse needs to be a trait to be mixed in
        sealed trait OneOrTraverse extends OneOrFunctor with Traverse {
                                                             ^
-</scala>
+```
 
 うまくいった。`OneOrFunctor` が trait mixin フェーズを開始するため、`Traverse` の参加は禁止されることになった。しかし、この特定の実装の欠点は Scalaz の全ての型クラスを大きな木構造に強制する必要があることだ。それでは型クラスの意味が無い。例えば、現実では `Traverse` は `Functor` と `Foldable` を継承する:
 
-<scala>
+```scala
 abstract class Functor {
   def map: String
 }
@@ -151,13 +151,13 @@ abstract class Traverse extends Functor with Foldable {
 error: class Foldable needs to be a trait to be mixed in
        abstract class Traverse extends Functor with Foldable {
                                                     ^
-</scala>
+```
 
 ### final
 
 [@yasushia](https://twitter.com/yasushia)氏のツイートで `final` 修飾子を使えばのオーバーライドを防げることを思い出した。これは一度試ししたけどうまくいかなかったような気がするがもう一度やってみる。
 
-<scala>
+```scala
 trait Functor {
   def map: String
 }
@@ -178,7 +178,7 @@ error: overriding method map in trait OneOrFunctor of type => String;
  method map in trait Traverse of type => String cannot override final member
        sealed trait OneOrTraverse extends OneOrFunctor with Traverse {
                     ^
-</scala>
+```
 
 あっさりうまくいった。多くの場合はこの方法でいけるかもしれない。欠点としては final なのでこれ以上実装側でオーバーライドできないということだ。
 
@@ -186,7 +186,7 @@ error: overriding method map in trait OneOrFunctor of type => String;
 
 もう一つ思いついた方法があって、抽象型メンバーを使って phantom type のようにガードとして使えないかということだ。型のオーバーライドも線形化に従うため、壁として機能してくれるかもしれない。
 
-<scala>
+```scala
 trait Interface {
   type Guard
 }
@@ -215,11 +215,11 @@ error: overriding type Guard in trait Implementation with bounds <: Implementati
  type Guard in trait Traverse with bounds <: Interface has incompatible type
        sealed trait OneOrTraverse extends OneOrFunctor with Traverse {
                     ^
-</scala>
+```
 
 これは、ひょっとしていけるかもしれない。`Traverse` が先にくるように直してコンパイルが通るかも試してみよう。
 
-<scala>
+```scala
 trait Interface {
   type Guard
 }
@@ -256,7 +256,7 @@ defined module OneOr
 
 scala> OneOr.OneOrTraverse.map
 res0: String = better
-</scala>
+```
 
 `"better"` が表示されたので、うまくいった! 全ての型クラスが `type Guard` をオーバーライドする必要があるけども、これは実行時に型消去されるはずだ。もし既に名前が無いならば型レベルの守護霊を *patronus type* と呼ぶことにする。
 

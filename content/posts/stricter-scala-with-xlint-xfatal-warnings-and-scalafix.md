@@ -16,7 +16,7 @@ tags:        [ "scala" ]
 Compile, or compile not. There's no warning. Two of my favorite Scala compiler flags lately are `"-Xlint"` and `"-Xfatal-warnings"`.
 Here is an example setting that can be used with subprojects:
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.12.6"
@@ -48,7 +48,7 @@ lazy val foo = (project in file("foo"))
     commonSettings,
     name := "foo",  
   )
-</scala>
+```
 
 ### what's -Xlint?
 
@@ -72,11 +72,11 @@ In 2015 Roman Janusz ([@rjghik](https://twitter.com/rjghik)) wrote a compiler pl
 
 The usage looks like this:
 
-<scala>
+```scala
 import com.github.ghik.silencer.silent
 
 @silent override lazy val ansiCodesSupported = delegate.ansiCodesSupported
-</scala>
+```
 
 This supresses all warnings for the definition.
 
@@ -104,13 +104,13 @@ sbt.version=1.2.3
 
 #### project/plugins.scala
 
-<scala>
+```scala
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.8.0-RC1")
-</scala>
+```
 
 #### build.sbt
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.12.6"
@@ -138,7 +138,7 @@ lazy val root = (project in file(".")).
     //   s"-P:semanticdb:targetroot:$t"
     // }
   )
-</scala>
+```
 
 #### .scalafix.conf
 
@@ -150,7 +150,7 @@ rules = [
 
 #### Main.scala
 
-<scala>
+```scala
 package example
 
 case class Address()
@@ -158,7 +158,7 @@ case class Address()
 object Main extends App {
   List(Animal()).contains("1")
 }
-</scala>
+```
 
 #### scalafix-noinfer usage
 
@@ -208,12 +208,12 @@ First issue that I noticed is that I can't seem to move the `targetroot` of sema
 scalafix-noinfer is a progress forward, and it's more usable than a forked Scala compiler, but it's not as thorough as [-Yno-lub][1].
 For instance, it seems to be perfectly ok with the following:
 
-<scala>
+```scala
 object Main extends App {
   val x = if (true) 1 else false
   val y = 1 match { case 1 => Array(1); case n => Vector(n) }
 }
-</scala>
+```
 
 ### summary
 

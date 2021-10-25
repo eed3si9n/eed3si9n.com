@@ -21,22 +21,22 @@ aliases:     [ /node/15 ]
 
 設計の直交性のときと同じ例を使うと，
 
-<scala>
+```scala
 case class Address(no: Int, street: String, city: String, 
   state: String, zip: String)
-</scala>
+```
 
 これを `LabelMaker` というインターフェイスに適合させたいとする．つまり，我々は `Address` オブジェクトを `LabelMaker` として使いたい．
 
-<scala>
+```scala
 trait LabelMaker[T] {
   def toLabel(value: T): String
 }
-</scala>
+```
 
 インターフェイス変換を行うアダプターは...
 
-<scala>
+```scala
 // Adapter クラス
 case class AddressLabelMaker extends LabelMaker[Address] {
   def toLabel(address: Address) = {
@@ -47,7 +47,7 @@ case class AddressLabelMaker extends LabelMaker[Address] {
 
 // この Adapter は Address オブジェクトに LabelMaker のインターフェイスを提供する．
 AddressLabelMaker().toLabel(Address(100, "Monroe Street", "Denver", "CO", "80231"))
-</scala>
+```
 
 さて，上の設計で我々が副次的に導入してしまった複雑さはなんだろう？
 
@@ -60,13 +60,13 @@ AddressLabelMaker().toLabel(Address(100, "Monroe Street", "Denver", "CO", "80231
 
 例えばこの `printLabel` 関数を見てほしい．これは一つの引数を取り，我々が提供する `LabelMaker` を用いてラベルを出力する...
 
-<scala>
+```scala
 def printLabel[T](t: T)(lm: LabelMaker[T]) = lm.toLabel(t)
-</scala>
+```
 
 これに `Address` のラベルを作らさせるには，それを実行する Adapter を定義する必要がある．Scala には object 構文による first-class なモジュールのサポートがある．`Address` を `LabelMaker` に変換するモジュールを定義してみよう．
 
-<scala>
+```scala
 object LabelMaker {
   implicit object AddressLabelMaker extends LabelMaker[Address] {
     def toLabel(address: Address): String = {
@@ -75,27 +75,27 @@ object LabelMaker {
     }
   }
 }
-</scala>
+```
 
 この Adapter は `implicit` 修飾子付きの object であることに注意してほしい．これは何をするかというと，構文スコープ(lexical scope)内に適当なものを探すことができた場合に暗黙の(implicit)パラメータにコンパイラが渡してくれるというものだ．そのためには `printLabel` 関数の `LabelMaker` パラメータも `implicit` 宣言しなければいけない．
 
-<scala>
+```scala
 def printLabel[T](t: T)(implicit lm: LabelMaker[T]) = lm.toLabel(t)
-</scala>
+```
 
 これを Scala 2.8 の [context bound 構文](http://blog.takeda-soft.jp/blog/show/396)で書くと，implicit パラメータを匿名にすることができる...
 
-<scala>
+```scala
 def printLabel[T: LabelMaker](t: T) = implicitly[LabelMaker[T]].toLabel(t)
-</scala>
+```
 
 我々は implicit パラメータには何も提供せず，context bound 構文を用いることでコンパイラは自動的に直近の構文スコープから適当なインスタンスを選んで渡してくれる．上記の例では `implicit object AddressLabelMaker` があなたが `printLabel` を呼び出すメソッドのスコープに入っていなくてはいけない．適当なインスタンスが見つからない場合は文句を言う．つまり，コンパイル時に失敗するため，邪悪な実行時のエラー無しということだ．スゴくないだろうか．
 
 早速 `Address` からラベルを作ってみよう...
 
-<scala>
+```scala
 printLabel(Address(100, "Monroe Street", "Denver", "CO", "80231"))
-</scala>
+```
 
 委譲型の Adapter にあったようなクライアントコードにおける副次的な複雑さは無くなり，抽象体は明示的に定義されており，ラベルの出力が必要なものにのみクラスが提供されている．それだけでなく，設計全体の表層部分を構成する様々な抽象体を見れば，モジュール性が浮かびがってくるだろう．クライアントは型クラスの定義のみに対してコードを書き，型クラスのインスタンスはコンパイラ**のみ**の目に触れるよう抽象化されている．
 
@@ -150,7 +150,7 @@ printLabel a = toLabel(a)
 ### 考察
 型クラスのインスタンスの定義を見ると Scala の実装に比べて Haskell の方がかなりスッキリしてることに注意してほしい．Scala のここでの冗長さには理由があり，Haskell の定義に比べて確かな利点がある．Scala の場合はインスタンスを明示的に `AddressLabelMaker` と名付けたが，Haskell でのインスタンスは匿名である．Haskell コンパイラはグローバル名前空間のディクショナリを見て適合するインスタンスを探し出す．Scala の場合はこの検索がメソッドが呼び出されるスコープの中でローカルに実行される．さらに，Scala でのインスタンスが明示的に命名されているため別のインスタンスをスコープ上に注入することができ，それが implicit パラメータに渡されるようになる．上の例で言うと，`Address` のためにラベルを特殊な方法で出力する型クラスの別のインスタンスがほしいとする...
 
-<scala>
+```scala
 object SpecialLabelMaker {
   implicit object AddressLabelMaker extends LabelMaker[Address] {
     def toLabel(address: Address): String = {
@@ -159,7 +159,7 @@ object SpecialLabelMaker {
     }
   }
 }
-</scala>
+```
 
 普通のインスタンスの代わりにこの特殊なインスタンスをスコープに取り込めば，特殊な方法で住所のラベルを生成することができる...
 

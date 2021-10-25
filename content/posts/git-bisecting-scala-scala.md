@@ -25,30 +25,30 @@ First reproduce your issue using an sbt build. To be concrete, it should be some
 
 #### build.sbt
 
-<scala>
+```scala
 ThisBuild / resolvers += "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
-</scala>
+```
 
 That's it for the build file.
 
 #### Test.scala
 
-<scala>
+```scala
 object Test extends App {
   val x = Set[AnyVal](1L, (), 28028, -3.8661012E-17, -67)
   val y = Set[AnyVal](1, 3.3897517E-23, ())
   val z = x ++ y
   assert(z.size == 6)
 }
-</scala>
+```
 
 This reproduces [scala/bug#11551](https://github.com/scala/bug/issues/11551), which was found during Scala 2.13.0-RC3 where adding two `Set`s produced 7 elements instead of 6.
 
 #### project/build.properties
 
-<scala>
+```scala
 sbt.version=1.2.8
-</scala>
+```
 
 An older version of sbt works better since newer Zinc doesn't work with 2.13 beta releases.
 

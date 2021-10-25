@@ -35,9 +35,9 @@ tags:        [ "scala" ]
 
 まず最初にやってみたのは `scala.Seq` を unimport して、`scala.collection.Seq` か `scala.collection.immutable.Seq` のどちらかを import することを強制することだ。
 
-<scala>
+```scala
 import scala.{ Seq => _, _ }
-</scala>
+```
 
 最も外側にあるスコープ内でデフォルトの `import scala._` によって `Seq` という名前が束縛されているため、これは効果が無い。あと、よく考えてみると、もし仮にそれがうまくいったとしても import 文を全てのソースに忘れずに書かなければいけないので、良い手では無い。
 
@@ -47,7 +47,7 @@ Jasper-M さんが `-Yno-imports` のことを思い出させてくれた。こ�
 
 次に、自分のパッケージ以下に `Seq` という名前の trait を定義してみた:
 
-<scala>
+```scala
 package scopt
 
 import scala.annotation.compileTimeOnly
@@ -62,7 +62,7 @@ import scala.annotation.compileTimeOnly
   * This Seq trait is a dummy type to prevent the use of `Seq`.
   */
 @compileTimeOnly("Use ISeq or CSeq") private[scopt] trait Seq[A1, F1[A2], A3]
-</scala>
+```
 
 わざと複雑な型パラメータを使うことで既存のコードのコンパイルが通らないようになっている。例えば、コードに `Seq[String]` が出てきた場合は以下のようなエラーとなる:
 
@@ -76,10 +76,10 @@ import scala.annotation.compileTimeOnly
 
 コードが `scopt` パッケージ内にさえあれば、`Seq` の使用を防止できる。実際の Seq を使うためには以下の import を行う:
 
-<scala>
+```scala
 import scala.collection.{ Seq => CSeq }
 import scala.collection.immutable.{ Seq => ISeq }
-</scala>
+```
 
 クロスビルド間の API semantics が統一されているべきと思うならば、public なものは全て `CSeq` を使うのがいいと思う。そして API が変更されるタイミングで `ISeq` を全面的に採用するかを検討すればいいと思う。
 
@@ -91,25 +91,25 @@ Sciss (Hanns) さんに `scala.IndexSeq` にも同様に影響があることを
 
 あともう一つ Sciss (Hanns) さんに[思い出させて](https://www.reddit.com/r/scala/comments/a71pi3/masking_scalaseq/)もらったのは Heiko Seq のことだ。これは、Heiko さんが 2013年に [Seq is not immutable!][heiko] 書いている:
 
-<scala>
+```scala
 package object scopt {
   type Seq[+A] = scala.collection.immutable.Seq[A]
   val Seq = scala.collection.immutable.Seq
   type IndexedSeq[+A] = scala.collection.immutable.IndexedSeq[A]
   val IndexedSeq = scala.collection.immutable.IndexedSeq
 }
-</scala>
+```
 
 これは `scala.immutable.Seq` を全ての Scala バージョンで採用することになる。`scala.collection.Seq` のままが良ければ Sciss さんのバリエーションを使えばいい:
 
-<scala>
+```scala
 package object scopt {
   type Seq[+A] = scala.collection.Seq[A]
   val Seq = scala.collection.Seq
   type IndexedSeq[+A] = scala.collection.IndexedSeq[A]
   val IndexedSeq = scala.collection.IndexedSeq
 }
-</scala>
+```
 
 ソースを検査して `CSeq`、`ISeq`、`List` と決めるのが面倒なひとはこういう手もあるかもしれない。
 

@@ -31,10 +31,10 @@ Power assert (or power assertion) is a variant of `assert(...)` function that th
 
 Let's say you have something like `a * b`. Using a traditional `assert`, we would write:
 
-<scala>
+```scala
 scala> assert(a * b == 7, s"a = $a; b = $b; a * b = ${a * b}")
 java.lang.AssertionError: assertion failed: a = 1; b = 3; a * b = 3
-</scala>
+```
 
 You often end up writing up log statements or error message that inspects all the variables.
 
@@ -44,19 +44,19 @@ For Scala, Peter Niederwieser himself wrote a mini library called [Expecty][expe
 
 I wanted give Expecty a try, so I forked the repo to [eed3si9n/expecty][expecty2], added sbt build, patched up the code so it works with 2.10, 2.11, 2.12, and 2.13.0-M4, sent a few [pull requests][10] upstream, changed the package name, and published my fork to Maven Central:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n.expecty" %% "expecty" % "0.11.0" % Test
-</scala>
+```
 
 and for Scala.JS and Scala Native:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n.expecty" %%% "expecty" % "0.11.0" % Test
-</scala>
+```
 
 Here's how we can use this:
 
-<scala>
+```scala
 scala> import com.eed3si9n.expecty.Expecty.assert
 import com.eed3si9n.expecty.Expecty.assert
 
@@ -70,7 +70,7 @@ assert(a * b == 7)
   at com.eed3si9n.expecty.Expecty$ExpectyListener.expressionRecorded(Expecty.scala:25)
   at com.eed3si9n.expecty.RecorderRuntime.recordExpression(RecorderRuntime.scala:34)
   ... 38 elide
-</scala>
+```
 
 As you can see, you get a nicer error message automatically.
 
@@ -82,7 +82,7 @@ If you're using ScalaTest, this feature is available as [DiagrammedAssertions](h
 
 With [a small patch][14] I was able to get Minitest working locally. All I need to do is check that out under `$HOME/workspace` and use [sbt-sriracha][sbt-sriracha]:
 
-<scala>
+```scala
 val minitestJVMRef = ProjectRef(IO.toURI(workspaceDirectory / "minitest"), "minitestJVM")
 val minitestJVMLib = "io.monix" %% "minitest" % "2.1.1"
 
@@ -91,7 +91,7 @@ lazy val scoptJVM = scopt.jvm.enablePlugins(SiteScaladocPlugin)
   .settings(
     testFrameworks += new TestFramework("minitest.runner.Framework")
   )
-</scala>
+```
 
 Once we have the binary available for Scala 2.13.0-M4, we can get rid of this contraption and use the normal `libraryDependencies`.
 
@@ -99,7 +99,7 @@ Once we have the binary available for Scala 2.13.0-M4, we can get rid of this co
 
 Combining Minitest and Expecty is easy. First you add the Expecty fork to the build:
 
-<scala>
+```scala
 val minitestJVMRef = ProjectRef(IO.toURI(workspaceDirectory / "minitest"), "minitestJVM")
 val minitestJVMLib = "io.monix" %% "minitest" % "2.1.1"
 
@@ -109,21 +109,21 @@ lazy val scoptJVM = scopt.jvm.enablePlugins(SiteScaladocPlugin)
     libraryDependencies += "com.eed3si9n.expecty" %% "expecty" % "0.11.0" % Test,
     testFrameworks += new TestFramework("minitest.runner.Framework")
   )
-</scala>
+```
 
 Next, define a trait as follows:
 
-<scala>
+```scala
 import com.eed3si9n.expecty.Expecty
 
 trait PowerAssertions {
   lazy val assert: Expecty = new Expecty()
 }
-</scala>
+```
 
 Then you can write tests like this:
 
-<scala>
+```scala
 import minitest._
 
 object ImmutableParserSpec extends SimpleTestSuite with PowerAssertions {
@@ -145,11 +145,11 @@ object ImmutableParserSpec extends SimpleTestSuite with PowerAssertions {
 
   ....
 }
-</scala>
+```
 
 Let's change the value 1 to 2, and see how it fails.
 
-<scala>
+```scala
 [info] - int parser should parse 1 *** FAILED ***
 [info]   AssertionError:
 [info]
@@ -177,7 +177,7 @@ Let's change the value 1 to 2, and see how it fails.
 [info]     java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
 [info]     java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
 [info]     java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)
-</scala>
+```
 
 Sweet.
 

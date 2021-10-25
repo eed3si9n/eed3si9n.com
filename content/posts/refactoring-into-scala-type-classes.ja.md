@@ -25,7 +25,7 @@ aliases:     [ /node/16 ]
 ### 最初は継承と trait でうまくいくと思った...
 ... しかし，それは長続きしなかった．Jonas Boner と筆者の間で actor のシリアライゼーションに関して面白い論議があり，以下のような設計が生まれた ...
 
-<scala>
+```scala
 trait SerializableActor extends Actor 
 trait StatelessSerializableActor extends SerializableActor
 
@@ -40,14 +40,14 @@ trait StatefulWrappedSerializableActor extends SerializableActor {
 }
 
 // .. 以下続く
-</scala>
+```
 
 このような trait はシリアライゼーションという関心事をコアな actor の実装と結合(couple)させすぎてしまう．様々なシリアライズ可能な actor があるため，良いクラス名が足りなくなってきていた．GoF本が教えてくれる知恵の一つにインターフェイスを用いたクラスの命名に困るとしたら，間違ったことをやっている，というものがある．関心事をより意味のある方法で分割する別のやり方を探ろう．
 
 ### 型クラスだ
 コアの actor 抽象体からシリアライゼーションに関するコードを抜き出し，別の型クラスにした．
 
-<scala>
+```scala
 /**
  * Actor 直列化のための型クラス定義
  */
@@ -61,13 +61,13 @@ trait ToBinary[T <: Actor] {
 
 // クライアントはそれぞれの Actor のための Format[] を実装する必要がある
 trait Format[T <: Actor] extends FromBinary[T] with ToBinary[T]
-</scala>
+```
 
 actor をシリアライズ可能にするためにクライアントが実装する必要がある `FromBinary[T <: Actor]` と `ToBinary[T <: Actor]` という二つの型クラスを定義した．これをさらに `Format[T <: Actor]` という二つを合わせた trait に組み合わせた．
 
 次に，これらの型クラスを使って actor をシリアライズするための API を公開するモジュールを定義した．
 
-<scala>
+```scala
 /**
  * Actor 直列化のためのモジュール
  */
@@ -81,13 +81,13 @@ object ActorSerialization {
 
   //.. 実装
 }
-</scala>
+```
 
 これらの型クラスは Scala コンパイラにより直近の構文スコープより探し出され，暗黙の引数として暗黙の(implicit)パラメータに渡されることに注目してほしい．以上の戦略を試すテストケースを考えてみよう...
 
 カプセル化された状態を保持した actor を考える．特殊な actor クラスから継承するというような副次的な複雑さが無くなっていることに注目してほしい...
 
-<scala>
+```scala
 class MyActor extends Actor {
   var count = 0
 
@@ -97,11 +97,11 @@ class MyActor extends Actor {
       self.reply("world " + count)
   }
 }
-</scala>
+```
 
 そして，クライアントはプロトコルバッファを使ってシリアライゼーションの型クラスを実装して，それを Scala モジュールとして公開するとする...
 
-<scala>
+```scala
 object BinaryFormatMyActor {
   implicit object MyActorFormat extends Format[MyActor] {
     def fromBinary(bytes: Array[Byte], act: MyActor) = {
@@ -115,11 +115,11 @@ object BinaryFormatMyActor {
       ProtobufProtocol.Counter.newBuilder.setCount(ac.count).build.toByteArray
   }
 }
-</scala>
+```
 
 上記の型クラスの実装を利用するテストコードはこうなる...
 
-<scala>
+```scala
 import ActorSerialization._
 import BinaryFormatMyActor._
 
@@ -131,7 +131,7 @@ val bytes = toBinary(actor1)
 val actor2 = fromBinary(bytes)
 actor2.start
 (actor2 !! "hello").getOrElse("_") should equal("world 3")
-</scala>
+```
 
 actor の内部状態は `toBinary` によって正しくシリアライズされ，次に Actor の内部状態にデシリアライズされている．
 

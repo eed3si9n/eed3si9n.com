@@ -23,11 +23,11 @@ Automated release in general is a best practice, but there's one benefit specifi
 
 Remove sbt-release if you're using that. Add sbt-ci-release instead.
 
-<scala>
+```scala
 addSbtPlugin("org.foundweekends" %% "sbt-bintray" % "0.6.1")
 addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.4")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.1.1") // for gpg 2
-</scala>
+```
 
 Don't forget to remove `version.sbt`.
 
@@ -35,25 +35,25 @@ Don't forget to remove `version.sbt`.
 
 We need to also suppress sbt-dynver a little bit so we get a simpler -SNAPSHOT versions for commits that are not tagged:
 
-<scala>
+```scala
 ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / version := {
   val orig = (ThisBuild / version).value
   if (orig.endsWith("-SNAPSHOT")) "2.2.0-SNAPSHOT"
   else orig
 }
-</scala>
+```
 
 ### step 3: recover sbt-bintray settings
 
 We typically use sbt-bintray to publish plugins, so rewire `publishTo` back to `bintray / publishTo`. Also set `publishMavenStyle` to `false`.
 
-<scala>
+```scala
   publishMavenStyle := false,
   bintrayOrganization := Some("sbt"),
   bintrayRepository := "sbt-plugin-releases",
   publishTo := (bintray / publishTo).value,
-</scala>
+```
 
 ### step 4: remove bintrayReleaseOnPublish overrides
 

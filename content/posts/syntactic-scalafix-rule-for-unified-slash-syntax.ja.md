@@ -42,7 +42,7 @@ semantic rule と違って syntactic rule はコードの形だけを見て機�
 
 ### いくつかの適用例
 
-<scala>
+```scala
 diff --git a/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala b/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala
 index cf70ab2..5214226 100644
 --- a/sbt-pgp/src/main/scala-sbt-0.13/Compat.scala
@@ -92,7 +92,7 @@ index 22de1a398..610a4d410 100644
        "-doc-source-url",
        s"https://github.com/sbt/sbt/tree/$tagOrSha€{FILE_PATH}.scala"
      )
-</scala>
+```
 
 僕が自分で書くより少し括弧が多い気がするが、変更そのものは正しいと思う。
 
@@ -100,9 +100,9 @@ index 22de1a398..610a4d410 100644
 
 `contrabandFormatsForType in generateContrabands in Compile` というふうに `in` が連鎖する場合はうまく動作しない:
 
-<scala>
+```scala
 -    contrabandFormatsForType in generateContrabands in Compile := ContrabandConfig.getFormats,
 +    (Compile / contrabandFormatsForType in generateContrabands)(generateContrabands / contrabandFormatsForType) := ContrabandConfig.getFormats,
-</scala>
+```
 
 これは手で `Compile / generateContrabands / contrabandFormatsForType` というふうに直してあげる必要がある。

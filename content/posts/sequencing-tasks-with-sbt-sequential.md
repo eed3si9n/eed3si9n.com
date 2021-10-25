@@ -26,7 +26,7 @@ In other words, with sbt, the build definitions only define the dependencies bet
 
 ### serial execution
 
-<scala>
+```scala
 class Test {
   def startServer(): Unit = {
     println("starting...")
@@ -47,7 +47,7 @@ class Test {
     n
   }
 }
-</scala>
+```
 
 When someone calls `integrationTest0()` method, the code is executed in the exact order in which it is written. First `numberTask` is called, then `startServer()` is called, which takes 0.5 seconds to run. While it's running, the control is blocked until it returns. Then `println("testing...")` is called, and so on. Such execution with no switching of orders or overlap in execution is called *serial execution*.
 
@@ -57,7 +57,7 @@ A program execution whose outcome is equivalent to that of a serial execution is
 
 For example, in `integrationTest0` method, `val n = numberTask` can be moved to after `startServer()` without changing the overall result. Moreover, the execution of `startServer()` can be interleaved with the execution `numberTask` (execute concurrently) without changing the outcome:
 
-<scala>
+```scala
 class Test {
   def startServer(): Unit = {
     println("starting...")
@@ -78,13 +78,13 @@ class Test {
     n
   }
 }
-</scala>
+```
 
 ### concurrent execution
 
 Here's how one might write a similar build definition using sbt. 
 
-<scala>
+```scala
 val startServer = taskKey[Unit]("start server")
 val stopServer = taskKey[Unit]("stop server")
 val numberTask = taskKey[Int]("number task")
@@ -110,7 +110,7 @@ integrationTest2 := {
   stopServer.value
   n
 }
-</scala>
+```
 
 It looks ok, except the program execution is concurrent and out-of-order. In the above, `startServer`, `numberTask`, and `stopServer` tasks are executed in a concurrent context in the beginning of the task.  The execution may or may not happen in parallel, but the ordering is not guaranteed. The rest of the Scala code is executed when the dependent tasks come back. In sbt, one would try to construct task dependency graph instead of writing in imperative style, so this concurrent execution is normally not a problem.
 
@@ -126,7 +126,7 @@ The current solution in sbt for sequencing tasks is to use normal task dependenc
 
 `andFinally` creates a new task by appending an arbitrary Scala block at the end:
 
-<scala>
+```scala
 lazy val integrationTestBody = Def.task {
   startServer.value
   val n = 1
@@ -140,11 +140,11 @@ lazy val integrationTestImpl = integrationTestBody andFinally {
 }
 
 integrationTest3 := integrationTestImpl.value
-</scala> 
+``` 
 
 If the cleanup code is a task, there's `doFinally`:
 
-<scala>
+```scala
 lazy val integrationTestBody = Def.task {
   startServer.value
   val n = 1
@@ -155,15 +155,15 @@ lazy val integrationTestBody = Def.task {
 integrationTest4 <<= (integrationTestBody, stopServer) { (body, stop) =>
   body doFinally stop
 }
-</scala>
+```
 
 ### addCommandAlias
 
 If the objective is to run several tasks in a row as if it were typed in from the shell, sbt provides `addCommandAlias`, which defines a convenient alias for a group of commands. The following could be added to `build.sbt`:
 
-<scala>
+```scala
 addCommandAlias("sts", ";startServer;test;stopServer")
-</scala>
+```
 
 You then type `sts` from the sbt shell and it would issue the said tasks one after the other.
 
@@ -175,7 +175,7 @@ sbt-sequential is an implmenetation of "sequential" macro I outlined in the [ML 
 
 sbt-sequential injects `sequentialTask[T](t: T)` method to `sbt.Def` object, which enables sequential tasks. For instance, the above `integrationTest2` can be rewritten as follows:
 
-<scala>
+```scala
 val startServer = taskKey[Unit]("start server")
 val stopServer = taskKey[Unit]("stop server")
 val numberTask = taskKey[Int]("number task")
@@ -203,7 +203,7 @@ val integrationTestImpl = Def.sequentialTask {
 }
 
 integrationTest5 := integrationTestImpl.value
-</scala>
+```
 
 The execution ordering of `integrationTest5` emulates serial execution. In this particular example, the observed outcome of the side effects should be identical to that of serial execution. Unlike plain tasks, the execution is blocked after each line.
 
@@ -227,13 +227,13 @@ The implementation of macro was inspired by Mark's comment in [#1001][1001]:
 
 > Implementing sequence is straightforward, you just need `flatMap` (or `taskDyn`) just like with futures:
 
-<scala>
+```scala
 def sequence(tasks: List[Initialize[Task[Unit]]]): Initialize[Task[Unit]] =
   tasks match {
     case Nil => Def.task{ () }
     case x :: xs => Def.taskDyn { val _ = x.value; sequence(xs) }
   }
-</scala>
+```
 
 More explanation of `taskDyn` can be found at [Dynamic Computations with Def.taskDyn](https://github.com/sbt/sbt/blob/818f4f96fb4885adf8bbd2f43c2c1341022d22b2/src/sphinx/Detailed-Topics/Tasks.rst#dynamic-computations-with-deftaskdyn):
 
@@ -244,7 +244,7 @@ More explanation of `taskDyn` can be found at [Dynamic Computations with Def.tas
 
 The expanded code conceptually looks like this:
 
-<scala>
+```scala
 // before
 val integrationTestImpl = Def.sequentialTask {
   val n = numberTask.value
@@ -265,7 +265,7 @@ val integrationTestImpl: Def.Initialize[Task[Int]] = {
   val t4 = Def.taskDyn { val _ = t3.value; Def.task { stopServer.value; () } }
   Def.taskDyn { val _ = t4.value; Def.task { v0 } }
 }
-</scala>
+```
 
 As you can see, the code looks similar to Mark's `sequence` using `Def.taskDyn`. The difference is that I'm able to mix in plain Scala code, and also keep the type `Def.Initialize[Task[Int]]` at the end.
 

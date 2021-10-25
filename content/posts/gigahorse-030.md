@@ -38,7 +38,7 @@ However, you **must** close the response object if you don't consume the body co
 Normally you'd consume the body content as `Gigahorse.asString` or something like that.
 In that sense, the design is similar to Akka HTTP.
 
-<scala>
+```scala
 scala> val r = Gigahorse.url("http://api.duckduckgo.com").get.
      |           addQueryString(
      |             "q" -> "1 + 1",
@@ -54,7 +54,7 @@ f: scala.concurrent.Future[Int] = Future(<not completed>)
 
 scala> Await.result(f, 120.seconds)
 res0: Int = 1
-</scala>
+```
 
 OkHttp also does not provide streaming body or Reactive stream support, so if you need that check out Akka HTTP-backed or AHC-backed Gigahorse.
 

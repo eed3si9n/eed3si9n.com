@@ -38,7 +38,7 @@ http: gigahorse.HttpClient = gigahorse.support.okhttp.OkhClient@23b48158
 通常はボディコンテンツは `Gigahorse.asString` などのメソッドで消費される。
 そういう意味では Akka HTTP の設計に似ているかもしれない。
 
-<scala>
+```scala
 scala> val r = Gigahorse.url("http://api.duckduckgo.com").get.
      |           addQueryString(
      |             "q" -> "1 + 1",
@@ -54,7 +54,7 @@ f: scala.concurrent.Future[Int] = Future(<not completed>)
 
 scala> Await.result(f, 120.seconds)
 res0: Int = 1
-</scala>
+```
 
 OkHttp はボディのストリームや Reactive stream のサポートが無いため、それが必要ならば Akka HTTP 版か AHC 版の Gigahorse を使ってほしい。
 

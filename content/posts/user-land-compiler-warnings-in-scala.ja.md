@@ -25,7 +25,7 @@ Restligeist macro: n. A macro that fails immediately to display migration messag
 
 僕はこれを Restligeist macro、つまり地縛霊マクロと呼んでいる。例えば、sbt 1.3.8 において `<<=` を使うと以下のエラーメッセージが起動時に表示される。
 
-<scala>
+```scala
 /tmp/hello/build.sbt:13: error: `<<=` operator is removed. Use `key := { x.value }` or `key ~= (old => { newValue })`.
 See http://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html
     foo <<= test,
@@ -33,7 +33,7 @@ See http://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html
 [error] sbt.compiler.EvalException: Type error in expression
 [error] Use 'last' for the full log.
 Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?
-</scala>
+```
 
 これ実現可能というのは良いことだけども、わざわざマクロを使わなければいけないのいうのが仰々しい。[吉田さん][1]によると Haskell だとこれぐらいのことは型シグネチャに `Whoops` と書くだけでできるらしい:
 
@@ -63,7 +63,7 @@ API のステータスを表したものの一例として Lightbend の Akka �
 
 具体例を用いて説明する。例えば `<<=` メソッドをエラーにしたいとする。
 
-<scala>
+```scala
 import scala.annotation.apiStatus, apiStatus._
 
 @apiStatus(
@@ -73,7 +73,7 @@ import scala.annotation.apiStatus, apiStatus._
   defaultAction = Action.Error,
 )
 def <<=(): Unit = ???
-</scala>
+```
 
 このメソッドを呼び出すとこうなる:
 
@@ -89,7 +89,7 @@ example.scala:26: error: method <<= is removed; use := syntax instead (foo-lib 1
 
 ApiMayChange アノテーションを実装してみよう。
 
-<scala>
+```scala
 package foo
 
 import scala.annotation.apiStatus, apiStatus._
@@ -103,7 +103,7 @@ import scala.annotation.apiStatus, apiStatus._
 implicit class ShouldDSL(s: String) {
   def should(o: String): Unit = ()
 }
-</scala>
+```
 
 Akka にならって、デフォルトのアクションは `Action.Silent` なので警告は表示されない。ここで `-Wconf` の出番だ。`-Wconf:cat=api-may-change&origin=foo\..*:warning` をオプションに渡すことで、ユーザサイドで `foo.*` パッケージ内の `api-may-change` というカテゴリーのみを警告にすることができる。
 

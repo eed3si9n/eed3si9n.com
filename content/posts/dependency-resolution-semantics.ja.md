@@ -162,7 +162,7 @@ Apache Ivy はデフォルトで [latest-wins][ivy1] 戦略 (正確には「late
 
 Apache Ivy は、sbt 1.3.x 系以前の sbt で採用されていた依存性リゾルバーだ。sbt は上記の `pom.xml` を多少簡潔に書くことができる:
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / organization := "com.example"
 ThisBuild / version      := "1.0.0-SNAPSHOT"
@@ -172,7 +172,7 @@ lazy val root = (project in file("."))
     name := "foo",
     libraryDependencies += "com.typesafe.play" %% "play-ws-standalone" % "1.0.1",
   )
-</scala>
+```
 
 sbt シェルに入って、`show externalDependencyClasspath` と打ち込むと解決されたクラスパスが表示される。`com.typesafe:config:1.3.1` が表示されるはずだ。さらに以下の警告が表示される。
 
@@ -212,7 +212,7 @@ Coursier が良いのはドキュメンテーションに [version reconciliatio
 
 「最も高い値を取って」という表現があるので、これは latest-wins セマンティクスだ。内部で Coursier を使う sbt 1.3.0-RC3 を使ってこれを検証してみよう。
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / organization := "com.example"
 ThisBuild / version      := "1.0.0-SNAPSHOT"
@@ -222,7 +222,7 @@ lazy val root = (project in file("."))
     name := "foo",
     libraryDependencies += "com.typesafe.play" %% "play-ws-standalone" % "1.0.1",
   )
-</scala>
+```
 
 sbt シェルから `show externalDependencyClasspath` を実行すると、期待通り `com.typesafe:config:1.3.1` が返ってくる。`evicted` レポートも同じものだ:
 
@@ -257,13 +257,13 @@ Ivy の[ドキュメンテーション][ivy2]によると:
 
 `force="true"` の効果は、壊れている _strict_ コンフリクトマネージャーを使うと観測することができる。
 
-<scala>
+```scala
 ThisBuild / conflictManager := ConflictManager.strict
-</scala>
+```
 
 問題は strict コンフリクトマネージャーは退去 (eviction) を防止できていないことだ。`show externalDependencyClasspath` はお気楽に `com.typesafe:config:1.3.1` を返してくる。関連する問題として、strict コンフリクトマネージャーが解決したはずの `com.typesafe:config:1.3.1` をグラフに追加すると失敗する。
 
-<scala>
+```scala
 ThisBuild / scalaVersion    := "2.12.8"
 ThisBuild / organization    := "com.example"
 ThisBuild / version         := "1.0.0-SNAPSHOT"
@@ -277,7 +277,7 @@ lazy val root = (project in file("."))
       "com.typesafe" % "config" % "1.3.1",
     )
   )
-</scala>
+```
 
 以下のようになる:
 
@@ -300,7 +300,7 @@ latest-wins セマンティクスが何回か出てきているが、これは 2
 
 バージョンの順序は小さな関数を書くことで検証できる。
 
-<scala>
+```scala
 scala> :paste
 // Entering paste mode (ctrl-D to finish)
 
@@ -320,7 +320,7 @@ def sortVersionsIvy(versions: String*): List[String] = {
 
 scala> sortVersionsIvy("1.0", "2.0", "1.0-alpha", "1.0+alpha", "1.0-X1", "1.0a", "2.0.2")
 res7: List[String] = List(1.0-X1, 1.0a, 1.0-alpha, 1.0+alpha, 1.0, 2.0, 2.0.2)
-</scala>
+```
 
 #### Coursier のバージョン順序
 
@@ -334,7 +334,7 @@ res7: List[String] = List(1.0-X1, 1.0a, 1.0-alpha, 1.0+alpha, 1.0, 2.0, 2.0.2)
 
 検証するためには `libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC2-6"` を含むサブプロジェクトを作って、`console` を走らせる:
 
-<scala>
+```scala
 
 sbt:foo> helper/console
 [info] Starting scala interpreter...
@@ -350,7 +350,7 @@ sortVersionsCoursier: (versions: String*)List[String]
 
 scala> sortVersionsCoursier("1.0", "2.0", "1.0-alpha", "1.0+alpha", "1.0-X1", "1.0a", "2.0.2")
 res0: List[String] = List(1.0-alpha, 1.0, 1.0-X1, 1.0+alpha, 1.0a, 2.0, 2.0.2)
-</scala>
+```
 
 驚くべきことに、Coursier は Ivy とは完全に異なる方法でバージョンを順序付けする。
 
@@ -364,7 +364,7 @@ res0: List[String] = List(1.0-alpha, 1.0, 1.0-X1, 1.0+alpha, 1.0a, 2.0, 2.0.2)
 
 以下のビルドにおいて、`angular-boostrap:0.14.2` は `angular:[1.3.0,)` に依存する。
 
-<scala>
+```scala
 ThisBuild / scalaVersion  := "2.12.8"
 ThisBuild / organization  := "com.example"
 ThisBuild / version       := "1.0.0-SNAPSHOT"
@@ -377,7 +377,7 @@ lazy val root = (project in file("."))
       "org.webjars.bower" % "angular-bootstrap" % "0.14.2",
     )
   )
-</scala>
+```
 
 sbt 1.2.8 使うと、`show externalDependencyClasspath` は `angular-bootstrap:0.14.2` と angular:1.7.8` を返す。`1.7.8` なんて一体どこから出てきたのだろう? Ivy はバージョンの範囲を見つけると Internet へと飛び出して、スクリーンスクレイピングをやったりしながら探せるものは何でも持ってくる。
 
@@ -405,7 +405,7 @@ sbt:foo> show externalDependencyClasspath
 
 バージョン範囲が重なり合わない場合はちょっと微妙な感じになる。以下に具体例を挙げる:
 
-<scala>
+```scala
 ThisBuild / scalaVersion  := "2.12.8"
 ThisBuild / organization  := "com.example"
 ThisBuild / version       := "1.0.0-SNAPSHOT"
@@ -418,7 +418,7 @@ lazy val root = (project in file("."))
       "org.webjars.npm" % "is-odd" % "2.0.0",
     )
   )
-</scala>
+```
 
 sbt 1.3.0-RC3 を使うと、`show externalDependencyClasspath` はエラーをなる:
 

@@ -48,7 +48,7 @@ type ServerCapabilities {
 
 This is used to generate pseudo case classes and JSON bindings. So, the request-response code looks like this:
 
-<scala>
+```scala
   protected def onRequestMessage(request: JsonRpcRequestMessage): Unit = {
 
     import sbt.internal.langserver.codec.JsonProtocol._
@@ -60,13 +60,13 @@ This is used to generate pseudo case classes and JSON bindings. So, the request-
       case _ => ()
     }
   }
-</scala>
+```
 
 ### textDocument/didSave
 
 To mimic what I typically do with editor and sbt, let's try calling `compile` when a file is saved. If we ignore the multi-project for now, it becomes a trivial process of adding more pattern matching.
 
-<scala>
+```scala
   protected def onRequestMessage(request: JsonRpcRequestMessage): Unit = {
 
     import sbt.internal.langserver.codec.JsonProtocol._
@@ -80,7 +80,7 @@ To mimic what I typically do with editor and sbt, let's try calling `compile` wh
       case _ => ()
     }
   }
-</scala>
+```
 
 ### textDocument/publishDiagnostics
 
@@ -123,7 +123,7 @@ type Diagnostic {
 
 In Zinc, compiler warnings and errors are sent via datatypes called `xsbti.Problem` and `xsbti.Position`, which are based on Scala compiler's reporter and [`Position`](http://www.scala-lang.org/api/2.12.3/scala-reflect/scala/reflect/api/Position.html). Since VS Code uses `Diagnostic` to notify warnings, we need to translate `xsbt.Problem`:
 
-<scala>
+```scala
   protected def onObjectEvent(event: ObjectEvent[_]): Unit = {
     import sbt.internal.langserver.codec.JsonProtocol._
 
@@ -161,7 +161,7 @@ In Zinc, compiler warnings and errors are sent via datatypes called `xsbti.Probl
       )
     }
   }
-</scala>
+```
 
 When hitting the save button, this will highlight compiler errors.
 

@@ -16,7 +16,7 @@ tags:        [ "sbt" ]
 
 sbt-projectmatrix をビルドに追加後、以下のようにして 2つの Scala バージョンを使ったマトリックスをセットアップする。
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.10"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
@@ -26,7 +26,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.10", "2.11.12"))
-</scala>
+```
 
 これは `coreJVM2_11` と `coreJVM2_12` というサブプロジェクトを作る。 `++` スタイルのステートフルなクロスビルドと違って、これは並列にビルドする。これは変わっていない。
 
@@ -38,7 +38,7 @@ lazy val core = (projectMatrix in file("core"))
 
 サブプロジェクト間で `Test` コンフィギュレーションからだけ依存したり、`Compile` 同士、`Test` 同士で依存するというのは良くあることだ。0.5.0 は `%` を追加してこれを可能とする。
 
-<scala>
+```scala
 lazy val app = (projectMatrix in file("app"))
   .dependsOn(core % "compile->compile;test->test")
   .settings(
@@ -51,7 +51,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.10", "2.13.1"))
-</scala>
+```
 
 `Project` にある機能の一つとして `.configure(...)` メソッドというものがある。これは `Project => Project` 関数の可変長引数を受け取り、順次適用するだけのものだ。僕が取り扱っているビルドにこれがたまに出てくるので `.configure(...)` があると `Project` から `ProjectMatrix` に移植しやすくなる。
 
@@ -59,7 +59,7 @@ lazy val core = (projectMatrix in file("core"))
 
 Zinc のビルドから抜粋してみる:
 
-<scala>
+```scala
 lazy val compilerInterface = (projectMatrix in internalPath / "compiler-interface")
   .enablePlugins(ContrabandPlugin)
   .settings(
@@ -80,7 +80,7 @@ lazy val zincApiInfo = (projectMatrix in internalPath / "zinc-apiinfo")
   )
   .jvmPlatform(scalaVersions = List(scala212, scala213))
   .configure(addBaseSettingsAndTestDeps)
-</scala>
+```
 
 上の例では `compilerInterface` と `zincApiInfo` は両方ともマトリックスだ。`compilerInterface` は Java のみのマトリックスの例で、`zincApiInfo` は複数の Scala バージョンを持つ Scala プロジェクトの例だ。
 

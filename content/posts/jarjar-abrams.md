@@ -23,7 +23,7 @@ In 2015, Wu Xiang [added](https://github.com/sbt/sbt-assembly/pull/162) shading 
 
 At the core there's `Shader` object that implements `shadeDirectory` function.
 
-<scala>
+```scala
 package com.eed3si9n.jarjarabrams
 
 object Shader {
@@ -34,7 +34,7 @@ object Shader {
       verbose: Boolean
   ): Unit = ...
 }
-</scala>
+```
 
 The function expects the `dir` to be a directory containing unzipped JAR file.
 
@@ -44,13 +44,13 @@ To demonstrate the usage, I created an sbt plugin that shades one library at a t
 
 Add the following to `project/plugins.sbt`:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n.jarjarabrams" % "sbt-jarjar-abrams" % "0.1.0")
-</scala>
+```
 
 `build.sbt` would look like this:
 
-<scala>
+```scala
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.11"
@@ -65,11 +65,11 @@ lazy val shadedJawn = project
 
 lazy val use = project
   .dependsOn(shadedJawn)
-</scala>
+```
 
 jawn-parser is now shaded under `shaded` package. We can confirm that using the REPL:
 
-<scala>
+```scala
 sbt:jarjar> use/console
 [info] Starting scala interpreter...
 Welcome to Scala 2.12.11 (OpenJDK 64-Bit Server VM, Java 1.8.0_232).
@@ -77,11 +77,11 @@ Type in expressions for evaluation. Or try :help.
 
 scala> shaded.org.typelevel.jawn.Facade
 res0: shaded.org.typelevel.jawn.Facade.type = shaded.org.typelevel.jawn.Facade$@131cedd
-</scala>
+```
 
 We can try stacking multiple-layers of shaded libraries by mimicking the original dependency graph:
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.11"
 
@@ -104,11 +104,11 @@ lazy val shadedJawnAst = project
 
 lazy val use = project
   .dependsOn(shadedJawnAst)
-</scala>
+```
 
 Here's REPL:
 
-<scala>
+```scala
 sbt:jarjar> use/console
 [info] Starting scala interpreter...
 Welcome to Scala 2.12.11 (OpenJDK 64-Bit Server VM, Java 1.8.0_232).
@@ -116,7 +116,7 @@ Type in expressions for evaluation. Or try :help.
 
 scala> shaded.org.typelevel.jawn.ast.JParser.parseUnsafe("""{ "x": 10 }""")
 res0: shaded.org.typelevel.jawn.ast.JValue = {"x":10}
-</scala>
+```
 
 ### use at your own risk
 

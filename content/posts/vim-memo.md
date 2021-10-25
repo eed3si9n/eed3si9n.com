@@ -235,9 +235,9 @@ I've only read a few chapters of Practical Vim, but it already changed my thinki
 
 The fact that Normal mode is the resting state gives equal keyboard opportunities to searching and moving. It also lets us think about the act of inserting a text in a chunked way. In a vim way, the act of typing something into a buffer is going to Insert mode => type something => coming back to Normal mode. This mini-program is automatically stored inside vim that can be recalled using "`.`". Similarly, search within the current line can be repeated using "`;`".
 
-<scala>
+```scala
 val foo = "method("+arg1+","+arg2+")"
-</scala>
+```
 
 Given a line of code like the above, Tip3 explains that we can search for "`+`" using `f+`, overwrite it with "` + `" using `s + Esc`, and then repeating the process by typing `;.` three times.
 

@@ -17,7 +17,7 @@ Source dependencies is one of features that existed in sbt since ever, but hasn'
 
 Here's how to declare source dependency to the latest commit for scopt commandline option parsing library.
 
-<scala>
+```scala
 lazy val scoptJVMRef = ProjectRef(uri("git://github.com/scopt/scopt.git#c744bc48393e21092795059aa925fe50729fe62b"), "scoptJVM")
 
 ThisBuild / organization := "com.example"
@@ -28,7 +28,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "Hello world"
   )
-</scala>
+```
 
 When you start sbt and run `compile`, sbt will automatically clone scopt/scopt under the staging directory, and link the builds together.
 
@@ -42,13 +42,13 @@ What I would like instead, is a hybrid dependency that I can hook up multiple re
 
 To do this, I wrote an experimental plugin called sbt-sriracha. Add this to `project/plugins.sbt`:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-sriracha" % "0.1.0")
-</scala>
+```
 
 Then now you can write:
 
-<scala>
+```scala
 lazy val scoptJVMRef = ProjectRef(workspaceDirectory / "scopt", "scoptJVM")
 lazy val scoptJVMLib = "com.github.scopt" %% "scopt" % "3.7.0"
 
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "Hello world"
   )
-</scala>
+```
 
 This will use normal binary dependency by default. You can check that looking at the `libraryDependency` setting:
 
@@ -124,13 +124,13 @@ Since µTest is on sbt 0.13, I've updated it to 1.1.5, and also made a branch th
 
 Add this to `project/plugins.sbt`:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-sriracha" % "0.1.0")
-</scala>
+```
 
 Using sbt-sriracha, we can define a hybrid dependency to µTest as follows: 
 
-<scala>
+```scala
 lazy val utestJVMRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#5b19f47c"), "utestJVM")
 lazy val utestJVMLib = "com.lihaoyi" %% "utest" % "0.6.4"
 
@@ -140,7 +140,7 @@ lazy val root = (project in file("."))
     name := "Hello world",
     testFrameworks += new TestFramework("utest.runner.Framework"),
   )
-</scala>
+```
 
 Now using these changes I can run custom µTest on Scala 2.13.0-M4.
 
@@ -167,13 +167,13 @@ If you want to further hack on µTest, just substitute `utestJVMRef` to `Project
 
 Here's what you can use for Scala 2.13.0-RC1
 
-<scala>
+```scala
 lazy val utestVersion = "0.6.6"
 lazy val utestJVMRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#79950544"), "utestJVM")
 lazy val utestJVMLib = "com.lihaoyi" %% "utest" % utestVersion
 lazy val utestJSRef = ProjectRef(uri("git://github.com/eed3si9n/utest.git#79950544"), "utestJS")
 lazy val utestJSLib = "com.lihaoyi" %% "utest_sjs0.6" % utestVersion
-</scala>
+```
 
 ### summary
 

@@ -20,10 +20,10 @@ tags:        [ "sbt" ]
 
 sbt-release を使っている場合は削除する。sbt-ci-release を追加する。
 
-<scala>
+```scala
 addSbtPlugin("org.foundweekends" %% "sbt-bintray" % "0.5.6")
 addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.3")
-</scala>
+```
 
 `version.sbt` も削除する。
 
@@ -31,25 +31,25 @@ addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.3")
 
 sbt-dynver を多少抑えて、タグの付いていないコミットで -SNAPSHOT バージョンを使えるようにする:
 
-<scala>
+```scala
 ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / version := {
   val orig = (ThisBuild / version).value
   if (orig.endsWith("-SNAPSHOT")) "2.2.0-SNAPSHOT"
   else orig
 }
-</scala>
+```
 
 ### step 3: sbt-bintray セッティングを復活させる
 
 プラグインは通常 sbt-bintray を使ってリリースするので、`publishTo` を `bintray / publishTo` に戻す。`publishMavenStyle` を `false` にする。
 
-<scala>
+```scala
   publishMavenStyle := false,
   bintrayOrganization := Some("sbt"),
   bintrayRepository := "sbt-plugin-releases",
   publishTo := (bintray / publishTo).value,
-</scala>
+```
 
 ### step 4: bintrayReleaseOnPublish オーバーライドの削除
 

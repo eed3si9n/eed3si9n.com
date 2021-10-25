@@ -24,7 +24,7 @@ As a starting point, we could think of a solution where `task1` generates some J
 
 I've implemented a wrapper around `scala.concurrent.Promise` called `Def.promise`. Here's an example usage:
 
-<scala>
+```scala
 val midpoint = taskKey[PromiseWrap[Int]]("")
 val longRunning = taskKey[Unit]("")
 val task2 = taskKey[Unit]("don't call this from shell")
@@ -55,7 +55,7 @@ lazy val root = (project in file("."))
       val y = task2.value
     }
   )
-</scala>
+```
 
 First, we create a `PromiseWrap[Int]` task called `midpoint`. This is still a task because we need a fresh promise for each command invocation. Next we have `longRunning` task, which completes the promise halfway. `task2` depends on `midpoint.await.value`. This means that sbt's task scheduler won't start `task2` until `midpoint` promise is completed.
 

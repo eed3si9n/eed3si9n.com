@@ -28,7 +28,7 @@ XML ベースのビルドツールと比較すると sbt はビルド定義を (
 
 `sourceGenerators` を使ってバージョン番号を含むオブジェクトを生成するスクリプトをちゃちゃっと書いたことが何回かあったが、他の人にも使ってもらえるようにするにはプラグインにするのが適してると思った。`state` から値を抽出することで sbt-buildinfo は任意の複数のキーから Scala ソースを生成する。以下を `build.sbt` に加える:
 
-<scala>
+```scala
 buildInfoSettings
 
 sourceGenerators in Compile <+= buildInfo
@@ -36,11 +36,11 @@ sourceGenerators in Compile <+= buildInfo
 buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion)
 
 buildInfoPackage := "hello"
-</scala>
+```
 
 これで以下が生成される:
 
-<scala>
+```scala
 package hello
 
 object BuildInfo {
@@ -49,7 +49,7 @@ object BuildInfo {
   val scalaVersion = "2.9.1"
   val sbtVersion = "0.11.2"
 }
-</scala>
+```
 
 ## sbt-scalashim
 

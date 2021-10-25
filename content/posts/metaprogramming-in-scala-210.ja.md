@@ -95,9 +95,9 @@ phase name id description
 
 短命で、ほぼ不変 (immutable) で、ほぼ普通の case class だ。
 
-<scala>
+```scala
 Apply(Ident("println"), List(Literal(Constant("hi!"))))
-</scala>
+```
 
 公開されている構文木の完全なリストはここにある: [scala/reflect/base/Trees.scala][trees]。ついでに、関連する [scala/reflect/api/Trees.scala][trees2] も見ておこう。なぜ base と api に分かれているかって? 前者は標準ライブラリに含まれているが、後者は scala-reflect.jar を必要とするからだ。
 
@@ -167,10 +167,10 @@ Literal(Constant(())))
 定義や参照を定義にリンクする。長命で、可変 (mutable) だ。
 [scala/reflect/base/Symbols.scala][symbols] と [scala/reflect/api/Symbols.scala][symbols2] にて宣言されている。
 
-<scala>
+```scala
 def foo[T: TypeTag](x: Any) = x.asInstanceOf[T]
 foo[Long](42)
-</scala>
+```
 
 `foo`, `T`, `x` はそれぞれシンボルを導入する (`T` は実は 2つの異なるシンボルを作るが、それはまた別の話になる)。`DefDef`、`TypeDef`、`ValDef` - これらは全て `DefTree` のサブタイプだ。
 
@@ -349,7 +349,7 @@ res0: reflect.runtime.universe.Expr[String] =
 
 #### メンバーのインスペクト
 
-<scala>
+```scala
 scala> import scala.reflect.runtime.{universe => ru}
 import scala.reflect.runtime.{universe=>ru}
 scala> trait X { def foo: String }
@@ -362,7 +362,7 @@ res1: Iterable[reflect.runtime.universe.Symbol] =
     method ==, method ne, method eq, constructor Object, method notifyAll, method notify, method clone,
     method getClass, method hashCode, method toString, method equals, method wait, method wait, method wait,
     method finalize, method asInstanceOf, method isInstanceOf, method !=, method ==, method foo)
-</scala>
+```
 
 #### メンバーの解析と呼び出し
 
@@ -370,7 +370,7 @@ Daniel Sobral さんのリフレクションに関するシリーズがこの点
 
 #### 型消去を討つ
 
-<scala>
+```scala
 scala> def foo[T](x: T) = x.getClass
 foo: [T](x: T)Class[_ <: T]
 scala> foo(List(1, 2, 3))
@@ -380,18 +380,18 @@ scala> def foo[T: ru.TypeTag](x: T) = ru.typeOf[T]
 foo: [T](x: T)(implicit evidence$1: ru.TypeTag[T])ru.Type
 scala> foo(List(1, 2, 3))
 res1: reflect.runtime.universe.Type = List[Int]
-</scala>
+```
 
 #### 実行時にコンパイルする
 
-<scala>
+```scala
 import scala.reflect.runtime.universe._
 import scala.tools.reflect.ToolBox
 val tree = Apply(Select(Literal(Constant(40)),
     newTermName("$plus")), List(Literal(Constant(2))))
 val cm = ru.runtimeMirror(getClass.getClassLoader)
 println(cm.mkToolBox().runExpr(tree))
-</scala>
+```
 
 ツールボックス (`ToolBox`) は完全なコンパイラだ (`scala.tools.reflect.ToolBox` を使うには `scala-compiler.jar` をクラスパスに通す必要がある)。普通のコンパイラと違って、Java リフレクションを用いてシンボルテーブルを取得する。この Java リフレクションは抽象化されミラーにて提供される。
 

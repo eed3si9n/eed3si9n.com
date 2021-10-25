@@ -26,13 +26,13 @@ Scala を少しでも使ったことがあれば、何らかの文脈で誰か�
 
 ここで一言断っておくが、この記事はモナドのチュートリアルとして機能することを意図していない。[モナド](http://dl.dropbox.com/u/261418/Monads_are_Elephants/index.html)[の](http://apocalisp.wordpress.com/2011/07/01/monads-are-dominoes/)[解説](http://byorgey.wordpress.com/2009/01/12/abstraction-intuition-and-the-monad-tutorial-fallacy/)とその Scala のプログラミングとの関連を取り扱った記事は既にたくさんある ([ありすぎる](http://eed3si9n.com/ja/monads-are-not-metaphors)かも!)。もしこの概念に不慣れなら読み進める前にそれらの解説を読むと役に立つかもしれない。しかし、最初に注意しておきたい点が一つあって、([モナディック合成のための糖衣構文としての `for`](http://debasishg.blogspot.com/2008/03/monads-another-way-to-abstract.html) が示すとおり) Scala ではモナドは広い範囲で利用されているにも関わらず Scala の標準ライブラリに `Monad` 型が無いというのは Scala 固有な状況だということだ。そのため、モナド型が必要ならば標準ライブラリ外の素晴らしい Scalaz プロジェクトを使う。Scalaz のモナド抽象体は implicit 型クラスパターンを利用している。以下にベースの `Monad` 型を簡略化したものを示す:
 
-<scala>
+```scala
 trait Monad[M[_]] {
   def point[A](a: => A): M[A]
   def bind[A, B](m: M[A])(f: A => M[B]): M[B]
   def map[A, B](m: M[A])(f: A => B): M[B] = bind(m)(a => point(f(a))) 
 }
-</scala>
+```
 
 `Monad` トレイトが特定の型ではなく一つの引数を受け取る[型コンストラクタ](http://debasishg.blogspot.com/2009/01/higher-order-abstractions-in-scala-with.html)を使ってパラメータ化されていることに気付いただろうか。`Monad` 内で定義されているメソッドは多相的で、つまり呼び出し時点で特定の型を「穴」に挿入する必要がある。これは後ほどこの抽象化を利用する際に重要になる点だ。
 
@@ -40,7 +40,7 @@ Scalaz は Scala 標準ライブラリにあるモナディックな型のほと
 
 Akka の Future は非同期に値が与えられ、失敗するかもしれない計算を表す。また前述のとおり、`akka.dispatch.Future` はモナディックだ。言い替えると、これは上の `Monad` トレイトを自明に実装することができ、モナド則を満たし、そのためスレッドや共有可変状態を独自で管理するというあきあきするようなことを行わなくても非同期計算を合成ができる非常に便利な部品を提供する。Precog 社ではこの Future を多用しており、直接使ったり、Akka のアクターフレームワーク上に実装されたサブシステムと合成可能な方法で会話するための方法として使ったりしている。おそらく Future は今あるツールの中で非同期プログラミングにおける複雑さを抑えこむのに最も有用なものだと言えるだろう。そのため、僕らのコードベースの早期のバージョンの API は `Future` を直接露出させたものが多かった。例えば、以下は僕らの内部 API から一部抜粋したもので、前述のとおり Cake パターンを使っている:
 
-<scala>
+```scala
 trait DatasetModule {
   type Dataset 
 
@@ -60,11 +60,11 @@ trait DatasetModule {
     def reduce[A: Monoid](mapTo: /*...*/): Future[A]
   }
 } 
-</scala>
+```
 
 ここでの `Dataset` 型は話を進めるためのたたき台だが、僕たちが内部で計算の中間結果を表現するのに使っている型を大まかに表している。遅延評価されたデータ構造で、それを操作するための演算を持っていて、そのうちのいくつかはデータセット全体に対して関数を評価することもあり、そうなると I/O、分散評価、非同期計算が関わってくる。このインターフェイスから、あるデータセットに対するクエリの評価には、データの読み込み (load)、ソート (sort)、プレフィックスの take して、そのプレフィックスの reduce が関わってくることが予想される。さらに、それらの評価の各ステップの合成は Future のモナディックな性質以外には一切何にも依存しない。これが何を意味するかというと、`DatasetModule` インターフェイスを使っているコンシューマの視点から見ると、Future の側面のうち依存しているのは、静的に型検査された方法で複数の演算を順序付けるという能力だけだ。つまり Future の非同期に関連したさまざまな意味論ではなく、この順序付けが型によって提供される情報のうち実際に使われているものだと言える。そのため、自然と以下の一般化を行うことができる:
 
-<scala>
+```scala
 trait DatasetModule[M[+_]] {
   type Dataset 
   implicit def M: Monad[M]
@@ -85,11 +85,11 @@ trait DatasetModule[M[+_]] {
     def reduce[A: Monoid](mapTo: /*...*/): M[A]
   }
 }
-</scala>
+```
 
 そして、当然、後になって `DatasetModule` の具象実装が型コンストラクタ `M` を Future だと特定する:
 
-<scala>
+```scala
 /** The implicit ExecutionContext is necessary for the implementation of 
     M.point */
 class FutureMonad(implicit executor: ExecutionContext) extends Monad[Future] {
@@ -102,13 +102,13 @@ abstract class ConcreteDatasetModule(implicit executor: ExecutionContext)
 extends DatasetModule[Future] {
   val M: Monad[Future] = new FutureMonad 
 }
-</scala>
+```
 
 実際には、`M` は「世界の終わりまで」抽象型のまま保つ場合もある。Precog 社のコードベースでは `M` 型は往々にして実際の `Dataset` 型が依存する `StateT`、`StreamT`、`EitherT` などのモナド変換子のスタックの底を表す。
 
 この一般化には多くの効用がある。まず、前述の Cake パターンを利用した例のとおり、`DatasetModule` トレイトを利用するコンシューマは実装型という不必要な詳細から完全に、静的に隔離されている。このコンシューマのうち重要なものにテストスイートがある。テスト時には僕たちの計算が非同期で実行されるという事実はおそらく心配したくない。最終的に正しい結果が取得できさえすればいいからだ。もし仮に僕らの `M` が実際にモナド変換子スタックの底だった場合は、これを簡単に恒等モナド ([identity monad](https://github.com/scalaz/scalaz/blob/scalaz-seven/core/src/main/scala/scalaz/Id.scala)) で置き換えて、このモナドの「copointed」な性質 (モナディックなコンテキストから値を「抽出」できる能力) を利用することができる。これを使ってジェネリックなテストハーネスを構築できる:
  
-<scala>
+```scala
 /** Copointed も Scalaz から入手できる。*/
 trait Copointed[M[_]] {
   /** 包囲するコンテキストから値を抽出して返す。 */
@@ -120,11 +120,11 @@ trait TestDatasetModule[M[+_]] extends DatasetModule {
 
   //... utilities for test dataset generation, stubbing load/sort, etc.
 }
-</scala>
+```
 
 ほとんどの場合は、僕たちはテストには恒等モナドを使う。例えば、先程出てきた読み込み、ソート、take、reduce を組み合わせた機能をテストしたいとする。テストフレームワークはどのモナドを使っているかを一切考えずに済む。
  
-<scala>
+```scala
 import scalaz._
 import scalaz.syntax.monad._
 import scalaz.syntax.copointed._
@@ -150,11 +150,11 @@ class MyEvaluationSpec extends Specification {
     }
   }
 }
-</scala>
+```
 
 実装の一部が何らかの特定のモナド型に依存する場合 (例えば、ソートの実装が内部で Akka アクターの [Ask パターン](http://doc.akka.io/docs/akka/2.0.4/scala/actors.html#Ask__Send-And-Receive-Future)に依存しているため Future が必要な場合など) でも、簡単にテストにエンコードすることができる:
 
-<scala>
+```scala
 abstract class TestFutureDatasetModule(implicit executor: ExecutionContext)
 extends TestDatasetModule[Future] {
   def testTimeout: akka.util.Duration
@@ -163,7 +163,7 @@ extends TestDatasetModule[Future] {
     def copoint[A](m: Future[A]): A = Await.result(m, testTimeout)
   }
 }
-</scala>
+```
 
 当然のことながら Future は copointed ではないが (`Await` が例外を投げる可能性があるため) 、テストという用途においては (そしてテスト用途においてのみ) この仕組みは理想的だ。以前通り、僕たちは必要な型を必要な場所で手にすることができ、それは静的に決定される。
 

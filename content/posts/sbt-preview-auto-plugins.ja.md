@@ -54,7 +54,7 @@ sbt 0.13.5 よりデフォルトのセッティングも 3つの auto plugin に
 
 auto plugin を使った場合、プラグインが提供するセッテイング (例えば `assemblySettings`) は直接 `projectSettings` メソッドによって提供される。以下は `hello` というコマンドを sbt プロジェクトに追加するプラグインの具体例だ:
 
-<scala>
+```scala
 package sbthello
 
 import sbt._
@@ -67,7 +67,7 @@ object HelloPlugin extends AutoPlugin {
       state
     }
 }
-</scala>
+```
 
 もしプラグインがビルドのレベル (つまり `in ThisBuild`) でセッティングを追加したい場合は `buildSettings` メソッド、グローバルなレベル (`in Global`) で追加したい場合は `globalSetings` メソッドを使う。これらのレベルでの自動化はプラグインを自動的にビルドに追加するのに便利だけども、ユーザはこれらのプラグインがどのように追加されるかを制御できない。より柔軟な方法を見てみよう。
 
@@ -75,15 +75,15 @@ object HelloPlugin extends AutoPlugin {
 
 `HelloPlugin` を有効化させるにはこれまで通り sbt-hello に対する依存性を `project/plugins.sbt` 内にて宣言する必要がある:
 
-<scala>
+```scala
 addSbtPlugin("com.example" % "sbt-hello" % "0.1.0")
-</scala>
+```
 
 次に、`build.sbt` 内にセッテイング列を追加する代わりに、プロジェクトに対して `addPlugins` メソッドを呼び出す:
 
-<scala>
+```scala
 (project in file(".")).addPlugins(HelloPlugin)
-</scala>
+```
 
 これによってルートプロジェクトのセッティング列に `HelloPlugin.projectSettings` が追加される。
 
@@ -95,15 +95,15 @@ auto plugin の主な目標はこのセッティング依存性の問題を軽�
 
 例えば、`SbtLessPlugin` と `SbtCoffeeScriptPlugin` という 2つのプラグインがあるとして、それぞれが `SbtJsTaskPlugin`、 `SbtWebPlugin`、 `JvmPlugin` に依存するとする。手動で全てのプラグインを有効化する代わりに、プロジェクトは以下のように `SbtLessPlugin` と `SbtCoffeeScriptPlugin` を有効化するだけでいい:
 
-<scala>
+```scala
 (project in file(".")).addPlugins(SbtLessPlugin, SbtCoffeeScriptPlugin)
-</scala>
+```
 
 これだけでプラグインのセッティング列を正しい順序で読み込んでくれる。肝心な所はビルド定義に好きなプラグインを書いておけば後は sbt 任せでいいということだ。
 
 auto plugin がどのようにセッティングの依存性を定義しているのかを具体例で見ていこう:
 
-<scala>
+```scala
 package sbtless
 
 import sbt._
@@ -113,7 +113,7 @@ object SbtLessPlugin extends AutoPlugin {
   override def requires = SbtJsTaskPlugin
   override lazy val projectSettings = ...
 }
-</scala>
+```
 
 `requires` メソッドは `Plugins` 型の戻り値を返して、これは依存性リストを表す DSL となっている。`requires` メソッドは以下の 3つの値を取りうる:
 
@@ -127,7 +127,7 @@ object SbtLessPlugin extends AutoPlugin {
 
 例えば、ビルドにコマンドを自動的に追加する連鎖プラグイン (triggered plugin) を書きたいとする。そのためには、`requires` メソッドが (デフォルトのまま) `empty` を返すようにして、`trigger` メソッドをオーバーライドして `allRequirements` を返すようにする。
 
-<scala>
+```scala
 package sbthello
 
 import sbt._
@@ -142,11 +142,11 @@ object HelloPlugin2 extends AutoPlugin {
       state
     }
 }
-</scala>
+```
 
 ビルドユーザはこのプラグインを `project/plugins.sbt` に含める必要はあるけども、`build.sbt` には何も書かなくてもよくなった。この機構は依存性のあるプラグインだとさらに面白くなる。 `SbtLessPlugin` を書き換えて連鎖プラグインにしよう:
 
-<scala>
+```scala
 package sbtless
 
 import sbt._
@@ -157,13 +157,13 @@ object SbtLessPlugin extends AutoPlugin {
   override def requires = SbtJsTaskPlugin
   override lazy val projectSettings = ...
 }
-</scala>
+```
 
 `PlayScala` プラグイン (多分知ってると思うけど、Play framework は sbt プラグインだ) は、`SbtJsTaskPlugin` を依存プラグインの一つとして挙げている。そのため、`build.sbt` に以下のように書くだけで `SbtLessPlugin` からのセッティング列が `PlayScala` からのセッティング列の後のどこかに自動的に追加されるようになる:
 
-<scala>
+```scala
 (project in file(".")).addPlugins(PlayScala)
-</scala>
+```
 
 この機構によってプラグインが既存のプラグインを、暗黙に、しかし正しく機能拡張することができる。ビルドユーザが順序付けを考える手間から解放されるため、プラグイン作者はより自由で強力なプラグインを書くことが可能になるはずだ。
 
@@ -173,7 +173,7 @@ object SbtLessPlugin extends AutoPlugin {
 
 auto plugin は、これを是正して `*.sbt` に公開する名前は明示的に指定するようにした。これは `AutoImport` のインスタンス内に `autoImport` というメンバを提供することで行う。具体例で説明する:
 
-<scala>
+```scala
 package sbthello
 
 import sbt._
@@ -196,7 +196,7 @@ object HelloPlugin3 extends AutoPlugin {
       state
     }
 }
-</scala>
+```
 
 この hello plugin は `greeting` というキーを `build.sbt` に提供して、import 無しで直接参照できるようになっている。ビルドユーザはプラグインの完全なパスを含んで `sbthello.HelloPlugin3.x` というふうに書くことでプラグインのオブジェクトを使うことができる。だけども、デフォルトでは `autoImport` という名前のついたフィールド (`val`、`lazy val` もしくは `object`) のみを wildcard import する。
 

@@ -17,7 +17,7 @@ tags:        [ "scala" ]
 
 以下は、サブプロジェクトと共に使えるセッティングの例だ:
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "2.12.6"
 
 lazy val commonSettings = List(
@@ -45,7 +45,7 @@ lazy val foo = (project in file("foo"))
     commonSettings,
     name := "foo",  
   )
-</scala>
+```
 
 ### -Xlint とは?
 
@@ -69,11 +69,11 @@ lazy val foo = (project in file("foo"))
 
 用例はこんな感じになる:
 
-<scala>
+```scala
 import com.github.ghik.silencer.silent
 
 @silent override lazy val ansiCodesSupported = delegate.ansiCodesSupported
-</scala>
+```
 
 これで、この val の定義だけで全ての警告が抑制される。
 
@@ -101,13 +101,13 @@ sbt.version=1.2.3
 
 #### project/plugins.scala
 
-<scala>
+```scala
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.8.0-RC1")
-</scala>
+```
 
 #### build.sbt
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.12.6"
@@ -135,7 +135,7 @@ lazy val root = (project in file(".")).
     //   s"-P:semanticdb:targetroot:$t"
     // }
   )
-</scala>
+```
 
 #### .scalafix.conf
 
@@ -147,7 +147,7 @@ rules = [
 
 #### Main.scala
 
-<scala>
+```scala
 package example
 
 case class Address()
@@ -155,7 +155,7 @@ case class Address()
 object Main extends App {
   List(Animal()).contains("1")
 }
-</scala>
+```
 
 #### scalafix-noinfer usage
 
@@ -206,12 +206,12 @@ scalafix-noinfer は前向きな進歩であり、Scala コンパイラをフォ
 
 例えば、以下のコードを問題無く通している:
 
-<scala>
+```scala
 object Main extends App {
   val x = if (true) 1 else false
   val y = 1 match { case 1 => Array(1); case n => Vector(n) }
 }
-</scala>
+```
 
 ### まとめ
 

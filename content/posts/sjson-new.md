@@ -33,7 +33,7 @@ Within the Scala ecosystem, not too many genre are as rich as the JSON libraries
 
 In December 2008, the first edition of [Programming in Scala][pins] came out, which used JSON as an example in the context of parser combinator, and showed that JSON parser can be written in 10 lines of code:
 
-<scala>
+```scala
 import scala.util.parsing.combinator._
 class JSON extends JavaTokenParsers {
   def value : Parser[Any] = obj | arr |
@@ -44,7 +44,7 @@ class JSON extends JavaTokenParsers {
   def arr   : Parser[Any] = "["~repsep(value, ",")~"]"
   def member: Parser[Any] = stringLiteral~":"~value
 }
-</scala>
+```
 
 A month earlier in 2008, the book [Real World Haskell](http://book.realworldhaskell.org/) came out, and also used JSON library as an example: [Chapter 5. Writing a library: working with JSON data][rwh5]. This explained how JSON data can be described using an algebraic data type called `JValue`:
 
@@ -86,19 +86,19 @@ In terms of the codebase I based it off of spray-json, but conceptually it's clo
 
 Here's how to use with Json4s-AST:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-json4s" % "0.1.0"
-</scala>
+```
 
 Here's how to use with Spray:
 
-<scala>
+```scala
 libraryDependencies += "com.eed3si9n" %%  "sjson-new-spray" % "0.1.0"
-</scala>
+```
 
 To use sjson-new, you first need to get the hold of the `Converter` object, which is at `sjsonnew.support.XYZ.Converter` where `XYZ` could be `json4s` or `spray`. Here's how it looks from the REPL:
 
-<scala>
+```scala
 scala> import sjsonnew.support.spray.Converter
 import sjsonnew.support.spray.Converter
 
@@ -110,16 +110,16 @@ res0: scala.util.Try[spray.json.JsValue] = Success(42)
 
 scala> Converter.fromJson[Int](res0.get)
 res1: scala.util.Try[Int] = Success(42)
-</scala>
+```
 
 How is this implemented? Normally a JSON codec would take some type `A` and encode it into a `JValue`. sjson-new's takes two additional parameter to `write` method on the `JsonWriter` typeclass:
 
-<scala>
+```scala
 @implicitNotFound(msg = "Cannot find JsonWriter or JsonFormat type class for ${A}")
 trait JsonWriter[A] {
   def write[J](obj: A, builder: Builder[J], facade: Facade[J]): Unit
 }
-</scala>
+```
 
 `obj` is the object you want to encode. `builder` is a mutable data structure that sjson-new can append intermediate values into. Think of it as `StringBuilder` or `ListBuffer`. `facade` is the abtraction to the underlying JSON AST. The facade implementation is similar to that of Jawn, except this one also does value extraction.
 

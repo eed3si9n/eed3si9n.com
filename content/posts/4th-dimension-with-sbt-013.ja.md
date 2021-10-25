@@ -33,7 +33,7 @@ tags:        [ "sbt" ]
 
 sbt 0.12 同様に sbt 0.13 の中心にあるのはセッティングシステムだ。[Settings.scala][1] を見てみよう:
 
-<scala>
+```scala
 trait Init[Scope] {
   ...
 
@@ -56,7 +56,7 @@ trait Init[Scope] {
     ...
   }
 }
-</scala>
+```
 
 `pos` を無視すると、型 `T` のセッティングは、型が `ScopedKey[T]` である左辺項 `key` と型が `Initialize[T]` である右辺項 `init` によって構成される。
 
@@ -64,42 +64,42 @@ trait Init[Scope] {
 
 便宜的に `ScopedKey[T]` は、現在のプロジェクトなどのデフォルトのコンテキストにスコープ付けされた `SettingKey[T]` や `TaskKey[T]` だと考えることができる。すると残るのは `Initialize[T]` だけで、これは依存キーの列と何らか方法で `T` へと評価される能力を持っている。`Initialized[T]` に直接作用するのはキーに実装されている `<<=` 演算子だ。[Structure.scala][2] 参照:
 
-<scala>
+```scala
 sealed trait DefinableSetting[T] {
   final def <<= (app: Initialize[T]): Setting[T] = 
     macro std.TaskMacro.settingAssignPosition[T]
   ...
 }
-</scala>
+```
 
 名前から推測して、このマクロは `pos` を代入しているのだと思う。sbt 0.12 においてはキーのタプルにモンキーパッチされた `apply` や `map` メソッドによって `Initialize[T]` が構築された。sbt 0.13 ではスマートな `:=` 演算子を使うことができる。[Structure.scala][3] 参照:
 
-<scala>
+```scala
 sealed trait DefinableTask[T] {
   def := (v: T): Setting[Task[T]] = 
     macro std.TaskMacro.taskAssignMacroImpl[T]
 }
-</scala>
+```
 
 素の `:=` 演算子は型が `T` の引数を受け取り `Setting[T]` もしくは `Setting[Task[T]]` のインスタンスを返す。そのインスタンスの内部には `Initialize[T]` が作られたと予想できる。マクロに渡されたコードの中でキーが `value` メソッドを呼び出すと、自動的に式全体が `<<=` 式へと変換される。
 
-<scala>
+```scala
 name := {
   organization.value + "-" + baseDirectory.value.getName
 }
-</scala>
+```
 
 は
 
-<scala>
+```scala
 name <<= (organization, baseDirectory) { (o, b) =>
   o + "-" + b.getName
 }
-</scala>
+```
 
 へと展開される。便利なのは `:=` がセッティングとタスクの両方に使えることだ。
 
-<scala>
+```scala
 val startServer = taskKey[Unit]("start server.")
 val integrationTest = taskKey[Unit]("integration test.")
 
@@ -111,19 +111,19 @@ integrationTest := {
 startServer := {
   println("start")
 }
-</scala>
+```
 
 `start.value` は実行時に評価され、キーに関連付けられた値が返される。このようなタスク間の依存性は Ant の他のビルドツールにも見ることができる。これが sbt における第一の次元だ。
 
 `:=` が少し崩れてくるのはタスクを他の場所で定義しようとした場合だ。
 
-<scala>
+```scala
 val orgBaseDirName = {
   organization.value + "-" + baseDirectory.value.getName
 }
 
 name := orgBaseDirName
-</scala>
+```
 
 これを読み込むと以下のエラーが返ってくる:
 
@@ -135,13 +135,13 @@ build.sbt:14: error: `value` can only be used within a task or setting macro, su
 
 ブロックを適切なマクロで包囲するためには以下のように書かなくてはいけない:
 
-<scala>
+```scala
 val orgBaseDirName: Def.Initialize[String] = Def.setting {
   organization.value + "-" + baseDirectory.value.getName
 }
 
 name := orgBaseDirName
-</scala>
+```
 
 `orgBaseDirName` の型注釈は必要ないが、この型をハッキリと知っておくことは役に立つ。次のエラーメッセージを見ても驚かないはずだ:
 
@@ -156,12 +156,12 @@ name := orgBaseDirName
 
 `:=` は `String` を期待しているので、`Initialize[String]` を評価する必要がある。興味深いことに `value` メソッドはここでも動作する。`value` メソッドは `MacroValue[T]` にて定義されている。[InputWrapper.scala][4]　参照:
 
-<scala>
+```scala
 sealed abstract class MacroValue[T] {
   @compileTimeOnly("`value` can only be used within a task or setting macro, such as :=, +=, ++=, Def.task, or Def.setting.")
   def value: T = macro InputWrapper.valueMacroImpl[T]
 }
-</scala>
+```
 
 暗黙の型変換が定義されていて、匿名の `Initialize[T]` インスタンスやセッティングキー (実はキーも `Initialize[T]` だ) に `value` メソッドが注入される。
 
@@ -174,27 +174,27 @@ sbt の第二の次元はキーのタスクスコープ付けだ。タスクス�
 
 [sbt/sbt-assembly][6] を具体例として見ると、`jarName` は以下のようにカスタマイズされる:
 
-<scala>
+```scala
 import AssemblyKeys._
 
 assemblySettings
 
 jarName in assembly := "something.jar"
-</scala>
+```
 
 これは特定のセッティングのビルド定義内での影響を制限することができる便利な概念だ。もう一つ例をみてみよう:
 
-<scala>
+```scala
 import AssemblyKeys._
 
 assemblySettings
 
 test in assembly := {}
-</scala>
+```
 
 `assembly` タスクは fat jar を作る前にデフォルトでは `test` タスクを実行するが、上記の設定によってビルドユーザはその振る舞いを無効化した。実際に何が行われているかと言うと、`assembly` タスクは `test` タスクには直接依存しないように書かれている。代わりに、それは `assembly::test` タスクに依存している。[Plugin.scala][7] 参照:
 
-<scala>
+```scala
 private def assemblyTask(key: TaskKey[File]): Initialize[Task[File]] = Def.task {
   val t = (test in key).value
   val s = (streams in key).value
@@ -209,7 +209,7 @@ lazy val baseAssemblySettings: Seq[sbt.Def.Setting[_]] = Seq(
   test in assembly := (test in Test).value,
   ...
 }
-</scala>
+```
 
 `test` キーを `assembly` タスクにスコープ付けすることで、sbt-assembly はビルドユーザが拡張できるポイントを提供している。
 
@@ -223,9 +223,9 @@ lazy val baseAssemblySettings: Seq[sbt.Def.Setting[_]] = Seq(
 
 キーをコンフィギュレーションにスコープ付けする普通の構文は Scala だと `key in Test` で、シェルからだと `test:key` だ。マネージライブラリは少し変わっていて `%` を使って `libraryDependencies` のコンフィギュレーションを表す。
 
-<scala>
+```scala
 libraryDependencies += "org.specs2" %% "specs2" % "2.2.3" % "test"
-</scala>
+```
 
 `% "test"` は `% "test->default"` の略で、依存ライブラリの `Compile` アーティファクトを落としてきてこのプロジェクトの `Test` コンフィギュレーションに入れる。
 
@@ -233,7 +233,7 @@ libraryDependencies += "org.specs2" %% "specs2" % "2.2.3" % "test"
 
 例えば [sbt-assembly を用いて異なる外部依存ライブラリを用いた複数の実行可能 jar を作る方法][9]を見てみよう。以下が僕が投稿した `build.sbt` だ:
 
-<scala>
+```scala
 import AssemblyKeys._
 
 val Dispatch10 = config("dispatch10") extend(Compile)
@@ -274,13 +274,13 @@ val root = project.in(file(".")).
   settings(inConfig(TestDispatch11)(Classpaths.configSettings ++ Defaults.configTasks ++ Defaults.testTasks ++ Seq(
     internalDependencyClasspath := Seq((classDirectory in Dispatch11).value).classpath
   )): _*)
-</scala>
+```
 
 同一のメインとテストのソースを使って上記のビルドは Dispatch 0.10 と 0.11 を使う複数のコンフィギュレーションを設定する。`dispatch10:assembly` を実行すると Dispatch 0.10 を用いた fat jar を作り、`dispatch11:assembly` を実行すると Dispatch 0.11 を用いた fat jar を作る。これは sbt-assembly がコンフィギュレーション中立な設計になっていることで可能となった。
 
 コンフィギュレーションを使ったもう一つの例は[scalariform を使って sbt ビルドファイルを自動的にフォーマットするには?][10] という質問だ。以下が `scalariform.sbt` だ:
 
-<scala>
+```scala
 import scalariform.formatter.preferences._
 import ScalariformKeys._
 
@@ -309,7 +309,7 @@ format in BuildConfig := {
 preferences := preferences.value.
   setPreference(AlignSingleLineCaseStatements, true).
   setPreference(AlignParameters, true)
-</scala>
+```
 
 `build:scalariformFormat` を実行すると、`**.sbt` と `project/**.scala` にマッチするファイルがフォーマットされる。これも sbt-scalariform がコンフィギュレーション中立なお陰で可能となった。だけど、`sources` の代わりに `includeFilter` を使っているせいで一つの仕事をするのに二つのコンフィギュレーションを作る必要があった。
 
@@ -329,17 +329,17 @@ Akka プロジェクトに知る人ぞ知る [Unidoc.scala][11] というファ�
 
 以下が全てのソースを集約する例だ:
 
-<scala>
+```scala
 val filter = ScopeFilter(inProjects(core, util), inConfigurations(Compile))
 // each sources definition is of type Seq[File],
 //   giving us a Seq[Seq[File]] that we then flatten to Seq[File]
 val allSources: Seq[Seq[File]] = sources.all(filter).value
 allSources.flatten
-</scala>
+```
 
 sbt-unidoc を修正するためにはユーザが再配線できるように `ProjectFilter` と `ConfigurationFilter` それぞれのセッティングを作るだけいい。プロジェクトを除外する例:
 
-<scala>
+```scala
 val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(unidocSettings: _*).
@@ -348,11 +348,11 @@ val root = (project in file(".")).
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(app)
   ).
   aggregate(library, app)
-</scala>
+```
 
 複数のコンフィギュレーションを加える例:
 
-<scala>
+```scala
 val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(unidocSettings: _*).
@@ -361,13 +361,13 @@ val root = (project in file(".")).
     unidocConfigurationFilter in (TestScalaUnidoc, unidoc) := inConfigurations(Compile, Test),
   ).
   aggregate(library, app)
-</scala>
+```
 
 内部では、`sources` の `all` を呼び出している:
 
-<scala>
+```scala
 val f = (unidocScopeFilter in unidoc).value
 sources.all(f)
-</scala>
+```
 
 sbt の第四の次元はプロジェクトで、僕たちは第三と第四次元空間内を移動する乗り物を手にしたことになる。どこに行くかは僕たち次第だ。

@@ -37,7 +37,7 @@ tags:        [ "sbt" ]
 
 `build.sbt` マクロと言われて思いつくのは `.value` を使った Applicative do マクロなんじゃないかと思う。呼び方としては、そうは呼ばない人もいるかもしれないが。この命令型から関数型への変換を担っているのは、ちょっと変わった名前を持つ [Instance][Instance] class のコンパニオンだ:
 
-<scala>
+```scala
 /**
  * The separate hierarchy from Applicative/Monad is for two reasons.
  *
@@ -54,11 +54,11 @@ trait Instance {
 trait MonadInstance extends Instance {
   def flatten[T](in: M[M[T]]): M[T]
 }
-</scala>
+```
 
 Scaladoc でも言及されているが、sbt は内部に独自の `Applicative[_]` 型クラスを定義している。Mark が [2012年][1c22478edc] (Scala 2.10.0-M6 あたり) に列挙した 2つの理由が現時点でも当てはまるかは不明だ。マクロはこんな感じだ:
 
-<scala>
+```scala
   def contImpl[T, N[_]](
       c: blackbox.Context,
       i: Instance with Singleton,
@@ -73,7 +73,7 @@ Scaladoc でも言及されているが、sbt は内部に独自の `Applicative
       nt: c.WeakTypeTag[N[T]],
       it: c.TypeTag[i.type]
   ): c.Expr[i.M[N[T]]] = ....
-</scala>
+```
 
 このシグネチャを解読するには、sbt の内部を少し理解する必要がある。
 
@@ -88,17 +88,17 @@ Scaladoc でも言及されているが、sbt は内部に独自の `Applicative
 
 匿名セッティングは `Initialize[A]` で表され、以下のようになっている:
 
-<scala>
+```scala
   sealed trait Initialize[A] {
     def dependencies: Seq[ScopedKey[_]]
     def evaluate(build: BuildStructure): A // approx
     ....
   }
-</scala>
+```
 
 `sbt.Task` は副作用関数 `() => A` のラッパーだと便宜的に考えていい。ただし、僕たちが「compile はタスクだ」と言うとき、の文脈でのタスクは `Initialize[Task[A]]` で表される。つまり、これは実行プランと作用を表した入れ子データ型だ。このマクロのシグネチャを以下のように書き換えることができる:
 
-<scala>
+```scala
   def contImpl[A, Effect[_]](
       c: blackbox.Context,
       i: Instance & scala.Singleton,
@@ -109,7 +109,7 @@ Scaladoc でも言及されているが、sbt は内部に独自の `Applicative
       t: Either[c.Expr[A], c.Expr[i.F[A]],
       inner: Transform[c.type, Effect]
   ): c.Expr[i.F[Effect[A]]] = ....
-</scala>
+```
 
 では、この `t` は何だろうか? 何故 Either を受け取るのだろうか? 答えは、`Left[c.Expr[A]]` を受け取ると Applicative-do を行って、`Right[c.Expr[i.F[A]]]` を受け取ると Monadic-do を実行するというふうになっているからだ。コード再利用のためのちょっと変わった実装詳細だ。[パート1][part1]で書いたとおり、`convert` は部分関数の豪華版で、抽象構文木の一部を検索置換できるようになっている。
 
@@ -117,13 +117,13 @@ Scaladoc でも言及されているが、sbt は内部に独自の `Applicative
 
 以下のようなセッティング式を考える:
 
-<scala>
+```scala
 someKey := { 1 }
-</scala>
+```
 
 `someKey` がセッティングだとすると、`Initialize[Int]` を構築する必要がある。`contImpl` マクロは、`Initialize` のための Applicative の「インスタンス」を受け取ることでジェネリックな形でこれを実行する。具体的にはこの場合 `i.pure(...)` を呼び出す。
 
-<scala>
+```scala
 // no inputs, so construct F[A] via Instance.pure or pure+flatten
 def pure(body: Term): Expr[i.F[Effect[A]]] =
   def pure0[A1: Type](body: Expr[A1]): Expr[i.F[A1]] =
@@ -136,7 +136,7 @@ def pure(body: Term): Expr[i.F[Effect[A]]] =
     case Left(_) => pure0[Effect[A]](body.asExprOf[Effect[A]])
     case Right(_) =>
       flatten(pure0[i.F[Effect[A]]](body.asExprOf[i.F[Effect[A]]]))
-</scala>
+```
 
 `i` から `pure` 関数を呼ぶだけの一見実直なコードに見える。しかし、実際にはこれは以下のように失敗する:
 
@@ -155,17 +155,17 @@ def pure(body: Term): Expr[i.F[Effect[A]]] =
 
 `i.type` があると仮定する。コンテキストバウンド `A: Type` と書くことで　`Type[i.type]` を取得できる。次に、`TypeRepr[A]` と書いて、マクロ時の型情報を提供する `TypeRepr` を取得する。ただし、`TypeRepr[A]` に対してパターンマッチが効かない。ここで Scala 3 の新機能である `unapply` を用いて型検査を行うことができる [TypeTest][TypeTest] を使う。
 
-<scala>
+```scala
   def extractSingleton[A: Type]: Expr[A] =
     def termRef(r: TypeRepr)(using rtt: TypeTest[TypeRepr, TermRef]): Ref = r match
       case rtt(ref) => Ref.term(ref)
       case _        => sys.error(s"expected termRef but got $r")
     termRef(TypeRepr.of[A]).asExprOf[A]
-</scala>
+```
 
 `pure` に戻ると、これは以下のように使うことができる:
 
-<scala>
+```scala
 // we can extract i out of i.type
 val instance = extractSingleton[i.type]
 
@@ -181,21 +181,21 @@ def pure(body: Term): Expr[i.F[Effect[A]]] =
     case Left(_) => pure0[Effect[A]](body.asExprOf[Effect[A]])
     case Right(_) =>
       flatten(pure0[i.F[Effect[A]]](body.asExprOf[i.F[Effect[A]]]))
-</scala>
+```
 
 ### map
 
 以下のようなセッティング式を考える:
 
-<scala>
+```scala
 someKey := { name.value + "!" }
-</scala>
+```
 
 これは以下のように展開される:
 
-<scala>
+```scala
 someKey <<= i.map(wrap(name), (q1: String) => { q1 + "!" })
-</scala>
+```
 
 ### ラムダ式
 
@@ -203,7 +203,7 @@ someKey <<= i.map(wrap(name), (q1: String) => { q1 + "!" })
 
 The interesting part is generating the lambda expression (anonymous function) `(q1) => { q1 + "!" }`. If we didn't care about the symbol for the lambda expression, then there's a shortcut function provided by Quote Reflection called [Lambda(...)][Lambda]:
 
-<scala>
+```scala
 def makeLambdaImpl(expr: Expr[Unit])(using qctx: Quotes) =
   import qctx.reflect.*
   Lambda(
@@ -215,7 +215,7 @@ def makeLambdaImpl(expr: Expr[Unit])(using qctx: Quotes) =
       toStr.appliedToNone
     }
   ).asExprOf[Boolean => String]
-</scala>
+```
 
 ### lambda expansion problem
 
@@ -230,13 +230,13 @@ Walking the tree twice would let us create lambda expressions immutably, but tha
 
 Here's an example. In sbt 1.x let's say we are generating something like:
 
-<scala>
+```scala
 someKey <<= i.map(wrap(name), (q1: String) => { q1 + "!" })
-</scala>
+```
 
 The workaround would be to generate:
 
-<scala>
+```scala
 someKey <<= {
   // step 1: when name.value is found, declare a var and add it to input list
   var q1: String = _
@@ -250,7 +250,7 @@ someKey <<= {
     q1 + "!" // step 2: name.value is replaced with ref to q1
   })
 }
-</scala>
+```
 
 As long as the name `q1` is unique within the scope this should be safe. So the implementation splits into the four steps outlined above as comments:
 
@@ -261,7 +261,7 @@ As long as the name `q1` is unique within the scope this should be safe. So the 
 
 Here's how we can perform steps 1 and 2:
 
-<scala>
+```scala
 def subToProxy(tpe: TypeRepr, qual: Term, selection: Term): Term =
   val vd = freshValDef(Symbol.spliceOwner, tpe)
   inputs = Input(tpe, qual, vd) :: inputs
@@ -274,11 +274,11 @@ def substitute(name: String, tpe: TypeRepr, qual: Term, replace: Term) =
     subToProxy(tpe, tree, replace)
   }
 val tx = transformWrappers(expr.asTerm, substitute)
-</scala>
+```
 
 Steps 3 and 4:
 
-<scala>
+```scala
 def genMap(body: Term, input: Input): Expr[i.F[Effect[A]]] =
   def genMap0[A1: Type](body: Expr[A1], input: Input): Expr[i.F[A1]] =
     input.tpe.asType match
@@ -314,11 +314,11 @@ def genMap(body: Term, input: Input): Expr[i.F[Effect[A]]] =
       genMap0[Effect[A]](body.asExprOf[Effect[A]], input)
     case Right(_) =>
       flatten(genMap0[i.F[Effect[A]]](body.asExprOf[i.F[Effect[A]]], input))
-</scala>
+```
 
 The unit test looks like this:
 
-<scala>
+```scala
 package sbt.internal
 
 import sbt.internal.util.appmacro.*
@@ -337,7 +337,7 @@ object ContTest extends BasicTestSuite:
   // This compiles away
   def wrapInit[A](a: List[A]): A = ???
 end ContTest
-</scala>
+```
 
 Here I'm using `List` datatype as the `Functor` to test this.
 
@@ -345,13 +345,13 @@ Here I'm using `List` datatype as the `Functor` to test this.
 
 There's a detail I glossed over in the above, which is:
 
-<scala>
+```scala
 val vd = freshValDef(Symbol.spliceOwner, tpe)
-</scala>
+```
 
 Defining a `val` or `var` can be done like this:
 
-<scala>
+```scala
 def freshValDef(parent: Symbol, tpe: TypeRepr): ValDef =
   tpe.asType match
     case '[a] =>
@@ -363,7 +363,7 @@ private var counter: Int = -1
 def freshName(prefix: String): String =
   counter = counter + 1
   s"$$${prefix}${counter}"
-</scala>
+```
 
 The problem is that I'm hardcoding the right-hand side to be `0`.
 
@@ -371,7 +371,7 @@ The problem is that I'm hardcoding the right-hand side to be `0`.
 
 There are probably multiple ways to initialize a `var` with a zero-equivalent value, but probably a more straightforward way would be to define a typeclass called `Zero[A]`:
 
-<scala>
+```scala
 package sbt.internal.util.appmacro
 
 trait Zero[A]:
@@ -394,11 +394,11 @@ object Zero extends LowPriorityZero:
 
 class LowPriorityZero:
   given [A]: Zero[A] = Zero.mk(null.asInstanceOf[A])
-</scala>
+```
 
 This will have a given instance for all types. There's a convenient way to defer the summon invocation called `summonInline[A]`.
 
-<scala>
+```scala
 /**
  * Constructs a new, synthetic, local var with type `tpe`, a unique name, initialized to
  * zero-equivalent (Zero[A]), and owned by `parent`.
@@ -415,13 +415,13 @@ def freshValDef(parent: Symbol, tpe: TypeRepr): ValDef =
           Symbol.noSymbol
         )
       ValDef(sym, rhs = Option('{ summonInline[Zero[a]].zero }.asTerm))
-</scala>
+```
 
 This would codegen:
 
-<scala>
+```scala
 var q1: String = summon[Zero[String]].zero
-</scala>
+```
 
 ### Summary
 

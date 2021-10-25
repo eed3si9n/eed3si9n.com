@@ -31,7 +31,7 @@ Scalafix を使って import 文を追加する[デモアプリ][app]を書い�
 次に、rewritedemo アプリをあるサブプロジェクト相手に実行して別のサブプロジェクトを導出したいとする。
 sbt-sidedish を使って以下のようなプラグインが書ける。
 
-<scala>
+```scala
 package sbtrewritedemo
 
 import sbt._
@@ -94,7 +94,7 @@ trait RewriteDemoKeys {
 }
 
 object RewriteDemoKeys extends RewriteDemoKeys
-</scala>
+```
 
 sbt 0.13.13 で入ったシンセティック・サブプロジェクトという機能を使っている。
 
@@ -104,19 +104,19 @@ sbt 0.13.13 で入ったシンセティック・サブプロジェクトとい�
 
 build.properties:
 
-<scala>
+```scala
 sbt.version=0.13.13
-</scala>
+```
 
 plugins.sbt:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-rewritedemo" % "0.1.2")
-</scala>
+```
 
 build.sbt:
 
-<scala>
+```scala
 lazy val example = (project in file("example"))
   .settings(
     name := "example",
@@ -130,27 +130,27 @@ lazy val derived1 = (project in file("derived1"))
     rewritedemoOrigin := "example",
     scalaVersion := "2.12.1"
   )
-</scala>
+```
 
 ここで `example/src/main/scala/Example.scala` 以下に `Example.scala` というファイルがあるとする:
 
-<scala>
+```scala
 package foo
 
 object Example extends App {
   println(Seq(1, 2, 3))
 }
-</scala>
+```
 
 sbt シェルから `derived1/compile` を実行すると、Scala 2.12 で書かれた書き換えアプリを使って以下のファイルが managed source directory に生成される:
 
-<scala>
+```scala
 package foo
 
 import scala.collection.immutable.Seq
 object Example extends App {
   println(Seq(1, 2, 3))
 }
-</scala>
+```
 
 言い換えると、sbt-sidedish を使って 2.12 アプリを sbt プラグインから実行できたことになる。

@@ -16,7 +16,7 @@ This is part 3 of the post about [sbt-projectmatrix](https://github.com/sbt/sbt-
 
 After adding sbt-projectmatrix to your build, here's how you can set up a matrix with two Scala versions.
 
-<scala>
+```scala
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "2.12.10"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
@@ -26,7 +26,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.10", "2.11.12"))
-</scala>
+```
 
 This will create subprojects `coreJVM2_11` and `coreJVM2_12`. Unlike `++` style stateful cross building, these will build in parallel. This part has not changed.
 
@@ -38,7 +38,7 @@ Previous post also discussed the idea of VirtualAxis so a row can express multip
 
 It's fairly common for subprojects to depend only from `Test` configuration, or depend on `Compile` from `Compile`, and `Test` from `Test`. 0.5.0 adds `%` to make this possible.
 
-<scala>
+```scala
 lazy val app = (projectMatrix in file("app"))
   .dependsOn(core % "compile->compile;test->test")
   .settings(
@@ -51,7 +51,7 @@ lazy val core = (projectMatrix in file("core"))
     name := "core"
   )
   .jvmPlatform(scalaVersions = Seq("2.12.10", "2.13.1"))
-</scala>
+```
 
 Another feature that's available to `Project` is `.configure(...)` method. It takes a vararg of `Project => Project` functions, and applies them in order. Since some of the builds I deal with uses `.configure(...)` this helps me migrate from `Project` to `ProjectMatrix`.
 
@@ -59,7 +59,7 @@ Another feature that's available to `Project` is `.configure(...)` method. It ta
 
 Here's from Zinc build I'm working:
 
-<scala>
+```scala
 lazy val compilerInterface = (projectMatrix in internalPath / "compiler-interface")
   .enablePlugins(ContrabandPlugin)
   .settings(
@@ -80,7 +80,7 @@ lazy val zincApiInfo = (projectMatrix in internalPath / "zinc-apiinfo")
   )
   .jvmPlatform(scalaVersions = List(scala212, scala213))
   .configure(addBaseSettingsAndTestDeps)
-</scala>
+```
 
 In the above, both `compilerInterface` and `zincApiInfo` are project matrices. `compilerInterface` is how a Java-only matrix looks like, and `zincApiInfo` is a Scala project matrix with multiple Scala versions.
 

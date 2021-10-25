@@ -44,7 +44,7 @@ Sonatype によると scopt 3.x は 2018年11月に 370,325回ダウンロード
 
 scopt 4 はオプションパーサーを定義するための新しい方法を導入するが、scopt 3 での「オブジェクト指向 DSL」もそのままキープする予定だ。
 
-<scala>
+```scala
 val parser = new scopt.OptionParser[Config]("scopt") {
   head("scopt", "3.x")
 
@@ -58,7 +58,7 @@ val parser = new scopt.OptionParser[Config]("scopt") {
     .action((x, c) => c.copy(out = x))
     .text("out is a required file property")
 }
-</scala>
+```
 
 これまで scopt 3 を使ってきた人は、コンパイルが通れば多分 ok なはずだ。
 
@@ -74,7 +74,7 @@ scopt で何回か聞かれた質問の機能の要望として、複数の小�
 
 scopt 4 における関数型 DSL は以下のようになる:
 
-<scala>
+```scala
 import scopt.OParser
 val builder = OParser.builder[Config]
 val parser1 = {
@@ -97,7 +97,7 @@ OParser.parse(parser1, args, Config()) match {
   case _ =>
     // arguments are bad, error message will have been displayed
 }
-</scala>
+```
 
 `OptionParser` 内でメソッドを呼ぶのではなく、関数型 DSL はまず特定の `Config` データ型に対するビルダーを作って、`opt[A](...)` など `Oparser[A, Config]` を返す関数を呼ぶ。
 
@@ -109,7 +109,7 @@ OParser.parse(parser1, args, Config()) match {
 
 `OParser.sequence` を用いた `OParser` の合成の具体例を見てみる。
 
-<scala>
+```scala
 import scopt.OParser
 val builder = OParser.builder[Config]
 import builder._
@@ -137,13 +137,13 @@ val p3 =
     p1,
     p2
   )
-</scala>
+```
 
 ### cmd("...").children(...) を用いた合成
 
 `OParser` を再利用するもう一つの方法があって、それは `cmd("...")` パーサーの `.children(...)` メソッドに渡すことだ。
 
-<scala>
+```scala
 val p4 = {
   import builder._
   OParser.sequence(
@@ -157,7 +157,7 @@ val p4 = {
       .children(suboptionParser1)
   )
 }
-</scala>
+```
 
 上の例では `suboptionParser1` も `OParser` だ。これによって例えば update コマンドと status コマンドにおいて共通のコマンドを再利用することができる。
 
@@ -167,7 +167,7 @@ val p4 = {
 
 `Config` データ型を分ける一つの具体例をここに紹介する。
 
-<scala>
+```scala
 // provide this in subproject1
 trait ConfigLike1[R] {
   def withDebug(value: Boolean): R
@@ -211,7 +211,7 @@ val parser3: OParser[_, Config1] = {
     parser2
   )
 }
-</scala>
+```
 
 この例では `parser1` と `parser2` は、`ConfigLike1[R]` と `ConfigLike2[R]` のサブタイプであるという制約を満たす抽象型 `R` に対して書かれている。`parser3` において、`R` は具象データ型 `Config1` に束縛される。
 
@@ -221,7 +221,7 @@ RC2 を出したあとにもらったフィードバックは effects の管理�
 
 それを 4.0.0 で行った:
 
-<scala>
+```scala
 sealed trait OEffect
 object OEffect {
   case class DisplayToOut(msg: String) extends OEffect
@@ -230,11 +230,11 @@ object OEffect {
   case class ReportWarning(msg: String) extends OEffect
   case class Terminate(exitState: Either[String, Unit]) extends OEffect
 }
-</scala>
+```
 
 通常の `OParser.parse(...)` の他に scopt 4 は `runParser` というパーサーの呼び出しの新しい方法を提供して、これは `(Option[Config], List[OEffect])` を返す:
 
-<scala>
+```scala
 // OParser.runParser returns (Option[Config], List[OEffect])
 OParser.runParser(parser1, args, Config()) match {
   case (result, effects) =>
@@ -255,7 +255,7 @@ OParser.runParser(parser1, args, Config()) match {
         // arguments are bad, error message will have been displayed
     }
 }
-</scala>
+```
 
 返ってきた effects を好きにできるようになった。
 

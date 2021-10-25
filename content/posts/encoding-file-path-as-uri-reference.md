@@ -25,7 +25,7 @@ Recently I've been running into interop problems as some platforms are unable to
 
 Here's the implementation I use as of November, 2020:
 
-<scala>
+```scala
 import java.io.File
 import java.net.{ URI, URISyntaxException }
 import java.util.Locale
@@ -65,7 +65,7 @@ def toFile(uri: URI): File =
         else new File(part)
     }
   } catch { case _: URISyntaxException => new File(uri.getPath) }
-</scala>
+```
 
 ### what are file paths?
 
@@ -157,7 +157,7 @@ In other words, RFC 1738 requires u2 notation or u3 notation. This is further co
 
 In Scala/Java, `java.io.File#toURI` unfortunately produces u1:
 
-<scala>
+```scala
 scala> import java.io.File
 
 scala> val etcHosts = new File("/etc/hosts")
@@ -165,31 +165,31 @@ etcHosts: java.io.File = /etc/hosts
 
 scala> etcHosts.toURI
 res1: java.net.URI = file:/etc/hosts
-</scala>
+```
 
 A workaround is to use NIO's `java.nio.file.Path#toUri`:
 
-<scala>
+```scala
 scala> etcHosts.toPath.toUri
 res2: java.net.URI = file:///etc/hosts
-</scala>
+```
 
 u3 notation can roundtrip back to `java.io.File` fine:
 
-<scala>
+```scala
 scala> new File(res2)
 res3: java.io.File = /etc/hosts
-</scala>
+```
 
 Since u1 and u2 are also legal URI, let's see if they are handled:
 
-<scala>
+```scala
 scala> new File(new URI("file:/etc/hosts"))
 res4: java.io.File = /etc/hosts
 
 scala> new File(new URI("file://localhost/etc/hosts"))
 java.lang.IllegalArgumentException: URI has an authority component
-</scala>
+```
 
 ### relative path from Unix-like filesystem
 
@@ -199,7 +199,7 @@ As noted previously, URI reference is able to express a relative path, similar t
 
 In Scala/Java, `java.nio.file.Path#toUri` unfortunately produces full URI:
 
-<scala>
+```scala
 scala> import java.io.File
 
 scala> import java.net.URI
@@ -208,11 +208,11 @@ scala> val upSrcMain = new File("../src/main")
 
 scala> upSrcMain.toPath.toUri
 res1: java.net.URI = file:///Users/someone/io/../src/main
-</scala>
+```
 
 Here's how to get a relative path:
 
-<scala>
+```scala
 scala> def toUri_v1(f: File): URI = {
          if (f.isAbsolute) f.toPath.toUri
          else new URI(null, f.getPath, null)
@@ -220,22 +220,22 @@ scala> def toUri_v1(f: File): URI = {
 
 scala> toUri_v1(upSrcMain)
 res2: java.net.URI = ../src/main
-</scala>
+```
 
 This is a valid URI reference, but now it will not round trip using `File` constructor.
 
-<scala>
+```scala
 scala> new File(res2)
 java.lang.IllegalArgumentException: URI is not absolute
   at java.io.File.<init>(File.java:416)
-</scala>
+```
 
 Here's a workaround:
 
-<scala>
+```scala
 scala> new File(res2.getSchemeSpecificPart)
 res4: java.io.File = ../src/main
-</scala>
+```
 
 ### absolute path on Windows filesystem
 
@@ -245,7 +245,7 @@ In addition to RFC 1738, there's another interesting source which is a post titl
 
 In Scala/Java, `java.nio.file.Path#toUri` works only when you run it on Windows:
 
-<scala>
+```scala
 scala> import java.io.File
 
 scala> val doc = new File("""C:\Documents and Settings\""")
@@ -253,20 +253,20 @@ doc: java.io.File = C:\Documents and Settings
 
 scala> doc.toPath.toUri
 res3: java.net.URI = file:///C:/Documents%20and%20Settings/
-</scala>
+```
 
 In addition to the 3 slashes, note that backslash is converted to slash, and that whitespace is denoted using percent notation `%20`.
 
 Since u1 and u2 are also legal URI, let's see if they are handled:
 
-<scala>
+```scala
 scala> new File(new URI("file:/C:/Documents%20and%20Settings/"))
 res4: java.io.File = C:\Documents and Settings
 
 scala> new File(new URI("file://localhost/C:/Documents%20and%20Settings/"))
 java.lang.IllegalArgumentException: URI has an authority component
   at java.io.File.<init>(File.java:423)
-</scala>
+```
 
 Just like Unix-like systems, Java doesn't handle u2 notation.
 
@@ -280,15 +280,15 @@ file:c:/path/to/file
 
 Accomodating u0 notation for Windows absolute path opens the door to an elegant conversion from any absolute file path to URI: just prepend `file:` in front of the path after slash conversion. But this does not work by default:
 
-<scala>
+```scala
 scala> new File(new URI("file:C:/Documents%20and%20Settings/"))
 java.lang.IllegalArgumentException: URI is not hierarchical
   at java.io.File.<init>(File.java:418)
-</scala>
+```
 
 Here's a workaround:
 
-<scala>
+```scala
 scala> def toFile(uri: URI): File = {
         assert(
            Option(uri.getScheme) match {
@@ -304,7 +304,7 @@ scala> def toFile(uri: URI): File = {
 
 scala> toFile(new URI("file:C:/Documents%20and%20Settings/"))
 res6: java.io.File = C:\Documents and Settings
-</scala>
+```
 
 Even though using u0 notation has a nice property, given the blog post by Microsoft and backward compatibility with RFC 1738, if you are on the emitting side, u3 notation is recommended.
 
@@ -314,7 +314,7 @@ A relative path on Windows filesystem `..\My Documents\test` should be encoded u
 
 In Scala/Java, we need to convert the backslash to slash manually for the relative path.
 
-<scala>
+```scala
 scala> val upDocsTest = new File("""..\My Documents\test""")
 upDocsTest: java.io.File = ..\My Documents\test
 
@@ -330,14 +330,14 @@ scala> def toUri(f: File): URI = {
 
 scala> toUri(upDocsTest)
 res9: java.net.URI = ../My%20Documents/test
-</scala>
+```
 
 calling `File` with `URI#getSchemeSpecificPart` works:
 
-<scala>
+```scala
 scala> new File(res9.getSchemeSpecificPart)
 res10: java.io.File = ..\My Documents\test
-</scala>
+```
 
 ### UNC path on Windows filesystem
 
@@ -347,27 +347,27 @@ A UNC paths on Windows `\\laptop\My Documents\Some.doc` should be encoded using 
 
 In Scala/Java, `java.nio.file.Path#toUri` works while on Windows, so we can use `toUri(...)` that we wrote earlier:
 
-<scala>
+```scala
 scala> val unc = new File("""\\laptop\My Documents\Some.doc""")
 unc: java.io.File = \\laptop\My Documents\Some.doc
 
 scala> toUri(unc)
 res14: java.net.URI = file://laptop/My%20Documents/Some.doc
-</scala>
+```
 
 This also roundtrips using `URI#getSchemeSpecificPart` trick:
 
-<scala>
+```scala
 scala> new File(res14.getSchemeSpecificPart)
 res15: java.io.File = \\laptop\My Documents\Some.doc
-</scala>
+```
 
 Another school of thought is to treat UNC path as path component of URI, and keep the authority blank. This will result to u4 notation.
 
-<scala>
+```scala
 scala> new File(new URI("file:////laptop/My%20Documents/Some.doc"))
 res16: java.io.File = \\laptop\My Documents\Some.doc
-</scala>
+```
 
 ### Improving runtime performance
 
@@ -375,7 +375,7 @@ In [eed3si9n/sjson-new#117](https://github.com/eed3si9n/sjson-new/pull/117) Joã
 
 Here's the new `toUri` that's faster:
 
-<scala>
+```scala
 scala> import java.io.File
        import java.net.{ URI, URISyntaxException }
        import java.util.Locale
@@ -406,7 +406,7 @@ scala> val etcHosts = new File("/etc/hosts")
 
 scala> toURI(etcHosts)
 val res0: java.net.URI = file:///etc/hosts
-</scala>
+```
 
 This implementation will use u3 notation for absolute paths from Unix-like filesystem. Note that this will hold whether the code is run on Linux or Windows.
 

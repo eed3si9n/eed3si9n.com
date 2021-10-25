@@ -23,19 +23,19 @@ I wrote a small sbt plugin [sbt-strict-update][1] to do this.
 
 Add this to `project/plugins.sbt`:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-strict-update" % "0.1.0")
-</scala>
+```
 
 and then add this to `build.sbt`:
 
-<scala>
+```scala
 ThisBuild / libraryDependencySchemes += "org.typelevel" %% "cats-effect" % "early-semver"
-</scala>
+```
 
 That's it.
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "2.13.3"
 ThisBuild / libraryDependencySchemes += "org.typelevel" %% "cats-effect" % "early-semver"
 
@@ -47,7 +47,7 @@ lazy val root = (project in file("."))
       "org.typelevel" %% "cats-effect" % "3.0-8096649",
     ),
   )
-</scala>
+```
 
 Now if Rob tries to `compile` this build, he should get:
 

@@ -20,21 +20,21 @@ For a flexible language like Scala, it's useful to think of subset of the progra
 
 To try `-Yno-lub`, you can drop in the following sbt plugin to `project/ynolub.sbt`:
 
-<scala>
+```scala
 addSbtPlugin("com.eed3si9n" % "sbt-ynolub" % "0.2.0")
-</scala>
+```
 
 ### lub
 
 When Scala's type inferencer finds type `A` and type `B` to unify, it tries to calculate the lub (least upper bounds) of two types with regards to `<:<`. This process is sometimes called lubbing. Here are some of the examples:
 
-<scala>
+```scala
 scala> if (true) Some(1) else None
 res0: Option[Int] = Some(1)
 
 scala> if (true) List(1) else Nil
 res1: List[Int] = List(1)
-</scala>
+```
 
 One idea I've been thinking about for a few years is that lubbing in its current form is not helpful. Here's a tweet from 2013:
 
@@ -43,7 +43,7 @@ One idea I've been thinking about for a few years is that lubbing in its current
 
 This is in part due to the fact that the subtyping relationship described by `<:<` encodes many different things in Scala. By automatically lubbing, Scala will unify various things into an expression. Here are some examples:
 
-<scala>
+```scala
 scala> if (true) Right(1) else Left("1")
 res2: ....
 
@@ -58,13 +58,13 @@ res5: ....
 
 scala> if (true) Vector(1) else Range(1, 1)
 res6: ....
-</scala>
+```
 
 Because of the universal top type `Any`, Scala will unify any two types together.
 
 By the way, can you guess what the return types are?
 
-<scala>
+```scala
 scala> if (true) Right(1) else Left("1")
 res2: Product with Serializable with scala.util.Either[String,Int] = Right(1)
 
@@ -79,7 +79,7 @@ res5: Any = 2
 
 scala> if (true) Vector(1) else Range(1, 1)
 res6: scala.collection.immutable.IndexedSeq[Int] with scala.collection.AbstractSeq[Int] with Serializable with scala.collection.CustomParallelizable[Int,scala.collection.parallel.immutable.ParSeq[Int] with Serializable{def seq: scala.collection.immutable.IndexedSeq[Int] with scala.collection.AbstractSeq[Int] with Serializable with scala.collection.CustomParallelizable[Int,scala.collection.parallel.immutable.ParSeq[Int] with Serializable]{def dropRight(n: Int): scala.collection.immutable.IndexedSeq[Int] with scala.collection.AbstractSeq[Int] with Serializable; def takeRight(n: Int): scala.collection.immutable.IndexedSeq[Int] with scala.collection.AbstractSeq[Int] with Serializable; def drop(n: Int): scala.collection.immutable.IndexedSeq[Int] with scala.collection.AbstractSeq[Int] with Se...
-</scala>
+```
 
 Above examples demonstrate that lubbing is hard to reason, and often surprising.
 
@@ -101,7 +101,7 @@ The last example is from Jon Pretty's [Demystifying Type Inference][2] talk.
 
 So far I've used if-expression and pattern matching as the examples, but lubbing can show up in other places. Jon's talk highlights that constructing datatypes like `List` can cause lubbing.
 
-<scala>
+```scala
 scala> List(Array(1), Vector(2))
 res7: List[java.io.Serializable] = List(Array(1), Vector(2))
 
@@ -110,11 +110,11 @@ res8: List[AnyVal] = List(1, false)
 
 scala> List(1, None)
 res9: List[Any] = List(1, None)
-</scala>
+```
 
 Another way of looking at it is that this is calling `List.apply[A](1, None)`, and the compiler needs to infer what `A` is. Here's a simpler function to demonstrate this point:
 
-<scala>
+```scala
 scala> def first[A](a1: A, a2: A): A = a1
 first: [A](a1: A, a2: A)A
 
@@ -123,17 +123,17 @@ res10: java.io.Serializable = Array(1)
 
 scala> first(1, false)
 res11: AnyVal = 1
-</scala>
+```
 
 There's also the entire topic of numeric widening:
 
-<scala>
+```scala
 scala> List(1, 1L)
 res12: List[Long] = List(1, 1)
 
 scala> 1 :: List(1L)
 res13: List[AnyVal] = List(1, 1)
-</scala>
+```
 
 ### doing less
 
@@ -165,24 +165,24 @@ Since Scala World 2015 was coming up, I thought it would be a fun thing to show 
 
 Getting the proof of concept up and running was surprisingly simple because when I grepped for the word `lub`, I quickly found a function that's named just [that][lubSource]:
 
-<scala>
+```scala
     /** The least upper bound wrt <:< of a list of types */
     protected[internal] def lub(ts: List[Type], depth: Depth): Type = ....
-</scala>
+```
 
 I could add some lines like this. What could go wrong?:
 
-<scala>
+```scala
     val res =
       if (noLub) checkSameTypes(ts)
       else lub0(ts)
-</scala>
+```
 
 Because this cuts out most of the lubbing logic, a potential side benefit of `-Yno-lub` could be that it could lead to reduction in compilation time.
 
 This was good enough for the examples we've seen above. Here's the result:
 
-<scala>
+```scala
 scala> if (true) Right(1) else Left("1")
 <console>:12: error: same types expected: scala.util.Right[Nothing,Int] and scala.util.Left[String,Nothing]
        if (true) Right(1) else Left("1")
@@ -205,11 +205,11 @@ scala> 1 match { case 1 => 2; case n => None }
 <console>:12: error: same types expected: Int and None.type
        1 match { case 1 => 2; case n => None }
          ^
-</scala>
+```
 
 As you can see, `Right(1)` and `Left("1")` case will now require type annotation to compile. The same goes for `None` and `Nil`:
 
-<scala>
+```scala
 scala> if (true) Some(1) else None
 <console>:12: error: same types expected: Some[Int] and None.type
        if (true) Some(1) else None
@@ -219,7 +219,7 @@ scala> if (true) List(1) else Nil
 <console>:12: error: same types expected: List[Int] and scala.collection.immutable.Nil.type
        if (true) List(1) else Nil
        ^
-</scala>
+```
 
 This is similar to algebraic data type encoding issue. It's a bit annoying to annotate all `Nil`s, but I'd be willing to deal with it.
 
@@ -231,9 +231,9 @@ Here are some of the issues that I ran into when trying to use `-Yno-lub`.
 
 One of the things I took for granted was the unification with the `Nothing` type. Consider:
 
-<scala>
+```scala
 scala> if (true) 1 else sys.error("boom")
-</scala>
+```
 
 This is an unification of `Int` and `Nothing`. Strictly speaking, we should not allow it, but I've decided to make a compromise here since throwing an exception is an opt-in act by the programmer.
 
@@ -241,7 +241,7 @@ This is an unification of `Int` and `Nothing`. Strictly speaking, we should not 
 
 Here's another one that I had to work around:
 
-<scala>
+```scala
 scala> def something(clazz: Class[_]): List[Class[_]] = {
          if (true) List(clazz)
          else clazz :: something(clazz.getSuperclass)
@@ -249,11 +249,11 @@ scala> def something(clazz: Class[_]): List[Class[_]] = {
 <console>:13: error: same types expected: Class[_] and Class[_$1]
          else clazz :: something(clazz.getSuperclass)
                     ^
-</scala>
+```
 
 The first and second `Class[_]` is not considered the same type, but semantically they cover the same terms. To "fix" this, I had to go into the `TypeComparers` and add the following case:
 
-<scala>
+```scala
   // @pre: at least one argument contains existentials
   private def sameExistentialTypes(tp1: Type, tp2: Type): Boolean = (
     try {
@@ -286,7 +286,7 @@ The first and second `Class[_]` is not considered the same type, but semanticall
     case _ if containsExistential(tp1) || containsExistential(tp2) => sameExistentialTypes(tp1, tp2)
     case _                                                       => isSameType2(tp1, tp2)
   }
-</scala>
+```
 
 As you can see, we are gradually getting sucked into the deeper ends.
 
@@ -294,31 +294,31 @@ As you can see, we are gradually getting sucked into the deeper ends.
 
 Here's something you might not have expected:
 
-<scala>
+```scala
 scala> case class Movie(name: String, year: Int)
 <console>:11: error: same types expected: None.type and Some[(String, Int)]
        case class Movie(name: String, year: Int)
                   ^
-</scala>
+```
 
 There's a useful compiler flag called `-Xprint:typer` to find out what's going on:
 
-<scala>
+```scala
     case <synthetic> def unapply(x$0: Movie): Option[(String, Int)] = if (x$0.==(null))
       scala.this.None
     else
       Some.apply[(String, Int)](scala.Tuple2.apply[String, Int](x$0.name, x$0.year));
-</scala>
+```
 
 The generated code for `unapply` now needs type annotation. The same goes for `productElement`, which needs to be widened into `Any` manually:
 
-<scala>
+```scala
     <synthetic> def productElement(x$1: Int): Any = x$1 match {
       case 0 => Movie.this.name
       case 1 => Movie.this.year
       case _ => throw new IndexOutOfBoundsException(x$1.toString())
     };
-</scala>
+```
 
 I've worked around that one too, but this spells a grim prospect of various generated code getting snagged by the newly introduced strictness.
 
@@ -326,18 +326,18 @@ I've worked around that one too, but this spells a grim prospect of various gene
 
 Another code generation:
 
-<scala>
+```scala
 scala> if (true) "1"
 <console>:12: error: same types expected: String and Unit
        if (true) "1"
        ^
-</scala>
+```
 
 I haven't worked around this issue in the compiler since we can fix it ourselves:
 
-<scala>
+```scala
 scala> if (true) { "1"; () }
-</scala>
+```
 
 There may be more issues, but now it's able to compile more code than before.
 
@@ -349,13 +349,13 @@ The open issue is the encoding of the algebraic data types.
 
 One way to workaround it in the user land is to provide wrappers that annotates the leaf values to the parent trait.
 
-<scala>
+```scala
 scala> def nil[A]: List[A] = (Nil: List[A])
 nil: [A]=> List[A]
 
 scala> if (true) List(1) else nil[Int]
 res14: List[Int] = List(1)
-</scala>
+```
 
 This approach has a nice side benefit of being able to use typeclasses for `List[A]` for `Eq` etc.
 
@@ -364,11 +364,11 @@ This approach has a nice side benefit of being able to use typeclasses for `List
 But, if we could add first-class support in Scala, how would it look like?
 One idea might be treating `Either[A1, A2]` as a sum type of `Left[A1]` and `Right[A2]`.
 
-<scala>
+```scala
 package object collection {
   type Either[A1, A2] = Left[A1] | Right[A2]
 }
-</scala>
+```
 
 I don't know if this works, because we'd want to put implementation in `Either[A1, A2]`.
 
@@ -376,7 +376,7 @@ I don't know if this works, because we'd want to put implementation in `Either[A
 
 Perhaps there should be a special syntax to denote the leaf types being part of a sum type:
 
-<scala>
+```scala
 sealed trait Either[A1, A2] {
   def a1: A1
   def a2: A2
@@ -404,7 +404,7 @@ sealed trait Either[A1, A2] {
 }
 final case class Left[A1](a1: A1) restricts Either[A1, Nothing]
 final case class Right[A2](a2: A2) restricts Either[Nothing, A2]
-</scala>
+```
 
 This imaginary restriction type is a special kind of subtype that is not allowed to introduce any new fields besides that ones captured by the constructor. This could be used to tell the compiler that it's ok to infer `Either[A1, A2]`. By not allowing any implementation on the restricted types, hopefully we can distinguish `Vector` extending `Seq` vs straightforward algebraic data types.
 

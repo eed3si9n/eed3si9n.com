@@ -48,7 +48,7 @@ scripted-plugin はプラグインをローカルに publish するため、ま�
 
 ここがポイントなんだけど、`simple` 下にビルドを作成する。プラグインを使った普通のビルド。手動でテストするために、いくつか既にあると思うけど。以下に、`build.sbt` の例を示す:
 
-<scala>
+```scala
 import AssemblyKeys._
 
 version := "0.1"
@@ -58,11 +58,11 @@ scalaVersion := "2.10.2"
 assemblySettings
 
 jarName in assembly := "foo.jar"
-</scala>
+```
 
 これが、`project/plugins.sbt`:
 
-<scala>
+```scala
 {
   val pluginVersion = System.getProperty("plugin.version")
   if(pluginVersion == null)
@@ -70,17 +70,17 @@ jarName in assembly := "foo.jar"
                                   |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
   else addSbtPlugin("com.eed3si9n" % "sbt-assembly" % pluginVersion)
 }
-</scala>
+```
 
 これは [JamesEarlDouglas/xsbt-web-plugin@feabb2][6] から拝借してきた技で、これで scripted テストに version を渡すことができる。
 
 他に、`src/main/scala/hello.scala` も用意した:
 
-<scala>
+```scala
 object Main extends App {
   println("hello")
 }
-</scala>
+```
 
 ## ステップ 4: スクリプトを書く
 次に、好きな筋書きを記述したスクリプトを、テストビルドのルート下に置いた `test` というファイルに書く。
@@ -129,7 +129,7 @@ $ exists target/scala-2.10/foo.jar</code>
 ファイルコマンドは便利だけど、実際のコンテンツをテストしないため、それだけでは不十分だ。コンテンツをテストする簡単な方法は、テストビルドにカスタムのタスクを実装してしまうことだ。
 
 上記の hello プロジェクトを例に取ると、生成された jar が "hello" と表示するかを確認したいとする。`sbt.Process` を用いて jar を走らせることができる。失敗を表すには、単にエラーを投げればいい。以下に `build.sbt` を示す:
-<scala>
+```scala
 import AssemblyKeys._
 
 version := "0.1"
@@ -146,7 +146,7 @@ TaskKey[Unit]("check") <<= (crossTarget) map { (crossTarget) =>
   if (out.trim != "bye") error("unexpected output: " + out)
   ()
 }
-</scala>
+```
 
 ここでは、テストが失敗するのを確認するため、わざと "bye" とマッチするかテストしている。
 空行を入れると、ブロックの終わりだと解釈されるので気をつけよう。

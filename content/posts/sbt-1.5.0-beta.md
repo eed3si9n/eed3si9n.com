@@ -48,19 +48,19 @@ sbt 1.5.0 adds built-in Scala 3 support, contributed by Scala Center. Main imple
 
 After this resolver is added, you can now use Scala 3.0.0-RC1 like any other Scala version.
 
-<scala>
+```scala
 ThisBuild / scalaVersion := "3.0.0-RC1"
-</scala>
+```
 
 This will compile the following `Hello.scala`:
 
-<scala>
+```scala
 package example
 
 @main def hello(arg: String*): Unit =
   if arg.isEmpty then println("hello")
   else println(s"hi ${arg.head}")
-</scala>
+```
 
 ### Scala 2.13-3.x sandwich
 
@@ -68,11 +68,11 @@ Scala 3.0.x [shares](https://www.scala-lang.org/2019/12/18/road-to-scala-3.html)
 
 sbt 1.5.0 introduces new cross building operand to use `_3` variant when `scalaVersion` is 2.13.x, and vice versa:
 
-<scala>
+```scala
 ("a" % "b" % "1.0").cross(CrossVersion.for3Use2_13)
 
 ("a" % "b" % "1.0").cross(CrossVersion.for2_13Use3)
-</scala>
+```
 
 These are analogous to `%%` operator that selects `_2.13` etc based on `scalaVersion`. 
 
@@ -92,7 +92,7 @@ sbt 1.5.0 removes eviction warning, and replaces it with stricter eviction error
 
 For example:
 
-<scala>
+```scala
 lazy val use = project
   .settings(
     name := "use",
@@ -103,11 +103,11 @@ lazy val use = project
       "org.typelevel" %% "cats-effect" % "3.0.0-M4",
     ),
   )
-</scala>
+```
 
 The above build will fail to build `use/compile` with the following error:
 
-<scala>
+```scala
 [error] stack trace is suppressed; run last use / update for the full output
 [error] (use / update) found version conflict(s) in library dependencies; some are suspected to be binary incompatible:
 [error]
@@ -120,27 +120,27 @@ The above build will fail to build `use/compile` with the following error:
 [error]
 [error]
 [error] this can be overridden using libraryDependencySchemes or evictionErrorLevel
-</scala>
+```
 
 This is because Cats Effect 2.x and 3.x are found in the classpath, and Cats Effect has declared that it uses early-semver. If the user wants to opt-out of this, the user can do so per module:
 
-<scala>
+```scala
 ThisBuild / libraryDependencySchemes += "org.typelevel" %% "cats-effect" % "always"
-</scala>
+```
 
 or globally as:
 
-<scala>
+```scala
 ThisBuild / evictionErrorLevel := Level.Info
-</scala>
+```
 
 On the other hand, if you want to bring back the guessing feature in eviction warning, you can do using the following settings:
 
-<scala>
+```scala
 ThisBuild / assumedVersionScheme := VersionScheme.PVP
 ThisBuild / assumedVersionSchemeJava := VersionScheme.EarlySemVer
 ThisBuild / assumedEvictionErrorLevel := Level.Warn
-</scala>
+```
 
 [@eed3si9n][@eed3si9n] implemented this in [#6221][6221], inspired in part by Scala Center's [sbt-eviction-rules](https://github.com/scalacenter/sbt-eviction-rules), which was implemented by Alexandre Archambault ([@alxarchambault][@alxarchambault]) and Julien Richard-Foy ([@julienrf][@julienrf]).
 
@@ -150,13 +150,13 @@ In sbt 1.4.0 we started wiping out the timestamps in JAR to make the builds more
 
 To opt out of this default, the user can use:
 
-<scala>
+```scala
 ThisBuild / packageTimestamp := Package.keepTimestamps
 
 // or
 
 ThisBuild / packageTimestamp := Package.gitCommitDateTimestamp
-</scala>
+```
 
 [#6237][6237] by [@eed3si9n][@eed3si9n]
 

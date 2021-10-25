@@ -73,9 +73,9 @@ Scala コンパイラも Java コンパイラもバーチャル・ファイル�
 
 ローカルでビルドした sbt 1.4.0-SNAPSHOT を使ったワークフローを見ていこう。まずは以下を `build.sbt` に追加する:
 
-<scala>
+```scala
 ThisBuild / pushRemoteCacheTo := Some(MavenCache("local-cache", file("/tmp/remote-cache")))
-</scala>
+```
 
 これは、Maven スタイルのリポジトリなら何でもいい。だけどもキャッシュなので、実際のアーティファクトと混ぜない方がいいと思う。
 

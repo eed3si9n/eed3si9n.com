@@ -28,7 +28,7 @@ Scala で型クラスを用いる場合、通常は暗黙の変換に頼るこ�
 
 以下に具体例で説明すると、`A` はジェネリックな型、`Ordering` は型クラスで、`>` が暗黙の演算子となる。`foo1` はプログラマが書くコードで、`foo4` は implicit が解決されて、糖衣構文が展開された後のものだ。
 
-<scala>
+```scala
 import scala.math.Ordering
 import Ordering.Implicits._
 
@@ -43,7 +43,7 @@ def foo3[A](x: A, y: A)(implicit ev: Ordering[A]): A =
 
 def foo4[A](x: A, y: A)(implicit ev: Ordering[A]): A =
   new ev.Ops(x) > y
-</scala>
+```
 
 (実はこれは微妙に間違っている。`foo4` への展開は実行時に `infixOrderingOps` が呼ばれるまでは行われないが、これから説明することの要点となる。)
 
@@ -51,20 +51,20 @@ def foo4[A](x: A, y: A)(implicit ev: Ordering[A]): A =
 
 これは以下のように回避できる:
 
-<scala>
+```scala
 def bar[A](x: A, y: A)(implicit ev: Ordering[A]): A =
   ev.gt(x, y)
-</scala>
+```
 
 `ev` パラメータが実際に呼び出したいメソッド (`gt`) を持つため、`ev.Ops` をインスタンス化する代わりにこのコードは `ev.gt` を直接呼び出す。だけど、この方法は見た目が良くない。以下の 2つのメソッドを比べてみよう:
 
-<scala>
+```scala
 def qux1[A: Field](x: A, y: A): A =
   ((x pow 2) + (y pow 2)).sqrt
 
 def qux2[A](x: A, y: A)(implicit ev: Field[A]): A =
   ev.sqrt(ev.plus(ev.pow(x, 2), ev.pow(y, 2)))
-</scala>
+```
 
 2つ目のメソッドがすぐに読み解けなくても不思議じゃない。
 
@@ -76,7 +76,7 @@ def qux2[A](x: A, y: A)(implicit ev: Field[A]): A =
 
 implicit の解決後に "nice" なコードと "fast" なコードがどうなるかを比較するためにもう一つの具体例をみてみよう:
 
-<scala>
+```scala
 def niceBefore[A: Ring](x: A, y: A): A =
   (x + y) * z
 
@@ -85,7 +85,7 @@ def niceAfter[A](x: A, y: A)(implicit ev: Ring[A]): A =
 
 def fast[A](x: A, y: A)(implicit ev: Ring[A]): A =
   ev.times(ev.plus(x, y), z)
-</scala>
+```
 
 見てのとおり、`niceAfter` と `fast` はかなり似通っている。以下の方法で `niceAfter` から `fast` へ変換できないだろか。
 
@@ -100,15 +100,15 @@ def fast[A](x: A, y: A)(implicit ev: Ring[A]): A =
 
 Spire の Ops マクロを使うには、`spire-macros` パッケージに依存する必要がある。sbt を使っている場合、以下を `build.sbt` に追加することでできる:
 
-<scala>
+```scala
 libraryDependencies += "org.spire-math" %% "spire-macros" % "0.6.1"
-</scala>
+```
 
 この他に、ops クラスを宣言した場で以下のようにマクロ機能を有効にする必要がある:
 
-<scala>
+```scala
 import scala.language.experimental.macros
-</scala>
+```
 
 ### 具体例
 
@@ -116,7 +116,7 @@ import scala.language.experimental.macros
 
 コード:
 
-<scala>
+```scala
 trait Sized[A] {
   def size(a: A): Int
   def isEmpty(a: A): Boolean = size(a) == 0
@@ -144,13 +144,13 @@ object Sized {
     }
   }
 }
-</scala>
+```
 
 (リストの長さを計算するのは O(n) 演算なので `Sized[List[A]]` の実装はいくつかの「デフォルト」の実装をオーバーライドして効率化していることに注意。)
 
 implicit のインスタンス `Sized[A]` が入手可能であるとき、これらのメソッドをジェネリックな型 `A` から直接呼び出したい。Spire の　Ops マクロを使って `SizedOps` クラスを定義してみよう:
 
-<scala>
+```scala
 import spire.macrosk.Ops
 import scala.language.experimental.macros
 
@@ -162,13 +162,13 @@ object Implicits {
     def sizeCompare(rhs: A): Int = macro Ops.binop[A, Int]
   }
 }
-</scala>
+```
 
 これだけだ!
 
 この型クラスの使用例はこのようになる:
 
-<scala>
+```scala
 import Implicits._
 
 def findSmallest[A: Sized](as: Iterable[A]): A =
@@ -181,7 +181,7 @@ def compact[A: Sized](as: Vector[A]): Vector[A] =
 
 def totalSize[A: Sized](as: Seq[A]): Int =
   as.foldLeft(0)(_ + _.size)
-</scala>
+```
 
 悪くないよね?
 
@@ -201,7 +201,7 @@ def totalSize[A: Sized](as: Seq[A]): Int =
 
 以下が `*` から `times` に関連付けた例だ:
 
-<scala>
+```scala
 trait CanMultiply[A] {
   def times(x: A, y: A): A
 }
@@ -219,7 +219,7 @@ object Example {
     as.foldLeft(a)(_ * _)
   }
 }
-</scala>
+```
 
 現在 Ops マクロには多くの (だけど Spire に特定の) シンボルから名前への関連付けがある。しかし、君のプロジェクトでは別の名前 (または別のシンボル) を使いたいと思うかもしれない。どうしたらいいだろう?
 

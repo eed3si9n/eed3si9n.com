@@ -95,9 +95,9 @@ tags:        [ "sbt" ]
 
 キーを定義するときに、キー名を二回書かなくても済む新しいメソッドが追加された:
 
-<scala>
+```scala
 val myTask = taskKey[Int]("myTask の説明文。(省略不可)")
-</scala>
+```
 
 キーの名前は `taskKey` マクロによって `val` の識別子から抜き出されるため、リフレクションや実行時のオーバーヘッドはかからない。説明文は省略不可であり、`taskKey` メソッドが小文字の `t` から始まることに注意。セッティングとインプットタスクのための類似メソッド `settingKey` と `inputKey` もある。
 
@@ -109,21 +109,21 @@ val myTask = taskKey[Int]("myTask の説明文。(省略不可)")
 
 例えば、以下に `scalaVersion` の値を使って `scala-reflect` を依存ライブラリとして宣言する具体例をみてみる:
 
-<scala>
+```scala
 libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
-</scala>
+```
 
 この `value` メソッドは `:=`、`+=`、もしくは `++=` の呼び出しの中だけで使うことができる。これらのメソッド外でセッティングやタスクを構築するには `Def.task` や `Def.setting` を使う。以下に具体例で説明する。
 
-<scala>
+```scala
 val reflectDep = Def.setting { "org.scala-lang" % "scala-reflect" % scalaVersion.value }
 
 libraryDependencies += reflectDep.value
-</scala>
+```
 
 類似のメソッドとして `Parser[T]`、`Initialize[Parser[T]]` (パーサを提供するセッティング)、そして `Initialize[State => Parser[T]]` (現在の `State` を基に `Parser[T]` を提供するセッティング) に `parsed` メソッドが定義されている。このメソッドを使ってユーザからのインプットを使ったインプットタスクを定義する。
 
-<scala>
+```scala
 myInputTask := {
      // 標準的な空文字区切り引数パーサを定義する。
    val args = Def.spaceDelimited("<args>").parsed
@@ -133,7 +133,7 @@ myInputTask := {
    println("Arguments:")
    for(arg <- args) println("  " + arg)
 }
-</scala>
+```
 
 詳細は、[Input Tasks](http://www.scala-sbt.org/0.13.0/docs/Extending/Input-Tasks.html) 参照。
 
@@ -145,38 +145,38 @@ myInputTask := {
 
 .sbt ファイル内に `val` や `def` が書けるようになった。これらもセッティング同様に空行のルールに従う必要があるが、複数の定義をまとめて書くことができる。
 
-<scala>
+```scala
 val n = "widgets"
 val o = "org.example"
 
 name := n
 
 organization := o
-</scala>
+```
 
 全ての定義はセッティングの前にコンパイルされるが、定義は全てまとめて書くのがベスト・プラクティスだろう。現行では、定義が見える範囲はそれが定義された .sbt ファイル内に制限されている。これらは今のところは `consoleProject` や `set` コマンドからも見ることができない。全ての .sbt ファイルから見えるようにするには `project/` 内で Scala ファイルを使う。
 
 `Project` 型の val は `Build` に追加されるため、.sbt ファイルだけを用いてマルチプロジェクトビルドが定義できるようになった。具体例で説明しよう。
 
-<scala>
+```scala
 lazy val a = Project("a", file("a")).dependsOn(b)
 
 lazy val b = Project("b", file("sub")).settings(
    version := "1.0"
 )
-</scala>
+```
 
 今のところは、これらはルートプロジェクトの .sbt ファイルからのみ定義するべきだ。
 
 `Project` を定義する略記法として `project` というマクロが提供されている。これは構築される `Project` が直接 `val` に代入されることを要求する。この `val` の名前がプロジェクトID とベースディレクトリとしても使われる。上の例は以下のようにも書ける:
 
-<scala>
+```scala
 lazy val a = project.dependsOn(b)
 
 lazy val b = project in file("sub") settings(
   version := "1.0"
 )
-</scala>
+```
 
 このマクロは Scala ファイル内からも使うことができる。
 
@@ -192,7 +192,7 @@ sbt は `Project.settings` フィールドで明示的に定義されたセッ�
 
 例えば、
 
-<scala>
+```scala
 import AddSettings._
 
 lazy val root = Project("root", file(".")) autoSettings(
@@ -205,7 +205,7 @@ lazy val sub = Project("sub", file("Sub")) autoSettings(
 
 def includePlugin(p: Plugin): Boolean =
    p.getClass.getName.startsWith("org.example.")
-</scala>
+```
 
 ### Scala 依存性の解決
 

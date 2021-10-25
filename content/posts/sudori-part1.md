@@ -30,17 +30,17 @@ Reference:
 
 I think I've identified a basic part called [Convert][Convert], which doesn't really depend on anything.
 
-<scala>
+```scala
 abstract class Convert {
   def apply[T: c.WeakTypeTag](c: blackbox.Context)(nme: String, in: c.Tree): Converted[c.type]
 
   ....
 }
-</scala>
+```
 
 This looks to be a glorified partial function that takes in a `Tree` and returns `Converted`, which is an abstract data type with a type parameter `[C <: blackbox.Context with Singleton]` like:
 
-<scala>
+```scala
   final case class Success[C <: blackbox.Context with Singleton](
       tree: C#Tree,
       finalTransform: C#Tree => C#Tree
@@ -48,7 +48,7 @@ This looks to be a glorified partial function that takes in a `Tree` and returns
     def isSuccess = true
     def transform(f: C#Tree => C#Tree): Converted[C] = Success(f(tree), finalTransform)
   }
-</scala>
+```
 
 This is typical of older Scala 2 macro implementation to directly deal with `Tree`, or Abstract Syntax Tree (AST) in this fashion, but Scala 3 has much nicer higher level [metaprogramming][metaprogramming] faciliy like `inline`, so it's recommended to start with those first.
 
@@ -58,7 +58,7 @@ In this case, I want to port the existing macros so I'm directly jumping to quot
 
 Defining an [enum][Enum] looks like this:
 
-<scala>
+```scala
 import scala.quoted.*
 
 enum Converted[C <: Quotes]:
@@ -66,11 +66,11 @@ enum Converted[C <: Quotes]:
   case Failure() extends Converted[C]
   case NotApplicable() extends Converted[C]
 end Converted
-</scala>
+```
 
 Unlike sealed trait and case classes, the methods under the ADT would also go into `enum`:
 
-<scala>
+```scala
 import scala.quoted.*
 
 enum Converted[C <: Quotes]:
@@ -82,7 +82,7 @@ enum Converted[C <: Quotes]:
   case Failure() extends Converted[C]
   case NotApplicable() extends Converted[C]
 end Converted
-</scala>
+```
 
 This makes sense, as we can now think of `Success()` vs `Failure()` as different values of `Converted[C]` type.
 
@@ -94,7 +94,7 @@ One solution that is suggested is path-dependent type. In our case, quote reflec
 
 So now `Success` and `Failure` looks like this:
 
-<scala>
+```scala
 enum Converted[C <: Quotes](val qctx: C):
   def isSuccess: Boolean = this match
     case _: Success[C] => true
@@ -110,11 +110,11 @@ enum Converted[C <: Quotes](val qctx: C):
       val message: String)
     extends Converted[C](qctx)
 end Converted
-</scala>
+```
 
 Theses cases have multiple parameters so we can use `qctx.reflect.Term` from `qctx` in the first parameter list. Now the more difficult part is implementing the `transform` method.
 
-<scala>
+```scala
 enum Converted[C <: Quotes](val qctx: C):
   def isSuccess: Boolean = this match
     case _: Success[C] => true
@@ -130,7 +130,7 @@ enum Converted[C <: Quotes](val qctx: C):
     case x                   => sys.error(s"Unknown case $x")
 
 end Converted
-</scala>
+```
 
 `transform` applies the function `f` to the tree stored in `Success(...)`, but I don't know if there's a way to tell the compiler that `qctx` used in `transform` is the same value as the one captured in `Success(...)`.
 
@@ -138,7 +138,7 @@ end Converted
 
 There is a way to remove this ugly casting, and that is to define an outer trait.
 
-<scala>
+```scala
 trait Convert[C <: Quotes & Singleton](val qctx: C):
   import qctx.reflect.*
   given qctx.type = qctx
@@ -146,11 +146,11 @@ trait Convert[C <: Quotes & Singleton](val qctx: C):
   ....
 
 end Convert
-</scala>
+```
 
 Now within the `Convert` trait, `Term` would always mean `qctx.reflex.Term`. I'm not actually sure if creating type parameter `C` is useful if we're not using `C`.
 
-<scala>
+```scala
 trait Convert[C <: Quotes & Singleton](val qctx: C):
   import qctx.reflect.*
   given qctx.type = qctx
@@ -175,23 +175,23 @@ trait Convert[C <: Quotes & Singleton](val qctx: C):
     case NotApplicable() extends Converted
   end Converted
 end Convert
-</scala>
+```
 
 The implementation becomes simpler and shorter too. The drawback is that now `Converted` becomes a nested type of `Convert`, so we might have to deal with path-dependent type later to use it.
 
 Before we go too far, I want to make sure that this trait is composable. First, let's check that a function inside `Convert` can pass `Term` to another function in another module. This is to check that we're not trapped in path-dependency specific to this `qctx` only. Consider a module like this:
 
-<scala>
+```scala
 object SomeModule:
   def something(using qctx0: Quotes)(tree: qctx0.reflect.Term): qctx0.reflect.Term =
     tree
 
 end SomeModule
-</scala>
+```
 
 Here's how we can call `SomeModule.something`:
 
-<scala>
+```scala
 trait Convert[C <: Quotes & Singleton](override val qctx: C):
   import qctx.reflect.*
   given qctx.type = qctx
@@ -200,11 +200,11 @@ trait Convert[C <: Quotes & Singleton](override val qctx: C):
     SomeModule.something(term)
 
   ....
-</scala>
+```
 
 This compiled without casting, so this is looking good. This is the purpose for the `given` instance for `qctx.type` so we don't have to pass around it explicitly. Another way of composing this Cake trait is to stack it with another trait:
 
-<scala>
+```scala
 import scala.quoted.*
 
 trait ContextUtil[C <: Quotes & Singleton](val qctx: C):
@@ -214,11 +214,11 @@ trait ContextUtil[C <: Quotes & Singleton](val qctx: C):
   def something1(tree: Term): Term =
     tree
 end ContextUtil
-</scala>
+```
 
 We can make `Convert` extend `ContextUtil` to reduce common functions:
 
-<scala>
+```scala
 trait Convert[C <: Quotes & Singleton](override val qctx: C) extends ContextUtil[C]:
   import qctx.reflect.*
 
@@ -226,7 +226,7 @@ trait Convert[C <: Quotes & Singleton](override val qctx: C) extends ContextUtil
     something1(term)
 
   ....
-</scala>
+```
 
 This too compiles without casting, which is good.
 
@@ -236,7 +236,7 @@ A common pattern in a macro is to traverse the passed in abstract syntax tree (A
 
 In Scala 2, this is done by extending [Transformer][Transformer]. In Scala 3, it's called [TreeMap][TreeMap]. It's a cute name, but it might be confusing with `scala.collection.immutable.TreeMap`. To use the `TreeMap`, you have to read the implementation and pick which method to override. You might think `transformTree` at first, but the likely one you'd want is `transformTerm`.
 
-<scala>
+```scala
   def transformWrappers(
     tree: Term,
     subWrapper: (String, Type[_], Term, Term) => Converted
@@ -259,13 +259,13 @@ In Scala 2, this is done by extending [Transformer][Transformer]. In Scala 3, it
             super.transformTerm(tree)(owner)
     end appTransformer
     appTransformer.transformTerm(tree)(Symbol.spliceOwner)
-</scala>
+```
 
 #### Example convert
 
 Here's an example convert:
 
-<scala>
+```scala
   final val WrapInitName = "wrapInit"
   final val WrapInitTaskName = "wrapInitTask"
 
@@ -279,11 +279,11 @@ Here's an example convert:
 
     private def initTaskErrorMessage = "Internal sbt error: initialize+task wrapper not split"
   end InputInitConvert
-</scala>
+```
 
 This is similar to an actual convert used in sbt that matches `wrapInit` method. Using this, we can define a macro that would substitite `ConvertTest.wrapInit(1)` with `2`.
 
-<scala>
+```scala
   inline def someMacro(inline expr: Boolean): Boolean =
     ${ someMacroImpl('expr) }
 
@@ -295,11 +295,11 @@ This is similar to an actual convert used in sbt that matches `wrapInit` method.
         '{ 2 }.asTerm
       }
     convert1.transformWrappers(expr.asTerm, substitute).asExprOf[Boolean]
-</scala>
+```
 
 We can test this using Verify as follows:
 
-<scala>
+```scala
 import verify.*
 import ConvertTestMacro._
 
@@ -310,7 +310,7 @@ object ConvertTest extends BasicTestSuite:
 
   def wrapInit[A](a: A): Int = 2
 end ConvertTest
-</scala>
+```
 
 There are two layers of filtering going on here. First, the `TreeMap` we defined called `appTransformer` only looks at invocations of generic function with a single parameter. Next, `convert1` only considers `wrapInit` as the successful method name.
 
@@ -320,16 +320,16 @@ Some interesting bits about the tree walking is that we have the type informatio
 
 So that's passed into the `substitute` function as `Type[_]`. Since this is grabbing any `wrapInit[A](...)`, we can't be more specific than `Type[_]`. But we would like to unmarshal this as `T` that we can use. There's a related question in Scala 3 macro FAQ called [How do I summon an expression for statically unknown types?][statically-unknown]
 
-<scala>
+```scala
 val tpe: Type[_] = ...
 tpe match
   // (1) Use `a` as the name of the unknown type and (2) bring a given `Type[a]` into scope
   case '[a] => Expr.summon[a]
-</scala>
+```
 
 This is pretty cool. Using this technique, we can implement `addType(...)` to wrap `A` into `Option[A]`.
 
-<scala>
+```scala
   inline def someMacro(inline expr: Boolean): Boolean =
     ${ someMacroImpl('expr) }
 
@@ -347,11 +347,11 @@ This is pretty cool. Using this technique, we can implement `addType(...)` to wr
         addTypeCon(tpe, tree, replace)
       }
     convert1.transformWrappers(expr.asTerm, substitute).asExprOf[Boolean]
-</scala>
+```
 
 This can be tested as follows:
 
-<scala>
+```scala
 object ConvertTest extends BasicTestSuite:
   test("convert") {
     assert(someMacro(ConvertTest.wrapInit(1).toString == "Some(2)"))
@@ -359,7 +359,7 @@ object ConvertTest extends BasicTestSuite:
 
   def wrapInit[A](a: A): Int = 2
 end ConvertTest
-</scala>
+```
 
 In other words, we now have a macro that would rewrite `ConvertTest.wrapInit(1)`, which returns `2` into `Option(2)`. This type of wrapping values with a type constructor is exactly what happens within `build.sbt`.
 

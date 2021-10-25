@@ -31,7 +31,7 @@ The algebraic data type `⊠` is the type-level product, while the infix functio
 
 `Func` is my attempt to provide value-level composition of applicative functions.
 
-<scala>
+```scala
 scala> import scalaz._, Scalaz._, typelevel._
 import scalaz._
 import Scalaz._
@@ -45,17 +45,17 @@ g: scalaz.typelevel.Func[scalaz.Unapply[scalaz.Applicative,List[Int]]{type M[X] 
 
 scala> (f @&&& g) traverse List(1, 2, 3)
 res0: scalaz.typelevel.TCCons[scalaz.Unapply[scalaz.Applicative,Int]{type M[X] = Int; type A = Int}#M,scalaz.typelevel.TCCons[scalaz.Unapply[scalaz.Applicative,List[Int]]{type M[X] = List[X]; type A = Int}#M,scalaz.typelevel.TCNil]]#Product[List[Int]] = GenericCons(9,GenericCons(List(List(1, 2, 3), List(1, 2, 5), List(1, 5, 3), List(1, 5, 5), List(5, 2, 3), List(5, 2, 5), List(5, 5, 3), List(5, 5, 5)),GenericNil()))
-</scala>
+```
 
 Similar to [`Kleisli`](https://github.com/scalaz/scalaz/blob/scalaz-seven/core/src/main/scala/scalaz/Kleisli.scala), [`Func`](https://github.com/scalaz/scalaz/blob/scalaz-seven/typelevel/src/main/scala/scalaz/typelevel/Func.scala) represents a function `A => F[B]`:
 
-<scala>
+```scala
 trait Func[F[_], TC[F[_]] <: Functor[F], A, B] { self =>
   def runA(a: A): F[B]
   implicit def TC: KTypeClass[TC]
   implicit def F: TC[F]
 }
-</scala>
+```
 
 The `runA` method runs the function, similar to `apply` method.
 
@@ -67,22 +67,22 @@ The `product` and `compose` methods implemented at individual typeclass in core 
 
 The scalaz-typelevel module contains type-level data structure (and also type-safe printf according to the readme). What I am after is [`KTypeClass`](https://github.com/scalaz/scalaz/blob/scalaz-seven/typelevel/src/main/scala/scalaz/typelevel/KTypeClass.scala), which is a typeclass of typeclasses with kind `* -> *` like `Functor` and `Applicative`. Its main feature is generic `product` and `compose` methods:
 
-<scala>
+```scala
 trait KTypeClass[C[_[_]]] {
   def product[F[_], T <: TCList](FHead: C[F], FTail: C[T#Product]): C[TCCons[F, T]#Product]
   def compose[F[_], T <: TCList](FOuter: C[F], FInner: C[T#Composed]): C[TCCons[F, T]#Composed]
 }
-</scala>
+```
 
 Instead of using `Tuple2` to encode products, `KTypeClass` uses an `HList` to encode products. This is also included in scalaz-typelvel module. Unlike a `List` that is limited to preserving one type for all elements, `HList` preserves all types of the elements:
 
-<scala>
+```scala
 scala> List(1, "string").head
 res1: Any = 1
 
 scala> (1 :: "string" :: HNil).head
 res2: scalaz.Id.Id[Int] = 1
-</scala>
+```
 
 To accommodate both `Int` and `String` the first `List` was widened to `List[Any]` while `HList` preserved the type.
 
@@ -92,17 +92,17 @@ Following EIP, my implmenetation of `Func` only supported product of two functio
 
 After a few weeks I've come up with `HListFunc`, a wrapper function that returns an `HList`, which extends `Func`:
 
-<scala>
+```scala
 trait HListFunc[T <: TCList, TC[X[_]] <: Functor[X], A, B] extends Func[T#Product, TC, A, B] { self =>
   def ::[G[_]](g: Func[G, TC, A, B]) = g consA self
   private[scalaz] def Product: KTypeClass.WrappedProduct[TC, T]
   final def F = Product.instance
 }
-</scala>
+```
 
 There are two ways of creating an `HListFunc`. First, is to call `HNil` method under one of the specialized `Func` objects such as `AppFunc`:
 
-<scala>
+```scala
 scala> AppFunc.HNil
 res7: scalaz.typelevel.HListFunc[scalaz.typelevel.TCNil,scalaz.Applicative,Nothing,Nothing] = scalaz.typelevel.FuncFunctions$$anon$6@1e525ac8
 
@@ -111,33 +111,33 @@ res8: scalaz.typelevel.HListFunc[scalaz.typelevel.TCNil,scalaz.Applicative,Int,I
 
 scala> res8.runA(0)
 res9: scalaz.typelevel.TCNil#Product[Int] = GenericNil()
-</scala>
+```
 
 The second way of creating an `HListFunc` is to use `::` operator on an existing `HListFunc`:
 
-<scala>
+```scala
 scala> AppFuncU { (x: Int) => x + 1 } :: AppFunc.HNil
 res15: scalaz.typelevel.HListFunc[scalaz.typelevel.TCCons[scalaz.Unapply[scalaz.Applicative,Int]{type M[X] = Int; type A = Int}#M,scalaz.typelevel.TCNil],scalaz.Applicative,Int,Int] = scalaz.typelevel.Func$$anon$4@34f262c3
-</scala>
+```
 
 ### Func again
 
 Using `HListFunc` the `productA` (or `@&&&`) method is implemented as follows:
 
-<scala>
+```scala
   /** compose `A => F[B]` and `A => G[B]` into `A => F[B] :: G[B] :: HNil` */
   def productA[G[_]](g: Func[G, TC, A, B]) = consA(g consA hnilfunc[TC, A, B])
-</scala>
+```
 
 `Func` also implements `composeA` method with symbolic alias `<<<@`, and its flip `andThenA` method with symbolic alias `@>>>`:
 
-<scala>
+```scala
 scala> AppFuncU { (x: Int) => (x + 1).some } @>>> AppFuncU { (x: Int) => x + "!" }
 res32: scalaz.typelevel.Func[[α]scalaz.Unapply[scalaz.Applicative,Option[Int]]{type M[X] = Option[X]; type A = Int}#M[scalaz.Unapply[scalaz.Applicative,String]{type M[X] = String; type A = String}#M[α]],scalaz.Applicative,Int,String] = scalaz.typelevel.Func$$anon$7@4fcb8010
 
 scala> res32.runA(10)
 res33: scalaz.Unapply[scalaz.Applicative,Option[Int]]{type M[X] = Option[X]; type A = Int}#M[scalaz.Unapply[scalaz.Applicative,String]{type M[X] = String; type A = String}#M[String]] = Some(11!)
-</scala>
+```
 
 ## sudoku
 
@@ -168,13 +168,13 @@ Lines starting with `#` are headers, and the rest of the lines denote a puzzle. 
 
 We can represent each spot as a cell defined as follows:
 
-<scala>
+```scala
 case class Cell(pos: (Int, Int), value: Option[Int])
-</scala>
+```
 
 Parsing a file into `Vector[Cell]` is trivial.
 
-<scala>
+```scala
 object Reader {
   import scalaz._
   import Scalaz._
@@ -191,17 +191,17 @@ object Reader {
     }
   }
 }
-</scala>
+```
 
 We can confirm this from the REPL:
 
-<scala>
+```scala
 scala> import com.eed3si9n.sudoku._
 import com.eed3si9n.sudoku._
 
 scala> Reader.read("data/1.sdk")
 res0: Vector[com.eed3si9n.sudoku.Cell] = Vector(Cell((1,1),None), Cell((2,1),Some(1)), Cell((3,1),Some(3)), Cell((4,1),None), Cell((1,2),None), Cell((2,2),None), Cell((3,2),None), Cell((4,2),Some(4)), Cell((1,3),None), Cell((2,3),None), Cell((3,3),None), Cell((4,3),Some(1)), Cell((1,4),None), Cell((2,4),Some(2)), Cell((3,4),Some(4)), Cell((4,4),None))
-</scala>
+```
 
 ### splitting the work
 
@@ -209,7 +209,7 @@ Focusing on a particular cell, for example `(4, 1)`, how would one go about solv
 
 Another way of looking at the above strategy is the process of elimination. We start out with `Vector(1, 2, 3, 4)` and each small machine can check for a row, a column, or a group, gradually eliminating the candidates. These small machines can be implemented as a `State` monad. First here's the setup:
 
-<scala>
+```scala
 scala> import scalaz._, Scalaz._, typelevel._
 import scalaz._
 import Scalaz._
@@ -220,11 +220,11 @@ import com.eed3si9n.sudoku._
 
 scala> val game = Reader.read("data/1.sdk")
 game: Vector[com.eed3si9n.sudoku.Cell] = Vector(Cell((1,1),None), Cell((2,1),Some(1)), ...
-</scala>
+```
 
 Next, here's the horizontal machine:
 
-<scala>
+```scala
 scala>  def horizontalMachine(pos: (Int, Int)) = AppFuncU { cell: Cell =>
           for {
             xs <- get[Vector[Int]]
@@ -239,11 +239,11 @@ res1: scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],U
 
 scala> res1 exec Vector(1, 2, 3, 4)
 res2: scalaz.Id.Id[Vector[Int]] = Vector(2, 4)
-</scala>
+```
 
 The result seems to be consistent with the game since all numbers except 2 and 4 are present in the first row. We can expand this logic to the vertical machine:
 
-<scala>
+```scala
 
 scala>  def verticalMachine(pos: (Int, Int)) = AppFuncU { cell: Cell =>
           for {
@@ -259,11 +259,11 @@ res5: scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],U
 
 scala> res5 exec Vector(1, 2, 3, 4)
 res6: scalaz.Id.Id[Vector[Int]] = Vector(2, 3)
-</scala>
+```
 
 `for` comprehension part can be refactored out as follows:
 
-<scala>
+```scala
 scala>  def buildMachine(predicate: Cell => Boolean) = AppFuncU { cell: Cell =>
           for {
             xs <- get[Vector[Int]]
@@ -276,11 +276,11 @@ buildMachine: (predicate: com.eed3si9n.sudoku.Cell => Boolean)scalaz.typelevel.F
 scala>  def verticallMachine(pos: (Int, Int)) =
           buildMachine { cell: Cell => pos._1 == cell.pos._1 && cell.value.isDefined }
 verticallMachine: (pos: (Int, Int))scalaz.typelevel.Func[scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],Unit]]{type M[X] = scalaz.StateT[scalaz.Id.Id,Vector[Int],X]; type A = Unit}#M,scalaz.Applicative,com.eed3si9n.sudoku.Cell,Unit]
-</scala>
+```
 
 Using `buildMachine`, we can define `groupMachine` as follows:
 
-<scala>
+```scala
 scala>  def groupMachine(pos: (Int, Int), n: Int) =
           buildMachine { cell: Cell =>
             ((pos._1 - 1) / n == (cell.pos._1 - 1) / n) &&
@@ -294,15 +294,15 @@ res7: scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],U
 
 scala> res7 exec Vector(1, 2, 3, 4)
 res8: scalaz.Id.Id[Vector[Int]] = Vector(1, 2)
-</scala>
+```
 
 Next, we would like to run all three machines in parallel. We can construct `HListFunc` as follows:
 
-<scala>
+```scala
 scala>  def threeMachines(pos: (Int, Int), n: Int) =
           horizontalMachine(pos) :: verticalMachine(pos) :: groupMachine(pos, n) :: AppFunc.HNil
 threeMachines: ...
-</scala>
+```
 
 The problem here is that this now returns a `Func` that returns an `HList`. We would like a `List` instead since all three elements contain the same type.
 
@@ -310,7 +310,7 @@ The problem here is that this now returns a `Func` that returns an `HList`. We w
 
 To fold an hlist into something we would define a `HFold` subtype as follows:
 
-<scala>
+```scala
 scala>  class Homogenize[T] extends HFold[Id, List[T]] {
           type Init = List[T]
           def init = Nil
@@ -321,11 +321,11 @@ scala>  class Homogenize[T] extends HFold[Id, List[T]] {
             }) :: acc
         }
 defined class Homogenize
-</scala>
+```
 
 By using this, we can now turn `HListFunc` into a `Func` that returns a list of state monads:
 
-<scala>
+```scala
 scala>  def homogenize[M[_]: Applicative, T <: TCList, B](g: HListFunc[TCCons[M, T], Applicative, Cell, B]) =
           new Func[({type λ[α] = List[M[α]]})#λ, Applicative, Cell, B] {  
             def runA(c: Cell): List[M[B]] = {
@@ -336,11 +336,11 @@ scala>  def homogenize[M[_]: Applicative, T <: TCList, B](g: HListFunc[TCCons[M,
             def TC = g.TC
           }
 homogenize: [M[_], T <: scalaz.typelevel.TCList, B](g: scalaz.typelevel.HListFunc[scalaz.typelevel.TCCons[M,T],scalaz.Applicative,com.eed3si9n.sudoku.Cell,B])(implicit evidence$1: scalaz.Applicative[M])scalaz.typelevel.Func[[α]List[M[α]],scalaz.Applicative,com.eed3si9n.sudoku.Cell,B]
-</scala>
+```
 
 Then we can go even further by turning the list of state monad into a state monad of a list:
 
-<scala>
+```scala
 scala>  def sequence[M[_]: Applicative, T <: TCList, B](g: HListFunc[TCCons[M, T], Applicative, Cell, B]) =
           new Func[M, Applicative, Cell, List[B]] {
             def runA(c: Cell): M[List[B]] = {
@@ -352,21 +352,21 @@ scala>  def sequence[M[_]: Applicative, T <: TCList, B](g: HListFunc[TCCons[M, T
             def TC = g.TC
           }
 sequence: [M[_], T <: scalaz.typelevel.TCList, B](g: scalaz.typelevel.HListFunc[scalaz.typelevel.TCCons[M,T],scalaz.Applicative,com.eed3si9n.sudoku.Cell,B])(implicit evidence$1: scalaz.Applicative[M])scalaz.typelevel.Func[M,scalaz.Applicative,com.eed3si9n.sudoku.Cell,List[B]]
-</scala>
+```
 
 The above should chain the state monads together. Let's try it for `(4, 1)`:
 
-<scala>
+```scala
 scala> sequence(threeMachines((4, 1), 2)) traverse game
 res10: scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],Unit]]{type M[X] = scalaz.StateT[scalaz.Id.Id,Vector[Int],X]; type A = Unit}#M[Vector[List[Unit]]] = scalaz.StateT$$anon$7@3fc1c1a6
 
 scala> res10 exec Vector(1, 2, 3, 4)
 res11: scalaz.Id.Id[Vector[Int]] = Vector(2)
-</scala>
+```
 
 Let's call this a `cellMachine`:
 
-<scala>
+```scala
 object Solver {
   def solve(game: Vector[Cell]) {
 
@@ -376,13 +376,13 @@ object Solver {
     sequence(horizontalMachine(pos) :: verticalMachine(pos) :: groupMachine(pos, n) :: AppFunc.HNil)
   ...
 }
-</scala>
+```
 
 ### running for all cells
 
 We can now run the `cellMachine` for all empty cells to see the progress so far:
 
-<scala>
+```scala
 object Solver {
   ...
   def runOnce(game: Vector[Cell]) {
@@ -398,7 +398,7 @@ object Solver {
     }
   }
 }
-</scala>
+```
 
 Here's `game` again:
 
@@ -410,27 +410,27 @@ Here's `game` again:
 
 Let's run `runOnce`:
 
-<scala>
+```scala
 scala> Solver.runOnce(game)
 
 Vector(2, 4) Vector(1) Vector(3) Vector(2) 
 Vector(2, 3) Vector(3) Vector(1, 2) Vector(4) 
 Vector(3, 4) Vector(3, 4) Vector(2) Vector(1) 
 Vector(1, 3) Vector(2) Vector(4) Vector(3) 
-</scala>
+```
 
 Using this information, we can now return a new `Vector[Cell]`. First, let's expand the definition of `Cell` to store potential candidates:
 
-<scala>
+```scala
 scala> case class Cell(pos: (Int, Int),
          value: Option[Int],
          cs: Vector[Int] = Vector())
 defined class Cell
-</scala>
+```
 
 Also we should probably create a `Game` class instead of passing vectors around:
 
-<scala>
+```scala
 case class Game(cells: Vector[Cell]) {
   import scalaz._
   import Scalaz._
@@ -452,11 +452,11 @@ case class Game(cells: Vector[Cell]) {
     }).mkString
   }
 }
-</scala>
+```
 
 Here's the updated `runOnce`:
 
-<scala>
+```scala
   def runOnce(game: Game): Game = {
     val (nonEmptyCells, emptyCells) = game.cells partition {_.value.isDefined}
     val solveCells = emptyCells map { cell =>
@@ -466,11 +466,11 @@ Here's the updated `runOnce`:
     }
     game.copy(cells = nonEmptyCells ++ solveCells)
   }
-</scala>
+```
 
 By calling `runOnce` repeatedly we are now able to solve some problems:
 
-<scala>
+```scala
 scala> Solver.runOnce(game)
 res0: com.eed3si9n.sudoku.Game = 
 Vector(2, 4) Some(1) Some(3) Some(2)
@@ -491,13 +491,13 @@ Some(4) Some(1) Some(3) Some(2)
 Some(2) Some(3) Some(1) Some(4)
 Some(3) Some(4) Some(2) Some(1)
 Some(1) Some(2) Some(4) Some(3)
-</scala>
+```
 
 ### all cells in parallel
 
 Instead of traversing multiple times, let's see if we can compose machines in parallel.
 
-<scala>
+```scala
 scala> val (nonEmptyCells, emptyCells) = game.cells partition {_.value.isDefined}
 nonEmptyCells: ...
 emptyCells: ...
@@ -510,11 +510,11 @@ Note: scalaz.typelevel.TCNil <: scalaz.typelevel.TCList, but trait HListFunc is 
 You may wish to define T as +T instead. (SLS 4.5)
               emptyCells.foldLeft[HListFunc[TCList, Applicative, Cell, List[Vector[Int]]]](AppFunc.HNil[Cell, List[Vector[Int]]]) { (acc, cell) => Solver.cellMachine(cell.pos, game.sqrtn) :: acc }
                                                                                                        ^
-</scala>
+```
 
 We cannot use `foldLeft` because the type `TCNil` is narrower than `TCList`, and type parameter `T` of `HListFunc` is invariant. Since `HListFunc` doesn't have a general trait like `HList`, I am going to resort to constructing `HList` manually:
 
-<scala>
+```scala
 scala>    def foldCells(xs: Vector[Cell], game: Game): Vector[Cell] = {
             def f(cell: Cell) = Solver.cellMachine(cell.pos, game.sqrtn)
             def homogenize[M[_], B, T <: HList](xs: HCons[M[B], T]): List[M[B]] =
@@ -534,7 +534,7 @@ foldCells: (xs: Vector[com.eed3si9n.sudoku.Cell], game: com.eed3si9n.sudoku.Game
 
 scala> val cellsWithCs = Vector((emptyCells grouped 4).toSeq: _*) flatMap { g => foldCells(g, game) }
 cellsWithCs: scala.collection.immutable.Vector[com.eed3si9n.sudoku.Cell] = Vector(Cell((1,1),None,Vector(2, 4)), Cell((4,1),None,Vector(2)), Cell((1,2),None,Vector(2, 3)), Cell((2,2),None,Vector(3)), Cell((3,2),None,Vector(1, 2)), Cell((1,3),None,Vector(3, 4)), Cell((2,3),None,Vector(3, 4)), Cell((3,3),None,Vector(2)), Cell((1,4),None,Vector(1, 3)), Cell((4,4),None,Vector(3)))
-</scala>
+```
 
 The above code traverses 4 empty cells at a time.
 
@@ -542,16 +542,16 @@ The above code traverses 4 empty cells at a time.
 
 Let's implement the solver by calling `runOnce` until the game is solved.
 
-<scala>
+```scala
 case class Game(cells: Vector[Cell]) {
   ...
   def isSolved: Boolean = cells forall {_.value.isDefined} 
 }
-</scala>
+```
 
 Here's the solver:
 
-<scala>
+```scala
   def solve(game: Game) {
     def doLoop(g: Game) {
       println(g.toString)
@@ -564,11 +564,11 @@ Here's the solver:
     }
     doLoop(game)
   }
-</scala>
+```
 
 We already saw that this solves easy games:
 
-<scala>
+```scala
 scala> Solver.solve(game)
 ....
 
@@ -578,7 +578,7 @@ Some(3) Some(4) Some(2) Some(1)
 Some(1) Some(2) Some(4) Some(3)
 
 solved
-</scala>
+```
 
 Normally a game of sudoku requires a bit more thinking. For example, save the following as 3.sdk:
 
@@ -595,15 +595,15 @@ Normally a game of sudoku requires a bit more thinking. For example, save the fo
 
 Using sbt we can load this file as `game` in REPL:
 
-<scala>
+```scala
 initialCommands in console := """import scalaz._, Scalaz._, typelevel._
                                 |import com.eed3si9n.sudoku._
                                 |val game = com.eed3si9n.sudoku.Reader.read("data/3.sdk")""".stripMargin
-</scala>
+```
 
 Here's the output:
 
-<scala>
+```scala
 scala> Solver.solve(game)
 Some(4) Some(7) Vector() Vector() Some(6) Vector() Vector() Some(5) Some(9)
 Vector() Vector() Vector() Some(2) Vector() Some(7) Vector() Vector() Vector()
@@ -628,13 +628,13 @@ Some(9) Some(2) Vector(3, 4, 7) Vector(4, 8) Some(5) Vector(4, 8) Vector(3, 4, 7
 java.lang.RuntimeException: solver is stuck
   at scala.sys.package$.error(package.scala:27)
   ....
-</scala>
+```
 
 ### unique candidate
 
 The current implementation selects a candidate when it's the only candidate. But even for a cell that has multiple candidates, if one of the candidates is unique among any of the peers, it should also be considered eligible.
 
-<scala>
+```scala
 scala>  def buildEvalMachine(predicate: Cell => Boolean) = AppFuncU { cell: Cell =>
           for {
             xs <- get[Vector[Int]]
@@ -656,18 +656,18 @@ res8: scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],U
 
 scala> res8 exec Vector(1, 2, 3)
 res9: scalaz.Id.Id[Vector[Int]] = Vector(2)
-</scala>
+```
 
 This is a nice example. The cell in position `(3, 1)` started with three candidates, but it got narrowed down to `2` using this logic. We should be able to run all three machines in parallel.
 
-<scala>
+```scala
   def evalMachine(pos: (Int, Int), n: Int) =
     horizEvalMachine(pos) :: vertEvalMachine(pos) :: groupEvalMachine(pos, n) :: AppFunc.HNil
-</scala>
+```
 
 Now we can incorporate this secondary evaluation to narrow down the candidates:
 
-<scala>
+```scala
   def runOnce(game: Game): Game = {
     val (nonEmptyCells, emptyCells) = game.cells partition {_.value.isDefined}
     def homogenize[M[_], B, T <: HList](xs: HCons[M[B], T]): List[M[B]] =
@@ -684,11 +684,11 @@ Now we can incorporate this secondary evaluation to narrow down the candidates:
     }
     game.copy(cells = nonEmptyCells ++ solveCells)
   }
-</scala>
+```
 
 Here's the solver output for the game that got stuck previously:
 
-<scala>
+```scala
 scala> Solver.solve(game)
 Some(4) Some(7) Vector() Vector() Some(6) Vector() Vector() Some(5) Some(9)
 Vector() Vector() Vector() Some(2) Vector() Some(7) Vector() Vector() Vector()
@@ -771,7 +771,7 @@ Some(1) Some(5) Some(4) Some(6) Some(2) Some(3) Some(8) Some(9) Some(7)
 Some(9) Some(2) Some(7) Some(8) Some(5) Some(4) Some(3) Some(1) Some(6)
 
 solved
-</scala>
+```
 
 This is able to solve more difficult sudoku puzzles.
 
@@ -785,24 +785,24 @@ To quote Gibbons and Oliveira:
 
 All `Monad`s are applicative. Any `Monoid` can also be treated as a monoidal applicative. (Zipping together Naperian data structure gives applicative too, but I haven't seen one.) When dealing with multiple instances of monads, keeping each context straight in your head can get complicated. Applicative compositions can be used to reason about them, especially combined with the mighty `traverse` method. For example, the following composes three applicative functions in parallel and returns a single `HListFunc`.
 
-<scala>
+```scala
   def evalMachine(pos: (Int, Int), n: Int) =
     horizEvalMachine(pos) :: vertEvalMachine(pos) :: groupEvalMachine(pos, n) :: AppFunc.HNil
-</scala>
+```
 
 Next by calling `evalMachine((3, 1), game.sqrtn) traverse cellsWithCs` in a single traversal over `cellsWithCs` it produces an hlist of state monads:
 
-<scala>
+```scala
 scala> Solver.evalMachine((3, 1), game.sqrtn) traverse cellsWithCs
 res1: scalaz.typelevel.TCCons[scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],Unit]]{type M[X] = scalaz.StateT[scalaz.Id.Id,Vector[Int],X]; type A = Unit}#M,scalaz.typelevel.TCCons[scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],Unit]]{type M[X] = scalaz.StateT[scalaz.Id.Id,Vector[Int],X]; type A = Unit}#M,scalaz.typelevel.TCCons[scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],Unit]]{type M[X] = scalaz.StateT[scalaz.Id.Id,Vector[Int],X]; type A = Unit}#M,scalaz.typelevel.TCNil]]]#Product[scala.collection.immutable.Vector[Unit]] = GenericCons(scalaz.StateT$$anon$7@273cf345,GenericCons(scalaz.StateT$$anon$7@12874b23,GenericCons(scalaz.StateT$$anon$7@7055f055,GenericNil())))
-</scala>
+```
 
 It's as if each evaluation machine traversed `cellsWithCs` independently. Since all three elements contain the same type, I can convert it into a plain list:
 
-<scala>
+```scala
 scala> homogenize(res1)
 res2: List[scalaz.Unapply[scalaz.Applicative,scalaz.StateT[scalaz.Id.Id,Vector[Int],Unit]]{type M[X] = scalaz.StateT[scalaz.Id.Id,Vector[Int],X]; type A = Unit}#M[scala.collection.immutable.Vector[Unit]]] = List(scalaz.StateT$$anon$7@273cf345, scalaz.StateT$$anon$7@12874b23, scalaz.StateT$$anon$7@7055f055)
-</scala>
+```
 
 From here we can simply evaluate the state monad individually to get the evaluations, or call `sequence` to turn the list of monads into a monad of list. What's important is how modular individual machines are. Since they are expected to run independently, they can focus on a few simple tasks.
 

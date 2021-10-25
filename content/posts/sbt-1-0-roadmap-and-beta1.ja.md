@@ -123,12 +123,12 @@ sbt 1.0 は新しい server コマンドを含み、これは IDE やその他�
 3. 最新の sbt 0.13.15 を使う。
 4. プラグインに以下のセッティングを追加する:
 
-<scala>
+```scala
 scalaVersion := "2.12.2",
 sbtVersion in Global := "1.0.0-M5",
 scalaCompilerBridgeSource :=
   ("org.scala-sbt" % "compiler-interface" % "0.13.15" % "component").sources
-</scala>
+```
 
 最後のステップは今後 @jrudolph さんの sbt-cross-building によって簡略化されるはずだ。
 プラグインを移行していて何らかの問題に遭遇したら、[GitHub issue](https://github.com/sbt/sbt/issues) に報告してほしい。

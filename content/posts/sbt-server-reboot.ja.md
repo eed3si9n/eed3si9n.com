@@ -41,7 +41,7 @@ server の話をする前に少し寄り道をしよう。僕が sbt の事を�
 
 sbt シェルは sbt の `shell` というコマンドだ。これは短い実装なので簡単に読めるし、読んでおいて役に立つと思う:
 
-<scala>
+```scala
 def shell = Command.command(Shell, Help.more(Shell, ShellDetailed)) { s =>
   val history = (s get historyPath) getOrElse Some(new File(s.baseDir, ".history"))
   val prompt = (s get shellPrompt) match { case Some(pf) => pf(s); case None => "> " }
@@ -55,14 +55,14 @@ def shell = Command.command(Shell, Help.more(Shell, ShellDetailed)) { s =>
     case None => s.setInteractive(false)
   }
 }
-</scala>
+```
 
 肝はこの一行だ:
 
-<scala>
+```scala
   val newState = s.copy(onFailure = Some(Shell),
     remainingCommands = line +: Shell +: s.remainingCommands).
-</scala>
+```
 
 ニンゲンから聞いてきてコマンドと `shell` コマンドを `remainingCommands` の先頭に追加して、新しい state をコマンドエンジンに返している。流れを説明するために、以下のシナリオを追ってみよう。
 
@@ -78,13 +78,13 @@ def shell = Command.command(Shell, Help.more(Shell, ShellDetailed)) { s =>
 
 複数の IO デバイス (ニンゲンとネットワーク) からの入力をサポートするには、JLine の代わりにキューにブロックする必要がある。これらのデバイスを仲介するために `CommandExchange` という概念を作る。
 
-<scala>
+```scala
 private[sbt] final class CommandExchange {
   def subscribe(c: CommandChannel): Unit = ....
   @tailrec def blockUntilNextExec: Exec = ....
   ....
 }
-</scala>
+```
 
 デバイスを表すために、もう一つ `CommandChannel` という概念も作る。コマンドチャンネルは全二重のメッセージバスで、コマンド実行を発行して、イベントを受信することができる。
 
@@ -114,7 +114,7 @@ Status イベントのフォーマットはこんな感じだ:
 
 以下がコマンドチャンネルに共通のインターフェイスだ:
 
-<scala>
+```scala
 abstract class CommandChannel {
   private val commandQueue: ConcurrentLinkedQueue[Exec] = new ConcurrentLinkedQueue()
   def append(exec: Exec): Boolean =
@@ -122,13 +122,13 @@ abstract class CommandChannel {
   def poll: Option[Exec] = Option(commandQueue.poll)
   def publishStatus(status: CommandStatus, lastSource: Option[CommandSource]): Unit
 }
-</scala>
+```
 
 ### server コマンド
 
 CommandExchange とコマンドチャンネルが何か分かった所で server をコマンドとして実装してみよう。
 
-<scala>
+```scala
 def server = Command.command(Server, Help.more(Server, ServerDetailed)) { s0 =>
   val exchange = State.exchange
   val s1 = exchange.run(s0)
@@ -140,7 +140,7 @@ def server = Command.command(Server, Help.more(Server, ServerDetailed)) { s0 =>
   if (line.trim.isEmpty) newState
   else newState.clearGlobalLog
 }
-</scala>
+```
 
 CommandExchange に対してブロックしている違いを除けば、shell コマンドがやっていることと大体同じだ。上のコードでは　`exchange.run(s0)` はバックグラウンドスレッドを実行して TCP ソケットを listen している。`Exec` が来たら、与えられた行と `"server"` コマンドを先頭に追加する。
 
@@ -148,14 +148,14 @@ CommandExchange に対してブロックしている違いを除けば、shell �
 
 実際に使ってみよう。例えば以下のようなビルドがあるとする:
 
-<scala>
+```scala
 lazy val root = (project in file(".")).
   settings(inThisBuild(List(
       scalaVersion := "2.11.7"
     )),
     name := "hello"
   )
-</scala>
+```
 
 ターミナルでそのビルドを開いて、`sbt server` と実行する (1.0.x のカスタム版を使っている):
 
@@ -202,7 +202,7 @@ telnet 側はこうなる:
 
 Johan と僕が server 側の作業をしている間 Martin は IntelliJ プラグインの書き方を調べてくれた。プラグインは現在 12700 番に決め打ちされているので、それをビルドに追加する必要がある:
 
-<scala>
+```scala
 lazy val root = (project in file(".")).
   settings(inThisBuild(List(
       scalaVersion := "2.11.7",
@@ -210,7 +210,7 @@ lazy val root = (project in file(".")).
     )),
     name := "hello"
   )
-</scala>
+```
 
 この IntelliJ プラグインには "Build on sbt server"、 "Clean on sbt server"、 "Connect to sbt server"　という 3つのボタンがある。まず sbt server をターミナル画面から実行して、次にサーバに接続する。次に、"Build on sbt server" を押せばコンパイルが始まる。
 
@@ -225,7 +225,7 @@ Mac で試してみた限りではうまくいっている解法が一応ある�
 
 `new FileInputStream(FileDescriptor.in)` を以下でラッピングした:
 
-<scala>
+```scala
 private[sbt] class InputStreamWrapper(is: InputStream, val poll: Duration) extends FilterInputStream(is) {
   @tailrec
   final override def read(): Int =
@@ -235,7 +235,7 @@ private[sbt] class InputStreamWrapper(is: InputStream, val poll: Duration) exten
       read()
     }
 }
-</scala>
+```
 
 これでスレッドから `readLine` を呼び出すと、IO にブロックする代わりにに殆どの時間を sleep して過ごす。shell コマンド同様、このスレッドは単一の行を読み込むと終了する。コンソールチャンネルが `CommandExchange` から Status イベントを受信すると、次のコマンドを画面に表示する。これはあたかも誰かがコマンドを打ち込んだかのように見せかけて、外部から Exec コマンドが来たことを表している。
 
