@@ -9,14 +9,12 @@ url:         /ja/promise-in-sbt
 aliases:     [ /node/334 ]
 tags:        [ "sbt" ]
 ---
-<!--break-->
+
 build.sbt は、自動的な並列処理を行うタスク・グラフを定義するための DSL だ。タスク同士のメッセージ・パッシングは `something.value` マクロで表され、これは Applicative 合成 `(task1, task2) mapN { case (t1, t2) => .... }` をエンコードする。
 
 長く走っている `task1` があるとき、途中で `task2` と通信できる仕組みがあればいいと思っていた。
 
 ![promise](/images/promise-01.png)
-
-<!--more-->
 
 通常は `task1` をサブタスクに分けることでこれを解決する。しかし、それを実装するのは一筋縄ではいかないこともある。例えば、Zinc に半分だけコンパイルして、残りは後で続けて下さい? もしくは Coursier に解決だけ行って実際のダウンロードは後でとどう言えばいいだろうか?
 
