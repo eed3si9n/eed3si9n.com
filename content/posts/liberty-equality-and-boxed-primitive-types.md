@@ -459,12 +459,12 @@ A few days ago I posted [a poll][1223288074895024128]:
 
 Thanks to all 56 people who participated the poll. The results were
 
-<code>
+```bash
 (false, false)  16.1%
 (false, true)   30.4%
 (true, false)   35.7%
 (true, true)    17.9%
-</code>
+```
 
 My intent of the poll was to survey the awareness of cooperative equality among the Twitter users. Before that I want to mention [James Hoffmann's video about high humidity coffee stroage][hoffmann]. To test if high humidity affects the flavor of coffee, he conducts triangle test where samples X, Y, and Y are given blindly, and the first test it trying to pick out X, and then determine which one is better. If I simply posted a poll with true / false, just from the fact alone people would know there's something suspicious. It's not perfect, but I though adding one extra bit would make the poll better.
 

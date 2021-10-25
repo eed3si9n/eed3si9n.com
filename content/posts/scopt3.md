@@ -290,7 +290,7 @@ parser.parse(args, Config()) map { config =>
 
 As with scopt2, this automatically generates usage text:
 
-<code>
+```bash
 scopt 3.x
 Usage: scopt [update] [options] [<file>...]
 
@@ -316,6 +316,6 @@ update is a command.
         disable keepalive
   --xyz <value>
         xyz is a boolean property
-</code>
+```
 
 Feel free to open [a github issue](https://github.com/scopt/scopt/issues/new) for bugs and questions.

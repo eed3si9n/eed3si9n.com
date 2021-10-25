@@ -67,7 +67,7 @@ publish が自動的にリリースするようにしてほしいので、現在
 
 [olafurpg/sbt-ci-release][1] の指示に従って新規に GPG キーを生成する。
 
-<code>
+```bash
 $ gpg --gen-key
 gpg (GnuPG/MacGPG2) 2.2.20; Copyright (C) 2020 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
@@ -88,15 +88,15 @@ pub   rsa2048 2020-08-07 [SC] [expires: 2022-08-07]
       0AC38C6BAD42D5980D8E01A17766C6BECAD5CE7B
 uid                      sbt-avro bot <eed3si9n@gmail.com>
 sub   rsa2048 2020-08-07 [E] [expires: 2022-08-07]
-</code>
+```
 
 この公開鍵 ID を `LONG_ID` として書き留める:
 
-<code>
+```bash
 LONG_ID=0AC38C6BAD42D5980D8E01A17766C6BECAD5CE7B
 echo $LONG_ID
 gpg --armor --export $LONG_ID
-</code>
+```
 
 公開鍵を http://keyserver.ubuntu.com:11371/ に届け出る。
 
@@ -109,7 +109,7 @@ gpg --armor --export $LONG_ID
 - `PGP_PASSPHRASE`: さっき作成した GPG 鍵のキーフレーズ。Bash 特殊文字が含まれている場合は `'my?pa$$word'` というふうにシングルクォートでくくってやる必要がある。[Travis Environment Variables](https://docs.travis-ci.com/user/environment-variables/#defining-variables-in-repository-settings) 参照。
 - `PGP_SECRET`: base64 エンコードされた秘密鍵。以下のコマンドを実行して得られる:
 
-<code>
+```bash
 # macOS
 gpg --armor --export-secret-keys $LONG_ID | base64 | pbcopy
 # Ubuntu (assuming GNU base64)
@@ -118,29 +118,29 @@ gpg --armor --export-secret-keys $LONG_ID | base64 -w0 | xclip
 gpg --armor --export-secret-keys $LONG_ID | base64 | sed -z 's;\n;;g' | xclip -selection clipboard -i
 # FreeBSD (assuming BSD base64)
 gpg --armor --export-secret-keys $LONG_ID | base64 | xclip
-</code>
+```
 
 ### step 7: 秘密鍵のデコード
 
 最近の Ubuntu ディストロで使われいる gpg 2.2 のために、秘密鍵を時前でデコードする必要がある。 `.github/decodekey.sh` というファイルを追加する:
 
-<code>
+```bash
 #!/bin/bash
 
 echo $PGP_SECRET | base64 --decode | gpg  --batch --import
-</code>
+```
 
 実行権を付ける:
 
-<code>
+```bash
 $ chmod +x .github/decodekey.sh
-</code>
+```
 
 ### step 8: GitHub Actions YAML
 
 `.github/workflows/ci.yml` を作る。詳細は [Setting up GitHub Actions with sbt](https://www.scala-sbt.org/1.x/docs/GitHub-Actions-with-sbt.html) 参照。
 
-<code>
+```yaml
 name: CI
 on:
   pull_request:
@@ -172,11 +172,11 @@ jobs:
         find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
         find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
         find $HOME/.sbt
-</code>
+```
 
 リリース用に `.github/worflows/release.yml` も作る:
 
-<code>
+```yaml
 name: Release
 on:
   push:
@@ -213,16 +213,16 @@ jobs:
       run: |
         .github/decodekey.sh
         sbt ci-release
-</code>
+```
 
 ### step 9: タグ駆動リリース
 
 プラグインをリリースする準備ができたら、コミットにタグを付けて push する。
 
-<code>
+```bash
 git tag -a v0.1.0 -m "v0.1.0"
 git push origin v0.1.0
-</code>
+```
 
 GitHub Actions でリリースジョブが開始するはずだ。
 
@@ -237,7 +237,7 @@ sbt-pgp 2.1.1 で `gpg` コマンドのバージョン番号を検知して `--p
 
 sbt-ci-release は `--import` を使うが、これは gpg 2.2 で静かに失敗して以下のようなエラーとなって表出する:
 
-<code>
+```bash
 gpg: key 24A4616356F15CE1: public key "sbt-something bot <some@example.com>" imported
 gpg: key 24A4616356F15CE1/24A4616356F15CE1: error sending to agent: Inappropriate ioctl for device
 gpg: error building skey array: Inappropriate ioctl for device
@@ -249,7 +249,7 @@ Tag push detected, publishing a stable release
 [info] gpg: no default secret key: No secret key
 [info] gpg: signing failed: No secret key
 [error] java.lang.RuntimeException: Failure running 'gpg --batch --pinentry-mode loopback --passphrase *** --detach-sign --armor --use-agent --output /home/runner/work/sbt-projectmatrix/sbt-projectmatrix/target/scala-2.12/sbt-1.0/sbt-projectmatrix-0.7.1-M1.jar.asc /home/runner/work/sbt-projectmatrix/sbt-projectmatrix/target/scala-2.12/sbt-1.0/sbt-projectmatrix-0.7.1-M1.jar'.  Exit code: 2
-</code>
+```
 
 [T2313](https://dev.gnupg.org/T2313) によると、この回避策は `--batch --import` を使うことで、`.github/decodekey.sh` はそれを行う。
 

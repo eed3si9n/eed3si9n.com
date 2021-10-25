@@ -61,12 +61,12 @@ lazy val root = (project in file("."))
 
 `longRunning` と `task2` を同時に走らせるために `joinTwo` タスクを定義する。これを実行すると以下のようになる:
 
-<code>
+```bash
 sbt:promise> joinTwo
 [info] start
 [info] got 5 in the middle
 [info] end
-</code>
+```
 
 見た通り、両方のタスクが並列実行して、かつ `longRunning` タスクから `task2` へとメッセージを渡せたことが確認できる。
 

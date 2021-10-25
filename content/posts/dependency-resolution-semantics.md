@@ -48,7 +48,7 @@ As an initial approximation, we can think of module dependencies as a DAG (direc
 - `a:1.0`, which depends on `c:1.0`
 - `b:1.0`, which depends on `c:1.0` and `d:1.0`
 
-<code>
+```bash
 +-----+  +-----+
 |a:1.0|  |b:1.0|
 +--+--+  +--+--+
@@ -59,7 +59,7 @@ As an initial approximation, we can think of module dependencies as a DAG (direc
 +--+--+  +--+--+
 |c:1.0|  |d:1.0|
 +-----+  +-----+
-</code>
+```
 
 By depending on both `a:1.0` and `b:1.0`, you get `a:1.0`, `b:1.0`, `c:1.0`, and `d:1.0`. This is just tree walking.
 
@@ -68,7 +68,7 @@ The situation might be more complicated if the transitive dependencies include a
 - `a:1.0`, which depends on `c:1.0`
 - `b:1.0`, which depends on `c:[1.0,2)` and `d:1.0`
 
-<code>
+```bash
 +-----+  +-----+
 |a:1.0|  |b:1.0|
 +--+--+  +--+--+
@@ -79,7 +79,7 @@ The situation might be more complicated if the transitive dependencies include a
 +--+--+  +--+------+ +--+--+
 |c:1.0|  |c:[1.0,2)| |d:1.0|
 +-----+  +---------+ +-----+
-</code>
+```
 
 Or the transitive dependencies specify different versions:
 
@@ -115,7 +115,7 @@ This means that many of the Java modules published using Maven were built based 
 
 To demonstrate this, let's create a simple `pom.xml`:
 
-<code>
+```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -134,13 +134,13 @@ To demonstrate this, let's create a simple `pom.xml`:
      </dependencies>
    </dependencyManagement>
 </project>
-</code>
+```
 
 `mvn dependency:build-classpath` returns a resolved classpath. The notable part is that it returned `com.typesafe:config:1.2.0` even though Akka 2.5.3 depends transitively on `com.typesafe:config:1.3.1`.
 
 `mvn dependency:tree` shows this visually:
 
-<code>
+```bash
 [INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ foo ---
 [INFO] com.example:foo:jar:1.0.0
 [INFO] \- com.typesafe.play:play-ws-standalone_2.12:jar:1.0.1:compile
@@ -153,7 +153,7 @@ To demonstrate this, let's create a simple `pom.xml`:
 [INFO]       +- com.typesafe.akka:akka-actor_2.12:jar:2.5.3:compile
 [INFO]       |  \- org.scala-lang.modules:scala-java8-compat_2.12:jar:0.8.0:compile
 [INFO]       \- org.reactivestreams:reactive-streams:jar:1.0.0:compile
-</code>
+```
 
 Many libraries are written in backward compatible way, but forward compatibility is not guaranteed with a few exceptions, so this seems horrifying.
 
@@ -180,13 +180,13 @@ lazy val root = (project in file("."))
 
 After entering sbt shell, type `show externalDependencyClasspath` to show the resolved classspath. It should show `com.typesafe:config:1.3.1`. It should also print the following warning:
 
-<code>
+```bash
 [warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.
-</code>
+```
 
 Running `evicted` task displays the following eviction report:
 
-<code>
+```bash
 sbt:foo> evicted
 [info] Updating ...
 [info] Done updating.
@@ -197,7 +197,7 @@ sbt:foo> evicted
 [info]  * com.typesafe:ssl-config-core_2.12:0.2.2 is selected over 0.2.1
 [info]      +- com.typesafe.play:play-ws-standalone_2.12:1.0.1    (depends on 0.2.2)
 [info]      +- com.typesafe.akka:akka-stream_2.12:2.5.3           (depends on 0.2.1)
-</code>
+```
 
 In the latest-wins semantics, specifying `config:1.2.0` effectively means "give me 1.2.0 or above." This behaves a bit more reasonably than the nearest-wins since the transitive libraries are not downgraded, but you should run `evicted` task to check if the evictions look ok.
 
@@ -230,7 +230,7 @@ lazy val root = (project in file("."))
 
 Running `show externalDependencyClasspath` from sbt shell on sbt 1.3.0-RC3 returns `com.typesafe:config:1.3.1` as expected. The `evicted` report is the same too:
 
-<code>
+```bash
 sbt:foo> evicted
 [info] Here are other dependency conflicts that were resolved:
 [info]  * com.typesafe:config:1.3.1 is selected over 1.2.0
@@ -239,20 +239,20 @@ sbt:foo> evicted
 [info]  * com.typesafe:ssl-config-core_2.12:0.2.2 is selected over 0.2.1
 [info]      +- com.typesafe.play:play-ws-standalone_2.12:1.0.1    (depends on 0.2.2)
 [info]      +- com.typesafe.akka:akka-stream_2.12:2.5.3           (depends on 0.2.1)
-</code>
+```
 
 #### side note: Apache Ivy's emulation of nearest-wins semantics?
 
 When Ivy resolves a module out of a Maven repository, it puts `force="true"` attribute on the `ivy.xml` in Ivy cache when it translates from POM file. See for example `cat ~/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/ivy-2.5.3.xml`:
 
-<code>
+```xml
   <dependencies>
     <dependency org="org.scala-lang" name="scala-library" rev="2.12.2" force="true" conf="compile->compile(*),master(compile);runtime->runtime(*)"/>
     <dependency org="com.typesafe" name="config" rev="1.3.1" force="true" conf="compile->compile(*),master(compile);runtime->runtime(*)"/>
     <dependency org="org.scala-lang.modules" name="scala-java8-compat_2.12" rev="0.8.0" force="true" conf="compile->compile(*),master(compile);runtime->runtime(*)"/>
   </dependencies>
 ...
-</code>
+```
 
 The Ivy's [documentation][ivy2] says:
 
@@ -286,12 +286,12 @@ lazy val root = (project in file("."))
 
 Here's how it looks like:
 
-<code>
+```bash
 sbt:foo> show externalDependencyClasspath
 [info] Updating ...
 [error] com.typesafe#config;1.2.0 (needed by [com.typesafe#ssl-config-core_2.12;0.2.2]) conflicts with com.typesafe#config;1.3.1 (needed by [com.example#foo_2.12;1.0.0-SNAPSHOT])
 [error] org.apache.ivy.plugins.conflict.StrictConflictException: com.typesafe#config;1.2.0 (needed by [com.typesafe#ssl-config-core_2.12;0.2.2]) conflicts with com.typesafe#config;1.3.1 (needed by [com.example#foo_2.12;1.0.0-SNAPSHOT])
-</code>
+```
 
 ### version ordering
 
@@ -398,13 +398,13 @@ Coursier's resolution semantics page on [GitHub][coursier2] says:
 
 This is promising.
 
-<code>
+```bash
 sbt:foo> show externalDependencyClasspath
 [warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.
 [info] * Attributed(/Users/eed3si9n/.sbt/boot/scala-2.12.8/lib/scala-library.jar)
 [info] * Attributed(/Users/eed3si9n/.coursier/cache/v1/https/repo1.maven.org/maven2/org/webjars/bower/angular/1.4.7/angular-1.4.7.jar)
 [info] * Attributed(/Users/eed3si9n/.coursier/cache/v1/https/repo1.maven.org/maven2/org/webjars/bower/angular-bootstrap/0.14.2/angular-bootstrap-0.14.2.jar)
-</code>
+```
 
 Using the same build with `angular-bootstrap:0.14.2`, `show externalDependencyClasspath` yields `angular-bootstrap:0.14.2` and `angular:1.4.7` as expected. This is an improvement over Ivy.
 
@@ -427,7 +427,7 @@ lazy val root = (project in file("."))
 
 Using sbt 1.3.0-RC3, `show externalDependencyClasspath` results to the following error:
 
-<code>
+```bash
 sbt:foo> show externalDependencyClasspath
 [info] Updating
 https://repo1.maven.org/maven2/org/webjars/npm/kind-of/maven-metadata.xml
@@ -453,7 +453,7 @@ https://repo1.maven.org/maven2/org/webjars/npm/is-buffer/maven-metadata.xml
 [error] (update) lmcoursier.internal.shaded.coursier.error.ResolutionError$ConflictingDependencies: Conflicting dependencies:
 [error] org.webjars.npm:is-number:[3.0.0,4):default(compile)
 [error] org.webjars.npm:is-number:[4.0.0,5):default(compile)
-</code>
+```
 
 This is technically correct since these ranges do not overlap. sbt 1.2.8 would resolve this to `is-number:4.0.0`.
 

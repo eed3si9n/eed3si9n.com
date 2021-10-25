@@ -131,11 +131,11 @@ class SprayBenchmark extends JsonBenchmark[spray.json.JsValue](
 
 という意味だ。実行し終わると、以下のように結果が表示される:
 
-<code>
+```bash
 [info] Benchmark                                     Mode  Cnt   Score    Error  Units
 [info] SprayBenchmark.moduleId1SaveToFile            avgt   10  26.884 ± 27.383  ms/op
 [info] SprayBenchmark.moduleId2LoadFromFile          avgt   10  37.435 ± 63.106  ms/op
-</code>
+```
 
 ### 独自バイナリフォーマット
 
@@ -143,27 +143,27 @@ class SprayBenchmark extends JsonBenchmark[spray.json.JsValue](
 
 具体例で説明すると、`150: Int` のバイナリメッセージはこうなる:
 
-<code>
+```bash
 01 00 00 00 AC 02
 ----------- -----
 tag
-</code>
+```
 
 最初の4バイトはタグを表す。タグの最初のバイトはワイヤタイプを表し、残りの 3バイトはフィールド名のハッシュに使われる。`AC 02` は protobuf 同様に 150 を ZigZag encoding の varint で表したものだ。これは、整数の値が小さければ少ないバイト数で表現できるという特徴がある。
 
 `"Hello"` のバイナリメッセージはこうなっている:
 
-<code>
+```bash
 07 00 00 00 05 48 65 6C 6C 6F
 ----------- -- --------------
 tag         len
-</code>
+```
 
 String のワイヤタイプは `07` で、次が文字のバイト数、UTF-8 で表現された String というふうになっている。
 
 `Map("a" -> 1, "b" -> 2)` のバイナリメッセージはこうなっている:
 
-<code>
+```bash
 01 96 44 87 02
 ----------- --
 01 41 F9 E8 04
@@ -174,7 +174,7 @@ String のワイヤタイプは `07` で、次が文字のバイト数、UTF-8 �
 ----------- -- --
 01 41 F9 E8 01 62
 ----------- -- --
-</code>
+```
 
 - `01 96 44 87` は `a: Int` のタグだ。`01` は `Int` のワイヤタイプで、`96 44 87` は `"a"` の [murmurhash][murmur] から導出される。
 - `02` は 1 の ZigZag エンコーディング。
@@ -200,7 +200,7 @@ MessagePack は最初のタグの部分にかなり色々な情報を乗せて�
 
 [@fommil (Sam Halliday さん)][fommil] に言われていたのは、gzip した Spray JSON の方が下手なバイナリフォーマットよりも性能出るということだった。土台は整ったので、早速比較してみよう。[Travis CI][travis] でのベンチマーク結果はこうなった:
 
-<code>
+```bash
 [info] Benchmark                                     Mode  Cnt    Score     Error  Units
 [info] BinaryBenchmark.moduleId1SaveToFile           avgt   10  152.395 ± 140.531  ms/op
 [info] BinaryBenchmark.moduleId2LoadFromFile         avgt   10   82.070 ±  22.701  ms/op
@@ -210,7 +210,7 @@ MessagePack は最初のタグの部分にかなり色々な情報を乗せて�
 [info] MessagePackBenchmark.moduleId2LoadFromFile    avgt   10   90.794 ±  21.501  ms/op
 [info] SprayBenchmark.moduleId1SaveToFile            avgt   10   32.879 ±   6.607  ms/op
 [info] SprayBenchmark.moduleId2LoadFromFile          avgt   10   40.074 ±  14.096  ms/op
-</code>
+```
 
 データの保存と読み込み両方で、僕の独自バイナリフォーマットは一番性能が悪い (234ms)。
 保存と読み込みの合計で見ると、Jawn を使った素の Spray JSON が一番 (72ms) で、次が gzipped Spray JSON (99ms)、そして MessagePack (138ms) という順になっている。
@@ -231,7 +231,7 @@ Jawn を用いた Scala JSON (63ms) は Spray JSON (72ms) よりも 12% 高速�
 
 **訂正**: 上記の結果は僕のバグのせいだと思う。最近の結果だとこうなっている:
 
-<code>
+```bash
 [info] Benchmark                                     Mode  Cnt   Score   Error  Units
 [info] GzipScalaJsonBenchmark.moduleId1SaveToFile    avgt   10  43.528 ± 4.601  ms/op
 [info] GzipScalaJsonBenchmark.moduleId2LoadFromFile  avgt   10  43.678 ± 2.873  ms/op
@@ -243,7 +243,7 @@ Jawn を用いた Scala JSON (63ms) は Spray JSON (72ms) よりも 12% 高速�
 [info] ScalaJsonBenchmark.moduleId2LoadFromFile      avgt   10  40.558 ± 2.958  ms/op
 [info] SprayBenchmark.moduleId1SaveToFile            avgt   10  34.160 ± 3.802  ms/op
 [info] SprayBenchmark.moduleId2LoadFromFile          avgt   10  31.524 ± 3.403  ms/op
-</code>
+```
 
 Jawn を用いた Scala JSON (72ms) は Spray JSON (65ms) よりも 9%
 遅くデータのラウンドトリップしていることが分かる。同様の傾向が gzipped Scala JSON (86ms) と gzipped Spray JSON (77ms) でも見られる。

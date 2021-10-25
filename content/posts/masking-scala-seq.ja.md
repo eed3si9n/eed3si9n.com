@@ -66,13 +66,13 @@ import scala.annotation.compileTimeOnly
 
 わざと複雑な型パラメータを使うことで既存のコードのコンパイルが通らないようになっている。例えば、コードに `Seq[String]` が出てきた場合は以下のようなエラーとなる:
 
-<code>
+```bash
 [info] Compiling 3 Scala sources to /scopt/jvm/target/scala-2.12/classes ...
 [error] /scopt/shared/src/main/scala/scopt/options.scala:434:19: wrong number of type arguments for scopt.Seq, should be 3
 [error]   def parse(args: Seq[String])(implicit ev: Zero[C]): Boolean =
 [error]                   ^
 [error] one error found
-</code>
+```
 
 コードが `scopt` パッケージ内にさえあれば、`Seq` の使用を防止できる。実際の Seq を使うためには以下の import を行う:
 

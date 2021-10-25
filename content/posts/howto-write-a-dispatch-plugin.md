@@ -34,7 +34,7 @@ To avoid naming collision with other potential plugins, I'm going to call mine r
 
 First thing to do is to set up sbt:
 
-<code>
+```bash
 repatch-twitter/
   +- project/
   |    +- build.properties
@@ -45,13 +45,13 @@ repatch-twitter/
                  +- scala/
                       +- requests.scala
                       +- ...
-</code>
+```
 
 The content of `build.properties`:
 
-<code>
+```bash
 sbt.version=0.12.3
-</code>
+```
 
 The content of `build.scala`:
 
@@ -267,12 +267,12 @@ object ProperitesClient {
 
 Now we can write both consumer key and the access token in a properities file as follows:
 
-<code>
+```bash
 repatch.twitter.consumerKey=abc
 repatch.twitter.consumerKeySecret=secret
 repatch.twitter.accessToken=xyz
 repatch.twitter.accessTokenSecret=secret2
-</code>
+```
 
 Here's how to load these up:
 

@@ -30,7 +30,7 @@ sbt server の考え方としては、ユーザの演算はコマンドとクエ
 
 まず手始めに、お互いに挨拶をする作法となっている。VS Code は、`initialize` というリクエストを送信するので、それに対して [`InitializeResult`](https://github.com/Microsoft/language-server-protocol/blob/master/versions/protocol-2-x.md#initialize) で返事をする。Microsoft社の書いた仕様は TypeScript で書かれているので、それを [Contraband](http://www.scala-sbt.org/contraband/) で使えるように GraphQL に翻訳する:
 
-<code>
+```bash
 type InitializeResult {
   ## The capabilities the language server provides.
   capabilities: sbt.internal.langserver.ServerCapabilities!
@@ -44,7 +44,7 @@ type ServerCapabilities {
 }
 
 ....
-</code>
+```
 
 これは、疑似 case class と JSON バインディングを生成するのに使われる。リクエスト・レスポンスのコードはこんな感じになる:
 
@@ -86,7 +86,7 @@ type ServerCapabilities {
 
 次に、コンパイラーのエラーを赤の波線で表示させてみる。これは、もうちょっと込み入っているが、扱う必要があるデータ型が多いというだけで、実際の作業は単純作業に近い。以前通り TypeScript を GraphQL へ翻訳して、Contraband にクラスを生成させる。
 
-<code>
+```bash
 ## Position in a text document expressed as zero-based line and zero-based character offset.
 ## A position is between two characters like an 'insert' cursor in a editor.
 type Position {
@@ -119,7 +119,7 @@ type Diagnostic {
   ## The diagnostic's message.
   message: String!
 }
-</code>
+```
 
 Zinc では、コンパイラ警告やエラーは `xsbti.Problem` と `xsbti.Position` というデータ型で送られ、それぞれ Scala コンパイラの reporter と [`Position`](http://www.scala-lang.org/api/2.12.3/scala-reflect/scala/reflect/api/Position.html) にもとづいている。VS Code は警告の通知に `Diagnostic` を用いるので、`xsbt.Problem` から変換する必要がある:
 

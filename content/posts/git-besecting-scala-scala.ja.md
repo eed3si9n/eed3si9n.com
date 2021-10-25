@@ -56,17 +56,17 @@ sbt.version=1.2.8
 
 `bisect.sh` をダウンロードする:
 
-<code>
+```bash
 wget https://raw.githubusercontent.com/adriaanm/binfu/e996e30d6095d83160746f007737209a02b85944/bisect.sh
 chmod +x bisect.sh
-</code>
+```
 
 次に 83行目と 84行目をエディタで開いて以下のように変更する:
 
-<code>
+```bash
   cd /tmp/bisectscala/
   sbt "++$sv!" "run"
-</code>
+```
 
 ### bisect の実行
 
@@ -74,28 +74,28 @@ bisect を実行するには、ローカルマシンに scala/scala を clone �
 
 別のターミナル窓を開いて、scala/scala を clone したワーキングディレクトリに移動する:
 
-<code>
+```bash
 $ head -n 3 README.md
 # Welcome!
 
 This is the official repository for the [Scala Programming Language](http://www.scala-lang.org)
-</code>
+```
 
 scala のディレクトリから以下を実行する:
 
-<code>
+```bash
 /tmp/bisectscala/bisect.sh <good> <bad>
-</code>
+```
 
 ただし、`<good>` は good な tag か commit で、`<bad>` は既知の bad な tag か commit を使う。今回の場合:
 
-<code>
+```bash
 /tmp/bisectscala/bisect.sh v2.12.8 v2.13.0-RC3
-</code>
+```
 
 scala/scala の面白いことは、全ての merge commit ごとに `scala-compiler`、`scala-library` などのアーティファクトが自動的にビルドされて Scala CI Artifactory に公開されていることだ。そのため、(全てではないが) 多くのコミットを `scalaVersion` に設定してあたかも普通の Scala バージョンであるかのように扱うことができる。sbt はコンパイラ JAR をリポジトリからダウンロードして、compiler bridge をコンパイルして使う。独自にコンパイラをコンパイルして、publishLocal する手間が省けるため、これが大きな時間の節約となる。
 
-<code>
+```bash
 $ /tmp/bisectscala/bisect.sh v2.12.8 v2.13.0-RC3
 notice:
 * currently you have to edit this script for each use
@@ -103,7 +103,7 @@ maintenance status:
 * this is somewhat rough, but hopefully already useful
 * pull requests with improvements welcome
 Bisecting: 2295 revisions left to test after this (roughly 11 steps)
-</code>
+```
 
 二分探索の結果は以下のようになった:
 - good: dbf9a6a631
@@ -140,14 +140,14 @@ Bisecting: 2295 revisions left to test after this (roughly 11 steps)
 
 非merge コミットはスキップしている。最後に出てきた結果がこれだ:
 
-<code>
+```bash
 There are only 'skip'ped commits left to test.
 The first bad commit could be any of:
 c39acf5bbf8d57c8684ad65abff77075b9524b5d
 0807abfb4f45611e9df5bb7e2f4285945448bce2
 We cannot bisect more!
 bisect run cannot continue any more
-</code>
+```
 
 つまり、2295個あるコミットから、手動で検査する必要のあるものを 2つにまで絞ることができた。タイムスタンプを見るとだいたい 9分ぐらいかかったみたいだ。ちょっと好みの飲み物を作って戻ってくると終わっている感じだ。
 

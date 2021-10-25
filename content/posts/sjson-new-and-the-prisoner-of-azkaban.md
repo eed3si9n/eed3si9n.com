@@ -133,11 +133,11 @@ This means:
 
 At the end, you get an output like this:
 
-<code>
+```bash
 [info] Benchmark                                     Mode  Cnt   Score    Error  Units
 [info] SprayBenchmark.moduleId1SaveToFile            avgt   10  26.884 ± 27.383  ms/op
 [info] SprayBenchmark.moduleId2LoadFromFile          avgt   10  37.435 ± 63.106  ms/op
-</code>
+```
 
 ### custom binary format
 
@@ -145,27 +145,27 @@ Like I said benchmarking is where I should've started. Instead what I did was cr
 
 Here is the binary message for `150: Int`:
 
-<code>
+```bash
 01 00 00 00 AC 02
 ----------- -----
 tag
-</code>
+```
 
 The first four bytes represent a tag. The first byte of the tag represents the wiretype, and reset of three bytes are used for the hash of field name. `AC 02` is the ZigZag encoding of varint same as protobuf. This encoding uses fewer bytes for smaller values of integers.
 
 Here's the binary message for `"Hello"`:
 
-<code>
+```bash
 07 00 00 00 05 48 65 6C 6C 6F
 ----------- -- --------------
 tag         len
-</code>
+```
 
 The wiretype for String is `07`, and the content is length-delimited UTF-8 String.
 
 Here's the binary message for `Map("a" -> 1, "b" -> 2)`:
 
-<code>
+```bash
 01 96 44 87 02
 ----------- --
 01 41 F9 E8 04
@@ -176,7 +176,7 @@ Here's the binary message for `Map("a" -> 1, "b" -> 2)`:
 ----------- -- --
 01 41 F9 E8 01 62
 ----------- -- --
-</code>
+```
 
 - The first tag `01 96 44 87` is for `a: Int`. `01` is the wiretype for `Int` and `96 44 87` is derived from the [murmurhash][murmur] of `"a"`.
 - `02` is the ZigZag encoding of 1
@@ -202,7 +202,7 @@ Note that I've used [msgpack-java][msgpackjava] as the backend, so the performan
 
 [@fommil (Sam Halliday)][fommil] had also told me that gzipped Spray JSON gets a better performance than binary formats. Now that we have the harness, we can compare head to head. Here's the benchmark result using [Travis CI][travis]:
 
-<code>
+```bash
 [info] Benchmark                                     Mode  Cnt    Score     Error  Units
 [info] BinaryBenchmark.moduleId1SaveToFile           avgt   10  152.395 ± 140.531  ms/op
 [info] BinaryBenchmark.moduleId2LoadFromFile         avgt   10   82.070 ±  22.701  ms/op
@@ -212,7 +212,7 @@ Note that I've used [msgpack-java][msgpackjava] as the backend, so the performan
 [info] MessagePackBenchmark.moduleId2LoadFromFile    avgt   10   90.794 ±  21.501  ms/op
 [info] SprayBenchmark.moduleId1SaveToFile            avgt   10   32.879 ±   6.607  ms/op
 [info] SprayBenchmark.moduleId2LoadFromFile          avgt   10   40.074 ±  14.096  ms/op
-</code>
+```
 
 Both for saving and loading, the custom binary format is doing the worst in terms of time (234ms).
 If you combine the saving and loading timing, overall plain Spray JSON using Jawn does the best (72ms), gzipped Spray JSON next (99ms), and then MessagePack (138ms).
@@ -233,7 +233,7 @@ This shows that Scala JSON using Jawn (63ms) is round tripping 12% faster than S
 
 **Edit**: The above result was likely because of my bug. More recent result looks like this:
 
-<code>
+```bash
 [info] Benchmark                                     Mode  Cnt   Score   Error  Units
 [info] GzipScalaJsonBenchmark.moduleId1SaveToFile    avgt   10  43.528 ± 4.601  ms/op
 [info] GzipScalaJsonBenchmark.moduleId2LoadFromFile  avgt   10  43.678 ± 2.873  ms/op
@@ -245,7 +245,7 @@ This shows that Scala JSON using Jawn (63ms) is round tripping 12% faster than S
 [info] ScalaJsonBenchmark.moduleId2LoadFromFile      avgt   10  40.558 ± 2.958  ms/op
 [info] SprayBenchmark.moduleId1SaveToFile            avgt   10  34.160 ± 3.802  ms/op
 [info] SprayBenchmark.moduleId2LoadFromFile          avgt   10  31.524 ± 3.403  ms/op
-</code>
+```
 
 This shows that Scala JSON using Jawn (71ms) is round tripping 9% slower than Spray JSON using Jawn (65ms). Similar trend continues for gzipped Scala JSON using Jawn (86ms) and gzipped Spray JSON using Jawn (77ms).
 

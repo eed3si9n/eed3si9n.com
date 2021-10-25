@@ -45,9 +45,9 @@ We can now configure the Language Server client. Open 'Preferences > Package Set
 
 Run some project using sbt 1.1.0-RC1 with `-no-colors` option:
 
-<code>
+```bash
 $ sbt -no-colors
-</code>
+```
 
 Once the sbt server comes up, open the directory using Sublime.
 

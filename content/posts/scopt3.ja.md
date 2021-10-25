@@ -292,7 +292,7 @@ parser.parse(args, Config()) map { config =>
 
 scopt2 同様に、これは自動的に usage text を生成する:
 
-<code>
+```bash
 scopt 3.x
 Usage: scopt [update] [options] [<file>...]
 
@@ -318,6 +318,6 @@ update is a command.
         disable keepalive
   --xyz <value>
         xyz is a boolean property
-</code>
+```
 
 バグや質問があれば気軽に [github issue](https://github.com/scopt/scopt/issues/new) に報告して下さい。

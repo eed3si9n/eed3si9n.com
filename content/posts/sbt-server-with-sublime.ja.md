@@ -45,9 +45,9 @@ tags:        [ "sbt" ]
 
 適当なプロジェクトを sbt 1.1.0-RC1 を `-no-colors` オプションを使って実行する。
 
-<code>
+```bash
 $ sbt -no-colors
-</code>
+```
 
 sbt sever が立ち上がったら、そのディレクトリを Sublime を使って開く。
 

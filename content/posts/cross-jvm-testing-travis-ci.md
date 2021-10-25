@@ -14,7 +14,7 @@ Oracle is moving to ship [non-LTS JDK every 6 months](https://mreinhold.org/blog
 
 As we will see quick succession of JDKs in the upcoming months, here's a how-to on testing your app on JDK 8, JDK 9, and JDK 10 Early Access using Travis CI.
 
-<code>
+```yaml
 dist: trusty
 
 language: scala
@@ -56,7 +56,7 @@ cache:
 before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
   - find $HOME/.sbt  -name "*.lock"               -delete
-</code>
+```
 
 In this example, I am using sbt with sbt-native-packager, but that should work with any build tools.
 
@@ -65,7 +65,7 @@ The [install-jdk10 script](https://sormuras.github.io/blog/2017-12-08-install-jd
 
 `test.sh` looks as follows:
 
-<code>
+```bash
 #!/bin/bash
 
 ## https://github.com/travis-ci/travis-ci/issues/8408
@@ -88,7 +88,7 @@ mkdir freshly-baked
 
 unzip -qo ../target/universal/sbt.zip -d ./freshly-baked
 ./freshly-baked/sbt/bin/sbt about run
-</code>
+```
 
 Depending on your what you're testing the last two lines would look different.
 

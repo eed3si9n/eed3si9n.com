@@ -85,9 +85,11 @@ object Main extends App {
 ## ステップ 4: スクリプトを書く
 次に、好きな筋書きを記述したスクリプトを、テストビルドのルート下に置いた `test` というファイルに書く。
 
-<code># ファイルが作成されたかを確認
+```bash
+# ファイルが作成されたかを確認
 > assembly
-$ exists target/scala-2.10/foo.jar</code>
+$ exists target/scala-2.10/foo.jar
+```
 
 スクリプトの文法は [ChangeDetectionAndTesting][1] に記述されている通りだけど、以下に解説しよう:
 1. **`#`** は一行コメントを開始する
@@ -116,19 +118,23 @@ $ exists target/scala-2.10/foo.jar</code>
 ## ステップ 5: スクリプトを実行する
 スクリプトを実行するためには、プラグインのプロジェクトに戻って、以下を実行する:
 
-<code>> scripted
-</code>
+```bash
+> scripted
+```
 
 これはテストビルドをテンポラリディレクトリにコピーして、`test` スクリプトを実行する。もし全て順調にいけば、まず `publish-local` の様子が表示され、以下のようなものが表示される:
 
-    Running sbt-assembly / simple
-    [success] Total time: 18 s, completed Sep 17, 2011 3:00:58 AM
+```bash
+Running sbt-assembly / simple
+[success] Total time: 18 s, completed Sep 17, 2011 3:00:58 AM
+```
 
 ## ステップ 6: カスタムアサーション
 
 ファイルコマンドは便利だけど、実際のコンテンツをテストしないため、それだけでは不十分だ。コンテンツをテストする簡単な方法は、テストビルドにカスタムのタスクを実装してしまうことだ。
 
 上記の hello プロジェクトを例に取ると、生成された jar が "hello" と表示するかを確認したいとする。`sbt.Process` を用いて jar を走らせることができる。失敗を表すには、単にエラーを投げればいい。以下に `build.sbt` を示す:
+
 ```scala
 import AssemblyKeys._
 
@@ -153,23 +159,26 @@ TaskKey[Unit]("check") <<= (crossTarget) map { (crossTarget) =>
 
 これが `test`:
 
-<code># ファイルが作成されたかを確認
+```bash
+# ファイルが作成されたかを確認
 > assembly
 $ exists target/foo.jar
 
 # hello って言うか確認
-> check</code>
+> check
+```
 
 
 `scripted` を走らせると、意図通りテストは失敗する:
 
-<code>[info] [error] {file:/private/var/folders/Ab/AbC1EFghIj4LMNOPqrStUV+++XX/-Tmp-/sbt_cdd1b3c4/simple/}default-0314bd/*:check: unexpected output: hello
+```bash
+[info] [error] {file:/private/var/folders/Ab/AbC1EFghIj4LMNOPqrStUV+++XX/-Tmp-/sbt_cdd1b3c4/simple/}default-0314bd/*:check: unexpected output: hello
 [info] [error] Total time: 0 s, completed Sep 21, 2011 8:43:03 PM
 [error] x sbt-assembly / simple
 [error]    {line 6}  Command failed: check failed
 [error] {file:/Users/foo/work/sbt-assembly/}default-373f46/*:scripted: sbt-assembly / simple failed
 [error] Total time: 14 s, completed Sep 21, 2011 8:00:00 PM
-</code>
+```
 
 テストビルド間でアサーションを再利用したい場合は、full configuration を用いて、カスタムのビルドクラスを継承することができる。
 
@@ -178,19 +187,22 @@ $ exists target/foo.jar
 
 まず最初に試すべきなのは、ログバッファリングを切ることだ。
 
-<code>> set scriptedBufferLog := false
-</code> 
+```bash
+> set scriptedBufferLog := false
+```
 
 これにより、例えばテンポラリディレクトリの場所などが分かるようになる:
 
-<code>[info] [info] Set current project to default-c6500b (in build file:/private/var/folders/Ab/AbC1EFghIj4LMNOPqrStUV+++XX/-Tmp-/sbt_8d950687/simple/project/plugins/)
+```bash
+[info] [info] Set current project to default-c6500b (in build file:/private/var/folders/Ab/AbC1EFghIj4LMNOPqrStUV+++XX/-Tmp-/sbt_8d950687/simple/project/plugins/)
 ...
-</code>
+```
 
 テスト中にテンポラリディレクトリを見たいような状況があるかもしれない。`test` スクリプトに以下の一行を加えると、scripted はエンターキーを押すまで一時停止する:
 
-<code>$ pause
-</code>
+```bash
+$ pause
+```
 
 もしうまくいかなくて、 `sbt/sbt-test/sbt-foo/simple` から直接 `sbt` を実行しようと思っているなら、それは止めたほうがいい。Mark がコメント欄で教えてくれた通り、正しいやり方はディレクトリごと別の場所にコピーしてから走らせることだ。
 
@@ -199,13 +211,15 @@ sbt プロジェクト下には文字通り [100+ の scripted テストがあ�
 
 例えば、以下に by-name と呼ばれるものを示す:
 
-<code>> compile
+```bash
+> compile
 
 # change => Int to Function0
 $ copy-file changes/A.scala A.scala
 
 # Both A.scala and B.scala need to be recompiled because the type has changed
--> compile</code>
+-> compile
+```
 
 [xsbt-web-plugin][4] や [sbt-assemlby][5] にも scripted テストがある。
 

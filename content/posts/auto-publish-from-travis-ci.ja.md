@@ -19,14 +19,14 @@ GitHub Pages は OSS プロジェクトのドキュメントをホスティン�
 プロジェクト外にまずはディレクトリを作る。
 キーの名前は `deploy_yourproject_rsa` などとつけて、他のキーと区別できるようにする。
 
-<code>
+```bash
 $ mkdir keys
 $ cd keys
 $ ssh-keygen -t rsa -b 4096 -C "yours@example.com"
 Generating public/private rsa key pair.
 Enter file in which to save the key (/Users/xxx/.ssh/id_rsa): deploy_website_rsa
 Enter passphrase (empty for no passphrase):
-</code>
+```
 
 パスフレーズは空のままにする。
 
@@ -34,10 +34,10 @@ Enter passphrase (empty for no passphrase):
 
 プロジェクトに移動して、ブランチを立てて、`.travis` という名前のディレクトリを作る。
 
-<code>
+```bash
 $ cd ../website
 $ mkdir .travis
-</code>
+```
 
 ### 3. `travis` ユーティリティをインストールして、秘密鍵を暗号化する。
 
@@ -45,7 +45,7 @@ $ mkdir .travis
 
 **注意**: `--repo` を指定しないと、git origin が使われることになるが、僕の場合これはフォークを指しているので正しくないレポジトリになってしまう。
 
-<code>
+```bash
 $ gem install travis
 $ travis login --auto
 $ travis encrypt-file --repo foo/website ../website_keys/deploy_website_rsa .travis/deploy_rsa.enc
@@ -62,7 +62,7 @@ Pro Tip: You can add it automatically by running with --add.
 Make sure to add .travis/deploy_rsa.enc to the git repository.
 Make sure not to add ../website_keys/deploy_website_rsa to the git repository.
 Commit all changes to your .travis.yml.
-</code>
+```
 
 [Encrypting Files](https://docs.travis-ci.com/user/encrypting-files/) を参照。Travis Settings <https://travis-ci.org/foo/website/settings> に行って、環境変数がセットされたか再確認する。うまくいったならば、暗号キーと初期化ベクトル (iv) の変数が見えるはずだ。
 
@@ -70,7 +70,7 @@ Commit all changes to your .travis.yml.
 
 `.travis` ディレクトリ内に `publish-site.sh` というスクリプトを作る。
 
-<code>
+```bash
 #!/bin/bash -ex
 
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" && "${TRAVIS_BRANCH}" == "master" && "${TRAVIS_REPO_SLUG}" == "foo/website" ]]; then
@@ -81,24 +81,24 @@ if [[ "${TRAVIS_PULL_REQUEST}" == "false" && "${TRAVIS_BRANCH}" == "master" && "
   cp .travis/deploy_rsa ~/.ssh/
   sbt ghpagesPushSite
 fi
-</code>
+```
 
   - `"master"` をブランチに置き換える。
   - `"foo/website"` 自分のリポジトリに置き換える。
   - `-K $encrypted_1234_key -iv $encrypted_1234_iv` を自分のものに置き換える。
 
-<code>
+```bash
 $ chmod +x .travis/publish-site.sh
-</code>
+```
 
 このスクリプトは吉田さんが[書いたもの](https://github.com/foundweekends/conscript/commit/3dbeca317c363ca4c224ba4d5f0f9eb44a64d1bf)を使っている。えいるさんの [Travis-CI でコミットして GitHub にプッシュする - 公開鍵認証を利用してみる](http://blog.eiel.info/blog/2014/02/18/github-push-from-travis/) がさらに[元ネタ](https://twitter.com/xuwei_k/status/887519941884129284)になっているらしい。
 
 ### 5. .travis.yml を編集する。
 
-<code>
+```bash
 after_success:
   - .travis/publish-site.sh
-</code>
+```
 
 ### 6. 公開鍵を GitHub Page のリポジトリに追加する。
 
@@ -108,7 +108,7 @@ GitHub Page に使っているリポジトリ内の Settings > Deploy keys https
 
 以下は、sbt-ghpages に特定の設定なので、別のことをやっているならばいらないかもしれない。
 
-<code>
+```bash
   lazy val siteEmail = settingKey[String]("")
 
   val syncLocalImpl = Def.task {
@@ -129,7 +129,7 @@ GitHub Page に使っているリポジトリ内の Settings > Deploy keys https
         git(("config" :: "user.email" :: email :: Nil) :_*)(dir, log)
       case _           => ()
     }
-</code>
+```
 
 ### Pamflet + Pandoc に関して
 

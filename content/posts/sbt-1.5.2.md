@@ -32,9 +32,9 @@ Download **the official sbt runner + launcher** from SDKMAN or download from <ht
 
 In addition, the sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.5.2
-</code>
+```
 
 This mechanism allows that sbt 1.5.2 is used only for the builds that you want.
 

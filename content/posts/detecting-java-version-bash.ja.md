@@ -20,7 +20,7 @@ tags:        [ "scala" ]
 
 Travis CI を用いて macOS 上で Scala アプリのテストを行うことも可能だ。これは Lars さんと Muuki さんの方法 [Testing Scala programs with Travis CI on OS X][3] をアレンジしたものだ。
 
-<code>
+```yaml
 dist: trusty
 
 language: scala
@@ -75,7 +75,7 @@ cache:
 before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
   - find $HOME/.sbt  -name "*.lock"               -delete
-</code>
+```
 
 普通はトップレベルで `jdk: oraclejdk8` と書くが、macOS のイメージに `jdk_switcher` スクリプトが入っていないとう問題 [travis/travis#2317][2317]　があるため、matrix 内の `osx` 以外のエントリーに `jdk` を書く必要がある。
 
@@ -85,7 +85,7 @@ before_cache:
 
 これを回避するために、JDK バージョンを返す bash 関数を書いた。
 
-<code>
+```bash
 #!/bin/bash
 
 # returns the JDK version.
@@ -126,6 +126,6 @@ jdk_version() {
 
 v="$(jdk_version)"
 echo $v
-</code>
+```
 
 これは Java version 1.8.0_nn に対して `8` という単一の整数を返し、Java 9 の場合は `9` を返す。最近の Java のバージョンは `"9-Debian"` とか `"10" 2018-03-20` といった具合に変な文字列が付いてくるので、可能な限りそれらも処理できるようにした。

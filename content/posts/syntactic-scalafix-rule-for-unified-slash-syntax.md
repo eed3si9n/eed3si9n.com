@@ -26,11 +26,11 @@ I was able to hack together a syntactic Scalafix rule to convert `build.sbt` to 
 
 Make sure your project is on git or make a backup.
 
-<code>
+```bash
 $ cs install scalafix
 $ export PATH="$PATH:$HOME/Library/Application Support/Coursier/bin"
 $ scalafix --rules=https://gist.githubusercontent.com/eed3si9n/57e83f5330592d968ce49f0d5030d4d5/raw/7f576f16a90e432baa49911c9a66204c354947bb/Sbt0_13BuildSyntax.scala *.sbt project/*.scala
-</code>
+```
 
 It might not be precise, but it surely beats doing it by hand.
 

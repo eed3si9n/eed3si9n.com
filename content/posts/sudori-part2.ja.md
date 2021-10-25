@@ -140,14 +140,14 @@ def pure(body: Term): Expr[i.F[Effect[A]]] =
 
 `i` から `pure` 関数を呼ぶだけの一見実直なコードに見える。しかし、実際にはこれは以下のように失敗する:
 
-<code>
+```bash
 [error] -- [E007] Type Mismatch Error: sudori/core-macros/src/main/scala-3/sbt/internal/util/appmacro/Cont.scala:119:13
 [error] 119 |            $i
 [error]     |             ^
 [error]     |  Found:    (i : sbt.internal.util.appmacro.MonadInstance & Singleton)
 [error]     |  Required: quoted.Expr[Any]
 [error] one error found
-</code>
+```
 
 ### i.type からインスタンスを取得する
 

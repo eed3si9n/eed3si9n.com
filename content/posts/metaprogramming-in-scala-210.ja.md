@@ -78,7 +78,7 @@ aliases:     [ /node/62 ]
 - シンボル (`Symbol`)
 - 型 (`Type`)
 
-<code>
+```bash
 $ scalac -Xshow-phases
 phase name id description
 ---------- -- -----------
@@ -86,7 +86,7 @@ phase name id description
      namer  2 名前を解決し、シンボルを名前付けされた構文木へと関連付ける。
      typer  4 メインコース: 構文木を型付けする。
    pickler  7 シンボルテーブルをシリアライズする。
-</code>
+```
 
 できる限り分かりやすくこれらの概念の説明をするつもりだが、Paul Phillips 以上の説明は恐らく誰にもできない。
 [Inside the Sausage Factory][sausage] という講演は絶対に見ておいたほうがいい。
@@ -115,7 +115,7 @@ Apply(Ident("println"), List(Literal(Constant("hi!"))))
 
 #### `-Yshow-trees`
 
-<code>
+```bash
 // -Yshow-trees-stringified と
 // -Yshow-trees-compact もそれぞれ試してみよう
 // (あと両方同時に試してみてもいい!)
@@ -137,11 +137,11 @@ PackageDef(
         <empty>
       )
       ...
-</code>
+```
 
 #### `showRaw`
 
-<code>
+```bash
 // ru は scala.reflect.runtime.universe の略だ。
 
 scala> ru.reify{ object Test { println("Hello World!") } }
@@ -160,7 +160,7 @@ res1: String = Block(List(ModuleDef(
        newTermName("Predef")), newTermName("println")),
        List(Literal(Constant("Hello World!")))))))),
 Literal(Constant(())))
-</code>
+```
 
 ### シンボル (`Symbol`)
 
@@ -190,7 +190,7 @@ foo[Long](42)
 
 #### `-uniqid` と `-Yshow-symkinds`
 
-<code>
+```bash
 $ cat Foo.scala
 def foo[T: TypeTag](x: Any) = x.asInstanceOf[T]
 foo[Long](42)
@@ -208,7 +208,7 @@ def foo#8339#METH
 Test#14#MODC.this.foo#8339#METH[Long#1641#CLS](42)
 (scala#29#PK.reflect#2514#PK.‘package‘#3414#PKO
 .mirror#3463#GET.TypeTag#10351#MOD.Long#10361#GET)
-</code>
+```
 
 #### `:type -v`
 
@@ -238,7 +238,7 @@ Paul のお陰で型を検査する簡単な方法がある。後のスライド
 
 #### `:type -v`
 
-<code>
+```bash
 scala> :type -v def impl[T: c.TypeTag](c: Context) = ???
 // 型のシグネチャ
 [T](c: scala.reflect.makro.Context)(implicit evidence$1:
@@ -256,11 +256,11 @@ PolyType(
     )
   )
 )
-</code>
+```
 
 #### `showRaw` (2.10.0-M5 以降のみ)
 
-<code>
+```bash
 scala> object O {
   def impl[T: c.TypeTag](c: Context) = ???
 }
@@ -274,11 +274,11 @@ PolyType(
   MethodType(List(newTermName("c")),
     MethodType(List(newTermName("evidence$1")),
      TypeRef(ThisType(scala), scala.Nothing, List()))))
-</code>
+```
 
 #### `-explaintypes`
 
-<code>
+```bash
 >cat Test.scala
 class Foo { class Bar; def bar(x: Bar) = ??? }
 object Test extends App {
@@ -295,7 +295,7 @@ Test.foo1.Bar <: Test.foo2.Bar?
 false false
 Test.scala:6: error: type mismatch;
 ...
-</code>
+```
 
 #### 全体像
 
@@ -335,11 +335,11 @@ Test.scala:6: error: type mismatch;
 
 少し変わった点が一つあって、それは全てのユニバース関連の構造物 (訳注: 構文木、シンボル、型) は、それぞれのユニバースにパス依存しているということだ。例えば、以下に表示された型が `reflect.runtime.universe` でプリフィックスされていることに注意してほしい。
 
-<code>
+```bash
 scala> ru.reify(2.toString)
 res0: reflect.runtime.universe.Expr[String] =
     Expr[String](2.toString())
-</code>
+```
 
 実行時のリフレクションを行う場合は、単に `scala.reflect.runtime.universe._` をインポートしてしまおう。通常は実行時のユニバースは一つしかないからだ。
 

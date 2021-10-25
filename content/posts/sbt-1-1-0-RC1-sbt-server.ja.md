@@ -57,35 +57,35 @@ sbt の 1ユーザとして、sbt シェルと `build.sbt` でセッティング
 
 実行中のサーバを発見するには、sbt 1.1.0 はビルドから見て `./project/target/active.json` にポートファイルを作成するので、それを見つける:
 
-<code>
+```bash
 {"uri":"local:///Users/foo/.sbt/1.0/server/0845deda85cb41abcdef/sock"}
-</code>
+```
 
 ここで `local:` は Unix ドメインソケットを表している。`nc` を用いてサーバに hello と言うには以下を実行する (`^M` を発信するには `Ctrl-V` を打ってから `Return` を打つ):
 
-<code>
+```bash
 $ nc -U /Users/foo/.sbt/1.0/server/0845deda85cb41abcdef/sock
 Content-Length: 99^M
 ^M
 { "jsonrpc": "2.0", "id": 1, "method": "initialize", "params": { "initializationOptions": { } } }^M
-</code>
+```
 
 `compile` は以下のように行う:
 
-<code>
+```bash
 Content-Length: 93^M
 ^M
 { "jsonrpc": "2.0", "id": 2, "method": "sbt/exec", "params": { "commandLine": "compile" } }^M
-</code>
+```
 
 これで、現在実行中の sbt セッションは `compile` をキューに加え、もしコンパイラ警告やエラーがあれば、メッセージを返すはずだ:
 
-<code>
+```bash
 Content-Length: 296
 Content-Type: application/vscode-jsonrpc; charset=utf-8
 
 {"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:/Users/foo/work/hellotest/Hello.scala","diagnostics":[{"range":{"start":{"line":2,"character":26},"end":{"line":2,"character":27}},"severity":1,"source":"sbt","message":"object X is not a member of package foo"}]}}
-</code>
+```
 
 これによって、複数のクライアントが**単一**の sbt セッションに接続することが可能となる。クライアントの主な用途はエディタや IDE といったツーリングの統合を想定している。詳細に関しては [sbt server](http://www.scala-sbt.org/1.x-beta/docs/sbt-server.html) を参照。
 

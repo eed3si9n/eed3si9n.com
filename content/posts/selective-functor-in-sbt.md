@@ -85,12 +85,12 @@ This gives us a few information.
 
 This allows the task scheduler to run `task1` and `task2` in parallel if the CPU cores are available. In addition sbt can introspect the graph and provide display the task dependencies:
 
-<code>
+```bash
 sbt:selective> inspect tree task3
 [info] task3 = Task[Int]
 [info]   +-task1 = Task[Int]
 [info]   +-task2 = Task[Int]
-</code>
+```
 
 It sometimes helps to do a thought experiment to visualize things. Ignoring pandemic for now, let's say a relative is flying in and picking them up would take 1~2 hours. You also want to make a nice dinner, and say that takes 2h too. If you have a partner, one can do the airport run and the other person can do the cooking to utilize time. In the end, you both need the dinner cooked and the relative picked up to start the dinner.
 
@@ -129,12 +129,12 @@ This is more powerful from the point of view of the build author. But there are 
 1. `foo` is blocked on `condition` task. This is exactly what we wanted, but it also means we could lose some parallelism because of it.
 2. We lose the ability to introspect the task graph.
 
-<code>
+```bash
 sbt:selective> inspect tree foo
 [info] foo = Task[Unit]
 [info]   +-condition = Task[Boolean]
 [info]   +-Global / settingsData = Task[sbt.internal.util.Settings[sbt.Scope]]
-</code>
+```
 
 Note that `trueAction` and `falseAction` are missing from the inspect tree result.
 
@@ -282,12 +282,12 @@ def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
 
 This prevents `dependencyResolution` task from getting inspected:
 
-<code>
+```bash
 sbt:selective> inspect tree dependencyResolution
 [info] dependencyResolution = Task[sbt.librarymanagement.DependencyResolution]
 [info]   +-Global / settingsData = Task[sbt.internal.util.Settings[sbt.Scope]]
 [info]   +-Global / useCoursier = true
-</code>
+```
 
 We can rewrite `dependencyResolutionTask` as follows:
 
@@ -298,7 +298,7 @@ def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
   )
 ```
 
-<code>
+```bash
 sbt:selective> inspect tree dependencyResolution
 [info] dependencyResolution = Task[sbt.librarymanagement.DependencyResolution]
 [info]   +-csrConfiguration = Task[lmcoursier.CoursierConfiguration]
@@ -310,7 +310,7 @@ sbt:selective> inspect tree dependencyResolution
 [info]   | | +-credentials = Task[scala.collection.Seq[sbt.librarymanagement.ivy.Credentials]]
 [info]   | |
 ....
-</code>
+```
 
 Let's try another example.
 

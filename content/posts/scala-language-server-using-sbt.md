@@ -30,7 +30,7 @@ This design fits nicely with language server protocol, which uses the term "noti
 
 To get things started, we first need to say hi to each other. VS Code will send a request called `initialize`, and we need to respond back with [`InitializeResult`](https://github.com/Microsoft/language-server-protocol/blob/master/versions/protocol-2-x.md#initialize). We then translate TypeScript used in Microsoft's spec into GraphQL that we will use for [Contraband](http://www.scala-sbt.org/contraband/):
 
-<code>
+```bash
 type InitializeResult {
   ## The capabilities the language server provides.
   capabilities: sbt.internal.langserver.ServerCapabilities!
@@ -44,7 +44,7 @@ type ServerCapabilities {
 }
 
 ....
-</code>
+```
 
 This is used to generate pseudo case classes and JSON bindings. So, the request-response code looks like this:
 
@@ -86,7 +86,7 @@ To mimic what I typically do with editor and sbt, let's try calling `compile` wh
 
 Next, let's try displaying red squigglies for compiler errors. It's a bit more involved, but only because we have more datatypes to deal with, and the process is somewhat mechanical. Like we did before, translate TypeScript to GraphQL and let Contraband generate classes.
 
-<code>
+```bash
 ## Position in a text document expressed as zero-based line and zero-based character offset.
 ## A position is between two characters like an 'insert' cursor in a editor.
 type Position {
@@ -119,7 +119,7 @@ type Diagnostic {
   ## The diagnostic's message.
   message: String!
 }
-</code>
+```
 
 In Zinc, compiler warnings and errors are sent via datatypes called `xsbti.Problem` and `xsbti.Position`, which are based on Scala compiler's reporter and [`Position`](http://www.scala-lang.org/api/2.12.3/scala-reflect/scala/reflect/api/Position.html). Since VS Code uses `Diagnostic` to notify warnings, we need to translate `xsbt.Problem`:
 

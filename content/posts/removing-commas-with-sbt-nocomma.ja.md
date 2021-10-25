@@ -206,7 +206,7 @@ lazy val root = (project in file("."))
 
 `Setting[_]` に決め打ちしたおかげで、例えば `println(...)` みたいなものがまぎれ込んでも読み込み時にキャッチできる:
 
-<code>
+```bash
 /Users/xxx/hello/build.sbt:14: error: type mismatch;
  found   : Unit
  required: sbt.Setting[?]
@@ -217,7 +217,7 @@ lazy val root = (project in file("."))
 [error] sbt.compiler.EvalException: Type error in expression
 [error] Use 'last' for the full log.
 Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?
-</code>
+```
 
 ### セットアップ
 

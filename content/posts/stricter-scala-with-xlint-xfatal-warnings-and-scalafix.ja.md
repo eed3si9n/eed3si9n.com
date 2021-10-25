@@ -95,9 +95,9 @@ Scalafix 以前のバージョンには特定の型推論を抑制する `NoInfe
 
 #### project/build.properties
 
-<code>
+```bash
 sbt.version=1.2.3
-</code>
+```
 
 #### project/plugins.scala
 
@@ -139,11 +139,11 @@ lazy val root = (project in file(".")).
 
 #### .scalafix.conf
 
-<code>
+```bash
 rules = [
   NoInfer
 ]
-</code>
+```
 
 #### Main.scala
 
@@ -161,20 +161,20 @@ object Main extends App {
 
 sbt シェルから `scalafix` と打ち込む:
 
-<code>
+```bash
 sbt:hello> scalafix
 [info] Running scalafix on 2 Scala sources
 [error] /Users/eed3si9n/work/quicktest/noinfer/Main.scala:7:3: error: [NoInfer.Serializable] Serializable was inferred, butit's forbidden by NoInfer
 [error]   List(Animal()).contains("1")
 [error]   ^^^^^^^^^^^^^^^^^^^^^^^
 [error] (Compile / scalafix) scalafix.sbt.ScalafixFailed: LinterError
-</code>
+```
 
 できた! `contains(...)` の悪い型推論をキャッチする `NoInfer` というルールが作動した。僕の意見としては、リストは `"1"` を含むことはありえないので、このコードで Scala が `java.io.Serializable` に lub するのはダメだと思っている。
 
 デフォルトでは、このルールは `scala.Any`, `scala.AnyVal`, `java.io.Serializable`, `scala.Serializable`, `scala.Product` への型推論を禁止する。これは `.scalafix.conf` を使ってカスタマイズできる:
 
-<code>
+```bash
 rules = [
   NoInfer
 ]
@@ -186,17 +186,17 @@ NoInfer.disabledTypes = [
   scala.Product,
   scala.Predef.any2stringadd
 ]
-</code>
+```
 
 これで `scala.Predef.any2stringadd` をキャッチできるようになった:
 
-<code>
+```bash
 [info] Running scalafix on 2 Scala sources
 [error] /Users/eed3si9n/work/quicktest/noinfer/Main.scala:8:3: error: [NoInfer.any2stringadd] any2stringadd was inferred, but it's forbidden by NoInfer
 [error]   Option(1) + "what"
 [error]   ^^^^^^^^^
 [error] (Compile / scalafix) scalafix.sbt.ScalafixFailed: LinterError
-</code>
+```
 
 #### 今後の課題
 

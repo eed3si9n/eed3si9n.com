@@ -35,14 +35,14 @@ Another reason to stick to Terminal.app is that I'm a fan of [TotalTerminal](htt
 
 The shell for this machine will be [Zsh](http://www.zsh.org/). For Mac, see [How to use Homebrew Zsh Instead of Max OS X Default](http://zanshin.net/2013/09/03/how-to-use-homebrew-zsh-instead-of-max-os-x-default/).
 
-<code>
+```bash
 $ brew install zsh
 $ chsh -s /usr/local/bin/zsh
-</code>
+```
 
 In terms of configuration, `zshrc` is used just to load other `zshrc.*` files:
 
-<code>
+```bash
 ## basic
 [ -f $HOME/dotfiles/zshrc.basic ] && source $HOME/dotfiles/zshrc.basic
 
@@ -62,13 +62,13 @@ esac
 
 ## color
 [ -f $HOME/dotfiles/zshrc.color ] && source $HOME/dotfiles/zshrc.color
-</code>
+```
 
 #### zshrc.basic
 
 One of the reasons to use Zsh is for better tab completion, so we can enable that here. I'm also making the prompt look like that of Bash.
 
-<code>
+```bash
 ## auto comp
 autoload -U compinit
 compinit
@@ -91,11 +91,11 @@ zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
 bindkey '^r' history-beginning-search-backward-end
 bindkey '^f' history-beginning-search-forward-end
-</code>
+```
 
 The hello world example of tab completion is listing out the options for `ls`:
 
-<code>
+```bash
 $ ls -[tab]
 -1                  -- single column output
 -A                  -- list all except . and ..
@@ -103,20 +103,20 @@ $ ls -[tab]
 -H                  -- follow symlinks on the command line
 -L                  -- list referenced file for sym link
 ....
-</code>
+```
 
 Pretty cool. Another interesting feature is that it's able to share the history across multiple sessions and run a search through it. So suppose you ran some one-liner `git` command, and after a bunch of other commands you wanted to rerun the `git` command.
 
-<code>
+```bash
 $ git[Ctrl-R]
-</code>
+```
 
 Zsh will display the last entry in the history starting with the string `git`.
 There are tons of other things you can configure in Zsh, like more standard defining aliases for `ll` type of things.
 
 Before we move on, I'm going to mention that a lot command line tool configuration is about figuring out what keyboard bindings to use. We have basically a finite amount of reasonable keyboard shortcuts, yet seemingly endless number of features coming from all ends. For Zsh, running `bindkey` command without arguments display the currently bound keys:
 
-<code>
+```bash
 $ bindkey 
 "^A"-"^C" self-insert
 "^D" list-choices
@@ -124,7 +124,7 @@ $ bindkey
 "^G" list-expand
 "^H" vi-backward-delete-char
 ....
-</code>
+```
 
 ### tmux
 
@@ -134,15 +134,15 @@ $ bindkey
 
 On Mac you should be able to grab it from Homebrew:
 
-<code>
+```bash
 $ brew install tmux
-</code>
+```
 
 To start a session, run `tmux` from the shell:
 
-<code>
+```bash
 $ tmux new -s <session-name>
-</code>
+```
 
 I'm using `Ctrl-T` as the prefix to start tmux commands. In tmux terminology, window is basically a tab, and pane is like a split screen.
 
@@ -161,13 +161,13 @@ I'm using `Ctrl-T` as the prefix to start tmux commands. In tmux terminology, wi
 - `Ctrl-T }` swaps the current pane
 - `Ctrl-T Ctrl-arrow` moves the current window in the direction
 
-<code>
+```bash
 # map vi movement keys as pane movement keys
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
-</code>
+```
 
 We will also bind arrow keys with modifier later.
 
@@ -176,39 +176,39 @@ We will also bind arrow keys with modifier later.
 Next, I'm adding a cool statusline using [Powerline](https://powerline.readthedocs.org/en/latest/).
 This requires Python, so install it.
 
-<code>
+```bash
 $ brew install python
-</code>
+```
 
 This installs Python 2.7.6. Even thought the documentation says install powerline with `--user`, on Mac doing so results to and error, so install it without `--user`:
 
-<code>
+```bash
 $ pip install git+git://github.com/Lokaltog/powerline 
 Downloading/unpacking git+git://github.com/Lokaltog/powerline
 ....
-</code>
+```
 
 To point to the packages define `SITE_PACKAGES` environment variable in `zshrc.osx`:
 
-<code>
+```bash
 export SITE_PACKAGES=/usr/local/lib/python2.7/site-packages/
-</code>
+```
 
 Now we can add the following line to `tmux.conf`:
 
-<code>
+```bash
 source $SITE_PACKAGES/powerline/bindings/tmux/powerline.conf
-</code>
+```
 
 ![Powerline](/images/vim-memo-1a.png)
 
 One cool thing about a tmux session is that it keep running in the background even if your terminal is no longer connected. So you can use `Ctrl-T $` to rename the current session, and then do the following to disconnect, list the sessions, and attach back.
 
-<code>
+```bash
 $ tmux detach
 $ tmux ls
 $ tmux a -t vim-memo
-</code>
+```
 
 To get more info about tmux, see [tmux cheatsheet](https://gist.github.com/MohamedAlaa/2961058).
 
@@ -216,9 +216,9 @@ To get more info about tmux, see [tmux cheatsheet](https://gist.github.com/Moham
 
 [Vim](http://www.vim.org/) is a text editor. On Mac you can grab Vim using homebrew. For a plugin we would need Lua support:
 
-<code>
+```bash
 $ brew install vim --with-lua
-</code>
+```
 
 There are a lot of key bindings to go through around Vim. It doesn't help that I'm adding plugins because I then would need to remember the key bindings I'm setting for them as well.
 
@@ -255,7 +255,7 @@ I can't list out all the feature included in Vim, but one of more helpful things
 
 Similar to zshrc, vimrc is split into multiple scripts for better organization.
 
-<code>
+```bash
 " basics
 source $HOME/dotfiles/vimrc.basic
 
@@ -285,16 +285,16 @@ source $HOME/dotfiles/vimrc.unite
 
 " colors
 source $HOME/dotfiles/vimrc.colors
-</code>
+```
 
 To find out the existing key bindings, use one of the following ex commands:
 
-<code>
+```bash
 :map
 :nmap
 :imap
 :vmap
-</code>
+```
 
 
 ### Shougo/neobundle.vim
@@ -313,7 +313,7 @@ The [unite.vim](https://github.com/Shougo/unite.vim) plug-in can search and disp
 
 So the first thing I wanted to do using unite.vim was to emulate `Ctrl-P` functionality in SublimeText. `Ctrl-P` and `Ctrl-N` are actually frequently used key bindings for previous and next, so I'm going to define spacebar as the prefix for unite.vim, and use `<space>f` for files.
 
-<code>
+```bash
 " Unite
 
 let g:unite_enable_start_insert = 1
@@ -326,7 +326,7 @@ call unite#filters#sorter_default#use(['sorter_rank'])
 
 " File searching using <space>f
 nnoremap <silent> [unite]f :<C-u>Unite -no-split -buffer-name=files -profile-name=buffer -auto-preview file_rec/async:!<cr>
-</code>
+```
 
 Because I'm using `-no-split` here the list of files will be displayed in the current window. This is considered more Vim, because Vim is a modal editor.
 
@@ -336,7 +336,7 @@ Pressing `enter` would take the default action, which in this case is opening th
 
 Building on this, we can define some useful commands like grepping using [the silver searcher](https://github.com/ggreer/the_silver_searcher).
 
-<code>
+```bash
 if executable('ag')
   let g:unite_source_grep_command='ag'
   let g:unite_source_grep_default_opts='--nocolor --nogroup -S -C4'
@@ -383,7 +383,7 @@ function! s:unite_settings()
   nmap <silent> <buffer> <Esc><Esc> <Plug>(unite_exit)
   imap <silent> <buffer> <Esc><Esc> <Plug>(unite_exit)
 endfunction
-</code>
+```
 
 ### Shougo/neomru.vim 
 
@@ -398,7 +398,7 @@ For example, to look up key bindings on window commands, I can type `<space>h` a
 
 [Vimfiler](https://github.com/Shougo/vimfiler.vim) is a file explorer. Not sure how much I would need it, but I use SublimeText's file navigation sidebar enough that I figured I'll have something similar. Here's how to display a file explorer in a split window on by typing `backslash e`:
 
-<code>
+```bash
 " vim.filer {{{
 if neobundle#is_installed('vimfiler')
 " Enable file operation commands.
@@ -411,7 +411,7 @@ nnoremap <silent> <Leader>E :<C-U>VimFiler<CR>
 " ....
 endif
 " }}}
-</code>
+```
 
 ![vimfiler](/images/vim-memo-1c.png)
 
@@ -436,7 +436,7 @@ $ cmake -G "Unix Makefiles" -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framew
 
 You can check out what's in `scala.snip`:
 
-<code>
+```bash
 $ cat ~/.vim/bundle/neosnippet-snippets/neosnippets/scala.snip | less
 snippet     match
 abbr        match {\n  case .. => ..
@@ -444,11 +444,11 @@ abbr        match {\n  case .. => ..
               case ${1} => ${0}
       }
 ....
-</code>
+```
 
 Here's from the keybinding recommended in the README:
 
-<code>
+```bash
 " neosnippet {{{
 if neobundle#is_installed('neosnippet.vim')
 " Plugin key-mappings.
@@ -457,7 +457,7 @@ smap <C-k>     <Plug>(neosnippet_expand_or_jump)
 xmap <C-k>     <Plug>(neosnippet_expand_target)
 endif
 " }}}
-</code>
+```
 
 If I open a `.scala` file, and type `match<Ctrl-k>` it expands into a match-case.
 
@@ -469,14 +469,14 @@ If I open a `.scala` file, and type `match<Ctrl-k>` it expands into a match-case
 
 Now we can define a keyboard shortcut to start it up quickly.
 
-<code>
+```bash
 " vimshell {{{
 if neobundle#is_installed('vimshell')
 nnoremap <silent> <Leader>s :<C-U>VimShell -buffer-name=shell -split -toggle<CR>
 let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
 endif
 " }}}
-</code>
+```
 
 Similar to file explorer, `backslash s` will now toggle a shell window. While the integrating shell with Vim could be interesting, it's really not the same as running Zsh. Also, even for just running sbt, I noticed that up arrow key is bound to something else so history completion of sbt didn't work.
 
@@ -484,7 +484,7 @@ Similar to file explorer, `backslash s` will now toggle a shell window. While th
 
 [vimproc](https://github.com/Shougo/vimproc.vim) is also required to use vimshell. There's a manual step required to install this plugin, but it should be taken care of as the following NeoBundle entry:
 
-<code>
+```bash
 NeoBundle 'Shougo/vimproc', {
     \ 'build' : {
     \     'windows' : 'make -f make_mingw32.mak',
@@ -493,7 +493,7 @@ NeoBundle 'Shougo/vimproc', {
     \     'unix' : 'make -f make_unix.mak',
       \    },
       \ }
-</code>
+```
 
 This requires you have GNU make on the path as `make`.
 
@@ -515,9 +515,9 @@ Configuing the arrows correctly requires some knowledge into all of the layers t
 
 When you hit an arrow key with some modifier, Terminal.app needs to know what sequence of character it needs to send to Zsh. One of the convention is "xterm style", which is:
 
-<code>
+```bash
  <Esc> + "1;" + <modifier key> + ("A" | "B" | "C" | "D")
-</code>
+```
 
 Where `<Esc>` is `\033`, `<modifier key>` is:
 
@@ -542,14 +542,14 @@ with the exception of `<Alt-Left>` and `<Alt-Right>`, which are given `<Esc>B` a
 
 Next, this setting is needed in `tmux.conf` to forward them into Zsh running inside:
 
-<code>
+```bash
 # pass through Shift+Arrow
 set-window-option -g xterm-keys on
-</code>
+```
 
 Now we can also configure tmux window and pane movements:
 
-<code>
+```bash
 # control arrow to switch windows
 bind -n C-Left  previous-window
 bind -n C-Right next-window
@@ -563,11 +563,11 @@ bind -n C-S-Left select-pane -L
 bind -n C-S-Right select-pane -R
 bind -n C-S-Up select-pane -U
 bind -n C-S-Down select-pane -D
-</code>
+```
 
 To move between the Vim windows, here's `vimrc.moving`:
 
-<code>
+```bash
 " moving
 
 " Use Shift-arrows to select the active split!
@@ -587,7 +587,7 @@ if &term =~ '^screen'
   execute "set <xRight>=\e[1;*C"
   execute "set <xLeft>=\e[1;*D"
 endif
-</code>
+```
 
 This allows you to move between Vim windows using `<Shift>`-arrow keys in both Normal and Insert mode. These may be flagged as a newbie keybinds because I'm leaving my hands off the home position, but so far I'm finding them handy.
 
@@ -597,20 +597,20 @@ Another keybinding that's newbie-like but I find it useful is `Ctrl-S` for savin
 
 - [Map Ctrl-S to save current or new files](http://vim.wikia.com/wiki/Map_Ctrl-S_to_save_current_or_new_files)
 
-<code>
+```bash
 " map <C-s> to :update
 noremap <silent> <C-S>      :update<CR>
 vnoremap <silent> <C-S>     <C-C>:update<CR>
 inoremap <silent> <C-S>     <C-O>:update<CR>
-</code>
+```
 
 ### Powerline
 
 Since we've put in [Powerline](https://powerline.readthedocs.org/en/latest/) for tmux, we're using it for Vim too. I added this at the end of `vimrc.bundle`:
 
-<code>
+```bash
 set rtp+=$SITE_PACKAGES/powerline/bindings/vim
-</code>
+```
 
 ### sickill/vim-monokai
 
@@ -631,14 +631,14 @@ Combined with Monokai, it looks like this:
 
 [caw.vim](https://github.com/tyru/caw.vim/) aka comment anywhere, is a plugin for commenting out lines of code.
 
-<code>
+```bash
 " caw.vim {{{
 if neobundle#is_installed('caw.vim')
   nmap <Leader>c <Plug>(caw:I:toggle)
   vmap <Leader>c <Plug>(caw:I:toggle)
 endif
 " }}}
-</code>
+```
 
 I'm assigning `backslash c` to toggle commenting and uncommenting.
 

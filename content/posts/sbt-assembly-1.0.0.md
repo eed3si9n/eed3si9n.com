@@ -27,9 +27,9 @@ In June of 2011, I started working on sbt-assembly for sbt 0.10, based on Coda H
 
 The plugin creates an über-JAR that can be used for easier deployment. As opposed to the regular JAR file created with `packageBin` task, an über-JAR is one big JAR file with your code, Scala standard library, and all the extenal dependency files. It's a JAR file that can be executed as:
 
-<code>
+```bash
 $ java -jar target/scala-2.13/hello-assembly-0.1.0-SNAPSHOT.jar
-</code>
+```
 
 Over the years, it has also added various features related to über-JAR such as merge strategy and shading.
 
@@ -45,9 +45,9 @@ See below for POM consistency setup.
 
 ### usage
 
-<code>
+```bash
 > assembly
-</code>
+```
 
 ### changes with compatibility implication
 
@@ -120,7 +120,7 @@ According to `git shortlog -sn --no-merges`, sbt-assembly was brought to you by 
 
 Thanks to everyone who's helped improve sbt-assembly using them, reporting bugs, improving our documentation, submitting pull requests and answering Stackoverflow questions.
 
-<code>
+```bash
    269  Eugene Yokota (eed3si9n)
     45  Kenji Yoshida (xuwei-k)
     15  Robert J. Macomber
@@ -189,7 +189,7 @@ Thanks to everyone who's helped improve sbt-assembly using them, reporting bugs,
      1  Will Sargent
      1  Ólafur Páll Geirsson
      1  菅原 浩
-</code>
+```
 
 Before DMing or emailing me your sbt-assembly questions, please read the [issue reporting guideline](https://github.com/sbt/sbt-assembly/blob/develop/CONTRIBUTING.md).
 

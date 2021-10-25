@@ -61,45 +61,45 @@ lazy val root = (project in file("."))
 
 デフォルトでは、これは普通のバイナリ依存性を用いる。`libraryDependency` セッティングを使ってそれを確認できる:
 
-<code>
+```bash
 $ sbt
 sbt:helloworld> libraryDependencies
 [info] * org.scala-lang:scala-library:2.12.6
 [info] * com.github.scopt:scopt:3.7.0
-</code>
+```
 
 ソースモードに切り替えるには sbt を `-Dsbt.sourcemode=true` と共に実行する:
 
-<code>
+```bash
 $ sbt -Dsbt.sourcemode=true
 [info] Loading settings from build.sbt ...
 [error] java.lang.RuntimeException: Invalid build URI (no handler available): file:///Users/eed3si9n/workspace/scopt/
 ....
-</code>
+```
 
 `workspaceDirectory / "scopt"` に妥当なビルドが無かったのでビルドの読み込みに失敗した。scopt/scopt を `$HOME/workspace` 以下にチェックアウトして、再試行する。
 
-<code>
+```bash
 $ cd $HOME/workspace
 $ git clone https://github.com/scopt/scopt
-</code>
+```
 
 これで `sbt -Dsbt.sourcemode=true` が走るようになったはずで、`internalDependencyClasspath` は scopt を含むはずだ。
 
-<code>
+```bash
 $ sbt -Dsbt.sourcemode=true
 sbt:helloworld> show internalDependencyClasspath
 [info] Compiling 2 Scala sources to /Users/eed3si9n/workspace/scopt/jvm/target/scala-2.12/classes ...
 [info] Done compiling.
 [info] * Attributed(/Users/eed3si9n/workspace/scopt/jvm/target/scala-2.12/classes)
 [info] * Attributed(/Users/eed3si9n/work/hellotest/someProject/target/scala-2.12/classes)
-</code>
+```
 
 ### Scala 2.13.0-M4 を試す
 
 このようなセットアップをする一つの動機として 2.13.0-M4 などの Scala バージョンを上流の依存性がまだ公開されてない段階で使ってみたいというのがある。例えば、これを書いている時点で 2.13.0-M4 用の scopt は公開されていないが `sbt.sourcemode=true` を使うことで `++2.13.0-M4!` を呼べる。
 
-<code>
+```bash
 $ sbt -Dsbt.sourcemode=true
 sbt:helloworld> ++2.13.0-M4!
 [info] Forcing Scala version to 2.13.0-M4 on all projects.
@@ -112,7 +112,7 @@ Type in expressions for evaluation. Or try :help.
 
 scala> val parser = new scopt.OptionParser[Unit]("scopt") {}
 parser: scopt.OptionParser[Unit] = $anon$1@28e39e04
-</code>
+```
 
 ### ソース依存を使ったテスト
 
@@ -144,7 +144,7 @@ lazy val root = (project in file("."))
 
 これらの変更によって改造版の µTest を Scala 2.13.0-M4 上で走らせられるようになった。
 
-<code>
+```bash
 $ sbt -Dsbt.sourcemode=true
 sbt:helloworld> ++2.13.0-M4!
 sbt:helloworld> test
@@ -159,7 +159,7 @@ X foo.HelloTests.test1 28ms
 [error] Failed tests:
 [error]   foo.HelloTests
 [error] (Test / test) sbt.TestsFailedException: Tests unsuccessful
-</code>
+```
 
 µTest をさらにいじりたければ `utestJVMRef` を `ProjectRef(IO.toURI(workspaceDirectory / "utest"), "utestJVM")` に置き換える。
 

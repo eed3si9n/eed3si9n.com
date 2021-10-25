@@ -14,7 +14,7 @@ Oracle は [non-LTS JDK を 6ヶ月おき](https://mreinhold.org/blog/forward-fa
 
 今後立て続けにリリースされる JDK に備えて、Travis CI を使ってアプリを JDK 8, JDK 9, そして JDK 10 Early Access でテストする方法を紹介する。
 
-<code>
+```yaml
 dist: trusty
 
 language: scala
@@ -56,7 +56,7 @@ cache:
 before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
   - find $HOME/.sbt  -name "*.lock"               -delete
-</code>
+```
 
 この例では、sbt と sbt-native-packager を使っているが、どのビルドツールでも動くはずだ。
 
@@ -66,7 +66,7 @@ before_cache:
 
 `test.sh` はこんな感じだ:
 
-<code>
+```bash
 #!/bin/bash
 
 ## https://github.com/travis-ci/travis-ci/issues/8408
@@ -89,7 +89,7 @@ mkdir freshly-baked
 
 unzip -qo ../target/universal/sbt.zip -d ./freshly-baked
 ./freshly-baked/sbt/bin/sbt about run
-</code>
+```
 
 何をテストしているのかによって最後の 2行を変えるだけでいい。
 

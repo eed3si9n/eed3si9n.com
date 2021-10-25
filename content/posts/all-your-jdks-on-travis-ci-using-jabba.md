@@ -63,18 +63,18 @@ cache:
 
 When the job runs you should see something like:
 
-<code>
+```bash
 $ export JAVA_HOME="$JABBA_HOME/jdk/$TRAVIS_JDK" && export PATH="$JAVA_HOME/bin:$PATH" && java -Xmx32m -version
 openjdk version "11.0.1" 2018-10-16
 OpenJDK Runtime Environment AdoptOpenJDK (build 11.0.1+13)
 OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.1+13, mixed mode)
-</code>
+```
 
 ### Azul Zulu OpenJDK 6
 
 Here's how we can use jabba on Travis CI to run a build using Azul Zulu OpenJDK 6:
 
-<code>
+```yaml
 sudo: false
 dist: trusty
 group: stable
@@ -112,13 +112,13 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot
     - $HOME/.jabba/jdk
-</code>
+```
 
 To specify the `TRAVIS_JDK` variable, you need to pick a JDK from the `"linux"` section of <https://github.com/shyiko/jabba/blob/master/index.json>.
 
 When the job runs you should see something like:
 
-<code>
+```bash
 Downloading zulu@1.6.107 (https://cdn.azul.com/zulu/bin/zulu6.20.0.1-jdk6.0.107-linux_x64.tar.gz)
 64356908/64356908
 Extracting /tmp/jabba-d-303130071 to /home/travis/.jabba/jdk/zulu@1.6.107
@@ -128,6 +128,6 @@ openjdk version "1.6.0-107"
 OpenJDK Runtime Environment (Zulu 6.20.0.1-linux64) (build 1.6.0-107-b107)
 OpenJDK 64-Bit Server VM (Zulu 6.20.0.1-linux64) (build 23.77-b107, mixed mode)
 ....
-</code>
+```
 
 The above is a workaround for [travis-ci/travis-ci#9713](https://github.com/travis-ci/travis-ci/issues/9713), but jabba also is useful for testing future JDKs as well.

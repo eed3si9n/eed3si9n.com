@@ -63,7 +63,7 @@ We need to release on publish, so if you have `bintrayReleaseOnPublish := false`
 
 Follow the instruction in [olafurpg/sbt-ci-release][1] to generate a fresh GPG key.
 
-<code>
+```bash
 $ gpg --gen-key
 gpg (GnuPG/MacGPG2) 2.2.20; Copyright (C) 2020 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
@@ -84,15 +84,15 @@ pub   rsa2048 2020-08-07 [SC] [expires: 2022-08-07]
       0AC38C6BAD42D5980D8E01A17766C6BECAD5CE7B
 uid                      sbt-avro bot <eed3si9n@gmail.com>
 sub   rsa2048 2020-08-07 [E] [expires: 2022-08-07]
-</code>
+```
 
 Take this down as `LONG_ID`:
 
-<code>
+```bash
 LONG_ID=0AC38C6BAD42D5980D8E01A17766C6BECAD5CE7B
 echo $LONG_ID
 gpg --armor --export $LONG_ID
-</code>
+```
 
 Submit the public key to http://keyserver.ubuntu.com:11371/.
 
@@ -117,7 +117,7 @@ The following should be kept secret (default):
 - `PGP_SECRET`: The base64 encoded secret of your private key that you can
   export from the command line like here below
 
-<code>
+```bash
 # macOS
 gpg --armor --export-secret-keys $LONG_ID | base64 | pbcopy
 # Ubuntu (assuming GNU base64)
@@ -126,11 +126,11 @@ gpg --armor --export-secret-keys $LONG_ID | base64 -w0 | xclip
 gpg --armor --export-secret-keys $LONG_ID | base64 | sed -z 's;\n;;g' | xclip -selection clipboard -i
 # FreeBSD (assuming BSD base64)
 gpg --armor --export-secret-keys $LONG_ID | base64 | xclip
-</code>
+```
 
 ### step 7: Travis CI YAML
 
-<code>
+```yaml
 language: scala
 
 jdk: openjdk8
@@ -166,15 +166,15 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.cache/coursier
     - $HOME/.sbt
-</code>
+```
 
 ### step 8: tag-based release
 
 When you're ready to publish your plugin, tag the commit and push it.
 
-<code>
+```bash
 git tag -a v0.1.0 -m "v0.1.0"
 git push origin v0.1.0
-</code>
+```
 
 This should start a release job on Travis CI.

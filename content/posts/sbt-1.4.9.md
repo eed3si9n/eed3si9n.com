@@ -29,9 +29,9 @@ Download **the official sbt launcher** from SDKMAN or download from <https://git
 
 In addition, the sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.4.9
-</code>
+```
 
 This mechanism allows that sbt 1.4.9 is used only for the builds that you want.
 
@@ -51,7 +51,7 @@ sbt 1.4.9 is published to Sonatype OSS without going through Bintray.
 
 If you're using Travis CI, you might run into the above issue because it's using an older version of sbt-extras. Here's how you can use the official sbt launcher script instead:
 
-<code>
+```bash
 install:
   - |
     # update this only when sbt-the-bash-script needs to be updated
@@ -63,7 +63,7 @@ install:
     sudo ln -s $HOME/sbt/bin/sbt /usr/local/bin/sbt
 script:
   - sbt -v "+test"
-</code>
+```
 
 ### Fixes
 

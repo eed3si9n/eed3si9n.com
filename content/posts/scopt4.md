@@ -22,9 +22,9 @@ You can skip to the [readme](https://github.com/scopt/scopt), if you're in a hur
 
 To try new scopt 4.0.0:
 
-<code>
+```scala
 libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.0"
-</code>
+```
 
 scopt 4.0.0 is cross published for the following build matrix:
 
@@ -263,7 +263,7 @@ Now you can do whatever with those effects.
 
 As with scopt 3, usage text is generated automatically.
 
-<code>
+```bash
 scopt 4.x
 Usage: scopt [update] [options] [<file>...]
 
@@ -282,7 +282,7 @@ Command: update [options]
 update is a command.
   -nk, --not-keepalive     disable keepalive
   --xyz <value>            xyz is a boolean property
-</code>
+```
 
 
 Try scopt 4, and please [report a bug](https://github.com/scopt/scopt/issues/new) if you find something.

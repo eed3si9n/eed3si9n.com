@@ -19,14 +19,14 @@ This post explains how to use Travis CI to deploy your docs automatically on a p
 Make a directory outside of your project first.
 Pick a key name `deploy_yourproject_rsa`, so you can distinguish it from other keys.
 
-<code>
+```bash
 $ mkdir keys
 $ cd keys
 $ ssh-keygen -t rsa -b 4096 -C "yours@example.com"
 Generating public/private rsa key pair.
 Enter file in which to save the key (/Users/xxx/.ssh/id_rsa): deploy_website_rsa
 Enter passphrase (empty for no passphrase):
-</code>
+```
 
 Keep the passphrase empty.
 
@@ -34,10 +34,10 @@ Keep the passphrase empty.
 
 Move to your website project, start a branch on your project, and create `.travis` directory.
 
-<code>
+```bash
 $ cd ../website
 $ mkdir .travis
-</code>
+```
 
 ### 3. Install `travis` utility, and encrypt the private key
 
@@ -45,7 +45,7 @@ Run `travis encrypt-file --repo foo/website ../website_keys/deploy_website_rsa .
 
 **Note**: If you don't specify `--repo` it will pick up on git origin, which for me often points to my private fork.
 
-<code>
+```bash
 $ gem install travis
 $ travis login --auto
 $ travis encrypt-file --repo foo/website ../website_keys/deploy_website_rsa .travis/deploy_rsa.enc
@@ -62,7 +62,7 @@ Pro Tip: You can add it automatically by running with --add.
 Make sure to add .travis/deploy_rsa.enc to the git repository.
 Make sure not to add ../website_keys/deploy_website_rsa to the git repository.
 Commit all changes to your .travis.yml.
-</code>
+```
 
 See [Encrypting Files](https://docs.travis-ci.com/user/encrypting-files/). Double check that your environmental variables are set correctly by going to the Travis Settings <https://travis-ci.org/foo/website/settings>. You should see the entries for the encrypted key and the initialization vector (iv).
 
@@ -70,7 +70,7 @@ See [Encrypting Files](https://docs.travis-ci.com/user/encrypting-files/). Doubl
 
 Add `publish-site.sh` under `.travis` directory.
 
-<code>
+```bash
 #!/bin/bash -ex
 
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" && "${TRAVIS_BRANCH}" == "master" && "${TRAVIS_REPO_SLUG}" == "foo/website" ]]; then
@@ -81,24 +81,24 @@ if [[ "${TRAVIS_PULL_REQUEST}" == "false" && "${TRAVIS_BRANCH}" == "master" && "
   cp .travis/deploy_rsa ~/.ssh/
   sbt ghpagesPushSite
 fi
-</code>
+```
 
   - Replace `"master"` with your branch.
   - Replace `"foo/website"` with your repo.
   - Replace `-K $encrypted_1234_key -iv $encrypted_1234_iv` with your own.
 
-<code>
+```bash
 $ chmod +x .travis/publish-site.sh
-</code>
+```
 
 This script was originally [written](https://github.com/foundweekends/conscript/commit/3dbeca317c363ca4c224ba4d5f0f9eb44a64d1bf) by Yoshida-san. According to [him](https://twitter.com/xuwei_k/status/887519941884129284), this was in turn based on [GitHub push from Travis](http://blog.eiel.info/blog/2014/02/18/github-push-from-travis/) by eiel.
 
 ### 5. Edit .travis.yml
 
-<code>
+```bash
 after_success:
   - .travis/publish-site.sh
-</code>
+```
 
 ### 6. Add public key to the GitHub pages repo
 
@@ -108,7 +108,7 @@ Go to the GitHub pages repo, Settings > Deploy keys https://github.com/foo/foo.g
 
 The following is specific to the behavior of sbt-ghpages. It might not be needed if you're doing something else.
 
-<code>
+```bash
   lazy val siteEmail = settingKey[String]("")
 
   val syncLocalImpl = Def.task {
@@ -129,7 +129,7 @@ The following is specific to the behavior of sbt-ghpages. It might not be needed
         git(("config" :: "user.email" :: email :: Nil) :_*)(dir, log)
       case _           => ()
     }
-</code>
+```
 
 ### A note about Pamflet + Pandoc
 

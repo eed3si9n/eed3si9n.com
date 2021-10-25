@@ -13,14 +13,14 @@ tags:        [ "git" ]
 
 ### サブディレクトリを新しいリポジトリへ分岐させる (シンプルな場合)
 
-<code>
+```bash
 git clone --no-hardlinks --branch master originalRepoURL childRepo
 cd childRepo
 git filter-branch --prune-empty --subdirectory-filter path/to/keep master
 git remote remove origin
 git prune
 git gc --aggressive
-</code>
+```
 
 `originalRepoURL`、`master`、`path/to/keep` などは適当な値に変える。全てのブランチを処理したい場合は `-- --all` を使う。
 
@@ -28,7 +28,7 @@ git gc --aggressive
 
 複数のパスをフィルターしたい場合は、`--index-filter` と `brew install gnu-sed findutils` によってインストールできる GNU xargs と GNU sed を使う必要がある。
 
-<code>
+```bash
 git clone --no-hardlinks --branch master originalRepoURL childRepo
 cd childRepo
 git filter-branch --index-filter 'git rm --cached -qr --ignore-unmatch -- . && git reset -q $GIT_COMMIT -- path1/to/keep path2/to/keep' --prune-empty master
@@ -36,7 +36,7 @@ git filter-branch --prune-empty --parent-filter 'gsed "s/-p //g" | gxargs git sh
 git remote remove origin
 git prune
 git gc --aggressive
-</code>
+```
 
 `originalRepoURL`、`master`、`path1/to/keep`、`path2/to/keep` などは適当な値に変える。全てのブランチを処理したい場合は `-- --all` を使う。
 
@@ -44,36 +44,36 @@ git gc --aggressive
 
 `--subdirectory-filter` は `path/to/keep` 以下の `src/` などをルートに移動してしまうので、元のパス (もしくは別のパス) に戻したい場合は移動させてコミットを 1つ追加する必要がある。
 
-<code>
+```bash
 mkdir -p path/to/keep
 git mv src path/to/keep
 git commit -m "move files"
-</code>
+```
 
 ### タグの削除
 
 元リポの全てのタグを削除したい場合は、以下を `deltags.sh` という名前で保存して、実行する。
 
-<code>
+```bash
 #!/bin/bash
 
 for t in `git tag`
 do
   git tag -d $t
 done
-</code>
+```
 
-<code>
+```bash
 chmod +x deltags.sh
 ./deltags.sh
-</code>
+```
 
 ### 既存のリポジトリへと merge する
 
 オプションとして、このテクニックを応用して既存のリポへと履歴を接ぎ木をすることができる。
 念の為 `wip/graft` というブランチを作ってそこに接ぎ木する。
 
-<code>
+```bash
 cd ..
 git clone someotherRepo
 cd someotherRepo
@@ -81,7 +81,7 @@ git remote add childRepo ../childRepo
 git checkout -b wip/graft
 git pull childRepo master --allow-unrelated-histories
 git remote remove childRepo
-</code>
+```
 
 これでプルリクなどを送ることができる。
 

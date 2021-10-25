@@ -20,7 +20,7 @@ Yesterday I wrote about [cross JVM testing using Travis CI][1].
 
 Here's how we can test Scala apps on macOS using Travis CI. This is adapted from Lars and Muuki's method: [Testing Scala programs with Travis CI on OS X][3]
 
-<code>
+```yaml
 dist: trusty
 
 language: scala
@@ -75,7 +75,7 @@ cache:
 before_cache:
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
   - find $HOME/.sbt  -name "*.lock"               -delete
-</code>
+```
 
 Normally you'd write `jdk: oraclejdk8` at the top level, but since the macOS image does not have the `jdk_switcher` script [travis/travis#2317][2317], we need to add to all entries in the matrix except for the `osx` one.
 
@@ -85,7 +85,7 @@ What motivated me to work this out is running into a `sed` difference between ma
 
 To workaround this, I wrote a bash function that returns the JDK version.
 
-<code>
+```bash
 #!/bin/bash
 
 # returns the JDK version.
@@ -126,6 +126,6 @@ jdk_version() {
 
 v="$(jdk_version)"
 echo $v
-</code>
+```
 
 This returns single integer `8` for Java version 1.8.0_nn, and `9` for Java 9. Recent versions of Java contains weird string in its version like `"9-Debian"` and `"10" 2018-03-20`, and this tries to handle them as much as possible.

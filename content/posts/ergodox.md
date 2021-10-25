@@ -88,13 +88,13 @@ To update the firmware using the official route, go to [the configurator page](h
 
 Next, I had to change the firmware version to "lts" and then download the firmware.
 
-<code>
+```bash
 $ brew install dfu-util
-</code>
+```
 
 To flash the firmware, first connect just the left keyboard, and then poke the flash button on the bottom of the keyboard. This should turn the LCD to orange.
 
-<code>
+```bash
 $ dfu-util -l
 Password:
 dfu-util 0.9
@@ -106,6 +106,6 @@ Please report bugs to http://sourceforge.net/p/dfu-util/tickets/
 
 Found DFU: [1c11:b007] ver=0000, devnum=6, cfg=1, intf=0, path="20-5", alt=0, name="Kiibohd DFU", serial="mk20dx256vlh7"
 $ dfu-util -D left_kiibohd.dfu.bin
-</code>
+```
 
 Do the same for right using `right_kiibohd.dfu.bin`.

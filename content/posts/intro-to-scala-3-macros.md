@@ -86,7 +86,7 @@ Reflection API is partly documented as [Reflection][reflection], but normally I 
 
 Reflection API introduces a rich family of types such as `Tree`, `TypeRepr`, `Symbol`, and other miscellaneous API points.
 
-<code>
+```bash
 +- Tree -+- PackageClause
          |
          +- Statement -+- Import
@@ -119,7 +119,7 @@ Reflection API introduces a rich family of types such as `Tree`, `TypeRepr`, `Sy
 ....
 +- Symbol
 +- Flags
-</code>
+```
 
 To isolate the macros and the Scala 3 compiler implementation, the API is given as a set of abstract type, method extension over the abstract type, a `val` representing a companion object, and a trait desciribing the API of the companion object.
 

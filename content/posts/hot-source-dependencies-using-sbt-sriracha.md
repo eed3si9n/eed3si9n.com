@@ -61,45 +61,45 @@ lazy val root = (project in file("."))
 
 This will use normal binary dependency by default. You can check that looking at the `libraryDependency` setting:
 
-<code>
+```bash
 $ sbt
 sbt:helloworld> libraryDependencies
 [info] * org.scala-lang:scala-library:2.12.6
 [info] * com.github.scopt:scopt:3.7.0
-</code>
+```
 
 To switch to the source mode, run sbt with `-Dsbt.sourcemode=true`:
 
-<code>
+```bash
 $ sbt -Dsbt.sourcemode=true
 [info] Loading settings from build.sbt ...
 [error] java.lang.RuntimeException: Invalid build URI (no handler available): file:///Users/eed3si9n/workspace/scopt/
 ....
-</code>
+```
 
 The build failed to load, because `workspaceDirectory / "scopt"` didn't have the valid build. Check out scopt/scopt under `$HOME/workspace`, and try again.
 
-<code>
+```bash
 $ cd $HOME/workspace
 $ git clone https://github.com/scopt/scopt
-</code>
+```
 
 Now `sbt -Dsbt.sourcemode=true` should run, and `internalDependencyClasspath` should include scopt.
 
-<code>
+```bash
 $ sbt -Dsbt.sourcemode=true
 sbt:helloworld> show internalDependencyClasspath
 [info] Compiling 2 Scala sources to /Users/eed3si9n/workspace/scopt/jvm/target/scala-2.12/classes ...
 [info] Done compiling.
 [info] * Attributed(/Users/eed3si9n/workspace/scopt/jvm/target/scala-2.12/classes)
 [info] * Attributed(/Users/eed3si9n/work/hellotest/someProject/target/scala-2.12/classes)
-</code>
+```
 
 ### trying Scala 2.13.0-M4
 
 One motivation to set this up is trying 2.13.0-M4 or some version of Scala before your upstream dependency has published one for it. For example, as of this writing scopt for 2.13.0-M4 is not yet available, but I can call `++2.13.0-M4!` with `sbt.sourcemode=true`.
 
-<code>
+```bash
 $ sbt -Dsbt.sourcemode=true
 sbt:helloworld> ++2.13.0-M4!
 [info] Forcing Scala version to 2.13.0-M4 on all projects.
@@ -112,7 +112,7 @@ Type in expressions for evaluation. Or try :help.
 
 scala> val parser = new scopt.OptionParser[Unit]("scopt") {}
 parser: scopt.OptionParser[Unit] = $anon$1@28e39e04
-</code>
+```
 
 ### testing with source dependencies
 
@@ -144,7 +144,7 @@ lazy val root = (project in file("."))
 
 Now using these changes I can run custom µTest on Scala 2.13.0-M4.
 
-<code>
+```bash
 $ sbt -Dsbt.sourcemode=true
 sbt:helloworld> ++2.13.0-M4!
 sbt:helloworld> test
@@ -159,7 +159,7 @@ X foo.HelloTests.test1 28ms
 [error] Failed tests:
 [error] 	foo.HelloTests
 [error] (Test / test) sbt.TestsFailedException: Tests unsuccessful
-</code>
+```
 
 If you want to further hack on µTest, just substitute `utestJVMRef` to `ProjectRef(IO.toURI(workspaceDirectory / "utest"), "utestJVM")`.
 

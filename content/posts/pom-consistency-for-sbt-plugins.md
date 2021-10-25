@@ -69,10 +69,10 @@ def sbtPluginExtra2021Draft(m: ModuleID): ModuleID =
 
 Now run sbt with the environment variable `POM_CONSISTENCY=1` and publish to your Nexus or Artifactory or use `publishM2` to test locally:
 
-<code>
+```bash
 $ POM_CONSISTENCY=1 sbt
 > publish
-</code>
+```
 
 This should produce a POM like this:
 

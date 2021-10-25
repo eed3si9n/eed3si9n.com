@@ -52,23 +52,23 @@ Given the relative stability provided by the binary compatibility of modern sbt,
 
 - As of April 26th, Debian package will be published to `deb https://repo.scala-sbt.org/scalasbt/debian all main` on Artsy. The older releases are hosted on `deb https://repo.scala-sbt.org/scalasbt/debian /`.
 
-<code>
+```bash
 echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
 echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
 curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
 sudo apt-get update
 sudo apt-get install sbt
-</code>
+```
 
 - RPM repository file is hosted at `https://www.scala-sbt.org/sbt-rpm.repo`. The RPM packages are hosted on Artsy.
 
-<code>
+```bash
 # remove old Bintray repo file
 sudo rm -f /etc/yum.repos.d/bintray-rpm.repo
 curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo
 sudo mv sbt-rpm.repo /etc/yum.repos.d/
 sudo yum install sbt
-</code>
+```
 
 To minimize the bandwidth requirement, both DEB file and RPM file will include only the `sbt` runner file without `sbt-launch.jar`.
 
@@ -82,9 +82,9 @@ Download **the official sbt runner** from SDKMAN or download from <https://www.s
 
 In addition, the sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.5.1
-</code>
+```
 
 This mechanism allows that sbt 1.5.1 is used only for the builds that you want.
 
@@ -99,13 +99,13 @@ Full more details please see https://github.com/sbt/sbt/releases/tag/v1.5.1.
 
 If for some reason the unofficial `sbt` doesn't work, the following can be used to install the official `sbt` runner:
 
-<code>
+```bash
 install:
   - |
     export SBT_OPTS=""
     curl -L --silent "https://raw.githubusercontent.com/sbt/sbt/v1.5.1/sbt" > $HOME/sbt
     chmod +x $HOME/sbt && sudo mv $HOME/sbt /usr/local/bin/sbt
-</code>
+```
 
 ### Participation
 

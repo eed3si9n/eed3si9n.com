@@ -25,9 +25,9 @@ The headline features of sbt 1.6.0 are:
 
 You can upgrade to sbt 1.6.0-M1 by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.6.0-M1
-</code>
+```
 
 ### Changes with compatibility implications
 

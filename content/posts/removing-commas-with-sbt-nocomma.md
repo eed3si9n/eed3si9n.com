@@ -207,7 +207,7 @@ lazy val root = (project in file("."))
 
 Because we hardcoded the type to `Setting[_]`, it will catch things at loading time if you put `println(...)` or something:
 
-<code>
+```bash
 /Users/xxx/hello/build.sbt:14: error: type mismatch;
  found   : Unit
  required: sbt.Setting[?]
@@ -218,7 +218,7 @@ Because we hardcoded the type to `Setting[_]`, it will catch things at loading t
 [error] sbt.compiler.EvalException: Type error in expression
 [error] Use 'last' for the full log.
 Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?
-</code>
+```
 
 ### setup
 

@@ -41,12 +41,12 @@ Defx の面白い所はデフォルトのキーバインドが無いことだ。
 
 `j` と `k` は当然カーソルを上下に移動させる。`<CR>` を以下のようにバインドした:
 
-<code>
+```bash
   nnoremap <silent><buffer><expr> <CR>
   \ defx#is_directory() ?
   \ defx#do_action('open_tree', 'recursive:10') :
   \ defx#do_action('preview')
-</code>
+```
 
 もしもノードがディレクトリならば、ツリーを再帰的に展開させて、もしもファイルならばプレビューとして開く。これは、Sublime でのクリックをエミュレートする。これで 3つのキーを使うだけで上下にナビゲートできる。
 
@@ -54,10 +54,10 @@ Defx の面白い所はデフォルトのキーバインドが無いことだ。
 
 再帰的に開いたツリーを、閉じるために `b` はツリーを 10回閉じるという力技を使っている:
 
-<code>
+```bash
   nnoremap <silent><buffer><expr> b
   \ defx#do_action('multi', ['close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree'])
-</code>
+```
 
 ファイルを開くには `o` を使う。実際には drop というアクションを使って、既にファイルが開いていればそのバッファーにフォーカスを移すようになっている。
 
@@ -79,12 +79,12 @@ Netrw のように、特定のサブディレクトリにフォーカスを狭�
 
 `l` はカレントディレクトリのビューをフォーカスしているものへ変更し、`h` で親に戻る。
 
-<code>
+```bash
   nnoremap <silent><buffer><expr> l
   \ defx#is_directory() ? defx#do_action('open') : 0
   nnoremap <silent><buffer><expr> h
   \ defx#do_action('cd', ['..'])
-</code>
+```
 
 ### ボーナス: Vineger モード
 
@@ -92,20 +92,20 @@ Netrw のように、特定のサブディレクトリにフォーカスを狭�
 
 `-` はこのようにマップした:
 
-<code>
+```bash
 nnoremap <silent> - :<C-U>:Defx `expand('%:p:h')` -search=`expand('%:p')` -buffer-name=defx<CR>
-</code>
+```
 
 例えば、カレントバッファーが `internal/compiler-interface/src/main/java/sxbti/VirtualFile.java` ならば、`-` は Defx を `internal/compiler-interface/src/main/java/sxbti/` で開く。
 
 ここで `o` がファイルを別のウィンドウに drop されると困る。以下のようにバッファー名によって振る舞いを切り替えてみた:
 
-<code>
+```bash
   nnoremap <silent><buffer><expr> o
   \ match(bufname('%'), 'explorer') >= 0 ?
   \ (defx#is_directory() ? 0 : defx#do_action('drop', 'vsplit')) :
   \ (defx#is_directory() ? 0 : defx#do_action('multi', ['open', 'quit']))
-</code>
+```
 
 `l`/`h` で 1レベル上に上がったりなど他のキーバインドはそのままだ。
 
@@ -115,16 +115,16 @@ nnoremap <silent> - :<C-U>:Defx `expand('%:p:h')` -search=`expand('%:p')` -buffe
 
 #### Nerd font
 
-<code>
+```bash
 brew tap homebrew/cask-fonts
 brew cask install font-hack-nerd-font
-</code>
+```
 
 ターミナルの Non-ASCII フォントを Hack Nerd Font Mono に変更する。
 
 #### plugins.toml
 
-<code>
+```bash
 [[plugins]]
 repo = 'ryanoasis/vim-devicons'
 
@@ -133,11 +133,11 @@ repo = 'kristijanhusak/defx-icons'
 
 [[plugins]]
 repo = 'kristijanhusak/defx-git'
-</code>
+```
 
 #### plugins_lazy.toml
 
-<code>
+```bash
 [[plugins]]
 repo = 'Shougo/defx.nvim'
 
@@ -185,5 +185,5 @@ call defx#custom#option('_', {
 \ 'columns': 'indent:git:icons:filename:mark',
 \ })
 '''
-</code>
+```
 

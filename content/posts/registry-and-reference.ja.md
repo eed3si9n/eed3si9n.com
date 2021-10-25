@@ -37,13 +37,13 @@ users: List[User] = List(User(Alice,List()), User(Bob,List(User(Alice,List()))),
 注目してほしいのは `parents` という他のユーザを参照するリストを保持してることだ。
 次に、`users` リストを JSON に変換したいとする。
 
-<code>
+```bash
 [{ "name": "Alice", "parents": [] },
 { "name": "Bob",
   "parents": [{ "name": "Alice", "parents": [] }] },
 { "name": "Charles",
   "parents": [{ "name": "Bob", "parents": [{ "name": "Alice", "parents": [] }] }] }]
-</code>
+```
 
 この方法だと複数の問題点がある。まず、JSON の表記として効率が悪いし JSON データとして期待される自然な感じではないことだ。次に、これを case class に変換しなおしたときにオブジェクトのグラフごとインスタンス化する必要があって、それも非効率だし、望ましくない状況が多いと思う。
 
@@ -53,9 +53,9 @@ users: List[User] = List(User(Alice,List()), User(Bob,List(User(Alice,List()))),
 
 この対策として考えているものを僕は registry and reference パターンと呼んでいる。基本的な考えとしては、予め 3人のユーザを registry (登記所) に登録して、JSON は以下のような内容で伝達する:
 
-<code>
+```bash
 ["Alice", "Bob", "Charles"]
-</code>
+```
 
 ググってみると Martin Fowler 先生も [Registry パターン][fowler]と呼んでいるみたいだ。彼のモデルだと Registry は以下の 2つのメソッドを含む:
 

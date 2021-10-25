@@ -67,7 +67,7 @@ We need to release on publish, so if you have `bintrayReleaseOnPublish := false`
 
 Follow the instruction in [olafurpg/sbt-ci-release][1] to generate a fresh GPG key.
 
-<code>
+```bash
 $ gpg --gen-key
 gpg (GnuPG/MacGPG2) 2.2.20; Copyright (C) 2020 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
@@ -88,15 +88,15 @@ pub   rsa2048 2020-08-07 [SC] [expires: 2022-08-07]
       0AC38C6BAD42D5980D8E01A17766C6BECAD5CE7B
 uid                      sbt-avro bot <eed3si9n@gmail.com>
 sub   rsa2048 2020-08-07 [E] [expires: 2022-08-07]
-</code>
+```
 
 Take this down as `LONG_ID`:
 
-<code>
+```bash
 LONG_ID=0AC38C6BAD42D5980D8E01A17766C6BECAD5CE7B
 echo $LONG_ID
 gpg --armor --export $LONG_ID
-</code>
+```
 
 Submit the public key to http://keyserver.ubuntu.com:11371/.
 
@@ -113,7 +113,7 @@ Set up secrets from `https://github.com/<owner>/<repo>/settings/secrets/actions`
 - `PGP_SECRET`: The base64 encoding of your private key that you can
   export from the command line like here below
 
-<code>
+```bash
 # macOS
 gpg --armor --export-secret-keys $LONG_ID | base64 | pbcopy
 # Ubuntu (assuming GNU base64)
@@ -122,29 +122,29 @@ gpg --armor --export-secret-keys $LONG_ID | base64 -w0 | xclip
 gpg --armor --export-secret-keys $LONG_ID | base64 | sed -z 's;\n;;g' | xclip -selection clipboard -i
 # FreeBSD (assuming BSD base64)
 gpg --armor --export-secret-keys $LONG_ID | base64 | xclip
-</code>
+```
 
 ### step 7: Decode the secret key
 
 For gpg 2.2 that are on more recent Ubuntu distros, we need to hand decode the private keys ourselves for now. Add `.github/decodekey.sh`:
 
-<code>
+```bash
 #!/bin/bash
 
 echo $PGP_SECRET | base64 --decode | gpg  --batch --import
-</code>
+```
 
 And give it execution rights:
 
-<code>
+```bash
 $ chmod +x .github/decodekey.sh
-</code>
+```
 
 ### step 8: GitHub Actions YAML
 
 Create `.github/workflows/ci.yml`. See [Setting up GitHub Actions with sbt](https://www.scala-sbt.org/1.x/docs/GitHub-Actions-with-sbt.html) for details:
 
-<code>
+```yaml
 name: CI
 on:
   pull_request:
@@ -176,11 +176,11 @@ jobs:
         find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
         find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
         find $HOME/.sbt
-</code>
+```
 
 Create `.github/worflows/release.yml` for releasing:
 
-<code>
+```yaml
 name: Release
 on:
   push:
@@ -217,7 +217,7 @@ jobs:
       run: |
         .github/decodekey.sh
         sbt ci-release
-</code>
+```
 
 For cross-built plugins, adjust the above commands accordingly.
 
@@ -225,10 +225,10 @@ For cross-built plugins, adjust the above commands accordingly.
 
 When you're ready to publish your plugin, tag the commit and push it.
 
-<code>
+```bash
 git tag -a v0.1.0 -m "v0.1.0"
 git push origin v0.1.0
-</code>
+```
 
 This should start a release job on GitHub Actions.
 
@@ -243,7 +243,7 @@ sbt-pgp 2.1.1 was released with version detection of `gpg` command, which will a
 
 sbt-ci-release uses `--import`, which also now fails silently on gpg 2.2 and causes 
 
-<code>
+```bash
 gpg: key 24A4616356F15CE1: public key "sbt-something bot <some@example.com>" imported
 gpg: key 24A4616356F15CE1/24A4616356F15CE1: error sending to agent: Inappropriate ioctl for device
 gpg: error building skey array: Inappropriate ioctl for device
@@ -255,7 +255,7 @@ Tag push detected, publishing a stable release
 [info] gpg: no default secret key: No secret key
 [info] gpg: signing failed: No secret key
 [error] java.lang.RuntimeException: Failure running 'gpg --batch --pinentry-mode loopback --passphrase *** --detach-sign --armor --use-agent --output /home/runner/work/sbt-projectmatrix/sbt-projectmatrix/target/scala-2.12/sbt-1.0/sbt-projectmatrix-0.7.1-M1.jar.asc /home/runner/work/sbt-projectmatrix/sbt-projectmatrix/target/scala-2.12/sbt-1.0/sbt-projectmatrix-0.7.1-M1.jar'.  Exit code: 2
-</code>
+```
 
 According to [T2313](https://dev.gnupg.org/T2313), the workaround for this is to use `--batch --import`, which our `.github/decodekey.sh` will do.
 

@@ -19,9 +19,9 @@ Download **the official sbt launcher** from SDKMAN or download from <https://git
 
 In addition, the sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.4.4
-</code>
+```
 
 This mechanism allows that sbt 1.4.4 is used only for the builds that you want.
 

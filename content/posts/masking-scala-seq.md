@@ -66,13 +66,13 @@ import scala.annotation.compileTimeOnly
 
 I am using nonsensical type parameters so the existing code won't compile. For example, `Seq[String]` in my code will be caught as follows:
 
-<code>
+```bash
 [info] Compiling 3 Scala sources to /scopt/jvm/target/scala-2.12/classes ...
 [error] /scopt/shared/src/main/scala/scopt/options.scala:434:19: wrong number of type arguments for scopt.Seq, should be 3
 [error]   def parse(args: Seq[String])(implicit ev: Zero[C]): Boolean =
 [error]                   ^
 [error] one error found
-</code>
+```
 
 As long as the code is within `scopt` package, this should prevent the use of `Seq`. To use actual Seqs, we would import them as follows:
 

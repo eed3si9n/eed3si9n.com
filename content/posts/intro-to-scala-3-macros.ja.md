@@ -87,7 +87,7 @@ Reflection API は一部 [Reflection][reflection] にドキュメント化され
 
 Reflection API は `Type`、`TypeRepr`、`Symbol` といった豊富な型ファミリー、そして他にも色々な API を導入する。
 
-<code>
+```bash
 +- Tree -+- PackageClause
          |
          +- Statement -+- Import
@@ -120,7 +120,7 @@ Reflection API は `Type`、`TypeRepr`、`Symbol` といった豊富な型ファ
 ....
 +- Symbol
 +- Flags
-</code>
+```
 
 マクロと Scala 3 コンパイラ実装を隔離させるために API は抽象型、その抽象型への拡張メソッド、コンパニオンオブジェクトを表す `val`、そしてコンパニオンオブジェクトの API を記述する trait の集合というパターンとなっている。
 

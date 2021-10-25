@@ -63,7 +63,7 @@ ThisBuild / bintrayRemoteCachePackage := "your_package_name"
 
 sbt シェルから `akka-actor/pushRemoteCache` と打ち込む:
 
-<code>
+```bash
 akka > akka-actor/pushRemoteCache
 [info] Wrote /Users/eed3si9n/work/quicktest/akka-0/akka-actor/target/scala-2.12/akka-actor_2.12-2.6.5+28-d4f0358c+20201025-1417.pom
 [info] compiling 1 Scala source to /Users/eed3si9n/work/quicktest/akka-0/akka-actor/target/scala-2.12/classes ...
@@ -73,11 +73,11 @@ akka > akka-actor/pushRemoteCache
 [info]  published akka-actor_2.12 to https://api.bintray.com/maven/eed3si9n/remote-cache/akka/com/typesafe/akka/akka-actor_2.12/0.0.0-d4f0358cbd/akka-actor_2.12-0.0.0-d4f0358cbd-cached-compile.jar
 [info]  published akka-actor_2.12 to https://api.bintray.com/maven/eed3si9n/remote-cache/akka/com/typesafe/akka/akka-actor_2.12/0.0.0-d4f0358cbd/akka-actor_2.12-0.0.0-d4f0358cbd-cached-test.jar
 [success] Total time: 30 s, completed Oct 25, 2020 2:18:46 PM
-</code>
+```
 
 このリモートキャッシュを使うには、`clean`、`akka-actor/pullRemoteCache`、そして `akka-actor/compile` と打ち込む:
 
-<code>
+```bash
 akka > clean
 [success] Total time: 5 s, completed Oct 25, 2020 2:19:10 PM
 akka > akka-actor/pullRemoteCache
@@ -100,7 +100,7 @@ akka > akka-actor/compile
 [info] Generating 'Tuples.scala'
 [info] Generating 'Functions.scala'
 [success] Total time: 2 s, completed Oct 25, 2020 2:19:35 PM
-</code>
+```
 
 コンパイルが 2秒で終わった。akka-actor は通常 35~40s かかる。
 
@@ -108,7 +108,7 @@ akka > akka-actor/compile
 
 バイナリのキャッシュが無限に溜まっていくのが心配という人もいるかもしれない。最低 100個は残して 1ヶ月以上前のキャッシュは削除するというタスクを作った。
 
-<code>
+```bash
 akka > bintrayRemoteCacheCleanOld
 [info] fetching package versions for package akka
 [info] - 0.0.0-d4f0358cbd
@@ -116,7 +116,7 @@ akka > bintrayRemoteCacheCleanOld
 [info] about to delete Vector(0.0.0-d4f0358cbd, 0.0.0-394b4fba9c)
 [info] eed3si9n/akka@0.0.0-d4f0358cbd was discarded
 [info] eed3si9n/akka@0.0.0-394b4fba9c was discarded
-</code>
+```
 
 ### その他のこと
 

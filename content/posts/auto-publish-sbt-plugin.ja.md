@@ -63,7 +63,7 @@ publish が自動的にリリースするようにしてほしいので、現在
 
 [olafurpg/sbt-ci-release][1] の指示に従って新規に GPG キーを生成する。
 
-<code>
+```bash
 $ gpg --gen-key
 gpg (GnuPG/MacGPG2) 2.2.20; Copyright (C) 2020 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
@@ -84,15 +84,15 @@ pub   rsa2048 2020-08-07 [SC] [expires: 2022-08-07]
       0AC38C6BAD42D5980D8E01A17766C6BECAD5CE7B
 uid                      sbt-avro bot <eed3si9n@gmail.com>
 sub   rsa2048 2020-08-07 [E] [expires: 2022-08-07]
-</code>
+```
 
 この公開鍵 ID を `LONG_ID` として書き留める:
 
-<code>
+```bash
 LONG_ID=0AC38C6BAD42D5980D8E01A17766C6BECAD5CE7B
 echo $LONG_ID
 gpg --armor --export $LONG_ID
-</code>
+```
 
 公開鍵を http://keyserver.ubuntu.com:11371/ に届け出る。
 
@@ -113,7 +113,7 @@ Travis CI セッティング内の環境変数を設定する。タグは独自�
 - `PGP_PASSPHRASE`: さっき作成した GPG 鍵のキーフレーズ。Bash 特殊文字が含まれている場合は `'my?pa$$word'` というふうにシングルクォートでくくってやる必要がある。[Travis Environment Variables](https://docs.travis-ci.com/user/environment-variables/#defining-variables-in-repository-settings) 参照。
 - `PGP_SECRET`: base64 エンコードされた秘密鍵。以下のコマンドを実行して得られる:
 
-<code>
+```bash
 # macOS
 gpg --armor --export-secret-keys $LONG_ID | base64 | pbcopy
 # Ubuntu (assuming GNU base64)
@@ -122,11 +122,11 @@ gpg --armor --export-secret-keys $LONG_ID | base64 -w0 | xclip
 gpg --armor --export-secret-keys $LONG_ID | base64 | sed -z 's;\n;;g' | xclip -selection clipboard -i
 # FreeBSD (assuming BSD base64)
 gpg --armor --export-secret-keys $LONG_ID | base64 | xclip
-</code>
+```
 
 ### step 7: Travis CI YAML
 
-<code>
+```yaml
 language: scala
 
 jdk: openjdk8
@@ -162,15 +162,15 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.cache/coursier
     - $HOME/.sbt
-</code>
+```
 
 ### step 8: タグ駆動リリース
 
 プラグインをリリースする準備ができたら、コミットにタグを付けて push する。
 
-<code>
+```bash
 git tag -a v0.1.0 -m "v0.1.0"
 git push origin v0.1.0
-</code>
+```
 
 Travis CI でリリースジョブが開始するはずだ。

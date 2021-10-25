@@ -25,7 +25,7 @@ Before I go into the details of what I've been working on, let's demonstrate the
 
 Here's how Akka's `akka-actor/compile` looks like on sbt 1.3.10:
 
-<code>
+```bash
 cd ~/work/quicktest/
 git clone git@github.com:akka/akka.git akka-0
 cd akka-0
@@ -41,11 +41,11 @@ akka > akka-actor/compile
 [info] Compiling 191 Scala sources and 28 Java sources to /Users/eed3si9n/work/quicktest/akka-0/akka-actor/target/scala-2.12/classes ...
 ....
 [success] Total time: 39 s, completed May 6, 2020 1:53:36 PM
-</code>
+```
 
 To emulate someone else doing the same work, let's copy this directory to another location:
 
-<code>
+```bash
 cd ~/work/quicktest/
 cp -r akka-0 akka-1
 cd akka-1
@@ -58,7 +58,7 @@ akka > akka-actor/compile
 [info] Compiling 191 Scala sources and 28 Java sources to /Users/eed3si9n/work/quicktest/akka-1/akka-actor/target/scala-2.12/classes ...
 ....
 [success] Total time: 48 s, completed May 6, 2020 1:57:33 PM
-</code>
+```
 
 The same work is repeated twice. If you're working with a team of developers, this process would be repeated every morning. If your team grows, so does the speed of code growth, and the amount of duplicated work. The idea of the cached compilation is to avoid compilation if it's already been done.
 
@@ -87,7 +87,7 @@ This could be any Maven-style repository. You'd likely not want to mix this with
 
 Next, from sbt shell type in  `akka-actor/pushRemoteCache`:
 
-<code>
+```bash
 akka > akka-actor/pushRemoteCache
 [info] Formatting 22 Java sources...
 [info] Reformatted 0 Java sources
@@ -100,13 +100,13 @@ akka > akka-actor/pushRemoteCache
 [info]  published akka-actor_2.12 to file:/tmp/remote-cache/com/typesafe/akka/akka-actor_2.12/0.0.0-683868f9fe/akka-actor_2.12-0.0.0-683868f9fe-cached-compile.jar
 [info]  published akka-actor_2.12 to file:/tmp/remote-cache/com/typesafe/akka/akka-actor_2.12/0.0.0-683868f9fe/akka-actor_2.12-0.0.0-683868f9fe-cached-test.jar
 [success] Total time: 45 s, completed May 6, 2020 2:12:11 PM
-</code>
+```
 
 "683868f9fe" in the above is `remoteCacheId`. For now I'm using Git commit id for this, but you can change to what makes sense in your build. Maybe this will change to hash of all sources.
 
 In a different working directory, type in `clean` and `akka-actor/pullRemoteCache`:
 
-<code>
+```bash
 cd ~/work/quicktest/
 cp -r akka-0 akka-1
 cd akka-1
@@ -115,11 +115,11 @@ akka > clean
 [success] Total time: 1 s, completed May 6, 2020 2:17:40 PM
 akka > akka-actor/pullRemoteCache
 [success] Total time: 1 s, completed May 6, 2020 2:17:46 PM
-</code>
+```
 
 Next type in `akka-actor/compile`:
 
-<code>
+```bash
 akka > akka-actor/compile
 [info] Formatting 22 Java sources...
 [info] Reformatted 0 Java sources
@@ -127,7 +127,7 @@ akka > akka-actor/compile
 [info] Generating 'Functions.scala'
 [info] Compiling 1 Scala source to /Users/eed3si9n/work/quicktest/akka-1/akka-actor/target/scala-2.12/classes ...
 [success] Total time: 4 s, completed May 6, 2020 2:21:13 PM
-</code>
+```
 
 Looks like Java formatting and code generation might be triggering some compilation. This actually shows how flexible this setup is. Since the incremental compiler is used to dealing with partially matching code bases, it will just work on the differences from the remote cache.
 

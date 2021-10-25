@@ -31,7 +31,7 @@ Erik Aybar さんの [Git Tip: Deleting Old Local Branches][1] というブロ�
 
 使い方は `git gone` と打てば出てくるようにした:
 
-<code>
+```bash
 $ git gone
 usage: git gone [-pndD] [<branch>=origin]
 OPTIONS
@@ -43,13 +43,13 @@ OPTIONS
 EXAMPLES
 git gone -pn  prune and dry run
 git gone -d   delete the gone branches
-</code>
+```
 
 まずは remote を (`remotes/origin/` 内で) トラッキングしてるブランチを削除する必要がある。これはプルーニング (pruning) と呼ばれる。
 
 次に、トラッキングブランチが無くなったローカルのブランチを列挙する。`git gone -pn` はこのステップを組み合わせる:
 
-<code>
+```bash
 $ git gone -pn
   bport/fix-server-broadcast         b472d5d2b [origin/bport/fix-server-broadcast: gone] Bump modules
   fport/rangepos                     45c857d15 [origin/fport/rangepos: gone] Bump modules
@@ -68,11 +68,11 @@ $ git gone -pn
   wip/remove-configuration-warning   780ca366d [origin/wip/remove-configuration-warning: gone] Remove warnings about configuration
   wip/switch                         1bf6f0d2a [origin/wip/switch: gone] Make ++ fail when it doesn't affect any subprojects
   wip/vararg                         26c180e76 [origin/wip/vararg: gone] Revert "Switch inThisBuild (+friends) to use varargs SettingsDefinition"
-</code>
+```
 
 次に、以下のようにしてブランチを削除する:
 
-<code>
+```bash
 $ git gone -d
 error: The branch 'bport/fix-server-broadcast' is not fully merged.
 If you are sure you want to delete it, run 'git branch -D bport/fix-server-broadcast'.
@@ -93,15 +93,15 @@ If you are sure you want to delete it, run 'git branch -D wip/rangepos'.
 Deleted branch wip/remove-configuration-warning (was 780ca366d).
 Deleted branch wip/switch (was 1bf6f0d2a).
 Deleted branch wip/vararg (was 26c180e76).
-</code>
+```
 
 いくつかのブランチの削除に失敗したことに注目してほしい。これは [`git branch -d`][2] が、ブランチがトラッキングブランチもしくは `HEAD` にマージされていることを要請するからだ。現在の僕の `HEAD` が `develop` ブランチであるため、バックポート用のブランチ 2つが削除に失敗している。`-D` を渡すことで強制削除できる:
 
-<code>
+```bash
 $ git gone -D
 Deleted branch bport/fix-server-broadcast (was b472d5d2b).
 Deleted branch wip/rangepos (was 48418408b).
-</code>
+```
 
 ### 戦略1も見てみよう
 
@@ -111,7 +111,7 @@ Deleted branch wip/rangepos (was 48418408b).
 
 マージ済みのブランチを一覧は以下のようにして得る:
 
-<code>
+```bash
 $ git branch --merged | grep -v "\*"
   1.0.x
   1.1.x
@@ -120,29 +120,29 @@ $ git branch --merged | grep -v "\*"
   wip/contributing
   wip/crossjdk
   wip/launcher
-</code>
+```
 
 ここに `grep` をチェインさせて例えばブランチ名が `pr/` か `wip/` で始まるものだけを表示させる:
 
-<code>
+```bash
 $ git branch --merged | grep -v "\*" | grep "wip/\|pr/"
   pr/4194
   pr/4221
   wip/contributing
   wip/crossjdk
   wip/launcher
-</code>
+```
 
 これらを削除するには `git branch -d` にパイプで渡す:
 
-<code>
+```bash
 $ git branch --merged | grep -v "\*" | grep "wip/\|pr/" | xargs git branch -d
 Deleted branch pr/4194 (was e465aee36).
 Deleted branch pr/4221 (was 59465d9e1).
 Deleted branch wip/contributing (was 5b8272b93).
 Deleted branch wip/crossjdk (was 7f808bd3a).
 Deleted branch wip/launcher (was fa56cf394).
-</code>
+```
 
 ### まとめ
 

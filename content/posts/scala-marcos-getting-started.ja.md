@@ -114,7 +114,7 @@ object Macros {
 
 準備はできた? `scalac Macros.scala` と打ち込んでみよう。
 
-<code>
+```bash
 $ scalac Macros.scala
 Macros.scala:8: error: macro definition needs to be enabled
 by making the implicit value language.experimental.macros visible.
@@ -125,15 +125,15 @@ why the feature needs to be explicitly enabled.
   def printf(format: String, params: Any*): Unit = macro printf_impl
       ^
 one error found
-</code>
+```
 
 ちょっと待った! マクロは実験的な高度機能だとされているので、明示的にスイッチを入れる必要がある。
 これはファイル単位で `import language.experimental.macros` と書くか、コンパイル単位で `-language:experimental.macros` スイッチを渡すことで行われる。
 
-<code>
+```bash
 $ scalac -language:experimental.macros Macros.scala
 <scalac has exited with code 0>
-</code>
+```
 
 > 訳注: sbt プロジェクトをクローンした場合は、sbt を起動して、
 
@@ -155,13 +155,13 @@ object Test extends App {
 
 コンパイルして、走らせてみよう。
 
-<code>
+```bash
 $ scalac Test.scala
 <scalac has exited with code 0>
 
 $ scala Test
 hello world!
-</code>
+```
 
 ちゃんと動いてるみたいだ! `-Ymacro-debug-lite` というコンパイラフラグを付けて中の動作をみてみよう ([ScalaSettings.scala][1] には他にもマクロ関連のフラグが定義されているから、試してほしい)。
 
@@ -205,7 +205,7 @@ Literal(Constant(())))
 
 もう一つマクロに関して大切なのは、別コンパイルという概念だ。コンパイラがマクロ展開を実行するときに、マクロ実装を実行可能な形式として必要とするためだ。このため、マクロ実装は主なのコンパイルの前にコンパイルしておく必要がある。さもなくば、以下のようなエラーを見ることになる:
 
-<code>
+```bash
 $ scalac -language:experimental.macros Macros.scala Test.scala
 Test.scala:3: error: macro implementation not found: printf (the most common reason for that is that
 you cannot use macro implementations in the same compilation run that defines them)
@@ -213,13 +213,13 @@ pointing to the output of the first phase
   printf("hello %s!", "world")
         ^
 one error found
-</code>
+```
 
 更に言うと、もしクラスパスに以前にコンパイルされた古いバージョンのマクロがあった場合は、マクロ実装とマクロの使用が一緒にコンパイルされることでコンパイラは古いバージョンのマクロを呼び出すことになる。これは `NoClassDefFoundException`、`AbstractMethodError` その他のエラーとなりうる。そのため、意図してかなり特殊な事をやっている場合以外は別コンパイルをするべきだ。
 
 最後にもう一つだけ。もしマクロが捕捉されなかった例外を投げた場合はどうなるだろう? 例えば、無効なインプットを渡してマクロをクラッシュさせてみよう:
 
-<code>
+```bash
 $ scalac -language:experimental.macros Macros.scala
 <scalac has exited with code 0>
 
@@ -249,7 +249,7 @@ java.util.NoSuchElementException: head of empty list
 
               printf("hello %s!")
                     ^
-</code>
+```
 
 特に劇的な結果にはならなかった。コンパイラは行儀の悪いマクロから自身を守る機構を持っているため、関連部のスタックトレースを表示してエラーを表示する。
 

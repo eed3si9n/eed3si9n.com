@@ -161,11 +161,11 @@ scala> AnsiConsole.out.print(Ansi.ansi().cursor(6, 10).a("hello"))
 
 Another innovation of VT100 was adding custom characters for box drawing. Today, they are part of Unicode [box-drawing symbols][box].
 
-<code>
+```bash
  ┌───┐
  │   │
  └───┘
-</code>
+```
 
 Here's a small app that draws a box and a Tetris block.
 
@@ -411,11 +411,11 @@ To spawn a new thread, I am using `scala.concurrent.Future` with the default glo
 
 If you run this, and type Left, Right, `'q'`, you'd see something like:
 
-<code>
+```bash
 Left(BACKWARD_CHAR)
 Left(FORWARD_CHAR)
 [success] Total time: 3 s
-</code>
+```
 
 ### Processing the key presses
 

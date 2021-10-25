@@ -127,11 +127,11 @@ name := orgBaseDirName
 
 これを読み込むと以下のエラーが返ってくる:
 
-<code>
+```bash
 build.sbt:14: error: `value` can only be used within a task or setting macro, such as :=, +=, ++=, Def.task, or Def.setting.
   organization.value + "-" + baseDirectory.value.getName
                ^
-</code>
+```
 
 ブロックを適切なマクロで包囲するためには以下のように書かなくてはいけない:
 
@@ -145,14 +145,14 @@ name := orgBaseDirName
 
 `orgBaseDirName` の型注釈は必要ないが、この型をハッキリと知っておくことは役に立つ。次のエラーメッセージを見ても驚かないはずだ:
 
-<code>
+```bash
 build.sbt:17: error: type mismatch;
  found   : sbt.Def.Initialize[String]
  required: String
 name := orgBaseDirName
         ^
 [error] Type error in expression
-</code>
+```
 
 `:=` は `String` を期待しているので、`Initialize[String]` を評価する必要がある。興味深いことに `value` メソッドはここでも動作する。`value` メソッドは `MacroValue[T]` にて定義されている。[InputWrapper.scala][4]　参照:
 

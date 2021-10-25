@@ -99,7 +99,7 @@ We recommend making `BuildInfo` package private if you use this option. [#164][1
 
 sbt-buildinfo 0.10.0 is brought to you by the following contributors:
 
-<code>
+```bash
     10  Eugene Yokota (eed3si9n)
      9  Kenji Yoshida (xuwei-k)
      4  Philippus
@@ -116,6 +116,6 @@ sbt-buildinfo 0.10.0 is brought to you by the following contributors:
      1  Guillaume Martres
      1  Frank S. Thomas
      1  Levi Ramsey
-</code>
+```
 
 Thanks!

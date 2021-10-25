@@ -85,7 +85,7 @@ On Unix-like filesystem, there's also home directory symbol `~`.
 
 > The generic URI syntax consists of a hierarchical sequence of components referred to as the scheme, authority, path, query, and fragment.
 
-<code>
+```bash
  foo://example.com:8042/over/there?name=ferret#nose
  \_/   \______________/\_________/ \_________/ \__/
   |           |            |            |        |
@@ -93,15 +93,15 @@ scheme     authority       path        query   fragment
   |   _____________________|__
  / \ /                        \
  urn:example:animal:ferret:nose
-</code>
+```
 
 The *scheme* in our case will be `file`.
 
 The *authority* breaks down to more familar components:
 
-<code>
+```bash
 authority   = [ userinfo "@" ] host [ ":" port ]
-</code>
+```
 
 For our purpose, authority mostly equals to "host," but it's good to learn this term because you hear a lot of "authority this" and "authority that" when discussing URIs.
 
@@ -122,14 +122,14 @@ When we say "URI", we often mean URI reference that includes both a URI or a rel
 
 [4.2. Relative Reference][relative_reference] is defined by RFC 3986 as follows:
 
-<code>
+```bash
 relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
 
 relative-part = "//" authority path-abempty
               / path-absolute
               / path-noscheme
               / path-empty
-</code>
+```
 
 For our purpose, we can think of it as mostly as the path component of the URI, which then gets applied to some target URI.
 
@@ -145,9 +145,9 @@ Current RFC 8089 allows `/etc/hosts` to be encoded in u1, u2, and u3 notations.
 
 But the problem is that RFC 8089 came out in Februrary 2017, and there has been plenty of programs and libraries written priror to 2017. [RFC 1738][rfc1738] that came out in 1994 defines URL, and [3.10 FILES][rfc1738_310] defines the `file` scheme as
 
-<code>
+```bash
 file://<host>/<path>
-</code>
+```
 
 and
 
@@ -274,9 +274,9 @@ Another notation that is mentioned in the non-normative [Appendix E.2. DOS and W
 
 > This is intended to support the minimal representation of a local file in a DOS- or Windows-like environment, with no authority field and an absolute path that begins with a drive letter. For example:
 
-<code>
+```bash
 file:c:/path/to/file
-</code>
+```
 
 Accomodating u0 notation for Windows absolute path opens the door to an elegant conversion from any absolute file path to URI: just prepend `file:` in front of the path after slash conversion. But this does not work by default:
 

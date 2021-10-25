@@ -56,17 +56,17 @@ An older version of sbt works better since newer Zinc doesn't work with 2.13 bet
 
 Download `bisect.sh`:
 
-<code>
+```bash
 wget https://raw.githubusercontent.com/adriaanm/binfu/e996e30d6095d83160746f007737209a02b85944/bisect.sh
 chmod +x bisect.sh
-</code>
+```
 
 Next, edit line 83 and 84 as follows:
 
-<code>
+```bash
   cd /tmp/bisectscala/
   sbt "++$sv!" "run"
-</code>
+```
 
 ### running the bisect
 
@@ -74,28 +74,28 @@ To run the bisect, you need to also clone scala/scala to your local machine. Aft
 
 In another terminal window, navigate to the scala/scala working directory:
 
-<code>
+```bash
 $ head -n 3 README.md
 # Welcome!
 
 This is the official repository for the [Scala Programming Language](http://www.scala-lang.org)
-</code>
+```
 
 From the scala directory run:
 
-<code>
+```bash
 /tmp/bisectscala/bisect.sh <good> <bad>
-</code>
+```
 
 where `<good>` is the known good tag or commit, and `<bad>` is the known bad tag or commit. For example:
 
-<code>
+```bash
 /tmp/bisectscala/bisect.sh v2.12.8 v2.13.0-RC3
-</code>
+```
 
 The interesting thing about scala/scala is that for each merged commits, `scala-compiler`, `scala-library` etc artifacts are automatically built and published to the Scala CI Artifactory. This means that for many of the commits (not all), we can point `scalaVersion` at them like they are a normal Scala version. sbt will download the compiler JARs from the repository, and compile the "compiler bridge" to use them. This is a huge time saver since otherwise we would have to compile and locally publish the compiler.
 
-<code>
+```bash
 $ /tmp/bisectscala/bisect.sh v2.12.8 v2.13.0-RC3
 notice:
 * currently you have to edit this script for each use
@@ -103,7 +103,7 @@ maintenance status:
 * this is somewhat rough, but hopefully already useful
 * pull requests with improvements welcome
 Bisecting: 2295 revisions left to test after this (roughly 11 steps)
-</code>
+```
 
 Here are the results of binary search:
 - good: dbf9a6a631

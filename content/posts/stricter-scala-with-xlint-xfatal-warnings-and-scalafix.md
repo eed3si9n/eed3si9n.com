@@ -98,9 +98,9 @@ So I implemented a Scalafix rule called [scalafix-noinfer](https://github.com/ee
 
 #### project/build.properties
 
-<code>
+```bash
 sbt.version=1.2.3
-</code>
+```
 
 #### project/plugins.scala
 
@@ -142,11 +142,11 @@ lazy val root = (project in file(".")).
 
 #### .scalafix.conf
 
-<code>
+```bash
 rules = [
   NoInfer
 ]
-</code>
+```
 
 #### Main.scala
 
@@ -164,20 +164,20 @@ object Main extends App {
 
 From sbt shell type `scalafix`:
 
-<code>
+```bash
 sbt:hello> scalafix
 [info] Running scalafix on 2 Scala sources
 [error] /Users/eed3si9n/work/quicktest/noinfer/Main.scala:7:3: error: [NoInfer.Serializable] Serializable was inferred, butit's forbidden by NoInfer
 [error]   List(Animal()).contains("1")
 [error]   ^^^^^^^^^^^^^^^^^^^^^^^
 [error] (Compile / scalafix) scalafix.sbt.ScalafixFailed: LinterError
-</code>
+```
 
 Yes! So now we have `NoInfer` rule that's catching bad type inference in `contains(...)`. In my opinion, it doesn't make sense for Scala to lub to `java.io.Serializable` since the list would never contain `"1"`.
 
 By default this rule forbids the inference of `scala.Any`, `scala.AnyVal`, `java.io.Serializable`, `scala.Serializable`, and `scala.Product`. You can customize this using `.scalafix.conf` as follows:
 
-<code>
+```bash
 rules = [
   NoInfer
 ]
@@ -189,17 +189,17 @@ NoInfer.disabledTypes = [
   scala.Product,
   scala.Predef.any2stringadd
 ]
-</code>
+```
 
 Now this will catch `scala.Predef.any2stringadd`:
 
-<code>
+```bash
 [info] Running scalafix on 2 Scala sources
 [error] /Users/eed3si9n/work/quicktest/noinfer/Main.scala:8:3: error: [NoInfer.any2stringadd] any2stringadd was inferred, but it's forbidden by NoInfer
 [error]   Option(1) + "what"
 [error]   ^^^^^^^^^
 [error] (Compile / scalafix) scalafix.sbt.ScalafixFailed: LinterError
-</code>
+```
 
 #### challenges
 

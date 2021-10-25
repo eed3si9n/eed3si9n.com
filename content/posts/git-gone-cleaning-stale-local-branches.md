@@ -31,7 +31,7 @@ Erik Aybar's [Git Tip: Deleting Old Local Branches][1] takes the second approach
 
 To read how to use it type in `git gone`:
 
-<code>
+```bash
 $ git gone
 usage: git gone [-pndD] [<branch>=origin]
 OPTIONS
@@ -43,13 +43,13 @@ OPTIONS
 EXAMPLES
 git gone -pn  prune and dry run
 git gone -d   delete the gone branches
-</code>
+```
 
 First we need to delete the remote tracking branches (in `remotes/origin/`). This is called pruning.
 
 Next, we want to list the branches local branches whose tracking branches are now gone. `git gone -pn` combines these steps:
 
-<code>
+```bash
 $ git gone -pn
   bport/fix-server-broadcast         b472d5d2b [origin/bport/fix-server-broadcast: gone] Bump modules
   fport/rangepos                     45c857d15 [origin/fport/rangepos: gone] Bump modules
@@ -68,11 +68,11 @@ $ git gone -pn
   wip/remove-configuration-warning   780ca366d [origin/wip/remove-configuration-warning: gone] Remove warnings about configuration
   wip/switch                         1bf6f0d2a [origin/wip/switch: gone] Make ++ fail when it doesn't affect any subprojects
   wip/vararg                         26c180e76 [origin/wip/vararg: gone] Revert "Switch inThisBuild (+friends) to use varargs SettingsDefinition"
-</code>
+```
 
 Next, we can delete these branches as follows:
 
-<code>
+```bash
 $ git gone -d
 error: The branch 'bport/fix-server-broadcast' is not fully merged.
 If you are sure you want to delete it, run 'git branch -D bport/fix-server-broadcast'.
@@ -93,15 +93,15 @@ If you are sure you want to delete it, run 'git branch -D wip/rangepos'.
 Deleted branch wip/remove-configuration-warning (was 780ca366d).
 Deleted branch wip/switch (was 1bf6f0d2a).
 Deleted branch wip/vararg (was 26c180e76).
-</code>
+```
 
 Note that a few branches failed to delete. This is because [`git branch -d`][2] requires the branch to be merged either to the tracking branch or in `HEAD`. Since my current `HEAD` is on `develop` branch, the two backport branches failed to delete. We can pass `-D` to git gone to delete them:
 
-<code>
+```bash
 $ git gone -D
 Deleted branch bport/fix-server-broadcast (was b472d5d2b).
 Deleted branch wip/rangepos (was 48418408b).
-</code>
+```
 
 ### following up with strategy 1
 
@@ -111,7 +111,7 @@ There's an option in `git branch` called [`git branch --merged`][3] that shows o
 
 Here's how to list merged branches:
 
-<code>
+```bash
 $ git branch --merged | grep -v "\*"
   1.0.x
   1.1.x
@@ -120,29 +120,29 @@ $ git branch --merged | grep -v "\*"
   wip/contributing
   wip/crossjdk
   wip/launcher
-</code>
+```
 
 We can chain `grep` to list only the branches that start with `pr/` or `wip/` for example:
 
-<code>
+```bash
 $ git branch --merged | grep -v "\*" | grep "wip/\|pr/"
   pr/4194
   pr/4221
   wip/contributing
   wip/crossjdk
   wip/launcher
-</code>
+```
 
 To delete these we pipe to `git branch -d` as follows:
 
-<code>
+```bash
 $ git branch --merged | grep -v "\*" | grep "wip/\|pr/" | xargs git branch -d
 Deleted branch pr/4194 (was e465aee36).
 Deleted branch pr/4221 (was 59465d9e1).
 Deleted branch wip/contributing (was 5b8272b93).
 Deleted branch wip/crossjdk (was 7f808bd3a).
 Deleted branch wip/launcher (was fa56cf394).
-</code>
+```
 
 ### summary
 

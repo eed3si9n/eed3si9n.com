@@ -87,9 +87,11 @@ object Main extends App {
 ## step 4: write a script
 Now, write a script to describe your scenario in a file called `test` located at the root dir of your test project.
 
-<code># check if the file gets created
+```bash
+# check if the file gets created
 > assembly
-$ exists target/scala-2.10/foo.jar</code>
+$ exists target/scala-2.10/foo.jar
+```
 
 The syntax for the script is described in [ChangeDetectionAndTesting][1], but let me break it down:
 1. **`#`** starts a one-line comment
@@ -118,13 +120,16 @@ So my script will run `assembly` task, and checks if `foo.jar` gets created. We'
 ## step 5: run the script
 To run the scripts, go back to your plugin project, and run:
 
-<code>> scripted
-</code>
+```bash
+> scripted
+```
 
 This will copy your test build into a temporary dir, and executes the `test` script. If everything works out, you'd see `publish-local` running, then:
 
-    Running sbt-assembly / simple
-    [success] Total time: 18 s, completed Sep 17, 2011 3:00:58 AM
+```bash
+Running sbt-assembly / simple
+[success] Total time: 18 s, completed Sep 17, 2011 3:00:58 AM
+```
 
 ## step 6: custom assertion
 
@@ -156,22 +161,25 @@ Be careful not to include empty lines, since it'd be interpreted as the end of t
 
 Here's `test`:
 
-<code># check if the file gets created
+```bash
+# check if the file gets created
 > assembly
 $ exists target/foo.jar
 
 # check if it says hello
-> check</code>
+> check
+```
 
 Running `scripted` fails the test as expected:
 
-<code>[info] [error] {file:/private/var/folders/Ab/AbC1EFghIj4LMNOPqrStUV+++XX/-Tmp-/sbt_cdd1b3c4/simple/}default-0314bd/*:check: unexpected output: hello
+```bash
+[info] [error] {file:/private/var/folders/Ab/AbC1EFghIj4LMNOPqrStUV+++XX/-Tmp-/sbt_cdd1b3c4/simple/}default-0314bd/*:check: unexpected output: hello
 [info] [error] Total time: 0 s, completed Sep 21, 2011 8:43:03 PM
 [error] x sbt-assembly / simple
 [error]    {line 6}  Command failed: check failed
 [error] {file:/Users/foo/work/sbt-assembly/}default-373f46/*:scripted: sbt-assembly / simple failed
 [error] Total time: 14 s, completed Sep 21, 2011 8:00:00 PM
-</code>
+```
 
 If you want to reuse the assertions among the test builds, you could use full configuration and inherit from a custom build class.
 
@@ -180,18 +188,22 @@ Until you get the hang of it, it might take a while for the test itself to behav
 
 First place to start is turning off the log buffering.
 
-<code>> set scriptedBufferLog := false
-</code> 
+```bash
+> set scriptedBufferLog := false
+```
 
 This for example should print out the location of the temporary dir:
-<code>[info] [info] Set current project to default-c6500b (in build file:/private/var/folders/Ab/AbC1EFghIj4LMNOPqrStUV+++XX/-Tmp-/sbt_8d950687/simple/project/plugins/)
+
+```bash
+[info] [info] Set current project to default-c6500b (in build file:/private/var/folders/Ab/AbC1EFghIj4LMNOPqrStUV+++XX/-Tmp-/sbt_8d950687/simple/project/plugins/)
 ...
-</code>
+```
 
 Add the following line to your `test` script to suspend the test until you hit the enter key:
 
-<code>$ pause
-</code>
+```bash
+$ pause
+```
 
 If you're thinking about going down to the `sbt/sbt-test/sbt-foo/simple` and running `sbt`, don't do it. The right way, as Mark told me in the comment bellow, is to copy the dir somewhere else and run it.
 
@@ -200,13 +212,15 @@ There are literally [100+ scripted tests][3] under sbt project itself. Browse ar
 
 For example, here's the one called by-name.
 
-<code>> compile
+```bash
+> compile
 
 # change => Int to Function0
 $ copy-file changes/A.scala A.scala
 
 # Both A.scala and B.scala need to be recompiled because the type has changed
--> compile</code>
+-> compile
+```
 
 [xsbt-web-plugin][4] and [sbt-assemlby][5] have some scripted tests too.
 

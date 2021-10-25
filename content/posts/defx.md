@@ -41,12 +41,12 @@ I made `<Space>-e` to split Defx to the left. `q` closes it.
 
 `j`/`k` moves the cursor up and down as it should. I bound `<CR>` as follows:
 
-<code>
+```bash
   nnoremap <silent><buffer><expr> <CR>
   \ defx#is_directory() ?
   \ defx#do_action('open_tree', 'recursive:10') :
   \ defx#do_action('preview')
-</code>
+```
 
 If the node is a directory it expands the tree recursively, and when it's a file it opens in the preview. This emulates the clicking action in Sublime. Using this I can go up and down navigating using just three keys.
 
@@ -54,10 +54,10 @@ To jump to a file after expanding a tree, we can use `/` to search in the buffer
 
 To close the recursively opened trees, I've implemented a brute force binding to `b` that closes the tree ten times:
 
-<code>
+```bash
   nnoremap <silent><buffer><expr> b
   \ defx#do_action('multi', ['close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree', 'close_tree'])
-</code>
+```
 
 I've mapped `o` to open a file. It actually uses _drop_ action so if the file is already open it will just move the focus to the buffer.
 
@@ -78,12 +78,12 @@ Sometimes it's useful to narrow the focus to a specific subdirectory, similar to
 
 `l` changes the current directory view to the one on focus, and `h` goes back to the parent.
 
-<code>
+```bash
   nnoremap <silent><buffer><expr> l
   \ defx#is_directory() ? defx#do_action('open') : 0
   nnoremap <silent><buffer><expr> h
   \ defx#do_action('cd', ['..'])
-</code>
+```
 
 ### Bonus: Vineger mode
 
@@ -91,20 +91,20 @@ As a bonus, let's emulate [Vinegar](https://github.com/tpope/vim-vinegar) as wel
 
 Here's how I've mapped `-`:
 
-<code>
+```bash
 nnoremap <silent> - :<C-U>:Defx `expand('%:p:h')` -search=`expand('%:p')` -buffer-name=defx<CR>
-</code>
+```
 
 For example, if my current buffer is at `internal/compiler-interface/src/main/java/sxbti/VirtualFile.java`, `-` will open Defx at `internal/compiler-interface/src/main/java/sxbti/`.
 
 I don't want `o` to "drop" the file into another window. I can differentiate the behavior based on the buffer name as follows:
 
-<code>
+```bash
   nnoremap <silent><buffer><expr> o
   \ match(bufname('%'), 'explorer') >= 0 ?
   \ (defx#is_directory() ? 0 : defx#do_action('drop', 'vsplit')) :
   \ (defx#is_directory() ? 0 : defx#do_action('multi', ['open', 'quit']))
-</code>
+```
 
 For everything else, this will have the same key bindings including `l`/`h` to go back up one level.
 
@@ -112,16 +112,16 @@ For everything else, this will have the same key bindings including `l`/`h` to g
 
 #### Nerd font
 
-<code>
+```bash
 brew tap homebrew/cask-fonts
 brew cask install font-hack-nerd-font
-</code>
+```
 
 Then change Non-ASCII Font to "Hack Nerd Font Mono" in your terminal.
 
 #### plugins.toml
 
-<code>
+```bash
 [[plugins]]
 repo = 'ryanoasis/vim-devicons'
 
@@ -130,11 +130,11 @@ repo = 'kristijanhusak/defx-icons'
 
 [[plugins]]
 repo = 'kristijanhusak/defx-git'
-</code>
+```
 
 #### plugins_lazy.toml
 
-<code>
+```bash
 [[plugins]]
 repo = 'Shougo/defx.nvim'
 
@@ -182,5 +182,5 @@ call defx#custom#option('_', {
 \ 'columns': 'indent:git:icons:filename:mark',
 \ })
 '''
-</code>
+```
 

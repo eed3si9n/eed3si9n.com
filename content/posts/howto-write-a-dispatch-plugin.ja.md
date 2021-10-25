@@ -32,7 +32,7 @@ Dispatch Classic 同様に Reboot でも web API をラッピングしたプラ�
 
 まずは sbt の設定から始める:
 
-<code>
+```bash
 repatch-twitter/
   +- project/
   |    +- build.properties
@@ -43,14 +43,14 @@ repatch-twitter/
                  +- scala/
                       +- requests.scala
                       +- ...
-</code>
+```
 
 
 `build.properties` の中身:
 
-<code>
+```bash
 sbt.version=0.12.3
-</code>
+```
 
 `build.scala` の中身:
 
@@ -264,12 +264,12 @@ object ProperitesClient {
 
 これで consumer key と access token を properties ファイルに保存できるようになった:
 
-<code>
+```bash
 repatch.twitter.consumerKey=abc
 repatch.twitter.consumerKeySecret=secret
 repatch.twitter.accessToken=xyz
 repatch.twitter.accessTokenSecret=secret2
-</code>
+```
 
 読み込むには以下のようにする:
 

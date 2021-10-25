@@ -26,9 +26,9 @@ The headline features of sbt 1.5.0 are:
 
 You can upgrade to sbt 1.5.0-RC2 by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.5.0-RC2
-</code>
+```
 
 ### Changes since RC-1
 

@@ -141,14 +141,14 @@ def pure(body: Term): Expr[i.F[Effect[A]]] =
 
 This looks to be a straightforward code to call `pure` function on `i`. However, this will fail as:
 
-<code>
+```bash
 [error] -- [E007] Type Mismatch Error: sudori/core-macros/src/main/scala-3/sbt/internal/util/appmacro/Cont.scala:119:13
 [error] 119 |            $i
 [error]     |             ^
 [error]     |  Found:    (i : sbt.internal.util.appmacro.MonadInstance & Singleton)
 [error]     |  Required: quoted.Expr[Any]
 [error] one error found
-</code>
+```
 
 ### Getting instance out of i.type
 

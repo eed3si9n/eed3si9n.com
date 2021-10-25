@@ -52,23 +52,23 @@ Artsy の `sbt-plugin-releases` はリードオンリーにする予定だ。そ
 
 - 4月26日の時点で、Debian パッケージは Artsy の `deb https://repo.scala-sbt.org/scalasbt/debian all main` にて公開される。古いリリースは `deb https://repo.scala-sbt.org/scalasbt/debian /` のままだ。
 
-<code>
+```bash
 echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
 echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
 curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
 sudo apt-get update
 sudo apt-get install sbt
-</code>
+```
 
 - RPM リポジトリファイルは `https://www.scala-sbt.org/sbt-rpm.repo` にてホスティングされる。RPM パッケージは Artsy にてホスティングされる。
 
-<code>
+```bash
 # remove old Bintray repo file
 sudo rm -f /etc/yum.repos.d/bintray-rpm.repo
 curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo
 sudo mv sbt-rpm.repo /etc/yum.repos.d/
 sudo yum install sbt
-</code>
+```
 
 帯域要求を最小化するため、DEB ファイルと RPM ファイルは `sbt` ランナーファイルのみ含み、`sbt-launch.jar` は抜いた。
 
@@ -82,9 +82,9 @@ SDKMAN かもしくは https://github.com/sbt/sbt/releases/tag/v1.5.1 から**�
 
 さらに、ビルドで実際に使われる sbt のバージョンは `project/build.properties` に以下を書くことでアップグレードされる:
 
-<code>
+```bash
 sbt.version=1.5.1
-</code>
+```
 
 このような二重化を行っているのは、sbt 1.5.1 を使いたいビルドだけで使うようにしているからだ。
 
@@ -99,13 +99,13 @@ sbt.version=1.5.1
 
 何らかの理由で非公式な `sbt` が使えなくなった場合、以下の方法で公式 `sbt` ランナーをインストールすることができる:
 
-<code>
+```bash
 install:
   - |
     export SBT_OPTS=""
     curl -L --silent "https://raw.githubusercontent.com/sbt/sbt/v1.5.1/sbt" > $HOME/sbt
     chmod +x $HOME/sbt && sudo mv $HOME/sbt /usr/local/bin/sbt
-</code>
+```
 
 ### 参加
 

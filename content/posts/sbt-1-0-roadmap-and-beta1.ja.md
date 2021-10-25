@@ -93,12 +93,12 @@ Library management も sbt/sbt から分かれたもう一つのモジュール�
 
 Zinc 1 の name hashing はコード間の依存性を、ソースファイルではなくクラスというレベルで追跡するようになる。GitHub issue [sbt/sbt#1104](https://github.com/sbt/sbt/issues/1104) にていくつかプロジェクトの既存のクラスに一つのメソッドを追加した場合の差分コンパイルの比較が行われている:
 
-<code>
+```bash
 ScalaTest   AndHaveWord class:          Before 49s, After 4s (12x)
 Specs2      OptionResultMatcher class:  Before 48s, After 1s (48x)
 scala/scala Platform class:             Before 59s, After 15s (3.9x)
 scala/scala MatchCodeGen class:         Before 48s, After 17s (2.8x)
-</code>
+```
 
 クラスがどう整理されているかなどの色々な条件に依存するが、だいたい 3x ~ 40x の改善が見られている。この高速化の理由はクラスとソースファイルの関係を分けることで、より少ない数のソースファイルをコンパイルしているという単純なものだ。例えば、scala/scala の Platfrom クラスにメソッドを追加した例だと sbt 0.13 の name hashing だと 72 個のソースをコンパイルしていたが、Zinc は 6個しかコンパイルしない。
 
@@ -108,9 +108,9 @@ sbt 1.0 は新しい server コマンドを含み、これは IDE やその他�
 
 2016年の 3月にサーバ機能の[仕切り直し](http://eed3si9n.com/ja/sbt-server-reboot)が行われ、可能な限り小さい機能にすることにした。JetBrain で IntelliJ の sbt インターフェイスを担当する @jastice さんなどとの協力で機能を決めていった。sbt 1.0 は当初欲しかった全ての機能は入らないが、長期的にはこれが IDE と sbt エコシステムとの連携の改善につながることを願っている。例えば、IDE 側から compile タスクを呼び出して、コンパイラの警告を JSON のイベントとして受け取ることができる:
 
-<code>
+```bash
 {"type":"xsbti.Problem","message":{"category":"","severity":"Warn","message":"a pure expression does nothing in statement position; you may be omitting necessary parentheses","position":{"line":2,"lineContent":"  1","offset":29,"pointer":2,"pointerSpace":"  ","sourcePath":"/tmp/hello/Hello.scala","sourceFile":"file:/tmp/hello/Hello.scala"}},"level":"warn"}
-</code>
+```
 
 他に関連する機能としてプログラムをバックグラウンドで実行する `bgRun` タスクが追加された。これに対してテストを行うことなどを想定している。
 

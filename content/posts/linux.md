@@ -10,9 +10,9 @@ tags:        [ "bash" ]
 
 ### show distro version
 
-<code>
+```bash
 lsb_release -a
-</code>
+```
 
 ### Ubuntu release cycle
 
@@ -25,33 +25,33 @@ lsb_release -a
 
 > The recommended way to upgrade a Server Edition installation is to use the do-release-upgrade utility.
 
-<code>
+```bash
 # for AWS
 sudo ufw allow 1022/tcp
 do-release-upgrade
 sudo ufw delete allow 1022/tcp
-</code>
+```
 
 ### fix DNS issue on Ubuntu 18.04
 
 Edit: /etc/systemd/resolved.conf
 
-<code>
+```bash
 [Resolve]
 DNS=8.8.8.8 2001:4860:4860::8888
 FallbackDNS=8.8.4.4 2001:4860:4860::8844
-</code>
+```
 
-<code>
+```bash
 sudo systemctl restart systemd-resolved.service
-</code>
+```
 
 
 ### disk usage
 
-<code>
+```bash
 du -shx */ | sort -rh | head -10
-</code>
+```
 
 
 ### new disk
@@ -60,22 +60,22 @@ du -shx */ | sort -rh | head -10
 
 Assuming it's on `/dev/sdb`
 
-<code>
+```bash
 sudo sudo fdisk -l
 sudo mkfs.ext4 <device>
 sudo mount <device> /data
 sudo blkid
-</code>
+```
 
-<code>
+```bash
 /dev/sdb: UUID="123456-*****" TYPE="ext4"
-</code>
+```
 
 /dev/sdb: UUID="3c41630f-e414-47d0-9aea-e967c84934bd" TYPE="ext4"
 
 ### get all services
 
-<code>
+```bash
 service --status-all
-</code>
+```
 

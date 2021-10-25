@@ -26,9 +26,9 @@ Download **the official sbt launcher** from SDKMAN or download from <https://git
 
 In addition, the sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.5.0
-</code>
+```
 
 This mechanism allows that sbt 1.5.0 is used only for the builds that you want.
 
@@ -78,9 +78,9 @@ There's a [syntactic Scalafix rule for unified slash syntax](https://eed3si9n.co
 to semi-automatically rewrite existing sbt 0.13 syntax to the slash syntax. Currently it requires the use of scalafix CLI
 and it's not very precise (because it's a syntactic rule that only looks at the shape of the code) but it gets most of the job done.
 
-<code>
+```bash
 $ scalafix --rules=https://gist.githubusercontent.com/eed3si9n/57e83f5330592d968ce49f0d5030d4d5/raw/7f576f16a90e432baa49911c9a66204c354947bb/Sbt0_13BuildSyntax.scala *.sbt project/*.scala
-</code>
+```
 
 See <https://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html#slash> for details.
 

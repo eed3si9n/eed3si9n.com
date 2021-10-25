@@ -161,11 +161,11 @@ scala> AnsiConsole.out.print(Ansi.ansi().cursor(6, 10).a("hello"))
 
 VT100 のイノベーションの一つとして箱を描くための拡張文字を追加したということが挙げられる。現在これらは、Unicode [box-drawing symbols][box] に取り込まれている。
 
-<code>
+```bash
  ┌───┐
  │     │
  └───┘
-</code>
+```
 
 以下は箱とテトリスのブロックを表示する小さなアプリだ。
 
@@ -411,11 +411,11 @@ while (isGameOn.get) {
 
 実行して、左矢印、右矢印、`'q'` と押すと以下のように表示される:
 
-<code>
+```bash
 Left(BACKWARD_CHAR)
 Left(FORWARD_CHAR)
 [success] Total time: 3 s
-</code>
+```
 
 ### キープレスの処理
 

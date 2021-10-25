@@ -30,9 +30,9 @@ The headline features of sbt 1.4.0 are:
 
 You can upgrade to sbt 1.4.0-RC2 by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.4.0-RC2
-</code>
+```
 
 ### Changes since RC1
 
@@ -75,20 +75,20 @@ sbt 1.4.0 adds an official native thin client called `sbtn` that supports all ta
 
 This lets you run sbt tasks from the system shell as:
 
-<code>
+```bash
 $ sbtn compile
 $ sbtn shutdown
-</code>
+```
 
 The native thin client will run sbt (server) as a daemon, which avoids the JVM spinup and loading time for the second call onwards. This could an option if you would like to use sbt from the system shell such as Zsh and Fish.
 
 Remember to call `sbtn shutdown` when you're done!
 Later on, `sbt` script will also support `--client` option to run the native thin client:
 
-<code>
+```bash
 $ sbt --client compile
 $ sbt --client shutdown
-</code>
+```
 
 [#5620][5620] by [@eatkins][@eatkins]
 
@@ -219,18 +219,18 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
 
 To test sbt server manually, make sure to have an sbt session running, and start `sbt -bsp` in another termnial. And paste the following in:
 
-<code>
+```bash
 { "jsonrpc": "2.0", "id": 1, "method": "build/initialize", "params": { "displayName": "foo", "version": "1.0.0", "bspVersion": "2.0.0-M5", "rootUri": "file:///tmp/hello", "capabilities": { "languageIds": ["scala"] } } }
-</code>
+```
 
 Then enter `\r\n` (type `Enter`, `Ctrl-J` for zsh). This should return:
 
-<code>
+```bash
 Content-Length: 200
 Content-Type: application/vscode-jsonrpc; charset=utf-8
 
 {"jsonrpc":"2.0","id":1,"result":{"displayName":"sbt","version":"1.4.0-SNAPSHOT","bspVersion":"2.0.0-M5","capabilities":{"compileProvider":{"languageIds":["scala"]},"dependencySourcesProvider":true}}}
-</code>
+```
 
   [5112]: https://github.com/sbt/sbt/pull/5112
   [5153]: https://github.com/sbt/sbt/pull/5153

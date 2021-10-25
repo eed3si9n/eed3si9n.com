@@ -37,13 +37,13 @@ Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?
 
 これ実現可能というのは良いことだけども、わざわざマクロを使わなければいけないのいうのが仰々しい。[吉田さん][1]によると Haskell だとこれぐらいのことは型シグネチャに `Whoops` と書くだけでできるらしい:
 
-<code>
+```bash
 -- | This function is being removed and is no longer usable.
 -- Use 'Data.IntMap.Strict.insertWith'
 insertWith' :: Whoops "Data.IntMap.insertWith' is gone. Use Data.IntMap.Strict.insertWith."
             => (a -> a -> a) -> Key -> a -> IntMap a -> IntMap a
 insertWith' _ _ _ _ = undefined
-</code>
+```
 
 ### configurable な警告
 
@@ -77,11 +77,11 @@ def <<=(): Unit = ???
 
 このメソッドを呼び出すとこうなる:
 
-<code>
+```bash
 example.scala:26: error: method <<= is removed; use := syntax instead (foo-lib 1.0)
   <<=()
   ^
-</code>
+```
 
 カスタムでコンパイラーメッセージを出せるようになった。
 
@@ -107,11 +107,11 @@ implicit class ShouldDSL(s: String) {
 
 Akka にならって、デフォルトのアクションは `Action.Silent` なので警告は表示されない。ここで `-Wconf` の出番だ。`-Wconf:cat=api-may-change&origin=foo\..*:warning` をオプションに渡すことで、ユーザサイドで `foo.*` パッケージ内の `api-may-change` というカテゴリーのみを警告にすることができる。
 
-<code>
+```bash
 example.scala:28: warning: should DSL is incubating, and future compatibility is not guaranteed (foo-lib 1.0)
   "bar" should "something"
   ^
-</code>
+```
 
 `defaultAction = Action.Warning` とすることでデフォルトでこれを警告にすることも可能だ。
 

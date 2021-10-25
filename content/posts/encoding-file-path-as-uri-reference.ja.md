@@ -85,7 +85,7 @@ Unix-like なファイルシステムにはホームディレクトリを表す 
 
 > 一般的な URI 構文では、scheme, authority, authority, path, query, fragment と呼ばれる構成要素の階層的なシーケンスから成る。
 
-<code>
+```bash
  foo://example.com:8042/over/there?name=ferret#nose
  \_/   \______________/\_________/ \_________/ \__/
   |           |            |            |        |
@@ -93,15 +93,15 @@ scheme     authority       path        query   fragment
   |   _____________________|__
  / \ /                        \
  urn:example:animal:ferret:nose
-</code>
+```
 
 僕たちの場合の scheme は `file` となる。
 
 authority はもう少し聞き慣れた感じの構成要素に分かれる:
 
-<code>
+```bash
 authority   = [ userinfo "@" ] host [ ":" port ]
-</code>
+```
 
 僕たちの用途としては、authority は「host」とだいたい同じものだと考えることができるが、URI に関連して "authority これこれ" という感じでよく出てくる用語なので覚えておいたほうがいい。
 
@@ -122,14 +122,14 @@ URI に関して話すための略記法として、僕は scheme の `:` の後
 
 RFC 3986 [4.2. 相対的参照][relative_reference]は以下のように定義される:
 
-<code>
+```bash
 relative-ref  = relative-part [ "?" query ] [ "#" fragment ]
 
 relative-part = "//" authority path-abempty
               / path-absolute
               / path-noscheme
               / path-empty
-</code>
+```
 
 僕たちの用法としては、だいたい URI のパス構成要素部分だと考えてよく、何らかの基底 URI に適用することができる。
 
@@ -145,9 +145,9 @@ Unix-like なファイルシステムの絶対パス `/etc/hosts` は、過去�
 
 しかし、問題は RFC 8089 が 2017年2月に出たばっかりで、2017年以前にも多くのプログラムやライブラリが書かれていたことだ。1994年に出た [RFC 1738][rfc1738] は URL を定義し、その中の [3.10 FILES][rfc1738_310] は `file` スキームを
 
-<code>
+```bash
 file://<host>/<path>
-</code>
+```
 
 と定義し
 
@@ -274,9 +274,9 @@ Unix-like なシステム同様、Java は u2 記法が苦手のようだ。
 
 > これは、DOS や　Windows-like な環境におけるローカルファイルの最小記法をサポートすることを目指していて、authoriy フィールドを持たず、ドライブレターから始まる絶対パスを持つ。例えば:
 
-<code>
+```bash
 file:c:/path/to/file
-</code>
+```
 
 Windows の絶対パスのために u0 記法を受け入れることができれば、全ての絶対ファイルパスを URI に変換できるエレガントな変換方法を使うことができる: パスをスラッシュ変換したあとで `file:` を前に付けるだけでいい。しかし、これはデフォルトだと動作しない:
 

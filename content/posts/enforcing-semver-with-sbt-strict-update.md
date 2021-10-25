@@ -51,7 +51,7 @@ lazy val root = (project in file("."))
 
 Now if Rob tries to `compile` this build, he should get:
 
-<code>
+```bash
 sbt:demo> compile
 [warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.
 [error] stack trace is suppressed; run last update for the full output
@@ -64,7 +64,7 @@ sbt:demo> compile
 [error]       +- io.chrisdavenport:unique_2.13:2.0.0                (depends on 2.0.0)
 [error]       +- co.fs2:fs2-core_2.13:2.4.5                         (depends on 2.2.0)
 [error] Total time: 0 s, completed Dec 13, 2020 11:53:31 PM
-</code>
+```
 
 ### strict resolution
 

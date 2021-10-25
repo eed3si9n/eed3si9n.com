@@ -85,12 +85,12 @@ task3 := ((task1, task2) map { case (t1, t2) =>
 
 これによってタスク・スケジューラーは、CPU コアが空いていれば `task1` と `task2` を並列に実行することができる。さらに、sbt はグラフを自己観察してタスク間の依存性を表示することができる:
 
-<code>
+```bash
 sbt:selective> inspect tree task3
 [info] task3 = Task[Int]
 [info]   +-task1 = Task[Int]
 [info]   +-task2 = Task[Int]
-</code>
+```
 
 思考実験が役に立つこともあるので考えてみよう。パンデミックを無視して良いとして、親戚が飛行機で来るとして、迎えに行くのにだいたい 1~2時間かかるとする。ちょっとおもてなしのご馳走を作りたいが、それも 2時間ぐらいかかるとする。もしも、パートナーの人がいれば 1人が空港に行って、もう1人が料理を行うという分業ができる。最終的に晩ごはんを始めるには料理が作られ、かつ親戚が来ている状態にある必要がある。
 
@@ -129,12 +129,12 @@ foo := (condition flatMap { c =>
 1. `foo` は `condition` タスクにブロックされる。これは、正に僕たちが意図したことだが、それによって並列性が犠牲になる可能性がある。
 2. タスクグラフを自己観察できなくなる。
 
-<code>
+```bash
 sbt:selective> inspect tree foo
 [info] foo = Task[Unit]
 [info]   +-condition = Task[Boolean]
 [info]   +-Global / settingsData = Task[sbt.internal.util.Settings[sbt.Scope]]
-</code>
+```
 
 inspect tree の結果から `trueAction` と `falseAction` が抜けていることに注目してほしい。
 
@@ -289,12 +289,12 @@ def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
 
 `dependencyResolution` タスクの inspect を阻害しているのが確認できる:
 
-<code>
+```bash
 sbt:selective> inspect tree dependencyResolution
 [info] dependencyResolution = Task[sbt.librarymanagement.DependencyResolution]
 [info]   +-Global / settingsData = Task[sbt.internal.util.Settings[sbt.Scope]]
 [info]   +-Global / useCoursier = true
-</code>
+```
 
 `dependencyResolutionTask` は以下のように書き換えられる:
 
@@ -305,7 +305,7 @@ def dependencyResolutionTask: Def.Initialize[Task[DependencyResolution]] =
   )
 ```
 
-<code>
+```bash
 sbt:selective> inspect tree dependencyResolution
 [info] dependencyResolution = Task[sbt.librarymanagement.DependencyResolution]
 [info]   +-csrConfiguration = Task[lmcoursier.CoursierConfiguration]
@@ -317,7 +317,7 @@ sbt:selective> inspect tree dependencyResolution
 [info]   | | +-credentials = Task[scala.collection.Seq[sbt.librarymanagement.ivy.Credentials]]
 [info]   | |
 ....
-</code>
+```
 
 他の例も試してみよう。
 

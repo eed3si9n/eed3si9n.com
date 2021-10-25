@@ -19,7 +19,7 @@ Google のビルドインフラ Blaze (現在は Bazel としてオープンソ�
 
 Akka の `akka-actor/compile` を sbt 1.3.10 でビルドするとこのようになる:
 
-<code>
+```bash
 cd ~/work/quicktest/
 git clone git@github.com:akka/akka.git akka-0
 cd akka-0
@@ -35,11 +35,11 @@ akka > akka-actor/compile
 [info] Compiling 191 Scala sources and 28 Java sources to /Users/eed3si9n/work/quicktest/akka-0/akka-actor/target/scala-2.12/classes ...
 ....
 [success] Total time: 39 s, completed May 6, 2020 1:53:36 PM
-</code>
+```
 
 別の人が同じことをやるのを再現したいので、このディレクトリごと別の場所にコピーする:
 
-<code>
+```bash
 cd ~/work/quicktest/
 cp -r akka-0 akka-1
 cd akka-1
@@ -52,7 +52,7 @@ akka > akka-actor/compile
 [info] Compiling 191 Scala sources and 28 Java sources to /Users/eed3si9n/work/quicktest/akka-1/akka-actor/target/scala-2.12/classes ...
 ....
 [success] Total time: 48 s, completed May 6, 2020 1:57:33 PM
-</code>
+```
 
 同じ仕事が 2回繰り返された。もしもデベロッパーのチームと仕事しているとすると、これが毎朝繰り返されることになる。チームが大きくなれば、コードが増殖するスピードも上がり、重複される作業も増えていく。コンパイル・キャッシュの基本的な考えは、既にコンパイルされているもののコンパイルを避けるということにある。
 
@@ -81,7 +81,7 @@ ThisBuild / pushRemoteCacheTo := Some(MavenCache("local-cache", file("/tmp/remot
 
 次に、sbt シェルから `akka-actor/pushRemoteCache` と打ち込む:
 
-<code>
+```bash
 akka > akka-actor/pushRemoteCache
 [info] Formatting 22 Java sources...
 [info] Reformatted 0 Java sources
@@ -94,13 +94,13 @@ akka > akka-actor/pushRemoteCache
 [info]  published akka-actor_2.12 to file:/tmp/remote-cache/com/typesafe/akka/akka-actor_2.12/0.0.0-683868f9fe/akka-actor_2.12-0.0.0-683868f9fe-cached-compile.jar
 [info]  published akka-actor_2.12 to file:/tmp/remote-cache/com/typesafe/akka/akka-actor_2.12/0.0.0-683868f9fe/akka-actor_2.12-0.0.0-683868f9fe-cached-test.jar
 [success] Total time: 45 s, completed May 6, 2020 2:12:11 PM
-</code>
+```
 
 上の「683868f9fe」は `remoteCacheId` だ。取り敢えず Git のコミットid を使ったけども、自分のビルドに合わせて変えることもできる。将来これは全てのソースのハッシュとかに変えるべきかも。
 
 別の作業ディレクトリから `clean` と `akka-actor/pullRemoteCache` と打ち込む:
 
-<code>
+```bash
 cd ~/work/quicktest/
 cp -r akka-0 akka-1
 cd akka-1
@@ -109,11 +109,11 @@ akka > clean
 [success] Total time: 1 s, completed May 6, 2020 2:17:40 PM
 akka > akka-actor/pullRemoteCache
 [success] Total time: 1 s, completed May 6, 2020 2:17:46 PM
-</code>
+```
 
 次に `akka-actor/compile` を実行する:
 
-<code>
+```bash
 akka > akka-actor/compile
 [info] Formatting 22 Java sources...
 [info] Reformatted 0 Java sources
@@ -121,7 +121,7 @@ akka > akka-actor/compile
 [info] Generating 'Functions.scala'
 [info] Compiling 1 Scala source to /Users/eed3si9n/work/quicktest/akka-1/akka-actor/target/scala-2.12/classes ...
 [success] Total time: 4 s, completed May 6, 2020 2:21:13 PM
-</code>
+```
 
 Java の整形とコード生成が走って多少のコンパイルが発生した。これは実は悪いことではなくて、このセットアップの緩さを証明してくれた。差分コンパイラは部分的に一致するコードは見慣れているので、リモートのキャッシュと多少の違いがあっても良しなにしてくれるのだ。
 

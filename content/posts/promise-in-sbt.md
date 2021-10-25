@@ -61,12 +61,12 @@ First, we create a `PromiseWrap[Int]` task called `midpoint`. This is still a ta
 
 To run both `longRunning` and `task2` together, we define `joinTwo` task. This runs as follows:
 
-<code>
+```bash
 sbt:promise> joinTwo
 [info] start
 [info] got 5 in the middle
 [info] end
-</code>
+```
 
 As you can see above, we were able to run both tasks in parallel while letting `longRunning` task pass message to `task2`.
 

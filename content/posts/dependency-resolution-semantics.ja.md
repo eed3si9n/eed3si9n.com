@@ -46,7 +46,7 @@ tags:        [ "scala" ]
 - `a:1.0`。これはさらに `c:1.0` に依存する。
 - `b:1.0`。これはさらに `c:1.0` と `d:1.0` に依存する。
 
-<code>
+```bash
 +-----+  +-----+
 |a:1.0|  |b:1.0|
 +--+--+  +--+--+
@@ -57,7 +57,7 @@ tags:        [ "scala" ]
 +--+--+  +--+--+
 |c:1.0|  |d:1.0|
 +-----+  +-----+
-</code>
+```
 
 `a:1.0` と `b:1.0` に依存すると、`a:1.0`、`b:1.0`、`c:1.0`、そして `d:1.0` が得られる。これは木を歩いているだけだ。
 
@@ -66,7 +66,7 @@ tags:        [ "scala" ]
 - `a:1.0`。これはさらに `c:1.0` に依存する。
 - `b:1.0`。これはさらに `c:[1.0,2)` と `d:1.0` に依存する。
 
-<code>
+```bash
 +-----+  +-----+
 |a:1.0|  |b:1.0|
 +--+--+  +--+--+
@@ -77,7 +77,7 @@ tags:        [ "scala" ]
 +--+--+  +--+------+ +--+--+
 |c:1.0|  |c:[1.0,2)| |d:1.0|
 +-----+  +---------+ +-----+
-</code>
+```
 
 もしくは間接依存性が異なるバージョンに依存する:
 
@@ -112,7 +112,7 @@ sbt のメンテナなので、自分が取り扱っているのは JVM エコ�
 
 検証のためにシンプルな `pom.xml` を作ってみよう:
 
-<code>
+```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -131,13 +131,13 @@ sbt のメンテナなので、自分が取り扱っているのは JVM エコ�
      </dependencies>
    </dependencyManagement>
 </project>
-</code>
+```
 
 `mvn dependency:build-classpath` は解決されたクラスパスを返す。Akka 2.5.3 は間接的に `com.typesafe:config:1.3.1` に依存するにもかかわらず `com.typesafe:config:1.2.0` が返されていることに注目してほしい。
 
 `mvn dependency:tree` はこれを視覚的に表示する:
 
-<code>
+```bash
 [INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ foo ---
 [INFO] com.example:foo:jar:1.0.0
 [INFO] \- com.typesafe.play:play-ws-standalone_2.12:jar:1.0.1:compile
@@ -150,7 +150,7 @@ sbt のメンテナなので、自分が取り扱っているのは JVM エコ�
 [INFO]       +- com.typesafe.akka:akka-actor_2.12:jar:2.5.3:compile
 [INFO]       |  \- org.scala-lang.modules:scala-java8-compat_2.12:jar:0.8.0:compile
 [INFO]       \- org.reactivestreams:reactive-streams:jar:1.0.0:compile
-</code>
+```
 
 多くのライブラリは後方互換性を意識して書かれているが、いくつかの例外を除いては前方互換性は保証されないので、これはぞっとする。
 
@@ -176,13 +176,13 @@ lazy val root = (project in file("."))
 
 sbt シェルに入って、`show externalDependencyClasspath` と打ち込むと解決されたクラスパスが表示される。`com.typesafe:config:1.3.1` が表示されるはずだ。さらに以下の警告が表示される。
 
-<code>
+```bash
 [warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.
-</code>
+```
 
 `evicted` タスクは以下の eviction report を表示する:
 
-<code>
+```bash
 sbt:foo> evicted
 [info] Updating ...
 [info] Done updating.
@@ -193,7 +193,7 @@ sbt:foo> evicted
 [info]  * com.typesafe:ssl-config-core_2.12:0.2.2 is selected over 0.2.1
 [info]      +- com.typesafe.play:play-ws-standalone_2.12:1.0.1    (depends on 0.2.2)
 [info]      +- com.typesafe.akka:akka-stream_2.12:2.5.3           (depends on 0.2.1)
-</code>
+```
 
 latest-wins セマンティクスにおいては、`config:1.2.0` を指定することは実質的に「1.2.0 かそれ以上のものをくれ」と言っていることと同じだ。これは間接的依存性が勝手にダウングレードされないため nearest-wins に比較すると多少マシな振る舞いだと思うが、`evicted` タスクを実行して依存性の退去が正しいものかを確認するべきだ。
 
@@ -226,7 +226,7 @@ lazy val root = (project in file("."))
 
 sbt シェルから `show externalDependencyClasspath` を実行すると、期待通り `com.typesafe:config:1.3.1` が返ってくる。`evicted` レポートも同じものだ:
 
-<code>
+```bash
 sbt:foo> evicted
 [info] Here are other dependency conflicts that were resolved:
 [info]  * com.typesafe:config:1.3.1 is selected over 1.2.0
@@ -235,20 +235,20 @@ sbt:foo> evicted
 [info]  * com.typesafe:ssl-config-core_2.12:0.2.2 is selected over 0.2.1
 [info]      +- com.typesafe.play:play-ws-standalone_2.12:1.0.1    (depends on 0.2.2)
 [info]      +- com.typesafe.akka:akka-stream_2.12:2.5.3           (depends on 0.2.1)
-</code>
+```
 
 #### 余談: Apache Ivy の nearest-wins セマンティクスのエミュレーション?
 
 Ivy が Maven リポジトリからモジュールを解決するとき、POM ファイルを `ivy.xml` へと変換して Ivy キャッシュに入れるが、そのとき `force="true"` という属性が使われる。例えば、`cat ~/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/ivy-2.5.3.xml` を見てほしい:
 
-<code>
+```xml
   <dependencies>
     <dependency org="org.scala-lang" name="scala-library" rev="2.12.2" force="true" conf="compile->compile(*),master(compile);runtime->runtime(*)"/>
     <dependency org="com.typesafe" name="config" rev="1.3.1" force="true" conf="compile->compile(*),master(compile);runtime->runtime(*)"/>
     <dependency org="org.scala-lang.modules" name="scala-java8-compat_2.12" rev="0.8.0" force="true" conf="compile->compile(*),master(compile);runtime->runtime(*)"/>
   </dependencies>
 ...
-</code>
+```
 Ivy の[ドキュメンテーション][ivy2]によると:
 
 > 2つの latest系のコンフリクトマネージャーは依存性の force 属性も勘案に入れる。直接依存性は force 属性を宣言することで、間接依存性よりも直接依存性で与えられたリビジョンを優先すべきであることを合図できる。
@@ -281,12 +281,12 @@ lazy val root = (project in file("."))
 
 以下のようになる:
 
-<code>
+```bash
 sbt:foo> show externalDependencyClasspath
 [info] Updating ...
 [error] com.typesafe#config;1.2.0 (needed by [com.typesafe#ssl-config-core_2.12;0.2.2]) conflicts with com.typesafe#config;1.3.1 (needed by [com.example#foo_2.12;1.0.0-SNAPSHOT])
 [error] org.apache.ivy.plugins.conflict.StrictConflictException: com.typesafe#config;1.2.0 (needed by [com.typesafe#ssl-config-core_2.12;0.2.2]) conflicts with com.typesafe#config;1.3.1 (needed by [com.example#foo_2.12;1.0.0-SNAPSHOT])
-</code>
+```
 
 ### バージョンの順序
 
@@ -393,13 +393,13 @@ Coursier の解決セマンティクスのページの [GitHub][coursier2] 版�
 
 これは期待できるかもしれない。
 
-<code>
+```bash
 sbt:foo> show externalDependencyClasspath
 [warn] There may be incompatibilities among your library dependencies; run 'evicted' to see detailed eviction warnings.
 [info] * Attributed(/Users/eed3si9n/.sbt/boot/scala-2.12.8/lib/scala-library.jar)
 [info] * Attributed(/Users/eed3si9n/.coursier/cache/v1/https/repo1.maven.org/maven2/org/webjars/bower/angular/1.4.7/angular-1.4.7.jar)
 [info] * Attributed(/Users/eed3si9n/.coursier/cache/v1/https/repo1.maven.org/maven2/org/webjars/bower/angular-bootstrap/0.14.2/angular-bootstrap-0.14.2.jar)
-</code>
+```
 
 `angular-bootstrap:0.14.2` がある同一のビルドを用いて検証すると、`show externalDependencyClasspath` は期待通り `angular-bootstrap:0.14.2` と `angular:1.4.7` を返す。これは Ivy に対する改善と言える。
 
@@ -422,7 +422,7 @@ lazy val root = (project in file("."))
 
 sbt 1.3.0-RC3 を使うと、`show externalDependencyClasspath` はエラーをなる:
 
-<code>
+```bash
 sbt:foo> show externalDependencyClasspath
 [info] Updating
 https://repo1.maven.org/maven2/org/webjars/npm/kind-of/maven-metadata.xml
@@ -448,7 +448,7 @@ https://repo1.maven.org/maven2/org/webjars/npm/is-buffer/maven-metadata.xml
 [error] (update) lmcoursier.internal.shaded.coursier.error.ResolutionError$ConflictingDependencies: Conflicting dependencies:
 [error] org.webjars.npm:is-number:[3.0.0,4):default(compile)
 [error] org.webjars.npm:is-number:[4.0.0,5):default(compile)
-</code>
+```
 
 これは範囲が重なり合わないため、厳密には正しい。sbt 1.2.8 ならば `is-number:4.0.0` に解決してくれる。
 

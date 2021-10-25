@@ -22,9 +22,9 @@ tags:        [ "scala" ]
 
 4.0.0 を試すには以下を build.sbt に書く:
 
-<code>
+```scala
 libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.0"
-</code>
+```
 
 scopt 4.0.0 は以下のビルドマトリックスに対してクロスパブリッシュされている:
 
@@ -263,7 +263,7 @@ OParser.runParser(parser1, args, Config()) match {
 
 scopt 3 同様に、usage text が自動的に生成される。
 
-<code>
+```bash
 scopt 4.x
 Usage: scopt [update] [options] [<file>...]
 
@@ -282,6 +282,6 @@ Command: update [options]
 update is a command.
   -nk, --not-keepalive     disable keepalive
   --xyz <value>            xyz is a boolean property
-</code>
+```
 
 scopt 4 を使ってみて、何か気づいたら[バグ報告](https://github.com/scopt/scopt/issues/new)をしてほしい。

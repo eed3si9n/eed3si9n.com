@@ -14,7 +14,7 @@ tags:        [ "scala" ]
 
 Ólaf さんの [olafurpg/setup-scala][1] を使ってプロジェクトを JDK 17 でテストする簡単な解説をしてみる。[Setting up GitHub Actions with sbt](https://www.scala-sbt.org/1.x/docs/GitHub-Actions-with-sbt.html#Build+matrix) でドキュメント化されている以下の設定をスタート地点とする。
 
-<code>
+```yaml
 name: CI
 on:
   pull_request:
@@ -59,11 +59,11 @@ jobs:
             exit 1
         esac
       shell: bash
-</code>
+```
 
 例えば、`jobtype` が 3 の場合は JDK 8 を使いたいとして、`jobtype` が 1 と 2 の場合は JDK 17 でテストしたいとする。sbt-ci-release は JDK を持ってくるのに jabba を使っているが、これを書いている時点では各社の openjdk 17.0 ディストロが jabba にまだ上がっていない。しかし、[Eclipse Adoptium 旧名 AdoptOpenJDK](https://adoptium.net/) からバイナリが出たのでカスタム JDK モードを利用して強引に使うことが可能だ:
 
-<code>
+```yaml
 name: CI
 on:
   pull_request:
@@ -108,11 +108,11 @@ jobs:
             exit 1
         esac
       shell: bash
-</code>
+```
 
 うまくいけば sbt 1.5.4 だと以下のような警告が表示される:
 
-<code>
+```bash
 [info] [launcher] getting org.scala-sbt sbt 1.5.4  (this may take some time)...
 [info] [launcher] getting Scala 2.12.14 (for sbt)...
 WARNING: A terminally deprecated method in java.lang.System has been called
@@ -120,7 +120,7 @@ WARNING: System::setSecurityManager has been called by sbt.TrapExit$ (file:/home
 WARNING: Please consider reporting this to the maintainers of sbt.TrapExit$
 WARNING: System::setSecurityManager will be removed in a future release
 [info] welcome to sbt 1.5.4 (Eclipse Adoptium Java 17)
-</code>
+```
 
 **Update**:
 

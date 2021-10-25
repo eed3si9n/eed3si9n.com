@@ -190,12 +190,12 @@ foo_library(
 
 Now if you type `run BUILD.example` from the sbt shell, you should see:
 
-<code>
+```bash
 sbt:starlark-example> run BUILD.example
 [info] compiling 1 Scala source to /Users/eed3si9n/work/starlark-example/target/scala-2.13/classes ...
 [info] running example.Main BUILD.example
 2
-</code>
+```
 
 This is because we're looking to see if there's been a variable named `CALC`:
 

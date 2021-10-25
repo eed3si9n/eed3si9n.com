@@ -27,9 +27,9 @@ Download **the official sbt launcher** from SDKMAN or download from <https://www
 
 In addition, the sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
-<code>
+```bash
 sbt.version=1.4.0
-</code>
+```
 
 This mechanism allows that sbt 1.4.0 is used only for the builds that you want.
 
@@ -62,10 +62,10 @@ When sbt 1.4.0 starts, it will create a file named `.bsp/sbt.json` containing a 
 
 sbt 1.4.0 adds an official native thin client called `sbtn` that supports all tasks. If you're using the official sbt launcher 1.4.0 and not the knockoff kind you can use `--client` option to run the native thin client:
 
-<code>
+```bash
 $ sbt --client compile
 $ sbt --client shutdown
-</code>
+```
 
 The native thin client will run sbt (server) as a daemon, which avoids the JVM spinup and loading time for the second call onwards. This could an option if you would like to use sbt from the system shell such as Zsh and Fish.
 
@@ -208,18 +208,18 @@ pluginCrossBuild / sbtVersion := "1.2.8"
 
 To test sbt server manually, make sure to have an sbt session running, and start `sbt -bsp` in another termnial. And paste the following in:
 
-<code>
+```bash
 { "jsonrpc": "2.0", "id": 1, "method": "build/initialize", "params": { "displayName": "foo", "version": "1.0.0", "bspVersion": "2.0.0-M5", "rootUri": "file:///tmp/hello", "capabilities": { "languageIds": ["scala"] } } }
-</code>
+```
 
 Then enter `\r\n` (type `Enter`, `Ctrl-J` for zsh). This should return:
 
-<code>
+```bash
 Content-Length: 200
 Content-Type: application/vscode-jsonrpc; charset=utf-8
 
 {"jsonrpc":"2.0","id":1,"result":{"displayName":"sbt","version":"1.4.0-SNAPSHOT","bspVersion":"2.0.0-M5","capabilities":{"compileProvider":{"languageIds":["scala"]},"dependencySourcesProvider":true}}}
-</code>
+```
 
   [5112]: https://github.com/sbt/sbt/pull/5112
   [5153]: https://github.com/sbt/sbt/pull/5153

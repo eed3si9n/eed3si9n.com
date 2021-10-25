@@ -35,14 +35,14 @@ Terminal.app を使い続けている理由のもう一つが、僕が [TotalTer
 
 このマシンのシェルは [Zsh](http://www.zsh.org/) にする。Mac なら [How to use Homebrew Zsh Instead of Max OS X Default](http://zanshin.net/2013/09/03/how-to-use-homebrew-zsh-instead-of-max-os-x-default/) を参照:
 
-<code>
+```bash
 $ brew install zsh
 $ chsh -s /usr/local/bin/zsh
-</code>
+```
 
 設定に関しては、`zshrc` は他の `zshrc.*` の読み込みだけを行っている:
 
-<code>
+```bash
 ## basic
 [ -f $HOME/dotfiles/zshrc.basic ] && source $HOME/dotfiles/zshrc.basic
 
@@ -62,13 +62,13 @@ esac
 
 ## color
 [ -f $HOME/dotfiles/zshrc.color ] && source $HOME/dotfiles/zshrc.color
-</code>
+```
 
 #### zshrc.basic
 
 Zsh を使う理由の一つはより良いタブ補完だと思うので、それをまず有効化する。あと、落ち着かないのでプロンプトを Bash 風に変える。
 
-<code>
+```bash
 ## auto comp
 autoload -U compinit
 compinit
@@ -91,11 +91,11 @@ zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
 bindkey '^r' history-beginning-search-backward-end
 bindkey '^f' history-beginning-search-forward-end
-</code>
+```
 
 タブ補完における hello world ということで、`ls` のオプションを表示させてみる:
 
-<code>
+```bash
 $ ls -[tab]
 -1                  -- single column output
 -A                  -- list all except . and ..
@@ -103,20 +103,20 @@ $ ls -[tab]
 -H                  -- follow symlinks on the command line
 -L                  -- list referenced file for sym link
 ....
-</code>
+```
 
 うまくいった。もう一つの役に立つ機能として履歴を複数のセッション間で共有して、検索できるということがある。例えば one-liner の `git` コマンドを書いたとして、他にも色々コマンドを書いた後で再びその `git` コマンドを走らせたいとする。
 
-<code>
+```bash
 $ git[Ctrl-R]
-</code>
+```
 
 Zsh は履歴の中で最後に使った `git` という文字列から始まるコマンドを探してきてそれを表示する。
 Zsh で設定できることは他にも山ほどあって、もっと一般的な `ll` をエイリアスに登録といったことも当然できる。
 
 次に行く前に言っておきたいのは、このコマンドラインの設定全般に言える話だけども、作業の多くがどのキーボード・バインディングを使うかを決めることだということだ。使いやすいキーボードのショートカットは基本的に数が限られているけども、割り当てたい機能は各方面から限りなく出てくるからだ。Zsh に関しては、`bindkey` コマンドを引数なしで実行することで現在割り当てられているキーが表示される:
 
-<code>
+```bash
 $ bindkey 
 "^A"-"^C" self-insert
 "^D" list-choices
@@ -124,7 +124,7 @@ $ bindkey
 "^G" list-expand
 "^H" vi-backward-delete-char
 ....
-</code>
+```
 
 ### tmux
 
@@ -134,15 +134,15 @@ $ bindkey
 
 Mac なら Homebrew から手に入る:
 
-<code>
+```bash
 $ brew install tmux
-</code>
+```
 
 セッションを開始するにはシェル上から `tmux` を実行する:
 
-<code>
+```bash
 $ tmux new -s <session-name>
-</code>
+```
 
 僕は `Ctrl-T` というプレフィックスを tmux コマンドに割り当てた。tmux 用語では、ウィンドウというのはタブのようなもので、ペインはスプリット・スクリーンだ。
 
@@ -161,13 +161,13 @@ $ tmux new -s <session-name>
 - `Ctrl-T }` 現在のペインをスワップ
 - `Ctrl-T Ctrl-arrow` 現在のウィンドウを指した方向へ移動
 
-<code>
+```bash
 # map vi movement keys as pane movement keys
 bind h select-pane -L
 bind j select-pane -D
 bind k select-pane -U
 bind l select-pane -R
-</code>
+```
 
 修飾キー付きの矢印キーも後で割り当てる。
 
@@ -176,39 +176,39 @@ bind l select-pane -R
 次に、ステータスラインをかっこ良くするために [Powerline](https://powerline.readthedocs.org/en/latest/) を入れる。
 これは Python が必要になるので、それをまずインストール。
 
-<code>
+```bash
 $ brew install python
-</code>
+```
 
 これは Python 2.7.6 をインストールする。ドキュメンテーションは `--user` 付きで powerline をインストールと書いてあるけども、Mac でそれをやるとエラーになったので、`--user` 無しで入れた:
 
-<code>
+```bash
 $ pip install git+git://github.com/Lokaltog/powerline 
 Downloading/unpacking git+git://github.com/Lokaltog/powerline
 ....
-</code>
+```
 
 このパッケージを参照するために、`SITE_PACKAGES` という環境変数を `zshrc.osx` で定義する:
 
-<code>
+```bash
 export SITE_PACKAGES=/usr/local/lib/python2.7/site-packages/
-</code>
+```
 
 これで以下のように `tmux.conf` に書ける:
 
-<code>
+```bash
 source $SITE_PACKAGES/powerline/bindings/tmux/powerline.conf
-</code>
+```
 
 ![Powerline](/images/vim-memo-1a.png)
 
 tmux セッションの面白い所はターミナルの接続が切れてもバックグラウンドで走り続けることだ。`Ctrl-T $` を使って現在のセッションを rename して、以下のようにして接続を切って、セッションをリストして、再接続する。
 
-<code>
+```bash
 $ tmux detach
 $ tmux ls
 $ tmux a -t vim-memo
-</code>
+```
 
 他に、tmux に関しては [tmux cheatsheet](https://gist.github.com/MohamedAlaa/2961058) が参考になる。
 
@@ -216,9 +216,9 @@ $ tmux a -t vim-memo
 
 [Vim](http://www.vim.org/) はテキストエディタだ。Mac では Vim も homebrew で入れることができる。プラグインのために、Lua サポートもつける。
 
-<code>
+```bash
 $ brew install vim --with-lua
-</code>
+```
 
 Vim まわりはかなりキーバインディングが多い。さらにプラグインを追加しているので、プラグインに割り当てたキーバインディングを覚えなきゃいけない。
 
@@ -255,7 +255,7 @@ Vim にある全ての機能を列挙するわけにはいかないけども、�
 
 zshrc 同様に、vimrc は複数のスクリプトに分けて管理しやすいようにする。
 
-<code>
+```bash
 " basics
 source $HOME/dotfiles/vimrc.basic
 
@@ -285,16 +285,16 @@ source $HOME/dotfiles/vimrc.unite
 
 " colors
 source $HOME/dotfiles/vimrc.colors
-</code>
+```
 
 現在割り当てられているキーバインディングを探すには、以下の ex コマンドを使う:
 
-<code>
+```bash
 :map
 :nmap
 :imap
 :vmap
-</code>
+```
 
 ### Shougo/neobundle.vim
 
@@ -312,7 +312,7 @@ source $HOME/dotfiles/vimrc.colors
 
 まず僕が unite.vim を使ってやりたかったのは SublimeText の `Ctrl+P` 機能のエミュレートだ。`Ctrl-P` と `Ctrl-N` は previous と next という感じでよく使われているキーバインディングみたいなので、スペースバーを unite.vim 全般のプレフィックスにして、ファイルは `<space>f` を割り当てる。
 
-<code>
+```bash
 " Unite
 
 let g:unite_enable_start_insert = 1
@@ -325,7 +325,7 @@ call unite#filters#sorter_default#use(['sorter_rank'])
 
 " File searching using <space>f
 nnoremap <silent> [unite]f :<C-u>Unite -no-split -buffer-name=files -profile-name=buffer -auto-preview file_rec/async:!<cr>
-</code>
+```
 
 ここでは `-no-split` を使っているため、ファイルのリストは現在ウィンドウに表示される。Vim はモーダルなエディタなので、この方が通らしい。
 
@@ -335,7 +335,7 @@ nnoremap <silent> [unite]f :<C-u>Unite -no-split -buffer-name=files -profile-nam
 
 これを使って様々な便利なコマンドを定義できる。例えば [the silver searcher](https://github.com/ggreer/the_silver_searcher) を使った grep などだ。
 
-<code>
+```bash
 if executable('ag')
   let g:unite_source_grep_command='ag'
   let g:unite_source_grep_default_opts='--nocolor --nogroup -S -C4'
@@ -382,7 +382,7 @@ function! s:unite_settings()
   nmap <silent> <buffer> <Esc><Esc> <Plug>(unite_exit)
   imap <silent> <buffer> <Esc><Esc> <Plug>(unite_exit)
 endfunction
-</code>
+```
 
 ### Shougo/neomru.vim 
 
@@ -398,7 +398,7 @@ Unite.vim は他の Unite プラグイン (それらは Vim プラグインで�
 
 [Vimfiler](https://github.com/Shougo/vimfiler.vim) はファイルエクスプローラーだ。これがどこまで必要になるかは分からないけども、SublimeText のファイルエクスプローラーのサイドバーを結構使っていると思うので、似たような機能を一応入れておいた。以下の設定で `backslash e` でファイルエクスプローラーが分割ウィンドウに開くようになる。
 
-<code>
+```bash
 " vim.filer {{{
 if neobundle#is_installed('vimfiler')
 " Enable file operation commands.
@@ -411,7 +411,7 @@ nnoremap <silent> <Leader>E :<C-U>VimFiler<CR>
 " ....
 endif
 " }}}
-</code>
+```
 
 ![vimfiler](/images/vim-memo-1c.png)
 
@@ -436,7 +436,7 @@ $ cmake -G "Unix Makefiles" -DPYTHON_LIBRARY=/usr/local/Frameworks/Python.framew
 
 `scala.snip` に何が書いてあるか見てみる:
 
-<code>
+```bash
 $ cat ~/.vim/bundle/neosnippet-snippets/neosnippets/scala.snip | less
 snippet     match
 abbr        match {\n  case .. => ..
@@ -444,11 +444,11 @@ abbr        match {\n  case .. => ..
               case ${1} => ${0}
       }
 ....
-</code>
+```
 
 README で推奨されているキーバインディングはこれ:
 
-<code>
+```bash
 " neosnippet {{{
 if neobundle#is_installed('neosnippet.vim')
 " Plugin key-mappings.
@@ -457,7 +457,7 @@ smap <C-k>     <Plug>(neosnippet_expand_or_jump)
 xmap <C-k>     <Plug>(neosnippet_expand_target)
 endif
 " }}}
-</code>
+```
 
 これで `.scala` ファイルを開いて `match<ctrl-K>` と打ち込むと match-case に展開する。
 
@@ -469,14 +469,14 @@ endif
 
 これを簡単に立ち上げられるようにショートカットを割り当てる。
 
-<code>
+```bash
 " vimshell {{{
 if neobundle#is_installed('vimshell')
 nnoremap <silent> <Leader>s :<C-U>VimShell -buffer-name=shell -split -toggle<CR>
 let g:vimshell_user_prompt = 'fnamemodify(getcwd(), ":~")'
 endif
 " }}}
-</code>
+```
 
 ファイルエクスプローラー同様に、`backslash s` でシェルウィンドウがトグルするようにした。シェルと Vim を統合するという発想は面白いけども、Zsh とはちょっと勝手が違う。例えば、sbt を走らせてみると上矢印キーが取られてて sbt の履歴補完が使えなくなってた。
 
@@ -484,7 +484,7 @@ endif
 
 [vimproc](https://github.com/Shougo/vimproc.vim) は Vimshell を使うのに必要なものだ。これをインストールするのに手動ステップがあるけども、以下のように NeoBundle を書いておけば入るはずだ:
 
-<code>
+```bash
 NeoBundle 'Shougo/vimproc', {
     \ 'build' : {
     \     'windows' : 'make -f make_mingw32.mak',
@@ -493,7 +493,7 @@ NeoBundle 'Shougo/vimproc', {
     \     'unix' : 'make -f make_unix.mak',
       \    },
       \ }
-</code>
+```
 
 GNU make に `make` としてパスが通っている必要がある。
 
@@ -515,9 +515,9 @@ Vimmer はよく「矢印を使うな」という。マウス (またはトラ�
 
 矢印キーを修飾キーとともに押下したときに、Terminal.app はどの文字の列を Zsh に送信しなければいけないかを知らなければいけない。この慣例の一つに "xterm style" というものがあり、以下のようになっている:
 
-<code>
+```bash
  <Esc> + "1;" + <modifier key> + ("A" | "B" | "C" | "D")
-</code>
+```
 
 ここで、`<Esc>` は `\033` で `<modififer key>` は以下の値だ:
 
@@ -542,14 +542,14 @@ Vimmer はよく「矢印を使うな」という。マウス (またはトラ�
 
 次に、以下を `tmux.conf` に書くことで中で走っている Zsh に転送する:
 
-<code>
+```bash
 # pass through Shift+Arrow
 set-window-option -g xterm-keys on
-</code>
+```
 
 これで、tmux ウィンドウとペインの移動を設定できるようになった:
 
-<code>
+```bash
 # control arrow to switch windows
 bind -n C-Left  previous-window
 bind -n C-Right next-window
@@ -563,11 +563,11 @@ bind -n C-S-Left select-pane -L
 bind -n C-S-Right select-pane -R
 bind -n C-S-Up select-pane -U
 bind -n C-S-Down select-pane -D
-</code>
+```
 
 次に、Vim ウィンドウ間での移動は `vimrc.moving` に以下のように書く:
 
-<code>
+```bash
 " moving
 
 " Use Shift-arrows to select the active split!
@@ -587,7 +587,7 @@ if &term =~ '^screen'
   execute "set <xRight>=\e[1;*C"
   execute "set <xLeft>=\e[1;*D"
 endif
-</code>
+```
 
 これで `<Shift>`-arrow によって Normal モードと Insert モードの両方から Vim ウィンドウ間の移動ができるようになった。ホームポジションから手が離れるため、こういう設定をやってると素人フラグが立ちそうだけども、個人的には便利だと思っている。
 
@@ -597,20 +597,20 @@ endif
 
 - [Map Ctrl-S to save current or new files](http://vim.wikia.com/wiki/Map_Ctrl-S_to_save_current_or_new_files)
 
-<code>
+```bash
 " map <C-s> to :update
 noremap <silent> <C-S>      :update<CR>
 noremap <silent> <C-S>     <C-C>:update<CR>
 inoremap <silent> <C-S>     <C-O>:update<CR>
-</code>
+```
 
 ### Powerline
 
 tmux で [Powerline](https://powerline.readthedocs.org/en/latest/) を入れてあるので、Vim でも使う。これは `vimrc.bundle` の最後に追加した。
 
-<code>
+```bash
 set rtp+=$SITE_PACKAGES/powerline/bindings/vim
-</code>
+```
 
 ### sickill/vim-monokai
 
@@ -631,14 +631,14 @@ Monokai と組み合わせると、こんな感じになる:
 
 [caw.vim](https://github.com/tyru/caw.vim/) 別名 comment anywhere は、コードをコメントアウトするためのプラグインだ。
 
-<code>
+```bash
 " caw.vim {{{
 if neobundle#is_installed('caw.vim')
   nmap <Leader>c <Plug>(caw:I:toggle)
   vmap <Leader>c <Plug>(caw:I:toggle)
 endif
 " }}}
-</code>
+```
 
 `backslash c` でコメントとアンコメントのトグルができる。
 

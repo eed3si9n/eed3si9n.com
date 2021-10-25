@@ -38,13 +38,13 @@ users: List[User] = List(User(Alice,List()), User(Bob,List(User(Alice,List()))),
 The important part is that it contains `parents` field, which contains a list of other users.
 Now let's say you want to turn `users` list of users into JSON.
 
-<code>
+```bash
 [{ "name": "Alice", "parents": [] },
 { "name": "Bob",
   "parents": [{ "name": "Alice", "parents": [] }] },
 { "name": "Charles",
   "parents": [{ "name": "Bob", "parents": [{ "name": "Alice", "parents": [] }] }] }]
-</code>
+```
 
 There are mutiple issues with this approach. First, the JSON representation is inefficient and not natural way you'd expect JSON data to look like. Second, when we bring this back to the case class we will have to instantiate the entire graph of objects, which again is inefficient and a lot of times undesirable.
 
@@ -54,9 +54,9 @@ This becomes more tricky if the data contains something like function values.
 
 The workaround I've been thinking about is registry and reference pattern. The idea is that you would register all three users beforehand into a "registry", and on JSON you'd transmit something like this:
 
-<code>
+```bash
 ["Alice", "Bob", "Charles"]
-</code>
+```
 
 I Googled for it, and apparently Martin Fowler has named it [Registry pattern][fowler] too. In his model, Registry contains two methods:
 

@@ -37,13 +37,13 @@ Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore?
 
 It's good that it's doable, but using a macro for this is too pompous. According to [Yoshida-san][1], you can do this in Haskell just by putting `Whoops` in the type signature:
 
-<code>
+```bash
 -- | This function is being removed and is no longer usable.
 -- Use 'Data.IntMap.Strict.insertWith'
 insertWith' :: Whoops "Data.IntMap.insertWith' is gone. Use Data.IntMap.Strict.insertWith."
             => (a -> a -> a) -> Key -> a -> IntMap a -> IntMap a
 insertWith' _ _ _ _ = undefined
-</code>
+```
 
 ### configurable warnings
 
@@ -77,11 +77,11 @@ def <<=(): Unit = ???
 
 Here how it would look if someone calls this method:
 
-<code>
+```bash
 example.scala:26: error: method <<= is removed; use := syntax instead (foo-lib 1.0)
   <<=()
   ^
-</code>
+```
 
 So the custom compiler message works.
 
@@ -107,11 +107,11 @@ implicit class ShouldDSL(s: String) {
 
 Following Akka, I chose the default action to be `Action.Silent` so it won't display a warning. Here's where `-Wconf` can shine. Using `-Wconf:cat=api-may-change&origin=foo\..*:warning` option, the user can enable "api-may-change" category just for `foo.*` package.
 
-<code>
+```bash
 example.scala:28: warning: should DSL is incubating, and future compatibility is not guaranteed (foo-lib 1.0)
   "bar" should "something"
   ^
-</code>
+```
 
 If you want to make it a warning by default you can also change it to `defaultAction = Action.Warning`.
 
