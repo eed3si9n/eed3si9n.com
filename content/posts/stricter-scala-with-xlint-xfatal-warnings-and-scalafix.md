@@ -6,8 +6,8 @@ changed:     2021-09-13
 draft:       false
 promote:     true
 sticky:      false
-url:         /compile-or-not-compile
-aliases:     [ /node/273 ]
+url:         /stricter-scala-with-xlint-xfatal-warnings-and-scalafix
+aliases:     [ /node/273, "/compile-or-not-compile" ]
 tags:        [ "scala" ]
 ---
 
