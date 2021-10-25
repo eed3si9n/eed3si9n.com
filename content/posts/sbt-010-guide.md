@@ -42,9 +42,11 @@ In 0.7 these tasks would be declared as a method that returns `Task` object, lik
 
 In 0.10, both settings and tasks are just entries in `settings` sequence.
 
-<scala>val name = SettingKey[String]("name", "Name.")
+<scala>
+val name = SettingKey[String]("name", "Name.")
 ...
-val publishLocal = TaskKey[Unit]("publish-local", "Publishes artifacts to the local repository.")</scala>
+val publishLocal = TaskKey[Unit]("publish-local", "Publishes artifacts to the local repository.")
+</scala>
     
 Since both settings and tasks are referred to by their key, it's essential to familiarize yourself with the key names if you're writing a plugin. [Key.scala][1] defines the predefined keys.
 
@@ -58,9 +60,11 @@ Tasks on the other hand may depend on external sources like file system, and may
 What makes sbt 0.10 interesting is that each entries in the `settings` can declare dependencies (or "deps" for short) to the other keys. (When I say keys, I mean settings and tasks, but you get the idea)
 For example, `publishLocalConfiguration`'s dependencies are declared as follows:
 
-<scala>publishLocalConfiguration <<= (packagedArtifacts, deliverLocal, ivyLoggingLevel) map {
+<scala>
+publishLocalConfiguration <<= (packagedArtifacts, deliverLocal, ivyLoggingLevel) map {
 	(arts, ivyFile, level) => publishConfig(arts, Some(ivyFile), logging = level )
-},</scala>
+},
+</scala>
 
 The above is an example of sbt 0.10's Quick Configuration DSL. It adds dependencies from `publishLocalConfiguration` to `packagedArtifacts`, `deliverLocal`, and `ivyLoggingLevel` and calculates the value by calling `publishConfig` using the values from dependent keys. What's more, you can wire any of the keys to an arbitrary value in `build.sbt` without any class inheritance.
 
@@ -83,10 +87,12 @@ The dependencies of a setting or a task can be checked from the shell using `ins
 ## the basic concepts (configuration)
 Another interesting aspect of the `settings` is that the entries as well as the declared dependencies can be scoped in a configuration.
 
-<scala>libraryDependencies ++= Seq(
+<scala>
+libraryDependencies ++= Seq(
   "org.specs2" %% "specs2" % "1.6.1" % "test",
   "org.specs2" %% "specs2-scalaz-core" % "6.0.1" % "test"
-)</scala>
+)
+</scala>
 
 The above is an example of scoped dependencies to `"test"`, which is short for `"test->compile"`. It's saying the project's `"test"` configuration would depend on spec2's artifacts published under `"compile"` configuration.
 
@@ -115,11 +121,13 @@ How did `test` delegate to `test:test` in the first place? When an unconfigured 
 ## the basic concepts (project)
 When you first start out sbt with just the build.sbt, you are implicitly in the default project. Using full configuration, sbt can manage multiple modules under a single build instance. This allows you to declare dependencies among submodules etc.
 
-<scala>object FooBuild extends Build {
+<scala>
+object FooBuild extends Build {
    lazy val root = Project("root", file("."), settings = buildSettings) aggregate(library, jetty)
    lazy val library = Project("library", file("library"))
    lazy val jetty = Project("foo-jetty", file("jetty")) dependsOn(library)
-}</scala>
+}
+</scala>
 
 From the shell, use `project` command to switch between the projects:
 
@@ -136,28 +144,33 @@ In sbt, there are total of four axes (plural for "axis") of scope. They are proj
 
 Suppose you are defining a task called `assembly` that runs the test and creates an executable jar file. Here's how it could look in a plugin definition:
     
-<scala>val assembly = TaskKey[File]("assembly")
+<scala>
+val assembly = TaskKey[File]("assembly")
 
 lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
   assembly <<= (test in Test) map { _ =>
     // do something
   }
-)</scala>
+)
+</scala>
 
 The user is somewhat stuck with the `test in Test` dependencies. We can improve this by scoping `test` under `assembly` task.
 
-<scala>val assembly = TaskKey[File]("assembly")
+<scala>
+val assembly = TaskKey[File]("assembly")
 
 lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
   assembly <<= (test in assembly) map { _ =>
     // do something
   },
   test in assembly <<= (test in Test).identity
-)</scala>
+)
+</scala>
 
 Should the user choose not to run the tests, he or she can rewire `test in assembly` without compromising the main `test` task.
 
-<scala>test in assembly := {}
+<scala>
+test in assembly := {}
 </scala>
 
 ## changing the scopes
@@ -165,30 +178,36 @@ As noted, a key can be scoped in four axes. But when I just say for example `sou
 
 By creating a configuration-neutral chain of settings, similar to `compile`, we can reuse it under multiple configurations. I've simplified `Default.configTasks` for the purpose of demonstration:
 
-<scala>lazy val baseCompileSettings = Seq(
+<scala>
+lazy val baseCompileSettings = Seq(
   compile <<= (compileInputs) map { i => Compiler(i) },
   compileInputs <<= (dependencyClasspath, sources) map { (cp, srcs) =>
     Compiler.inputs(classpath, srcs)
   }
-)</scala>
+)
+</scala>
 
 The important thing is that none of the keys used in the above is scoped on configuration-axis. sbt provides a powerful utility function called `inConfig(conf: Configuration)(ss: Seq[Setting[_]])`. This is a curried function that scopes the settings `ss` in to `conf` only when it isn't scoped yet to a configuration. For example,
 
-<scala>inConfig(Compile)(baseCompileSettings)
+<scala>
+inConfig(Compile)(baseCompileSettings)
 </scala>
 
 This is equivalent to saying
 
-<scala>lazy val compileSettings = Seq(
+<scala>
+lazy val compileSettings = Seq(
   compile in Compile <<= (compileInputs in Compile) map { i => Compiler(i) },
   compileInputs in Compile <<= (dependencyClasspath in Compile, sources in Compile) map { (cp, srcs) =>
     Compiler.inputs(classpath, srcs)
   }
-)</scala>
+)
+</scala>
 
 Similarly, we could also wire the settings for `Test`: 
 
-<scala>inConfig(Test)(baseCompileSettings)
+<scala>
+inConfig(Test)(baseCompileSettings)
 </scala>
 
 <a name="per-task-keys"></a>
@@ -233,31 +252,37 @@ What motivated me to write this guide is all the renames and changes that I stum
 
 ### version number
 0.7 (in build.properties):
-<scala>project.version=0.1.1
+<scala>
+project.version=0.1.1
 </scala>
 
 0.10 plugins (in build.sbt):
-<scala>posterousNotesVersion := "0.4"
+<scala>
+posterousNotesVersion := "0.4"
 
-version <<= (sbtVersion, posterousNotesVersion) { (sv, nv) => "sbt" + sv + "_" + nv }</scala>
+version <<= (sbtVersion, posterousNotesVersion) { (sv, nv) => "sbt" + sv + "_" + nv }
+</scala>
 
 Unlike 0.7 plugins that were distributed as source package, 0.10 plugins are packaged as binary. This adds dependency to the exact version of sbt. So far there was been 0.10.0 and 0.10.1 already, and plugins compiled against 0.10.0 does not work against 0.10.1. As a workaround, I have adopted the above versioning convention.
 
 0.11 (in build.sbt):
-<scala>version := "0.4"
+<scala>
+version := "0.4"
 </scala>
 
 So far only RCs are available for 0.11, but it fixes the versioning issue by automatically mangling the artifact name.
 
 ### super class
 before:
-<scala>package assembly
+<scala>
+package assembly
 
 trait AssemblyBuilder extends BasicScalaProject {
 </scala>
 
 after:
-<scala>package sbtassembly
+<scala>
+package sbtassembly
   
 object Plugin extends sbt.Plugin { 
 </scala>
@@ -274,17 +299,20 @@ after:
   lazy val assemblySettings: Seq[sbt.Project.Setting[_]] = baseAssemblySettings // or inConfig(XX)(baseAssemblySettings)
   lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     ...
-  )</scala>
+  )
+</scala>
 
 Instead of defining methods to be overridden, for plugins, we create a sequence of `sbt.Project.Setting[_]` that the user can load using `seq(...)`. This allows the build authors to decide whether to include the plugin settings or not. The only exception is if you're defining a global command, in which case you would override `settings`.
 
 ### settings that are meant to be overridden
 before:
-<scala>  def assemblyJarName = name + "-assembly-" + this.version + ".jar"
+<scala>
+  def assemblyJarName = name + "-assembly-" + this.version + ".jar"
 </scala>
 
 after:
-<scala>  object AssemblyKeys {
+<scala>
+  object AssemblyKeys {
     lazy val jarName           = SettingKey[String]("assembly-jar-name")
   }
 
@@ -299,12 +327,15 @@ Define an entry in the `baseAssemblySettings` with declared dependencies to othe
 
 ### static type of Quick Configuration DSL is `Initialize[A]`
 before:
-<scala>  def assemblyTask(...)
+<scala>
+  def assemblyTask(...)
 
-  lazy val assembly = assemblyTask(...) dependsOn(test) describedAs("Builds an optimized, single-file deployable JAR.")</scala>
+  lazy val assembly = assemblyTask(...) dependsOn(test) describedAs("Builds an optimized, single-file deployable JAR.")
+</scala>
 
 after:
-<scala>  object AssemblyKeys {
+<scala>
+  object AssemblyKeys {
     val assembly = TaskKey[File]("assembly", "Builds a single-file deployable jar.")
   }
   
@@ -323,11 +354,13 @@ You can stuff everything in `baseAssemblySettings`, but that quickly becomes clu
 
 ### `outputPath` is `target`, and `Path` is `sbt.File`
 before:
-<scala>  def assemblyOutputPath = outputPath / assemblyJarName
+<scala>
+  def assemblyOutputPath = outputPath / assemblyJarName
 </scala>
 
 after:
-<scala>  object AssemblyKeys {
+<scala>
+  object AssemblyKeys {
     val outputPath        = SettingKey[File]("assembly-output-path")
   }
   
@@ -335,7 +368,8 @@ after:
   lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     outputPath in assembly <<= (target in assembly, jarName in assembly) { (t, s) => t / s },
     ...
-  )</scala>
+  )
+</scala>
 
 What used to be called `outputPath` is now a key called `target: SettingKey[File]`.
 
@@ -343,46 +377,57 @@ What used to be called `outputPath` is now a key called `target: SettingKey[File
 
 ### `runClasspath` is `fullClasspath in Runtime`
 before:
-<scala>  def assemblyClasspath = runClasspath
+<scala>
+  def assemblyClasspath = runClasspath
 </scala>
 
 after:
-<scala>  lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
+<scala>
+  lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     fullClasspath in assembly <<= fullClasspath or (fullClasspath in Runtime).identity,
     ...
-  )</scala>
+  )
+</scala>
   
 ### reuse existing keys
 before:
-<scala>  def assemblyClasspath = runClasspath
+<scala>
+  def assemblyClasspath = runClasspath
 </scala>
 
 after:
-<scala>  lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
+<scala>
+  lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     fullClasspath in assembly <<= fullClasspath or (fullClasspath in Runtime).identity,
     ...
-  )</scala>
+  )
+</scala>
 
 So `fullClasspath in assembly` is seeded with the value from current configuration's `fullClasspath`, otherwise `fullClasspath in Runtime`, but if the user wants to he or she can rewire it later without defining a hook method. Neat, right?
 
 ### a classpath is a `Classpath`, not `Pathfinder`
 before:
-<scala>  classpath: Pathfinder
+<scala>
+  classpath: Pathfinder
 </scala>
 
 after:
-<scala>  classpath: Classpath
+<scala>
+  classpath: Classpath
 </scala>
 
 ### functions that are meant to be overridden
 before:
-<scala>  def assemblyExclude(base: PathFinder) =
+<scala>
+  def assemblyExclude(base: PathFinder) =
     (base / "META-INF" ** "*") --- 
       (base / "META-INF" / "services" ** "*") ---
-      (base / "META-INF" / "maven" ** "*")</scala>
+      (base / "META-INF" / "maven" ** "*")
+</scala>
       
 after:
-<scala>  val excludedFiles     = SettingKey[Seq[File] => Seq[File]]("excluded-files")  
+<scala>
+  val excludedFiles     = SettingKey[Seq[File] => Seq[File]]("excluded-files")  
 
   private def assemblyExcludedFiles(base: Seq[File]): Seq[File] =
     ((base / "META-INF" ** "*") ---
@@ -392,30 +437,37 @@ after:
   lazy val baseAssemblySettings: Seq[sbt.Project.Setting[_]] = Seq(
     excludedFiles in assembly := assemblyExcludedFiles _,
     ...
-  )</scala>
+  )
+</scala>
 
 This is slightly complicated. Since sbt 0.10 no longer relies on inheritance for overriding the behaviors, we need to track the method into key-value `baseAssemblySettings`. In Scala, you need the method into a function value to assign it to a variable, so we have `assemblyExcludedFiles _`. The type of this function value is `Seq[File] => Seq[File]`.
 
 ### prefer `Seq[File]` over `Pathfinder`
 before:
-<scala>  base: PathFinder
+<scala>
+  base: PathFinder
 </scala>
 
 after:
-<scala>  base: Seq[File]
+<scala>
+  base: Seq[File]
 </scala>
 
 `Seq[File]` can be converted into `Pathfinder` implicitly, and 0.10 way is to use normal Scala types like `File` and `Seq[File]` where it's exposed for extension.
 
 ### `##` is done via file mapping
 before:
-<scala>  val base = (Path.lazyPathFinder(tempDir :: directories) ##)
-  (descendents(base, "*") --- exclude(base)).get</scala>
+<scala>
+  val base = (Path.lazyPathFinder(tempDir :: directories) ##)
+  (descendents(base, "*") --- exclude(base)).get
+</scala>
   
 after:
-<scala>  val base = tempDir +: directories
+<scala>
+  val base = tempDir +: directories
   val descendants = ((base ** (-DirectoryFilter)) --- exclude(base)).get
-  descendants x relativeTo(base)</scala>
+  descendants x relativeTo(base)
+</scala>
 
 See [Mapping Files][25] for the details.
 > Tasks like `package`, `packageSrc`, and `packageDoc` accept mappings from an input file to the path to use in the resulting artifact (jar).
@@ -424,34 +476,41 @@ Using `x` method you can generate mappings.
 
 ### `FileUtilities` is `IO`
 before:
-<scala>  FileUtilities.clean(assemblyConflictingFiles(tempDir), true, log)
+<scala>
+  FileUtilities.clean(assemblyConflictingFiles(tempDir), true, log)
 </scala>
 
 after:
-<scala>  IO.delete(conflicting(Seq(tempDir)))
+<scala>
+  IO.delete(conflicting(Seq(tempDir)))
 </scala>
 
 Apparently I didn't get the memo on this rename, so I asked the mailing list, which is very helpful. Browse [API Documentation][22] and look into companion objects to see if they have interesting methods for you.
 
 ### `packageTask` is `Package`
 before:
-<scala>  packageTask(...)
+<scala>
+  packageTask(...)
 </scala>
 
 after:
-<scala>  Package(config, cacheDir, s.log)
+<scala>
+  Package(config, cacheDir, s.log)
 </scala>
 
 ### acquire `logger` from `streams`
 before:
-<scala>  log.info("Including %s".format(jarName))
+<scala>
+  log.info("Including %s".format(jarName))
 </scala>
 
 after:
-<scala>  (streams) map { (s) =>
+<scala>
+  (streams) map { (s) =>
     val log = s.log 
     log.info("Including %s".format(jarName))
-  }</scala>
+  }
+</scala>
 
 From [Basic Tasks][6]:
 > New in sbt 0.10 are per-task loggers, which are part of a more general system for task-specific data called Streams. This allows controlling the verbosity of stack traces and logging individually for tasks as well as recalling the last logging for a task.

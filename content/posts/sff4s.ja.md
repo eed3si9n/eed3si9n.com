@@ -38,7 +38,8 @@ val f = factory future {
   Thread.sleep(1000)
   1
 }
-f() // => これは 1秒間ブロックした後で 1 を返す</scala>
+f() // => これは 1秒間ブロックした後で 1 を返す
+</scala>
 
 細かい事は気にしないで、最後の一行の振る舞いだけ見てほしい。このように、計算結果を取得することを、強要(forcing)するともいう。最小限の API は以下のようになる。
 
@@ -47,7 +48,8 @@ Future v0.1
 abstract class Future[+A] {
   /** 計算結果を強要して無期限にブロックする */
   def apply(): A
-}</scala>
+}
+</scala>
 
 Scala から使用可能な future値の実装にはいくつかあるけど、どれも一から書かれてる。上のような共通な親クラスがあれば、特定のライブラリに依存しないコードを書くことができる。
 
@@ -64,7 +66,8 @@ abstract class Future[+A] {
   
   /** 計算結果が用意できたかを確かめる */
   def isDefined: Boolean
-}</scala>
+}
+</scala>
 
 タイムアウト
 ----------
@@ -80,7 +83,8 @@ abstract class Future[+A] {
   def apply(timeoutInMsec: Long): A
   
   def isDefined: Boolean
-}</scala>
+}
+</scala>
 
 まだ最小限という感じだけど、この状態で使い始めることができる。
 
@@ -111,7 +115,8 @@ f onSuccess { value =>
 
 エラー状態が `Either` として捕捉されるため、強要は `def get: Either[Throwable, A]` として実装され、`apply()` はそれを以下のように呼び出すことにした:
 
-<scala>def apply(): A = get.fold(throw _, x => x)
+<scala>
+def apply(): A = get.fold(throw _, x => x)
 </scala>
 
 Future v0.4:
@@ -242,7 +247,8 @@ val factory = sff4s.impl.ActorsFuture
 val f = factory future {
   Thread.sleep(1000)
   1
-}</scala>
+}
+</scala>
 
 これは内部で [`scala.acotors.Futures`][7] の `future` メソッドをによりブロックの計算を発送している。
 ここで注意が必要なのは `sff4s.impl.TwitterUtilFuture` の `future` メソッドは、`ActorsFuture` のような非同期な振る舞いを期待しているとガッカリする結果となるということだ。

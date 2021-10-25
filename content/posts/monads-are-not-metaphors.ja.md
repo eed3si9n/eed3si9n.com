@@ -41,36 +41,44 @@ Ruby には便利な（最近ではほとんどの言語が採用している）
 
 ここでクイズ。セミコロン (`;`) は何をやっているのだろう？ただの分離体だと言ってしまうのは簡単だが、理論的には、もっと興味深いことが起こっている。ここで Scala に切り替えて、さらにクリスマスのオーナメントも付け足してみよう:
 
-<scala>def foo(bar: String) = {
+<scala>
+def foo(bar: String) = {
   ({ () => println(bar) })()
   ({ () => bar.length })()
-}</scala>
+}
+</scala>
 
 Scala に詳しくない人のために誤解を生まないよう言っておくと、全ての文をラムダ式（匿名関数）で囲う必要は全く無い。説明のために敢えてこうしているだけだ。
 
 この関数は Ruby のバージョンと全く同じ事をする。まあ、パラメータに、`size` を定義する全ての値の代わりに `String` を要求する分は制限されていると言えるが、気にしない事にする... 前にあったコードとの大きな違いは、それぞれの文が直後に呼び出される匿名関数に囲まれていることだ。Ruby 同様にセミコロンを使うこともできるが、これらの文が実際には関数であるため、もう一段階ひねることができる:
 
-<scala>def foo(bar: String) = {
+<scala>
+def foo(bar: String) = {
   ({ () => println(bar) } andThen { () => bar.length })()
-}</scala>
+}
+</scala>
 
 (注意: 実際には `andThen` メソッドは 0-arity の関数には定義されていないが、ここでは定義されており、一つの引数を取る関数と同じ振る舞いをするふりをする。もしそう考えた方が落ち着くなら、両者とも `Unit` をパラメータと取る 1-引数の関数だと考えることができる。表記は増えるが、理論的には同じ結果となる。)
 
 （使うこともできたが、）ここではセミコロンを使わなかったことに注目して欲しい。その代わりに、二つの関数を**組み合わせて**、それを最後に呼び出した。この組み合わせの意味論を追っていくと、まず第一の関数が評価され、その戻り値 (`()`) が捨てられた後、第二の関数が評価され、その戻り値が返されている。ご家庭でご覧の皆様のために解説すると、`andThen` は以下のように定義することができる:
 
-<scala>def funcSyntax[A](f1: () => A) = new {
+<scala>
+def funcSyntax[A](f1: () => A) = new {
   def andThen[B](f2: () => B) = f1(); f2()
-}</scala>
+}
+</scala>
 
 見方によっては、関数に直接適用するか文のレベルで間接的はたらくかの違いこそあれ、セミコロン「演算子」の能力を文字通り内包するメソッドを定義したと考えることができる。それはそれで面白い考えだが、重要なのは、まず最初の関数を実行し、その結果を捨てたあと、第二の関数を実行して、その結果を返しているということだ。
 
 これが任意の数の関数に適用できることは明らかだろう。例えば:
 
-<scala>def foo(bar: String) = {
+<scala>
+def foo(bar: String) = {
   ({ () => println("Executing foo") } andThen
    { () => println(bar) } andThen
    { () => bar.length })()
-}</scala>
+}
+</scala>
 
 ついてきてるかな？おめでとう。これが初めてのモナドだ。
 
@@ -78,27 +86,34 @@ Scala に詳しくない人のために誤解を生まないよう言ってお�
 
 これは、従来の意味でのモナドではないかもしれないが、少し頑張ればこれがモナド則を満たすことを証明できる。重要な点はこのモナドが何をしているかという点だ: 何かを順序に従って組み合わせている。事実、突き詰めれば、**全て**のモナドがしていることも同じ事だ。まず、物体一号から始め、次に（一号を与えると）物体二号を返す関数がある。モナドは物体一号と関数を組み合わせて最終的な物体を導くことができる。もう少しコードを見てみよう:
 
-<scala>case class Thing[+A](value: A)
+<scala>
+case class Thing[+A](value: A)
 </scala>
 
 これは恐らく想像できる限り最も単純なコンテナだろう（実は、これは**まさに**想像できる限り最も単純なコンテナなのだが、その点は今は重要ではない）。値を `Thing` で囲う以外は何もできない:
 
-<scala>val a = Thing(1)
-val b = Thing(2)</scala>
+<scala>
+val a = Thing(1)
+val b = Thing(2)
+</scala>
 
 ここで頭を設計モードに切り替えて欲しい。以下のようなコードを頻繁に書かなくてはいけないと想像して欲しい:
 
-<scala>def foo(i: Int) = Thing(i + 1)
+<scala>
+def foo(i: Int) = Thing(i + 1)
  
 val a = Thing(1)
-val b = foo(a.value)        // => Thing(2)</scala>
+val b = foo(a.value)        // => Thing(2)
+</scala>
 
 `Thing` から始めて、その `Thing`内の値を使って関数を呼び出して、それが新たな `Thing` が得られる。よく考えると、これはよくあるパターンであることに気づく。まず値があり、その値を使って新しい値を計算する。数学的は、これは以下とほぼ同じだ:
 
-<scala>def foo(i: Int) = i + 1
+<scala>
+def foo(i: Int) = i + 1
  
 val a = 1
-val b = foo(a)              // => 2</scala>
+val b = foo(a)              // => 2
+</scala>
 
 唯一の違いは、最初のバージョンが全てを `Thing` で囲っているのに対して、第二のバージョンは「生」の値を使っているということだけだ。
 
@@ -106,16 +121,20 @@ val b = foo(a)              // => 2</scala>
 
 僕らが欲しいのは、`Thing` から値を取り出し、その値を用いて別の関数を呼び出し、呼び出しのその戻り値（新たな `Thing`）を返すという関数だ。僕らは善良なオブジェクト指向プログラマであるため、これは `Thing` クラスのメソッドとして定義される:
 
-<scala>case class Thing[+A](value: A) {
+<scala>
+case class Thing[+A](value: A) {
   def bind[B](f: A => Thing[B]) = f(value)
-}</scala>
+}
+</scala>
 
 よって、ある `Thing` があれば、その値を取り出し新たな `Thing` を計算する、というステップを一発で実行できる:
 
-<scala>def foo(i: Int) = Thing(i + 1)
+<scala>
+def foo(i: Int) = Thing(i + 1)
  
 val a = Thing(1)
-val b = a bind foo          // => Thing(2)</scala>
+val b = a bind foo          // => Thing(2)
+</scala>
 
 これは、元のバージョンと全く同じ機能があるが、よりスッキリしていることに注目してほしい。`Thing` はモナドだ。
 
@@ -124,12 +143,14 @@ val b = a bind foo          // => Thing(2)</scala>
 
 これを理解するためには、何が `Thing` をモナドたらしめているのかを見てみよう:
 
-<scala>val a = Thing(1)
+<scala>
+val a = Thing(1)
 </scala>
 
 第一に、任意の値を新たな `Thing` で囲むことができる。オブジェクト指向のプログラマはこれを「コンストラクタ」と呼ぶかもしれない。モナドでは、これは `unit` 関数と呼ばれる。Haskell はこれを `return` と呼ぶ（ちょっとこれは後回しにしたほうがいいかな）。とにかく、なんと呼ぼうとやっていることは同じだ。型が `A => Thing` の関数があって、それは何らかの値を取り、新たな `Thing` でラッピングする。
 
-<scala>a bind { i => Thing(i + 1) }
+<scala>
+a bind { i => Thing(i + 1) }
 </scala>
 
 次に `bind` 関数がある。これは `Thing` から値を掘り出して、渡された関数を使って新たな `Thing` を作り出す。Scala はこれを `flatMap` と呼ぶ。Haskell は `>>=` と呼ぶ。繰り返すが、名前は関係無い。大切なのは、`bind` が二つの物を順序に従って組み合わせていることだ。**ある物から始めて、その値を使って新たな物を計算するのだ。**
@@ -144,7 +165,8 @@ val b = a bind foo          // => Thing(2)</scala>
 ### Option
 これは恐らく最も有名なモナドで、また最も簡単に理解でき、その動機も分かりやすいモナドだ。以下に具体例で説明する:
 
-<scala>def firstName(id: Int): String = ...    //　データベースから取得
+<scala>
+def firstName(id: Int): String = ...    //　データベースから取得
 def lastName(id: Int): String = ...
  
 def fullName(id: Int): String = {
@@ -158,13 +180,15 @@ def fullName(id: Int): String = {
   } else {
     null
   }
-}</scala>
+}
+</scala>
 
 またしても、ありがちなパターンだ。ここに二つの関数 (`firstName` と `lastName`) があり、それぞれ利用可能か不可能か分からないデータを取得する。もしデータがあれば、その値が返る。それ以外の場合は、`null` を返す。次に、これらの関数を使って何か面白いことをする（この場合、フルネームを計算する）。残念ながら `firstName` と `lastName` が役に立つ値を返すか返さないのかは明示的に入れ子になった `if` によって処理される必要がある。
 
 パッと見ではこれ以上何もできないかのように見える。しかし、注意深く見るとこのコードにモナドパターンが隠されていることが見える。前回よりも少し複雑だが、そこにあることはある。まず、全てを `Thing` で囲んでみよう:
 
-<scala>def firstName(id: Int): Thing[String] = ...    // データベースから取得
+<scala>
+def firstName(id: Int): Thing[String] = ...    // データベースから取得
 def lastName(id: Int): Thing[String] = ...
  
 def fullName(id: Int): Thing[String] = {
@@ -180,13 +204,15 @@ def fullName(id: Int): Thing[String] = {
       Thing(null)
     }
   }
-}</scala>
+}
+</scala>
 
 見えたかな？繰り返すが、モナドはいたる所にある。
 
 ここで気付いたことだけど、`bind` を呼ぶたびに、関数の**中**で最初にしていることは、毎回、値が `null` かチェックしているということだ。それならそのロジックを `bind` に移せばいいんじゃないか？もちろん、`Thing` をいじらないことにはそれは実現できないから、新しいモナド `Option` を定義しよう:
 
-<scala>sealed trait Option[+A] {
+<scala>
+sealed trait Option[+A] {
   def bind[B](f: A => Option[B]): Option[B]
 }
  
@@ -196,13 +222,15 @@ case class Some[+A](value: A) extends Option[A] {
  
 case object None extends Option[Nothing] {
   def bind[B](f: Nothing => Option[B]) = None
-}</scala>
+}
+</scala>
 
 `Some` 以外のものを無視すると、これは慣れ親しんだ `Thing` と似通っている。主な違いは、`Option` に二種類のインスタンスがあることだ: 値を含む `Some` と値を含まない `None` だ。`None` は `Thing(null)` と簡単に書く方法だと考えればいい。
 
 面白いのは、`Some` と `None` で二つの異なる `bind` の定義が必要なことだ。`Some` の中の `bind` の定義は `Thing` のものにそっくりだ。これは、`Some` と `Thing` がほぼ同一なことで説明がつく。しかし、`None` は渡された関数を無視して常に `None` を返す `bind` を定義する。これがどうして役立つかって？`fullName` の例に戻そう:
 
-<scala>def firstName(id: Int): Option[String] = ...    // データベースから取得
+<scala>
+def firstName(id: Int): Option[String] = ...    // データベースから取得
 def lastName(id: Int): Option[String] = ...
  
 def fullName(id: Int): Option[String] = {
@@ -211,7 +239,8 @@ def fullName(id: Int): Option[String] = {
       Some(fname + " " + lname)
     }
   }
-}</scala>
+}
+</scala>
 
 これで全ての不愉快な `if` 文が無くなった。これは `firstName` と `lastName` の両者ともがデータベースのレコードの取得に失敗すると `Thing(null)` の代わりに `None`　を返すために機能する。もちろん、`None` に対して `bind` しようとしても、戻り値は常に `None` だ。よって、`fullName` 関数は、`firstName` と `lastName` の両者共のが `None` では無い時に値の組み合わせを `Some` に入れて返す。
 
@@ -241,12 +270,14 @@ Haskell には変数が一切無い（Scala に `var` が無いか、Java の全
 
 Scala に戻ろう。目標は、可変状態に一切**依存せずに** `println` 関数を定義することだ（ただし、物理的なディスプレイをクローニングしてユーザの画面を「変更」することは不可能なため、一時的に標準出力ストリームは常に可変であることを無視する）。標準出力ストリームを `Vector` としてラッピングして、これを関数に渡していくことでこの問題は回避できる:
 
-<scala>def foo(bar: String, stdout: Vector[String]) = {
+<scala>
+def foo(bar: String, stdout: Vector[String]) = {
   val stdout2 = println(bar, stdout)
   (bar.length, stdout2)
 }
  
-def println(str: String, stdout: Vector[String]) = stdout + str</scala>
+def println(str: String, stdout: Vector[String]) = stdout + str
+</scala>
 
 このように現在の `stdout` を関数に渡し、新しい状態を戻り値として返すことで、理論的には全ての `println` を用いた関数を書くことができる。最終的にプログラムは結果と共に `stdout` の最終状態を返し、言語ランタイムがそれを画面に表示すればいい。
 
@@ -258,12 +289,14 @@ def println(str: String, stdout: Vector[String]) = stdout + str</scala>
 
 解決策は、実は結構単純なものだ。`println` の問題を解決するためには、僕らは `Vector[String]` を受け取り、新たな状態を通常の戻り値と一緒に渡すことで「変更」する必要があった。このアイディアを広げてみよう: もしこれを**世界全体**に適用したらどうだろう？ただの `Vector[String]` の代わりに、`Universe` を渡して回るのだ:
 
-<scala>def foo(bar: String, everything: Universe) = {
+<scala>
+def foo(bar: String, everything: Universe) = {
   val everything2 = println(bar, everything)
   (bar.length, everything2)
 }
  
-def println(str: String, everything: Universe) = everything.println(str)</scala>
+def println(str: String, everything: Universe) = everything.println(str)
+</scala>
 
 言語ランタイムが、役に立つ `Universe` のインスタンスを提供するならば、このコードはうまくいくはずだ。当然、ランタイムは**本気で**宇宙全体をパッケージングして新たなバージョンを渡すことはできないが、少しズルをして世界全体を渡すフリをすることはできる。言語ランタイムは、`println` 関数を `Universe` オブジェクトに対して、思いのまま実装することができる（願わくば、標準出力に文字を追加して欲しいところだが）。このようにして、ランタイムに必要に応じて何らかの魔法を実行させることで、僕らは全ての副作用に関して知らぬが仏を決め込むことができる。
 
@@ -271,26 +304,30 @@ def println(str: String, everything: Universe) = everything.println(str)</scala>
 
 Phillip Wadler のアイディアはモナドパターンを利用してこの問題を解決することだ。その結果が `IO` モナドだ:
 
-<scala>def foo(bar: String): IO[Int] = {
+<scala>
+def foo(bar: String): IO[Int] = {
   println(bar) bind { _ => IO(bar.length) }
 }
  
 def println(str: String): IO[Unit] = {
   // TODO 魔法の呪文をここに書く
-}</scala>
+}
+</scala>
 
 当然ながら、この仮想の言語は副作用を記述できないために `println` を自分たちで実装することはできない。しかし、言語のランタイムは、副作用を実行してさらに新たなバージョンの `IO` （つまり、変更された世界全体）を作成する `println` のネイティブな（つまりズルをした）実装を提供することができる。
 
 この設計で気をつけなければならないのは、`IO` から何かを取り出すことができないということだ。一度、暗い道に入ってしまうと永遠に運命を支配してしまう。この理由として言語の純粋さが挙げられる。Haskell は、副作用を禁止したいが、`IO` から値を取り出すことを許してしまうと、それを使って簡単に安全装置をすり抜けることができるからだ:
 
-<scala>def readLine(): IO[String] = {
+<scala>
+def readLine(): IO[String] = {
   // TODO 魔法の呪文をここに書く
 }
  
 def fakeReadLine(str: String): String = {
   val back: IO[String] = readLine()
   back.get      // whew!  doesn't work
-}</scala>
+}
+</scala>
 
 見ての通り、もし `IO` から値を取り出すことができれば、ラッパー関数を使ってあまりにも簡単に副作用を隠すことができるので、この仕組全体が時間の無駄ということになってしまう。
 
@@ -306,7 +343,8 @@ def fakeReadLine(str: String): String = {
 
 考えのプロセスが（大きく）向上することの他に、より短期的で実践的な効果がある。あるモナドに特定するのではなく、ジェネリックにモナドに作用する関数を定義することができることだ。特定の `Component` を加えるたびに全ての関数を書きなおしていては Swing のプログラミングが不可能なように、特定のモナドに対して関数を書きなおしていては不可能な（少なくとも、すごく非実用的である）ことが多くある。そのような関数の一つに `sequence` がある:
 
-<scala>trait Monad[+M[_]] {
+<scala>
+trait Monad[+M[_]] {
   def unit[A](a: A): M[A]
   def bind[A, B](m: M[A])(f: A => M[B]): M[B]
 }
@@ -326,17 +364,22 @@ def sequence[M[_], A](ms: List[M[A]])(implicit tc: Monad[M]) = {
   ms.foldRight(tc.unit(List[A]())) { (m, acc) =>
     tc.bind(m) { a => tc.bind(acc) { tail => tc.unit(a :: tail) } }
   }
-}</scala>
+}
+</scala>
 
 これを小ぎれいにする方法はいくらでもあるが、説明のために全てを明示的に書きだした。`sequence` の一般的な機能は、モナドのインスタンスの `List` を受け取り、それらの要素を含んだ `List` のモナドを返すことだ。以下に具体例で説明する:
 
-<scala>val nums = List(Some(1), Some(2), Some(3))
-val nums2 = sequence(nums)           // Some(List(1, 2, 3))</scala>
+<scala>
+val nums = List(Some(1), Some(2), Some(3))
+val nums2 = sequence(nums)           // Some(List(1, 2, 3))
+</scala>
 
 これはどのモナドにも適用できる:
 
-<scala>val nums = List(Thing(1), Thing(2), Thing(3))
-val nums2 = sequence(nums)           // Thing(List(1, 2, 3))</scala>
+<scala>
+val nums = List(Thing(1), Thing(2), Thing(3))
+val nums2 = sequence(nums)           // Thing(List(1, 2, 3))
+</scala>
 
 この場合、`Monad` トレイトは**型クラス**の一例だ。基本的には、モナドという一般的な概念があり、それは `unit` と `bind` という二つの関数を定義すると言っているだけだ。この仕組により、僕らはどの**特定の**モナドなのかを知らずにモナドの操作をすることができる。アダプターパターンをステロイド剤で強化した物（それに Scala の implicit の魔法を適量）だと考えればいい。
 
@@ -349,7 +392,8 @@ val nums2 = sequence(nums)           // Thing(List(1, 2, 3))</scala>
 
 興味が湧いてきた？湧かないって？多分、そう思ったよ。でも、ここに前述の `Monad` 型クラスをを使って定義したものを書いておく:
 
-<scala>def axioms[M[_]](implicit tc: Monad[M]) {
+<scala>
+def axioms[M[_]](implicit tc: Monad[M]) {
   // 単位元律 1
   def identity1[A, B](a: A, f: A => M[B]) {
     val ma: M[A] = tc.unit(a)
@@ -378,7 +422,8 @@ val nums2 = sequence(nums)           // Thing(List(1, 2, 3))</scala>
   }
  
   forAll { (m, f, g) => associativity(m, f, g) }
-}</scala>
+}
+</scala>
 
 最初の二つの公理（「単位元律」のやつ）は、基本的には `unit` 関数は、`bind` 関数に対して、単純なコンストラクタであると言っている。そのため、`bind` がモナドを「分解」して、値を関数パラメータに渡すとき、それは `unit` がモナドに格納する値と全く同じものだ。同様に、`bind` に渡された関数パラメータが単に値をモナドで囲むものの場合、その結果は元のモナドに何もしなかったのと同値だ。
 
@@ -386,7 +431,8 @@ val nums2 = sequence(nums)           // Thing(List(1, 2, 3))</scala>
 
 第二の公理による結果で便利なものの一つに、`bind` を別の `bind` の中に入れ子にした場合に使えるものがある。そのような状況に遭遇した場合、入れ子になった `bind` は常に外側の `bind` の外に出してコードをより平坦なものにすることができる。以下に具体例で説明する:
 
-<scala>val opt: Option[String] = Some("string")
+<scala>
+val opt: Option[String] = Some("string")
  
 opt bind { str => 
   val innerOpt = Some("Head: " + str)
@@ -395,7 +441,8 @@ opt bind { str =>
  
 // これは、以下と同様だ
  
-opt bind { str => Some("Head: " + str) } bind { str => Some(str + " :Tail") }</scala>
+opt bind { str => Some("Head: " + str) } bind { str => Some(str + " :Tail") }
+</scala>
 
 書きなおされたコードはより、「順次的 (sequential)」な感じがする（これがモナドの真髄だ！）し、通常入れ子構造になったものよりも短いものになる。
 

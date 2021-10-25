@@ -11,7 +11,8 @@ tags:        [ "scala", "scalaxb" ]
 
 Ultimately, the users of scalaxb are interested the real problems that the entity objects express, not how they persist into XML. That's why I knew I eventually had to vacate the singleton/companion object of the case class to implement the data binding. Until recently it has been generating the data binding implementation as follows:
 
-<scala>object Address extends rt.ElemNameParser[Address] {
+<scala>
+object Address extends rt.ElemNameParser[Address] {
   val targetNamespace = "http://www.example.com/IPO"
  
   def parser(node: scala.xml.Node): Parser[Address] =
@@ -19,14 +20,16 @@ Ultimately, the users of scalaxb are interested the real problems that the entit
  
   def toXML(__obj: Address, __namespace: String, __elementLabel: String, __scope: scala.xml.NamespaceBinding): scala.xml.NodeSeq =
     ...
-}</scala>
+}
+</scala>
 
 Now scalaxb has hijacked the prime real estate for the purpose of XML data binding, which has little to with `Address`.
 
 ### adapter
 The first thing I thought was to move them into another adapter object, which I imagined it to be something like this:
 
-<scala>object DefaultXMLAdapter {
+<scala>
+object DefaultXMLAdapter {
   object AddressAdapter extends rt.ElemNameParser[Address] {
     val targetNamespace = "http://www.example.com/IPO"
  
@@ -36,7 +39,8 @@ The first thing I thought was to move them into another adapter object, which I 
     def toXML(__obj: Address, __namespace: String, __elementLabel: String, __scope: scala.xml.NamespaceBinding): scala.xml.NodeSeq =
       ...
   }
-}</scala>
+}
+</scala>
 
 There are several issues with this approach. One of problems is that scalaxb's runtime `DataRecord` can no longer get to `toXML`, which was relying on implicitness of the companion object. An interesting aspect of the companion object is that the "the compiler will also look for implicit definitions in the companion object of the source or expected target types of the conversion." (Programming in Scala, p. 441)
 
@@ -73,7 +77,8 @@ Where it's marked `yes` in the table, pretend that a *typeclass instance* is imp
 
 ### typeclass-based XML data binding
 scalaxb defines two typeclasses:
-<scala>trait CanReadXML[A] {
+<scala>
+trait CanReadXML[A] {
   def reads(seq: scala.xml.NodeSeq): Either[String, A]
 }
 
@@ -82,14 +87,16 @@ trait CanWriteXML[A] {
       scope: NamespaceBinding, typeAttribute: Boolean): NodeSeq
 }
 
-trait XMLFormat[A] extends CanWriteXML[A] with CanReadXML[A]</scala>
+trait XMLFormat[A] extends CanWriteXML[A] with CanReadXML[A]
+</scala>
 
 I adopted the Scala 2.8 collection's `CanBuildFrom` naming convention to name the typeclasses.
 Naming the methods to be `def apply` is confusing in my opinion, so I adopted [sbinary](http://code.google.com/p/sbinary/wiki/IntroductionToSBinary)'s `def reads` and `def writes` convention.
 
 The names make it clearer that these typeclasses indicate the ability to read or write XML. Hopefully people would also sense that they are not intended for human consumption. Instead of directly calling them, you are expected to call the functions defined in `scalaxb.Scalaxb` module as follows:
 
-<scala>import scalaxb._
+<scala>
+import scalaxb._
 import Scalaxb._
 import ipo._
 import DefaultXMLProtocol._
@@ -106,7 +113,8 @@ val document = toXML[Address](shipTo.copy(name = "Bar"), "foo", defaultScope)
 
 Let's look into the definitions of `fromXML` and `toXML` in `scalaxb.Scalaxb` module:
 
-<scala>object Scalaxb {
+<scala>
+object Scalaxb {
   def fromXML[A](seq: NodeSeq)(implicit format: XMLFormat[A]): A =
     format.reads(seq) match {
       case Right(a) => a
@@ -121,9 +129,11 @@ Let's look into the definitions of `fromXML` and `toXML` in `scalaxb.Scalaxb` mo
   def toXML[A](obj: A, elementLabel: String,
       scope: scala.xml.NamespaceBinding)(implicit format: CanWriteXML[A]): scala.xml.NodeSeq =
     toXML(obj, None, Some(elementLabel), scope, false)
-}</scala>
+}
+</scala>
 
-The key part in `fromXML` is the implicit parameter `format`. Scala compiler will pick up a typeclass instance of `XMLFormat` from the enclosing lexical scope of the call site. Similarly, `toXML` requires a typeclass instance of `CanWriteXML` in the local scope. How would you load the implicit values on the local scope? All you have to do is call `import` so a single identifier can address the implicit value. In the above usage code, <scala>import DefaultXMLProtocol._</scala> is where this happens.
+The key part in `fromXML` is the implicit parameter `format`. Scala compiler will pick up a typeclass instance of `XMLFormat` from the enclosing lexical scope of the call site. Similarly, `toXML` requires a typeclass instance of `CanWriteXML` in the local scope. How would you load the implicit values on the local scope? All you have to do is call `import` so a single identifier can address the implicit value. In the above usage code, <scala>
+import DefaultXMLProtocol._</scala> is where this happens.
 
 scalaxb now generates the case classes and typeclass instances, which enables the case classes to convert to and from XML. Let's add another complex type called `USAddress`, which extends `Address`:
 
@@ -153,7 +163,8 @@ scalaxb now generates the case classes and typeclass instances, which enables th
 
 Running scalaxb with `-p ipo` option, it generates three Scala sources. The first is usaddress.scala:
 
-<scala>// Generated by <a href="http://scalaxb.org/">scalaxb</a>.
+<scala>
+// Generated by <a href="http://scalaxb.org/">scalaxb</a>.
 package ipo
 
 trait Addressable {
@@ -172,12 +183,14 @@ case class USAddress(name: String,
   street: String,
   city: String,
   state: String,
-  zip: Int) extends Addressable</scala>
+  zip: Int) extends Addressable
+</scala>
   
 As you can see the above is free of XML-related logic.
 Next, it generates `xmlprotocol.scala`, which defines the typeclass contracts wrapped up in a  trait called `XMLProtocol` and typeclass instances to convert XML into case classes.
 
-<scala>// Generated by <a href="http://scalaxb.org/">scalaxb</a>.
+<scala>
+// Generated by <a href="http://scalaxb.org/">scalaxb</a>.
 package ipo
     
 /**
@@ -289,7 +302,8 @@ trait DefaultXMLProtocol extends XMLProtocol {
   }
 
 
-}</scala>
+}
+</scala>
 
 Finally, scalaxb generates `scalaxb.scala`, which defines `scalaxb.Scalaxb` module and other helper classes.
 
@@ -297,7 +311,8 @@ Not only the typeclasses solves identity problem of the adapter, it also solves 
 
 As a user of the generated code, all you have to know is `fromXML` and `toXML` besides the case classes:
 
-<scala>import scalaxb._
+<scala>
+import scalaxb._
 import Scalaxb._
 import ipo._
 import DefaultXMLProtocol._

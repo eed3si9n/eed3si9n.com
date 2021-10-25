@@ -25,7 +25,8 @@ aliases:     [ /node/16 ]
 ### 最初は継承と trait でうまくいくと思った...
 ... しかし，それは長続きしなかった．Jonas Boner と筆者の間で actor のシリアライゼーションに関して面白い論議があり，以下のような設計が生まれた ...
 
-<scala>trait SerializableActor extends Actor 
+<scala>
+trait SerializableActor extends Actor 
 trait StatelessSerializableActor extends SerializableActor
 
 trait StatefulSerializerSerializableActor extends SerializableActor {
@@ -46,7 +47,8 @@ trait StatefulWrappedSerializableActor extends SerializableActor {
 ### 型クラスだ
 コアの actor 抽象体からシリアライゼーションに関するコードを抜き出し，別の型クラスにした．
 
-<scala>/**
+<scala>
+/**
  * Actor 直列化のための型クラス定義
  */
 trait FromBinary[T <: Actor] {
@@ -65,7 +67,8 @@ actor をシリアライズ可能にするためにクライアントが実装�
 
 次に，これらの型クラスを使って actor をシリアライズするための API を公開するモジュールを定義した．
 
-<scala>/**
+<scala>
+/**
  * Actor 直列化のためのモジュール
  */
 object ActorSerialization {
@@ -77,13 +80,15 @@ object ActorSerialization {
     (implicit format: Format[T]): Array[Byte] = //..
 
   //.. 実装
-}</scala>
+}
+</scala>
 
 これらの型クラスは Scala コンパイラにより直近の構文スコープより探し出され，暗黙の引数として暗黙の(implicit)パラメータに渡されることに注目してほしい．以上の戦略を試すテストケースを考えてみよう...
 
 カプセル化された状態を保持した actor を考える．特殊な actor クラスから継承するというような副次的な複雑さが無くなっていることに注目してほしい...
 
-<scala>class MyActor extends Actor {
+<scala>
+class MyActor extends Actor {
   var count = 0
 
   def receive = {
@@ -91,11 +96,13 @@ object ActorSerialization {
       count = count + 1
       self.reply("world " + count)
   }
-}</scala>
+}
+</scala>
 
 そして，クライアントはプロトコルバッファを使ってシリアライゼーションの型クラスを実装して，それを Scala モジュールとして公開するとする...
 
-<scala>object BinaryFormatMyActor {
+<scala>
+object BinaryFormatMyActor {
   implicit object MyActorFormat extends Format[MyActor] {
     def fromBinary(bytes: Array[Byte], act: MyActor) = {
       val p = Serializer.Protobuf
@@ -107,11 +114,13 @@ object ActorSerialization {
     def toBinary(ac: MyActor) =
       ProtobufProtocol.Counter.newBuilder.setCount(ac.count).build.toByteArray
   }
-}</scala>
+}
+</scala>
 
 上記の型クラスの実装を利用するテストコードはこうなる...
 
-<scala>import ActorSerialization._
+<scala>
+import ActorSerialization._
 import BinaryFormatMyActor._
 
 val actor1 = actorOf[MyActor].start
@@ -121,7 +130,8 @@ val actor1 = actorOf[MyActor].start
 val bytes = toBinary(actor1)
 val actor2 = fromBinary(bytes)
 actor2.start
-(actor2 !! "hello").getOrElse("_") should equal("world 3")</scala>
+(actor2 !! "hello").getOrElse("_") should equal("world 3")
+</scala>
 
 actor の内部状態は `toBinary` によって正しくシリアライズされ，次に Actor の内部状態にデシリアライズされている．
 

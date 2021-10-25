@@ -79,7 +79,8 @@ Download Heiko Seeberger's Scala OSGi bundles. The <a href="http://scala-tools.o
 Under Projects tree view there should be a node for <b>Source Packages</b> and a package called <code>osgitutorial</code>. Right-click and delete <code>Main.scala</code>. Right-click, select (New → Other...) and select <b>Scala Class</b> under Scala node. Enter <code>HelloWorldActivator</code> as the name of the file and hit <b>Finish</b> button.
 
 Here's the code for <code>HelloWorldActivator.scala</code>:
-<scala>package osgitutorial
+<scala>
+package osgitutorial
 
 import org.osgi.framework._
 

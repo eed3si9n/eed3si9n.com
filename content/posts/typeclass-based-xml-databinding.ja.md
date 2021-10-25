@@ -39,7 +39,8 @@ object DefaultXMLAdapter {
     def toXML(__obj: Address, __namespace: String, __elementLabel: String, __scope: scala.xml.NamespaceBinding): scala.xml.NodeSeq =
       ...
   }
-}</scala>
+}
+</scala>
 
 この方法にはいくつかの問題がある．まず，scalaxb のランタイムである `DataRecord` が，今まではコンパニオン・オブジェクトの暗黙性を使ってたどっていた `toXML` にたどり着けないということだ．コンパニオン・オブジェクトの興味深い一面として「コンパイラは，暗黙 (implicit) の定義を変換元の型と変換先の型のコンパニオン・オブジェクトにも探しにいく」(Programming in Scala, p. 441) というものがある．
 

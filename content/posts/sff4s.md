@@ -38,7 +38,8 @@ val f = factory future {
   Thread.sleep(1000)
   1
 }
-f() // => This blocks for 1 second and returns 1</scala>
+f() // => This blocks for 1 second and returns 1
+</scala>
 
 Don't worry about the details, but see the behavior of the last line. The act of retrieving the calculation result is sometimes called "forcing." So the minimal API would look like this.
 
@@ -47,7 +48,8 @@ Future v0.1
 abstract class Future[+A] {
   /** blocks indefinitely to force the calculation result */
   def apply(): A
-}</scala>
+}
+</scala>
 
 There are several implementations of future values available in Scala, but they are all written from the ground up. If there were a common trait like the above, I can write stack independent code.
 
@@ -64,7 +66,8 @@ abstract class Future[+A] {
   
   /** checks if the result ready */
   def isDefined: Boolean
-}</scala>
+}
+</scala>
 
 timeout
 -------
@@ -80,7 +83,8 @@ abstract class Future[+A] {
   def apply(timeoutInMsec: Long): A
   
   def isDefined: Boolean
-}</scala>
+}
+</scala>
 
 This feels minimal, but it's at least usable at this state.
 
@@ -111,7 +115,8 @@ This opens up a way for error handling callback `def onFailure(rescueException: 
 
 Since the error state is captured as `Either`, the forcing is implemented as `def get: Either[Throwable, A]`, and `apply()` just called it as follows:
 
-<scala>def apply(): A = get.fold(throw _, x => x)
+<scala>
+def apply(): A = get.fold(throw _, x => x)
 </scala>
 
 Future v0.4:
@@ -242,7 +247,8 @@ val factory = sff4s.impl.ActorsFuture
 val f = factory future {
   Thread.sleep(1000)
   1
-}</scala>
+}
+</scala>
 
 This internally calls [`scala.acotors.Futures`][7]' `future` method to dispatch the block.
 Note `sff4s.impl.TwitterUtilFuture`'s `future` method would result to unimpressive result if you're expecting asynchronous behavior like that of `ActorsFuture`.

@@ -69,7 +69,7 @@ I was wondering what's the general term for this concept is. According to Wikipe
 
 > In call-by-name evaluation, the arguments to functions are not evaluated at all — rather, function arguments are substituted directly into the function body using capture-avoiding substitution. If the argument is not used in the evaluation of the function, it is never evaluated; if the argument is used several times, it is re-evaluated each time.
 
-Another genius of the Scala is the idea of infix operator notation. It's a notation, not an operator. In a way, there are no operators; they are all methods, and methods that take arguments are all operators too. Well, technically there are still operators because of precedence and associativity issues, but basically anyone can create a method that acts like operators. For example, `1 + 2` is a syntactic sugar for <scala>(1).+(2)</scala>.
+Another genius of the Scala is the idea of infix operator notation. It's a notation, not an operator. In a way, there are no operators; they are all methods, and methods that take arguments are all operators too. Well, technically there are still operators because of precedence and associativity issues, but basically anyone can create a method that acts like operators. For example, `1 + 2` is a syntactic sugar for `(1).+(2)`.
 
 All of these extension points allows libraries to implement feature that feels as if it's a native, built-in feature. A prime example is the combinator parser feature, which Scala ships with. According to Programming in Scala, here's the definition of `~` and `|` as a method of class `Parser`:
 

@@ -35,7 +35,8 @@ sourceGenerators in Compile <+= buildInfo
 
 buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion)
 
-buildInfoPackage := "hello"</scala>
+buildInfoPackage := "hello"
+</scala>
 
 これで以下が生成される:
 
@@ -47,7 +48,8 @@ object BuildInfo {
   val version = "0.1-SNAPSHOT"
   val scalaVersion = "2.9.1"
   val sbtVersion = "0.11.2"
-}</scala>
+}
+</scala>
 
 ## sbt-scalashim
 
