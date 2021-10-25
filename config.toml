@@ -30,10 +30,52 @@ tag = "tags"
 
 [menu]
 [[menu.main]]
-  identifier = 'ja'
-  name = '日本語'
-  url = '/ja/'
+  identifier = 'about'
+  name = 'about me'
+  url = '/about/'
   weight = -110
+
+[[menu.main]]
+  identifier = 'herding cats'
+  name = 'herding cats'
+  url = 'https://eed3si9n.com/herding-cats/'
+  weight = -100
+
+[[menu.main]]
+  identifier = 'herding-cats-ja'
+  name = '猫番'
+  url = 'https://eed3si9n.com/herding-cats/ja/'
+  weight = -100
+
+[[menu.main]]
+  identifier = 'sbt'
+  name = 'sbt'
+  url = 'https://scala-sbt.org'
+  weight = -90
+
+[[menu.main]]
+  identifier = 'scalaxb'
+  name = 'scalaxb'
+  url = 'https://scalaxb.org'
+  weight = -90
+
+[[menu.main]]
+  identifier = 'recipes'
+  name = 'recipes'
+  url = 'https://eed3si9n.com/recipes'
+  weight = -90
+
+[[menu.main]]
+  identifier = 'tetrix'
+  name = 'tetrix in Scala'
+  url = 'https://eed3si9n.com/tetrix-in-scala/'
+  weight = -90
+
+[[menu.main]]
+  identifier = 'twitter'
+  name = '@eed3si9n'
+  url = 'https://twitter.com/eed3si9n'
+  weight = -80
 
 [params]
   description = "works by eugene yokota"
