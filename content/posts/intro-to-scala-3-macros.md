@@ -830,6 +830,69 @@ val res2: String = Left(List(empty not allowed))
 
 Also this is an example of a macro where the input and output are pre-determined by the function signature, but the internal implementation create different types depending on the input.
 
+<a id="lambda"></a>
+
+#### Lambda
+
+Since creating a lambda expression (anonymous function) is a common operation, Reflection API provides `Lambda` object as a helper. This can be used as follows:
+
+```scala
+import scala.quoted.*
+
+inline def mkLambda[A](inline a: A): A = ${mkLambdaImpl[A]('{ a })}
+
+def mkLambdaImpl[A: Type](a: Expr[A])(using Quotes): Expr[A] =
+  import quotes.reflect.*
+
+  val lambdaTpe =
+    MethodType(List("p0"))(_ => List(TypeRepr.of[Int] ), _ => TypeRepr.of[A])
+  val lambda = Lambda(
+    owner = Symbol.spliceOwner,
+    tpe = lambdaTpe,
+    rhsFn = (sym, params) => {
+      val p0 = params.head.asInstanceOf[Term]
+      a.asTerm.changeOwner(sym)
+    }
+  )
+  '{
+    val f: Int => A = ${ lambda.asExprOf[Int => A] }
+    f(0)
+  }
+```
+
+This creates a lambda expression:
+
+```scala
+val f: Int => A = (p0: Int) => {
+  ....
+}
+```
+
+where the body that was passed to the macro is moved into the lambda expression, and called with `f(0)`. The usage looks like this:
+
+```scala
+scala> import com.eed3si9n.macroexample.*
+
+scala> mkLambda({
+     |   val x = 1
+     |   x + 2
+     | })
+val res0: Int = 3
+```
+
+Note that `changeOwner(sym)` must be called when the argument `a.asTerm` is moved into the lambda because the owner for symbols such as `val x` must be changed to the lambda expression. Without it you'd see strange error messages like:
+
+```scala
+[error] (run-main-1) java.util.NoSuchElementException: val x
+[error] java.util.NoSuchElementException: val x
+```
+
+and
+
+```scala
+[error] java.lang.IllegalArgumentException: Could not find proxy for p0: Tuple2 in List(....)
+```
+
 ### Restligeist macro
 
 Restligeist macro is a macro that immediately fails. One use case is displaying a migration message for a removed API. In Scala 3, it's a one-liner to cause a user-land compilation error:

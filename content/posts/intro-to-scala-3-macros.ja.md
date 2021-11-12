@@ -832,6 +832,71 @@ val res2: String = Left(List(empty not allowed))
 
 あと、これは入力と出力は関数のシグネチャによって定義済みだが、入力によって内部実装で別の型を作っている例だ。
 
+<a id="lambda"></a>
+
+#### Lambda
+
+ラムダ式 (匿名関数) を作るのはよくある作業なので、Reflection API は `Lambda` というヘルパーを提供する。これは以下のようにして使うことができる:
+
+```scala
+import scala.quoted.*
+
+inline def mkLambda[A](inline a: A): A = ${mkLambdaImpl[A]('{ a })}
+
+def mkLambdaImpl[A: Type](a: Expr[A])(using Quotes): Expr[A] =
+  import quotes.reflect.*
+
+  val lambdaTpe =
+    MethodType(List("p0"))(_ => List(TypeRepr.of[Int] ), _ => TypeRepr.of[A])
+  val lambda = Lambda(
+    owner = Symbol.spliceOwner,
+    tpe = lambdaTpe,
+    rhsFn = (sym, params) => {
+      val p0 = params.head.asInstanceOf[Term]
+      a.asTerm.changeOwner(sym)
+    }
+  )
+  '{
+    val f: Int => A = ${ lambda.asExprOf[Int => A] }
+    f(0)
+  }
+```
+
+これは以下のようなラムダ式を作る。
+
+```scala
+val f: Int => A = (p0: Int) => {
+  ....
+}
+```
+
+ただし、マクロのに渡されたコードはラムダ式の中に移され、`f(0)` として呼び出される。用法は以下のようになる:
+
+```scala
+scala> import com.eed3si9n.macroexample.*
+
+scala> mkLambda({
+     |   val x = 1
+     |   x + 2
+     | })
+val res0: Int = 3
+```
+
+引数 `a.asTerm` がラムダ式の中に移動されるとき、`val x` などのシンボルのオーナーをラムダ式へと譲渡するために `changeOwner(sym)` を呼ぶ必要があることに注意してほしい。そうしないと
+
+```scala
+[error] (run-main-1) java.util.NoSuchElementException: val x
+[error] java.util.NoSuchElementException: val x
+```
+
+や
+
+```scala
+[error] java.lang.IllegalArgumentException: Could not find proxy for p0: Tuple2 in List(....)
+```
+
+といった変なエラーが発生する。
+
 ### Restligeist マクロ
 
 Restligeist マクロ、つまり地縛霊マクロは直ちに失敗するマクロだ。API を廃止した後でマイグレーションのためのメッセージを表示させるというユースケースがある。Scala 3 だとこのようなユーザランドでのコンパイルエラーが一行で書ける。
