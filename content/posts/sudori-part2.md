@@ -426,5 +426,5 @@ var q1: String = summon[Zero[String]].zero
 
 - `contImpl` macro implements both Applicative-do and Monadic-do. It does so by first scanning the abstract syntax tree for `key.value`. When there are none, it calls `pure(...)` and `map(...)` when there is exactly one.
 - To pass the Instance instance `i` to macro and back to the generated code, it uses `Singleton` type `i.type`, which internally holds on to the symbol of `i`.
-- Quotes API provides a convenient way to generating lambda expression, but it must know the exact type of the parameters. This means we can't gradually expand the definition of the lambda expression as we walk the tree. To workaround this, we will use `var` one scope outside of the lambda expression.
+- Quotes API provides a convenient way to generating lambda expression, but it must know the exact type of the parameters. This means we can't gradually expand the definition of the lambda expression as we walk the tree. <s>To workaround this, we will use `var` one scope outside of the lambda expression.</s>
 - We defined `Zero` typeclass and summon a value for it to initialize the `var`s.
