@@ -1,7 +1,7 @@
 ---
-title:       "sbt 1.6.0-RC1"
+title:       "sbt 1.6.0-RC2"
 type:        story
-date:        2021-11-29
+date:        2021-12-18
 draft:       false
 promote:     true
 sticky:      false
@@ -10,9 +10,10 @@ aliases:     [ /node/408 ]
 tags:        [ "sbt" ]
 ---
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.6.0-RC1. This is the sixth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.6.0-RC2. This is the sixth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
 
-- If no serious issues are found by Saturday, December 11th 2021, 1.6.0-RC1 will become 1.6.0 final.
+- If no serious issues are found by Saturday, December 25th 2021, 1.6.0-RC2 will become 1.6.0 final.
+- <s>If no serious issues are found by Saturday, December 11th 2021, 1.6.0-RC1 will become 1.6.0 final.</s>
 
 The headline features of sbt 1.6.0 are:
 
@@ -26,15 +27,21 @@ The headline features of sbt 1.6.0 are:
 
 ### How to upgrade
 
-Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.6.0-RC1>.
+Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.6.0-RC2>.
 
 In addition, the sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=1.6.0-RC1
+sbt.version=1.6.0-RC2
 ```
 
 This mechanism allows that sbt 1.6.0 is used only for the builds that you want.
+
+### Changes since sbt 1.6.0-RC1
+
+- Updates to log4j 2.17.0. See [The state of the log4j CVE in the Scala ecosystem](https://www.scala-lang.org/blog-detail/2021/12/16/state-of-log4j-in-scala-ecosystem.html) for details.
+- Updates to lm-coursier 2.0.10, which uses [Coursier 2.1.0-M2](https://github.com/coursier/coursier/releases/tag/v2.1.0-M2). This fixes full Scala suffix getting incorrectly overwritten by `scalaVersion`; this also fixes SNAPSHOT resolution issue found in RC1 [#6753][6753] by [@eed3si9n][@eed3si9n]
+- Fixes `sbtn` not shutting down forked process on Ctrl-C [#6740][6740] by [@adpi2][@adpi2]
 
 ### Changes with compatibility implications
 
@@ -70,7 +77,7 @@ sbt 1.6.0 improves remote caching of `resources` directory by virtualizing the i
 
 ### Other updates
 
-- Updates to lm-coursier 2.0.9, which uses Coursier 2.1.0-M1. This fixes full Scala suffix getting incorrectly overwritten by `scalaVersion` [#6725][6725] by [@eed3si9n][@eed3si9n]
+- Updates to lm-coursier 2.0.10, which uses [Coursier 2.1.0-M2](https://github.com/coursier/coursier/releases/tag/v2.1.0-M2). This fixes full Scala suffix getting incorrectly overwritten by `scalaVersion` [#6753][6753] by [@eed3si9n][@eed3si9n]
 - Fixes tab completion of global keys [#6716][6716] by [@eed3si9n][@eed3si9n]
 - Fixes shutdown hook error in timing report [#6630][6630] by [@Nirvikalpa108][@Nirvikalpa108]
 - Fixes `ClassCastException` in `XMainConfiguration` [#6649][6649] by [@eed3si9n][@eed3si9n]
@@ -84,12 +91,22 @@ sbt 1.6.0 improves remote caching of `resources` directory by virtualizing the i
 
 ### Participation
 
-sbt 1.6.0-RC1 was brought to you by 21 contributors. Eugene Yokota (eed3si9n), Adrien Piquerez, Kenji Yoshida (xuwei-k), Jason Zaugg, Amina Adewusi, Igal Tabachnik, Dale Wijnand, Eathan Atkins, Eric Peters, Samuel CLARENC, kijuky, kxbmap, Daniel Darabos, David Francoeur, Lukas Rytz, Nima Taheri, Roberto Tyley, Ubaldo Pescatore, Victor Babenko, William Narmontas, dependabot[bot]. Thanks!
+sbt 1.6.0-RC2 was brought to you by 22 contributors. Eugene Yokota (eed3si9n), Adrien Piquerez, Kenji Yoshida (xuwei-k), Jason Zaugg, Amina Adewusi, Igal Tabachnik, Dale Wijnand, Eathan Atkins, Eric Peters, Samuel CLARENC, kijuky, kxbmap, Daniel Darabos, David Francoeur, Lukas Rytz, Michal Augustýn, Nima Taheri, Roberto Tyley, Ubaldo Pescatore, Victor Babenko, William Narmontas, dependabot[bot]. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
 For anyone interested in helping sbt, there are many avenues for you to help, depending on your interest. If you're interested, [Contributing](https://github.com/sbt/sbt/blob/develop/CONTRIBUTING.md), ["help wanted"](https://github.com/sbt/sbt/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22), ["good first issue"](https://github.com/sbt/sbt/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), and [Discussions](https://github.com/sbt/sbt/discussions/) are good starting points.
 
+### Donate/Hire April
+
+Apparently April, an active contributor to Scala compiler has been sick without diagnosis. Let's help her out!
+
+- https://github.com/sponsors/NthPortal
+- https://twitter.com/NthPortal/status/1412504710754541572
+
+### Donate to Play
+
+- https://www.playframework.com/sponsors
 
   [@eed3si9n]: https://github.com/eed3si9n
   [@Nirvikalpa108]: https://github.com/Nirvikalpa108
@@ -137,6 +154,8 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
   [6724]: https://github.com/sbt/sbt/pull/6724
   [6728]: https://github.com/sbt/sbt/pull/6728
   [6730]: https://github.com/sbt/sbt/pull/6730
+  [6753]: https://github.com/sbt/sbt/pull/6753
+  [6740]: https://github.com/sbt/sbt/pull/6740
   [SI-7173]: https://github.com/scala/bug/issues/7173
   [zinc995]: https://github.com/sbt/zinc/pull/995
   [zinc998]: https://github.com/sbt/zinc/issues/998
