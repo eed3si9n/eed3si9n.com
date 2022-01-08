@@ -6,9 +6,9 @@ changed:     2020-07-10
 draft:       false
 promote:     true
 sticky:      false
-url:         /ja/defx
+url:         /defx
 aliases:     [ /node/346 ]
-Summary:     <img border="0" alt="" src="https://github.com/eed3si9n/eed3si9n.com/raw/master/resources/defx.gif" width="100%" />
+Summary:     <img border="0" alt="" src="/images/defx.gif" width="100%" />
 ---
 
   [defx]: https://github.com/Shougo/defx.nvim
@@ -33,7 +33,7 @@ An interesting aspect of Defx is that it does not come with the default key bind
 
 Here's a demo of how I've set up Defx:
 
-<img border="0" alt="" src="https://github.com/eed3si9n/eed3si9n.com/raw/master/resources/defx.gif" width="900" />
+<img border="0" alt="" src="/images/defx.gif" width="900" />
 
 ### Basic navigation and previewing
 

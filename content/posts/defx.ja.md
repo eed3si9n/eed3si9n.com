@@ -8,7 +8,7 @@ promote:     true
 sticky:      false
 url:         /ja/defx
 aliases:     [ /node/347 ]
-Summary:     <img border="0" alt="" src="https://github.com/eed3si9n/eed3si9n.com/raw/master/resources/defx.gif" width="100%" />
+Summary:     <img border="0" alt="" src="/images/defx.gif" width="100%" />
 ---
 
   [defx]: https://github.com/Shougo/defx.nvim
@@ -33,7 +33,7 @@ Defx の面白い所はデフォルトのキーバインドが無いことだ。
 
 僕の考えた Defx 設定のデモ:
 
-<img border="0" alt="" src="https://github.com/eed3si9n/eed3si9n.com/raw/master/resources/defx.gif" width="900" />
+<img border="0" alt="" src="/images/defx.gif" width="900" />
 
 ### 基本的なナビゲーションとプレビュー
 
