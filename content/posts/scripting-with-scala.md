@@ -35,7 +35,7 @@ ThisBuild / scalaVersion := "2.13.4"
 */
 
 println("hello")
-``` <!-- ***/ -->
+```
 
 Next,
 
@@ -66,7 +66,7 @@ for {
   line <- stdinStr.linesIterator
   m <- r.findAllMatchIn(line)
 } println(m)
-``` <!-- ***/ -->
+```
 
     $ chmod +x urlgrep.scala
     $ curl -s https://www.scala-sbt.org/ | ./urlgrep.scala
@@ -113,7 +113,7 @@ val srcDir = file("./src/")
 
 val fs: Seq[File] = (srcDir ** "*.rst").get()
 fs foreach { x => println(x.toString) }
-``` <!-- ***/ -->
+```
 
 `sbt.io.syntax` object contains an implicit converter from `File` to `PathFinder`, which implements `**` method. This looks for the file pattern into subdirectories. Here's what you'd see if you run `script.scala`:
 
@@ -157,7 +157,7 @@ def processFile(f: File): Unit = {
 
 val fs: Seq[File] = (srcDir ** "*.rst").get()
 fs foreach { processFile }
-``` <!-- ***/ -->
+```
 
 Here's the output:
 
@@ -178,7 +178,7 @@ First, construct a pure function generator that removes a single role:
 ```scala
 def removeRole(role: String): String => String =
   _.replaceAll("""(:""" + role + """:)(\`[^`]+\`)""", """$2""")
-``` <!--_ -->
+```
 
 Next, chain the functions using `andThen` method on `Function1`:
 

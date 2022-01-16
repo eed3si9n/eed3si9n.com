@@ -35,7 +35,7 @@ ThisBuild / scalaVersion := "2.13.4"
 */
 
 println("hello")
-``` <!-- ***/ -->
+```
 
 次に、
 
@@ -66,7 +66,7 @@ for {
   line <- stdinStr.linesIterator
   m <- r.findAllMatchIn(line)
 } println(m)
-``` <!-- ***/ -->
+```
 
     $ chmod +x urlgrep.scala
     $ curl -s https://www.scala-sbt.org/ | ./urlgrep.scala
@@ -113,7 +113,7 @@ val srcDir = file("./src/")
 
 val fs: Seq[File] = (srcDir ** "*.rst").get()
 fs foreach { x => println(x.toString) }
-``` <!-- ***/ -->
+```
 
 `sbt.io.syntax` オブジェクトに `File` から `PathFinder` への暗黙の変換が含まれていて、`PathFinder` は `**` メソッドを実装する。これがサブディレクトリ内のファイルパターンを参照する。`script.scala` を実行するとこんな感じになる:
 
@@ -157,7 +157,7 @@ def processFile(f: File): Unit = {
 
 val fs: Seq[File] = (srcDir ** "*.rst").get()
 fs foreach { processFile }
-``` <!-- ***/ -->
+```
 
 これがアウトプットだ:
 
@@ -178,7 +178,7 @@ fs foreach { processFile }
 ```scala
 def removeRole(role: String): String => String =
   _.replaceAll("""(:""" + role + """:)(\`[^`]+\`)""", """$2""")
-``` <!--_ -->
+```
 
 次に、`Function1` の `andThen` メソッドを使ってそれを連鎖する:
 
@@ -273,4 +273,3 @@ args foreach { x => processFile(file(x)) }
 ### まとめ 
 
 sbt の script runner と `IO` モジュールを使うことで、Scala を使って静的型付けされたシェルスクリプトを書くことができる。[script.scala の gist][5]。
-
