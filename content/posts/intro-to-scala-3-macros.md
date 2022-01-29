@@ -444,10 +444,344 @@ def addOneXv2Impl(x: Expr[Int])(using Quotes): Expr[Int] =
   ).asExprOf[Int]
 ```
 
-#### Symbol and Ref
+#### Symbol <a name="symbol"></a>
 
 We can think of symbol as an accurate name to things like classes, `val`, and types.
-Symbols are created when we define entities like `val`, and we can later use that to reference the `val`. The real compiler would go through `import` and nested blocks and eventually resolve to the correct symbol, but we can skip the whole process and use `Ref(sym)`.
+Symbols are created when we define entities like `val`, and we can later use that to reference the `val`.
+
+Here's the `Symbol` API.
+
+```scala
+type Symbol <: AnyRef
+
+/** Module object of `type Symbol`  */
+val Symbol: SymbolModule
+
+/** Methods of the module object `val Symbol` */
+trait SymbolModule { this: Symbol.type =>
+
+  /** Symbol of the definition that encloses the current splicing context.
+   *
+   *  For example, the following call to `spliceOwner` would return the symbol `x`.
+   *  ```scala sc:nocompile
+   *  val x = ${ ... Symbol.spliceOwner ... }
+   *  ```
+   *
+   *  For a macro splice, it is the symbol of the definition where the macro expansion happens.
+   *  @syntax markdown
+   */
+  def spliceOwner: Symbol
+
+  /** Get package symbol if package is either defined in current compilation run or present on classpath. */
+  def requiredPackage(path: String): Symbol
+
+  /** Get class symbol if class is either defined in current compilation run or present on classpath. */
+  def requiredClass(path: String): Symbol
+
+  /** Get module symbol if module is either defined in current compilation run or present on classpath. */
+  def requiredModule(path: String): Symbol
+
+  /** Get method symbol if method is either defined in current compilation run or present on classpath. Throws if the method has an overload. */
+  def requiredMethod(path: String): Symbol
+
+  def classSymbol(fullName: String): Symbol
+
+  def newMethod(parent: Symbol, name: String, tpe: TypeRepr): Symbol
+
+  def newMethod(parent: Symbol, name: String, tpe: TypeRepr, flags: Flags, privateWithin: Symbol): Symbol
+
+  def newVal(parent: Symbol, name: String, tpe: TypeRepr, flags: Flags, privateWithin: Symbol): Symbol
+
+  def newBind(parent: Symbol, name: String, flags: Flags, tpe: TypeRepr): Symbol
+
+  def noSymbol: Symbol
+}
+
+/** Extension methods of `Symbol` */
+trait SymbolMethods {
+  extension (self: Symbol)
+
+    /** Owner of this symbol. The owner is the symbol in which this symbol is defined. Throws if this symbol does not have an owner. */
+    def owner: Symbol
+
+    /** Owner of this symbol. The owner is the symbol in which this symbol is defined. Returns `NoSymbol` if this symbol does not have an owner. */
+    def maybeOwner: Symbol
+
+    /** Flags of this symbol */
+    def flags: Flags
+
+    /** This symbol is private within the resulting type */
+    def privateWithin: Option[TypeRepr]
+
+    /** This symbol is protected within the resulting type */
+    def protectedWithin: Option[TypeRepr]
+
+    /** The name of this symbol */
+    def name: String
+
+    /** The full name of this symbol up to the root package */
+    def fullName: String
+
+    /** The position of this symbol */
+    def pos: Option[Position]
+
+    /** The documentation for this symbol, if any */
+    def docstring: Option[String]
+
+    /** Tree of this definition
+     *
+     *  If this symbol `isClassDef` it will return `a `ClassDef`,
+     *  if this symbol `isTypeDef` it will return `a `TypeDef`,
+     *  if this symbol `isValDef` it will return `a `ValDef`,
+     *  if this symbol `isDefDef` it will return `a `DefDef`
+     *  if this symbol `isBind` it will return `a `Bind`,
+     *  else will throw
+     *
+     *  **Warning**: avoid using this method in macros.
+     *
+     *  **Caveat**: The tree is not guaranteed to exist unless the compiler
+     *  option `-Yretain-trees` is enabled.
+     *
+     *  **Anti-pattern**: The following code is an anti-pattern:
+     *
+     *      symbol.tree.tpe
+     *
+     *  It should be replaced by the following code:
+     *
+     *      tp.memberType(symbol)
+     *
+     */
+    def tree: Tree
+
+    /** Is the annotation defined with `annotSym` attached to this symbol? */
+    def hasAnnotation(annotSym: Symbol): Boolean
+
+    /** Get the annotation defined with `annotSym` attached to this symbol */
+    def getAnnotation(annotSym: Symbol): Option[Term]
+
+    /** Annotations attached to this symbol */
+    def annotations: List[Term]
+
+    /** Does this symbol come from a currently compiled source file? */
+    def isDefinedInCurrentRun: Boolean
+
+    /** Dummy val symbol that owns all statements within the initialization of the class.
+    *  This may also contain local definitions such as classes defined in a `locally` block in the class.
+    */
+    def isLocalDummy: Boolean
+
+    /** Is this symbol a class representing a refinement? */
+    def isRefinementClass: Boolean
+
+    /** Is this symbol an alias type? */
+    def isAliasType: Boolean
+
+    /** Is this symbol an anonymous class? */
+    def isAnonymousClass: Boolean
+
+    /** Is this symbol an anonymous function? */
+    def isAnonymousFunction: Boolean
+
+    /** Is this symbol an abstract type? */
+    def isAbstractType: Boolean
+
+    /** Is this the constructor of a class? */
+    def isClassConstructor: Boolean
+
+    /** Is this the definition of a type? */
+    def isType: Boolean
+
+    /** Is this the definition of a term? */
+    def isTerm: Boolean
+
+    /** Is this the definition of a PackageDef tree? */
+    def isPackageDef: Boolean
+
+    /** Is this the definition of a ClassDef tree? */
+    def isClassDef: Boolean
+
+    /** Is this the definition of a TypeDef tree */
+    def isTypeDef: Boolean
+
+    /** Is this the definition of a ValDef tree? */
+    def isValDef: Boolean
+
+    /** Is this the definition of a DefDef tree? */
+    def isDefDef: Boolean
+
+    /** Is this the definition of a Bind pattern? */
+    def isBind: Boolean
+
+    /** Does this symbol represent a no definition? */
+    def isNoSymbol: Boolean
+
+    /** Does this symbol represent a definition? */
+    def exists: Boolean
+
+    /** Field with the given name directly declared in the class */
+    def declaredField(name: String): Symbol
+
+    /** Fields directly declared in the class */
+    def declaredFields: List[Symbol]
+
+    /** Get named non-private fields declared or inherited */
+    def fieldMember(name: String): Symbol
+
+    /** Get all non-private fields declared or inherited */
+    def fieldMembers: List[Symbol]
+
+    /** Get non-private named methods defined directly inside the class */
+    def declaredMethod(name: String): List[Symbol]
+
+    /** Get all non-private methods defined directly inside the class, excluding constructors */
+    def declaredMethods: List[Symbol]
+
+    /** Get named non-private methods declared or inherited */
+    def methodMember(name: String): List[Symbol]
+
+    /** Get all non-private methods declared or inherited */
+    def methodMembers: List[Symbol]
+
+    /** Get non-private named methods defined directly inside the class */
+    def declaredType(name: String): List[Symbol]
+
+    /** Get all non-private methods defined directly inside the class, excluding constructors */
+    def declaredTypes: List[Symbol]
+
+    /** Type member with the given name directly declared in the class */
+    def typeMember(name: String): Symbol
+
+    /** Type member directly declared in the class */
+    def typeMembers: List[Symbol]
+
+    /** All members directly declared in the class */
+    def declarations: List[Symbol]
+
+    /** The symbols of each type parameter list and value parameter list of this
+      *  method, or Nil if this isn't a method.
+      */
+    def paramSymss: List[List[Symbol]]
+
+    /** Returns all symbols overridden by this symbol. */
+    def allOverriddenSymbols: Iterator[Symbol]
+
+    /** The symbol overriding this symbol in given subclass `ofclazz`.
+     *
+     *  @param ofclazz is a subclass of this symbol's owner
+     */
+    def overridingSymbol(ofclazz: Symbol): Symbol
+
+    /** The primary constructor of a class or trait, `noSymbol` if not applicable. */
+    def primaryConstructor: Symbol
+
+    /** Fields of a case class type -- only the ones declared in primary constructor */
+    def caseFields: List[Symbol]
+
+    def isTypeParam: Boolean
+
+    /** Signature of this definition */
+    def signature: Signature
+
+    /** The class symbol of the companion module class */
+    def moduleClass: Symbol
+
+    /** The symbol of the companion class */
+    def companionClass: Symbol
+
+    /** The symbol of the companion module */
+    def companionModule: Symbol
+
+    /** Case class or case object children of a sealed trait or cases of an `enum`. */
+    def children: List[Symbol]
+  end extension
+}
+```
+
+#### Enclosing term <a name="enclosing-term"></a>
+
+As a quick demonstration of the rich Symbol API, we can use them to figure out the enclosure of the macro application.
+For example, in sbt, we use this to pick up the name of a configuration from the `val`:
+
+```scala
+lazy val Compile = config
+
+// we want the above to expand to
+lazy val Compile = Config("Compile")
+```
+
+We can implement `config` macro that picks up the name "Compile" as follows:
+
+```scala
+package com.eed3si9n.macroexample
+
+import scala.quoted.*
+
+case class Config(name: String)
+
+inline def config: Config = ${configImpl}
+
+def configImpl(using Quotes): Expr[Config] =
+  import quotes.reflect.*
+  def enclosingTerm(sym: Symbol): Symbol =
+    sym match
+      case sym if sym.flags is Flags.Macro => enclosingTerm(sym.owner)
+      case sym if !sym.isTerm              => enclosingTerm(sym.owner)
+      case _                               => sym
+  val n = enclosingTerm(Symbol.spliceOwner).name
+  val nExpr = Expr(n)
+  '{ Config($nExpr) }
+```
+
+`config` can be used as follows:
+
+```scala
+scala> import com.eed3si9n.macroexample._
+
+scala> lazy val Compile = config
+lazy val Compile: com.eed3si9n.macroexample.Config
+
+scala> Compile.name
+val res0: String = Compile
+```
+
+This example uses multiple aspects of the Symbol API. First is `Symbol.spliceOwner`.
+For macros, this gives reference to the definition where the macro expansion happens.
+As it turns out, Scala 3.1.1 seems to create a synthetic variable named `macro`, so that's not immediately useful for us.
+
+Next thing we can do is `flags` extension method. All symbols in Scala compiler are given various flags,
+and we can check if the symbol is a term or a type, synthetic or not, if it represents `val` or `def` etc.
+In this case, we can test `sym.flags is Flags.Macro`.
+
+Symbols form a graph structure among them, and you can go up one level by using `Symbol#owner` extension method.
+We can recursively call `enclosingTerm(sym.owner)` until we hit a term.
+This technique can also be used to find the enclosing class etc.
+In general, because symbols retain rich information, sometimes we can get everything done with symbols without needing to look at trees and types.
+
+As a side note, there is `Symbol#tree` extension method, and during macro development it's useful to run
+
+```scala
+sys.error(Printer.TreeStructure.show(sym.tree))
+```
+
+to inspect the tree structure:
+
+```scala
+scala> lazy val Compile = config
+-- Error: ----------------------------------------------------------------------
+1 |lazy val Compile = config
+  |                   ^^^^^^
+  | Exception occurred while executing macro expansion.
+  | java.lang.RuntimeException: ValDef("macro", Inferred(), None)
+  |   at scala.sys.package$.error(package.scala:27)
+  |   at com.eed3si9n.macroexample.Config$package$.configImpl(Config.scala:16)
+```
+
+However, it is generally not safe to call `Symbol#tree` from the macro since the symbol is not guaranteed to keep its trees without `-Yretain-trees`.
+This is also documented in the Best Practices guide as [Avoid Symbol.tree](https://docs.scala-lang.org/scala3/guides/macros/best-practices.html#avoid-symboltree).
+
+#### Ref
+
+The real compiler would go through `import` and nested blocks and eventually resolve to the correct symbol, but we can skip the whole process and use `Ref(sym)`.
 
 #### TypeRepr
 
@@ -463,7 +797,7 @@ inline def isCaseClass[A]: Boolean = ${ isCaseClassImpl[A] }
 private def isCaseClassImpl[A: Type](using qctx: Quotes) : Expr[Boolean] =
   import qctx.reflect.*
   val sym = TypeRepr.of[A].typeSymbol
-  Expr(sym.isClassDef && sym.flags.is(Flags.Case))
+  Expr(sym.isClassDef && (sym.flags is Flags.Case))
 ```
 
 Here's the `TypeRepr` API.
