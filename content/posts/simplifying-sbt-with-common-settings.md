@@ -28,7 +28,7 @@ In practice however, `ThisBuild` is very finicky to use due to various limitatio
 First, it doesn't work on all settings and tasks. For `ThisBuild` scoping to work, the key must be absent from `projectSettings`, which one would not know unless they read the code or run `inspect <key>`. For example, setting `ThisBuild / target` would have no effect since `target` is a project-level setting.
 
 Second, `x.value` does not dynamically dispatch its call like object-oriented programming languages do with `this.foo()`. See [.value lookup vs dynamic dispatch](https://www.scala-sbt.org/1.x/docs/Scope-Delegation.html#.value+lookup+vs+dynamic+dispatch).
-So for a contrived example let's condider:
+So for a contrived example let's consider:
 
 ```scala
 ThisBuild / scalaVersion := "3.1.1"
