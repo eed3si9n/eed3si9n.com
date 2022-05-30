@@ -1227,6 +1227,9 @@ and
 [error] java.lang.IllegalArgumentException: Could not find proxy for p0: Tuple2 in List(....)
 ```
 
+<a id="report"></a>
+<a id="restligeist"></a>
+
 ### Restligeist macro
 
 Restligeist macro is a macro that immediately fails. One use case is displaying a migration message for a removed API. In Scala 3, it's a one-liner to cause a user-land compilation error:
@@ -1250,6 +1253,70 @@ scala> SomeDSL.<<=((1, "foo"))
 1 |SomeDSL.<<=((1, "foo"))
   |^^^^^^^^^^^^^^^^^^^^^^^
   |<<= is removed; migrated to := instead
+```
+
+Although `compiletime.error(...)` is convenient, it has a limitation of handling only String literals and `codeOf()`. If we want to reuse the error message, we can make a macro and use report module:
+
+```scala
+/** Module containing error and warning reporting. */
+val report: reportModule
+
+/** Methods of the module object `val report` */
+trait reportModule { self: report.type =>
+
+  /** Report an error at the position of the macro expansion */
+  def error(msg: String): Unit
+
+  /** Report an error at the position of `expr` */
+  def error(msg: String, expr: Expr[Any]): Unit
+
+  /** Report an error message at the given position */
+  def error(msg: String, pos: Position): Unit
+
+  /** Report an error at the position of the macro expansion and throw a StopMacroExpansion */
+  def errorAndAbort(msg: String): Nothing
+
+  /** Report an error at the position of `expr` and throw a StopMacroExpansion */
+  def errorAndAbort(msg: String, expr: Expr[Any]): Nothing
+
+  /** Report an error message at the given position and throw a StopMacroExpansion */
+  def errorAndAbort(msg: String, pos: Position): Nothing
+
+  ....
+}
+```
+
+A fully-fledged Restligeist macro could looks something like this:
+
+```scala
+package com.eed3si9n.macroexample
+
+import scala.quoted.*
+
+object SomeDSL:
+  final val assignMigration = """<<= is removed; migrated to := instead
+                                |go to link to documentation""".stripMargin
+
+  inline def <<=[A](a: A): Option[A] = ${ assignImpl('a) }
+
+  def assignImpl[A: Type](a: Expr[A])(using qctx: Quotes): Expr[Option[A]] =
+    import qctx.reflect.*
+    report.errorAndAbort(assignMigration)
+
+end SomeDSL
+```
+
+Here's how it would look using it:
+
+```scala
+scala> import com.eed3si9n.macroexample.*
+
+scala> SomeDSL.<<=((1, "foo"))
+-- Error: ----------------------------------------------------------------------
+1 |SomeDSL.<<=((1, "foo"))
+  |^^^^^^^^^^^^^^^^^^^^^^^
+  |<<= is removed; migrated to := instead
+  |go to link to documentation
 ```
 
 ### Summary

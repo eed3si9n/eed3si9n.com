@@ -1231,6 +1231,9 @@ val res0: Int = 3
 
 といった変なエラーが発生する。
 
+<a id="report"></a>
+<a id="restligeist"></a>
+
 ### Restligeist マクロ
 
 Restligeist マクロ、つまり地縛霊マクロは直ちに失敗するマクロだ。API を廃止した後でマイグレーションのためのメッセージを表示させるというユースケースがある。Scala 3 だとこのようなユーザランドでのコンパイルエラーが一行で書ける。
@@ -1254,6 +1257,70 @@ scala> SomeDSL.<<=((1, "foo"))
 1 |SomeDSL.<<=((1, "foo"))
   |^^^^^^^^^^^^^^^^^^^^^^^
   |<<= is removed; migrated to := instead
+```
+
+`compiletime.error(...)` は便利だが、文字列リテラルと `codeOf()` しか扱えないという制限がある。もしエラーメッセージを再利用したい場合はマクロを作って report モジュールを使うという手がある:
+
+```scala
+/** Module containing error and warning reporting. */
+val report: reportModule
+
+/** Methods of the module object `val report` */
+trait reportModule { self: report.type =>
+
+  /** Report an error at the position of the macro expansion */
+  def error(msg: String): Unit
+
+  /** Report an error at the position of `expr` */
+  def error(msg: String, expr: Expr[Any]): Unit
+
+  /** Report an error message at the given position */
+  def error(msg: String, pos: Position): Unit
+
+  /** Report an error at the position of the macro expansion and throw a StopMacroExpansion */
+  def errorAndAbort(msg: String): Nothing
+
+  /** Report an error at the position of `expr` and throw a StopMacroExpansion */
+  def errorAndAbort(msg: String, expr: Expr[Any]): Nothing
+
+  /** Report an error message at the given position and throw a StopMacroExpansion */
+  def errorAndAbort(msg: String, pos: Position): Nothing
+
+  ....
+}
+```
+
+より本格的な Restligeist マクロは以下のようになる:
+
+```scala
+package com.eed3si9n.macroexample
+
+import scala.quoted.*
+
+object SomeDSL:
+  final val assignMigration = """<<= is removed; migrated to := instead
+                                |go to link to documentation""".stripMargin
+
+  inline def <<=[A](a: A): Option[A] = ${ assignImpl('a) }
+
+  def assignImpl[A: Type](a: Expr[A])(using qctx: Quotes): Expr[Option[A]] =
+    import qctx.reflect.*
+    report.errorAndAbort(assignMigration)
+
+end SomeDSL
+```
+
+使う側だとこのような感じに見える:
+
+```scala
+scala> import com.eed3si9n.macroexample.*
+
+scala> SomeDSL.<<=((1, "foo"))
+-- Error: ----------------------------------------------------------------------
+1 |SomeDSL.<<=((1, "foo"))
+  |^^^^^^^^^^^^^^^^^^^^^^^
+  |<<= is removed; migrated to := instead
+  |go to link to documentation
 ```
 
 ### まとめ
