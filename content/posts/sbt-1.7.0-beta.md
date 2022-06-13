@@ -1,12 +1,12 @@
 ---
-title:       "sbt 1.7.0-M2"
+title:       "sbt 1.7.0-M3"
 type:        story
-date:        2022-04-17
+date:        2022-06-13
 url:         /sbt-1.7.0-beta
 tags:        [ "sbt" ]
 ---
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.7.0-M2. This is the seventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.7.0-M3. This is the seventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
 
 <!--more-->
 
@@ -19,23 +19,17 @@ Download **the official sbt runner** from SDKMAN or download from <https://githu
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=1.7.0-M2
+sbt.version=1.7.0-M3
 ```
 
-This mechanism allows that sbt 1.7.0-M1 is used only for the builds that you want.
+This mechanism allows that sbt 1.7.0-M3 is used only for the builds that you want.
 
-### Scala 3 forward compatibility support
+### Changes with compatibility implications
 
-sbt 1.7.0 implements support for Scala 3.1.2's improved forward compatibility feature.
-
-```scala
-ThisBuild / scalaVersion       := "3.1.2"
-ThisBuild / scalaOutputVersion := "3.0.2"
-```
-
-This sets the `-scala-output-version` compiler option to `3.0`, which lets us generate TASTy files and bytecode compatible with older Scala 3.x versions, while using newer Scala 3.x compiler at runtime. In addition, runtime Scala version and POM entries are also downgraded to `3.0.2`.
-
-The sbt support for this was contributed by Michał Pałka at VirtusLab as [#6814][6814].
+- Drops OkHttp 3.x dependency [lm#399][lm399] by [@eed3si9n][@eed3si9n]
+- Updates to Scala 2.12.16
+- Moves domain socket location to `XDG_RUNTIME_DIR` and `/tmp` [#6887][6887] by [@AlonsoM45][@AlonsoM45]
+- Deprecates `Resolver.sonatypeRepo` and adds `Resolver.sonatypeOssRepos`, which includes https://s01.oss.sonatype.org/ [lm393][lm393] by [@armanbilge][@armanbilge]
 
 ### Scala 3 compiler error improvements
 
@@ -64,6 +58,8 @@ In [#6874][6874], [Chris Kipp](https://github.com/ckipp01) extended `xsbti.Probl
   [@kpodsiad]: https://github.com/kpodsiad
   [@bjaglin]: https://github.com/bjaglin
   [@tanishiking]: https://github.com/tanishiking
+  [@AlonsoM45]: https://github.com/AlonsoM45
+  [@armanbilge]: https://github.com/armanbilge
   [6814]: https://github.com/sbt/sbt/pull/6814
   [6816]: https://github.com/sbt/sbt/pull/6816
   [6830]: https://github.com/sbt/sbt/pull/6830
@@ -72,4 +68,8 @@ In [#6874][6874], [Chris Kipp](https://github.com/ckipp01) extended `xsbti.Probl
   [6874]: https://github.com/sbt/sbt/pull/6874
   [6870]: https://github.com/sbt/sbt/pull/6870
   [6858]: https://github.com/sbt/sbt/pull/6858
+  [6887]: https://github.com/sbt/sbt/pull/6887
   [zinc1082]: https://github.com/sbt/zinc/pull/1082
+  [lm393]: https://github.com/sbt/librarymanagement/pull/393
+  [lm399]: https://github.com/sbt/librarymanagement/pull/399
+
