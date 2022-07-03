@@ -1,29 +1,30 @@
 ---
-title:       "sbt 1.7.0-RC1"
+title:       "sbt 1.7.0-RC2"
 type:        story
-date:        2022-06-27
+date:        2022-07-02
 url:         /sbt-1.7.0-beta
 tags:        [ "sbt" ]
 ---
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.7.0-RC1. This is the seventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.7.0-RC2. This is the seventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
 
 <!--more-->
 
 ### How to upgrade
 
-Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.7.0-RC1>.
+Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.7.0-RC2>.
 
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=1.7.0-RC1
+sbt.version=1.7.0-RC2
 ```
 
-This mechanism allows that sbt 1.7.0-RC1 is used only for the builds that you want.
+This mechanism allows that sbt 1.7.0-RC2 is used only for the builds that you want.
 
 ### Changes with compatibility implications
 
+- `++` is stricter. See below.
 - Drops OkHttp 3.x dependency [lm#399][lm399] by [@eed3si9n][@eed3si9n]
 - Updates to Scala 2.12.16
 - Moves domain socket location to `XDG_RUNTIME_DIR` and `/tmp` [#6887][6887] by [@AlonsoM45][@AlonsoM45]
@@ -31,9 +32,11 @@ This mechanism allows that sbt 1.7.0-RC1 is used only for the builds that you wa
 
 ### `++` command updates
 
-Previously `++ <sv> <command1>` filtered subprojects using `crossScalaVersions` having the same ABI suffix as `<sv>`. This incorrectly matched subprojects with `3.1.3` when `++ 3.0.1 test` is given. sbt 1.7.0 fixes this by requiring `++ <sv> <command1>` to be backward compatible. [Rui Gonçalves](https://github.com/ruippeixotog) contributed this fix as [lm#400][lm400].
+Prior to sbt 1.7 `++ <sv> <command1>` filtered subprojects using `crossScalaVersions` having the same ABI suffix as `<sv>`. This behavior was generally not well understood, and also created incorrect result for Scala 3.x since `++ 3.0.1 test` could downgrade subproject that may require 3.1 or above.
 
-In [#6894][6894], [Arnout Engelen](https://github.com/raboof) contributed expansion to `++ <sv> <command1>` so `<sv>` part can be given as a [semantic version selector](https://github.com/npm/node-semver) expression, such as `2.13.x`. Note that the expression may match at most one Scala version to switch into.
+sbt 1.7.0 fixes this by requiring `++ <sv> <command1>` so `<sv>` part can be given as a [semantic version selector](https://github.com/npm/node-semver) expression, such as `3.1.x` or `2.13.x`. Note that the expression may match at most one Scala version to switch into. In sbt 1.7.0, a concrete version such as `++ 3.0.1` equires exact version to be present in `crossScalaVersion`.
+
+This contribution was a collaborated effort among [Arnout Engelen](https://github.com/raboof) [#6894][6894], [Rui Gonçalves](https://github.com/ruippeixotog) [lm#400][lm400], and [Eugene Yokota](https://github.com/eed3si9n).
 
 ### Scala 3 compiler error improvements
 
@@ -43,7 +46,7 @@ In [#6874][6874], [Chris Kipp](https://github.com/ckipp01) extended `xsbti.Probl
 
 ### BSP updates
 
-- Fixes sbt sending cumulative `build/publishDiagnostics` in BSP [#6847][6847] by [@tanishiking][@tanishiking]
+- Fixes sbt sending cumulative `build/publishDiagnostics` in BSP [#6847][6847]/[#6929][6929] by [@tanishiking][@tanishiking] and [@kpodsiad][@kpodsiad]
 - Adds optional framework field to the BSP response [#6830][6830] by [@kpodsiad][@kpodsiad]
 - Adds BSP environment request support [#6858][6858] by [@kpodsiad][@kpodsiad]
 
@@ -85,6 +88,7 @@ Forbidden Colours has started a fundraising campaign to support organisations in
   [6858]: https://github.com/sbt/sbt/pull/6858
   [6887]: https://github.com/sbt/sbt/pull/6887
   [6894]: https://github.com/sbt/sbt/pull/6894
+  [6929]: https://github.com/sbt/sbt/pull/6929
   [zinc1082]: https://github.com/sbt/zinc/pull/1082
   [lm393]: https://github.com/sbt/librarymanagement/pull/393
   [lm399]: https://github.com/sbt/librarymanagement/pull/399
