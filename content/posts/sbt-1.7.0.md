@@ -1,28 +1,26 @@
 ---
-title:       "sbt 1.7.0-RC2"
-date:        2022-07-02
-url:         /sbt-1.7.0-beta
-draft:       false
-promote:     false
-sticky:      false
+title:       "sbt 1.7.0"
+type:        story
+date:        2022-07-10
+url:         /sbt-1.7.0
 tags:        [ "sbt" ]
 ---
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.7.0-RC2. This is the seventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.7.0. This is the seventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
 
 <!--more-->
 
 ### How to upgrade
 
-Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.7.0-RC2>.
+Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.7.0>.
 
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=1.7.0-RC2
+sbt.version=1.7.0
 ```
 
-This mechanism allows that sbt 1.7.0-RC2 is used only for the builds that you want.
+This mechanism allows that sbt 1.7.0 is used only for the builds that you want.
 
 ### Changes with compatibility implications
 
@@ -52,22 +50,50 @@ In [#6874][6874], [Chris Kipp](https://github.com/ckipp01) extended `xsbti.Probl
 - Adds optional framework field to the BSP response [#6830][6830] by [@kpodsiad][@kpodsiad]
 - Adds BSP environment request support [#6858][6858] by [@kpodsiad][@kpodsiad]
 
+### setup-java GitHub Actions
+
+GitHub Actions in general includes `sbt`, and the latest [setup-java@v3](https://github.com/actions/setup-java) implements caching support for sbt.
+
+```yaml
+name: CI
+on:
+  pull_request:
+  push:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 8
+        cache: sbt
+    - name: Build and Test
+      run: sbt -v +test
+```
+
+This was contributed by [Florian Meriaux](https://github.com/fmeriaux) in [setup-java#302][setupjava302].
+
 ### Other updates
 
+- Fixes under-compilation when Java annotation changes by [@SethTisue][@SethTisue] in [zinc#1079][zinc1079]
 - Fixes ipcsocket JNI cleanup code deleting empty directories in `/tmp` [ipc#23][ipc23] by [@eed3si9n][@eed3si9n]
 - Fixes command argument parsing with quotes in `-a="b c"` pattern [#6816][6816] by [@Nirvikalpa108][@Nirvikalpa108]
 - Fixes `ThisBuild / includePluginResolvers` [#6849][6849] by [@bjaglin][@bjaglin]
 - Fixes watchOnTermination callbacks [#6870][6870] by [@eatkins][@eatkins]
+- Fixes `proxyInputStream#available`, which affected sbt-site `previewSite` [#6965][6965] by [@eed3si9n][@eed3si9n]
 
 ### Participation
 
-sbt 1.7.0-RC2 was brought to you by 28 contributors.
+sbt 1.7.0 was brought to you by 28 contributors.
 
 ```
 42 Seth Tisue
+36 Eugene Yokota (eed3si9n)
 32 Scala Steward
-30 Eugene Yokota (eed3si9n)
-12 Kenji Yoshida (xuwei-k)
+15 Kenji Yoshida (xuwei-k)
  8 Kamil Podsiadlo
  8 dependabot[bot]
  4 Arnout Engelen
@@ -117,6 +143,7 @@ Forbidden Colours has started a fundraising campaign to support organisations in
   [@tanishiking]: https://github.com/tanishiking
   [@AlonsoM45]: https://github.com/AlonsoM45
   [@armanbilge]: https://github.com/armanbilge
+  [@SethTisue]: https://github.com/SethTisue
   [6814]: https://github.com/sbt/sbt/pull/6814
   [6816]: https://github.com/sbt/sbt/pull/6816
   [6830]: https://github.com/sbt/sbt/pull/6830
@@ -128,7 +155,9 @@ Forbidden Colours has started a fundraising campaign to support organisations in
   [6887]: https://github.com/sbt/sbt/pull/6887
   [6894]: https://github.com/sbt/sbt/pull/6894
   [6929]: https://github.com/sbt/sbt/pull/6929
+  [6965]: https://github.com/sbt/sbt/pull/6965
   [zinc1082]: https://github.com/sbt/zinc/pull/1082
+  [zinc1079]: https://github.com/sbt/zinc/pull/1079
   [lm393]: https://github.com/sbt/librarymanagement/pull/393
   [lm399]: https://github.com/sbt/librarymanagement/pull/399
   [lm400]: https://github.com/sbt/librarymanagement/pull/400
