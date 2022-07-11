@@ -8,11 +8,9 @@ tags:        [ "sbt" ]
 
 Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.7.0. This is the seventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
 
-<!--more-->
-
 ### How to upgrade
 
-Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.7.0>.
+Download **the official sbt runner** from `cs setup`, SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.7.0>.
 
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
@@ -21,6 +19,8 @@ sbt.version=1.7.0
 ```
 
 This mechanism allows that sbt 1.7.0 is used only for the builds that you want.
+
+<!--more-->
 
 ### Changes with compatibility implications
 
