@@ -1,6 +1,7 @@
 ---
 title: "intro to Scala 3 macros"
 date: 2021-09-06
+type:        story
 draft: false
 url:         /intro-to-scala-3-macros
 aliases:     [ /node/404 ]
