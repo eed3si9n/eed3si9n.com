@@ -15,6 +15,10 @@ paginate = 6
     weight = 2
     languageName = '日本語'
 
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+  page = ["HTML"]
+
 [markup]
   [markup.goldmark.renderer]
     unsafe = true

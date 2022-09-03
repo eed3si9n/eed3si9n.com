@@ -111,3 +111,10 @@ https://docs.bitnami.com/aws/apps/redmine/administration/backup-restore-mysql-ma
 ```
 cp -R drupal-x.y/* /apps/portal/htdocs
 ```
+
+### Lunr
+
+```
+npm install --save-dev lunr
+cp node_modules/lunr/lunr.min.js static/js/
+```
