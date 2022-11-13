@@ -81,6 +81,12 @@ tag = "tags"
   url = 'https://twitter.com/eed3si9n'
   weight = -80
 
+[[menu.main]]
+  identifier = 'rss'
+  name = 'rss'
+  url = '/index.xml'
+  weight = -80
+
 [params]
   description = "works by eugene yokota"
   themeColor = "theme-base-08"
