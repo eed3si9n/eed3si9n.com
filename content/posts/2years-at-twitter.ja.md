@@ -25,6 +25,7 @@ url:         2years-at-twitter
   [martin]: https://www.linkedin.com/in/martinduhem
   [82]: https://github.com/twitter/bazel-multiversion/pull/82
   [bazelcon2021]: https://www.youtube.com/watch?v=fm6YbBLLlYo
+  [hannah]: https://www.linkedin.com/in/hannahku/
   [katya]: https://www.linkedin.com/in/ekaterina-tyurina-134537126/
   [adam]: https://www.linkedin.com/in/adammsinger/
   [scalamatsuri2020]: https://2020.scalamatsuri.org/en/program
@@ -47,9 +48,13 @@ url:         2years-at-twitter
   [scio]: https://spotify.github.io/scio/
   [scalacenter]: https://scala.epfl.ch/donate.html
 
-僕は Twitter社の Build/Bazel Migration チームでスタッフ・エンジニアとして勤務していた。信じられないような 2年の後、2022年11月17日をもって実質退職となった。Twitter社は、切磋琢磨、多様性、そして Flock を構成する全ての人に対して溢れ出る優しさというかなり特別な文化を持った職場だった。これを間近で経験して、その一員となる機会を得たことに感謝している。(Flock は「鳥の群れ」の意で、社内での Twitter社の通称)
+僕は Twitter社の Build/Bazel Migration チームでスタッフ・エンジニアとして勤務していた。信じられないような 2年の後、2022年11月17日をもって退職した (企業買収後のレイオフでも任意でもあんまり関係無いが、僕は任意退職希望のオファーを取った)。Twitter社は、切磋琢磨、多様性、そして Flock を構成する全ての人に対して溢れ出る優しさというかなり特別な文化を持った職場だった。これを間近で経験して、その一員となる機会を得たことに感謝している。(Flock は「鳥の群れ」の意で、社内での Twitter社の通称)
 
-以下は過去2年の簡単な振り返りだ。尚本稿での情報は、既に公開されているトークやデータに基づいている。
+![image1](/images/2years.jpg)
+
+以下は過去2年の簡単な振り返りだ。尚本稿での情報は、既に公開されているトークやデータに基づいている。買収後、うちのチームだけでも 10名以上のメンバーが Twitter社を抜けたので、在籍・元含め LinkedIn プロファイルへのリンクを本稿各所に貼った。
+
+<!--more-->
 
 ### EE Build チーム
 
@@ -95,6 +100,8 @@ Python側では、[Henry Fuller][henry]さんが 3rdparty/python のマイグレ
 3月には [Angela Guardia][angela]さんが Build/Bazel Migration チームに入社して、[Martin Duhem][martin]さんと共に 3rdparty/jvm ワークストリームに参加した。データに基づいた情報を使って 3rdparty/jvm のグラフを調整したいというアイディアが僕たちにはあったので、Angela は bazel-multiversion の [YAML 出力][82] を実装して、毎晩走る Jenkins ジョブで JARファイル衝突検知用のリンターを実行して、ログ集計をするということを実現した。衝突検知をリンターで行うということは Bazelcon で僕が発表した [Resolving Twitter's 3rdparty/jvm with bazel-multiversion][bazelcon2021] でも紹介した。
 
 6月には、rules_scala の `collect_jars` フェーズをカスタム化して末端ターゲットレベルで自動的に衝突を解決する実装を行った。僕のトークではこれは「tertiary resolution」(3次解決) と呼んだ（ちなみに Bazelcon 2022 においてこれをさらに発展させた凄いトークが Airbnb社によって発表された）。
+
+大き目のチームと長い todo リストという状況で、チームが何をするべきかの最適化問題のことを考えるようになってきた。しばらくは「トップ10指名手配リスト」という JIRA チケットをランク付けした Google Spreadsheet を管理してた。僕は、このようなデータ・ドリブンな手法を todo リストに適用することを「メタアナリシス」と勝手に呼んでいる。僕が選んだメトリックは、タスクが阻止している間接的依存ターゲットの数だ。夏の間、UC Berkeley からのインターン [Hannah Ku][hannah] さんと [Angela][angela] が協力して「トップ X 指名手配リスト」をちゃんとした自動更新されるダッシュボードに仕上げた。これで誰をオンボードしても、最もインパクトの大きいタスクを選んでもらうことができるようになった。
 
 Bazel互換のターゲット数が増えるにつれ、buildcache のスケーラビリティ問題に色々はまり始めていた。確かこの時期に [Ekaterina (Katya) Tyurina][katya]さんが buildcache のスケーラビリティの壁について詳細な分析レポートを書いて、TCPバッファーの割り当てや、hermecity (「ビルド密閉性」)が壊れている可能性を指摘した。
 

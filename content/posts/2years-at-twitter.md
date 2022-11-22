@@ -25,6 +25,7 @@ url:         2years-at-twitter
   [martin]: https://www.linkedin.com/in/martinduhem
   [82]: https://github.com/twitter/bazel-multiversion/pull/82
   [bazelcon2021]: https://www.youtube.com/watch?v=fm6YbBLLlYo
+  [hannah]: https://www.linkedin.com/in/hannahku/
   [katya]: https://www.linkedin.com/in/ekaterina-tyurina-134537126/
   [adam]: https://www.linkedin.com/in/adammsinger/
   [scalamatsuri2020]: https://2020.scalamatsuri.org/en/program
@@ -47,9 +48,13 @@ url:         2years-at-twitter
   [scio]: https://spotify.github.io/scio/
   [scalacenter]: https://scala.epfl.ch/donate.html
 
-I was a Staff Engineer at Twitter's Build/Bazel Migration team. After two incredible years, November 17 was my last (working) day. Twitter has been a special place to work for, for its culture of excellence, diversity, and outpouring of care for all the people that made Flock the Flock. I am grateful that I got the opportunity to experience that firsthand, and be part of it.
+I was a Staff Engineer at Twitter's Build/Bazel Migration team. After two incredible years, November 17 was my last day (I took the voluntary separation offer and resigned, not that it matters). Twitter has been a special place to work for, for its culture of excellence, diversity, and outpouring of care for all the people that made Flock the Flock. I am grateful that I got the opportunity to experience that firsthand, and be part of it.
 
-Here's a quick retrospective on my last two years. Info available here are based on publicly available talks and data.
+![image1](/images/2years.jpg)
+
+Here's a quick retrospective on my last two years. Info available here are based on publicly available talks and data. Just from our team 10+ members left Twitter after the buyout, so I've sprinkled this post with links to their LinkedIn profiles both current and former.
+
+<!--more-->
 
 ### EE Build team
 
@@ -94,6 +99,8 @@ Coincidentally, around the same time JFrog announced the sunset of Bintray. Toge
 In March [Angela Guardia][angela] joined Build/Bazel Migration team, and joined the 3rdparty/jvm workstream with [Martin Duhem][martin]. One of the ideas we had was making data-driven decisions for adjusting the 3rdparty/jvm graph, so Angela implemented [YAML output][82] on bazel-multiversion, nightly Jenkins jobs to run the linter to detect conflicting JAR files, and log aggregation. I've covered the conflict-detection linting in my Bazelcon talk [Resolving Twitter's 3rdparty/jvm with bazel-multiversion][bazelcon2021].
 
 In June, I implemented custom `collect_jars` phase in rules_scala to automatically resolve conflicts at the leaf target level. In the talk I called it _tertiary resolution_ (There was another awesome Bazelcon 2022 talk by Airbnb that takes this further).
+
+Given the large team and a long list of todo items, I became increasingly interested in the optimization of what the team should working on. For a while, I maintained a Google Spreadsheet called "Top 10 Most Wanted", ranking 10 JIRA ticket by a score. I called this idea of applying a data-driven approach to the todo list _metaanalyisis_. The metric I chose was the number of transitive targets a task was blocking. Over the summer, [Hannah Ku][hannah], an intern from UC Berkeley, worked with [Angela][angela] to turn "Top X Most Wanted" into a real dashboard that are updated automatically. Now whenever we onboarded someone, we could point them to the most impactful tasks.
 
 As we were increasing the number of Bazel-compatible targets, we were starting to bump into scalability issues with buildcache. I think around that time [Ekaterina (Katya) Tyurina][katya] produced detailed analysis on scalability walls the buildcache cluster was hitting due to TCP buffer allocation, as well as potential hermeticity leaks.
 
