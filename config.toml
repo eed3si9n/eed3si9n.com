@@ -5,6 +5,7 @@ title = 'eed3si9n'
 theme = "hyde"
 pygmentsstyle = "monokai"
 paginate = 6
+googleAnalytics = "UA-40469856-1"
 
 [languages]
   [languages.en]
@@ -76,8 +77,14 @@ tag = "tags"
   weight = -90
 
 [[menu.main]]
+  identifier = 'Mastodon'
+  name = '🐘 @eed3si9n@types.pl '
+  url = 'https://types.pl/@eed3si9n'
+  weight = -85
+
+[[menu.main]]
   identifier = 'twitter'
-  name = '@eed3si9n'
+  name = '🐦 @eed3si9n'
   url = 'https://twitter.com/eed3si9n'
   weight = -80
 
@@ -85,7 +92,7 @@ tag = "tags"
   identifier = 'rss'
   name = 'rss'
   url = '/index.xml'
-  weight = -80
+  weight = -50
 
 [params]
   description = "works by eugene yokota"
