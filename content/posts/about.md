@@ -9,11 +9,11 @@ url:         /about
 aliases:     [ /node/330 ]
 ---
 
-I am Eugene Yokota (@eed3si9n on [Twitter](https://twitter.com/eed3si9n) and [GitHub](https://github.com/eed3si9n)), a software engineer with years of experience working on Scala tooling. Most recently I was a Staff Engineer at Twitter's EE Build team migrating the largest Scala monorepo into Bazel (See [2 years at Twitter](/2years-at-twitter/) for details).
+I am Eugene Yokota (@eed3si9n on [Twitter](https://twitter.com/eed3si9n) and [GitHub](https://github.com/eed3si9n)), a software engineer with years of experience working on Scala tooling. Most recently I was a Staff Engineer at Twitter's _EE Build/Bazel Migration_ team migrating the largest Scala monorepo into Bazel (See [2 years at Twitter](/2years-at-twitter/) for details).
 
 My specialties are researching and documenting complex landscapes of problems through reading, and talking to people, and bringing them into concrete implementations. I'm great at taking existing tools, and making them more performant and developer-friendly.
 
-I've been lead sbt maintainer since 2014 (as a side project since 2020), former Tech Lead of the Lightbend _Tooling Team_, and [Principal Engineer on the _Scala (Compiler) Team_](/6years-at-lightbend). I'm passionate about improving developer experience on and off the work, and like to tinker with ideas both through coding and this blog <https://eed3si9n.com/> as my personal platform. Here is a select list of my writing/works:
+I've been lead sbt maintainer since 2014 (as a side project since 2020), former [Tech Lead of the Lightbend _Tooling Team_](/6years-at-lightbend), and later a member of the _Scala (Compiler) Team_. I'm passionate about improving developer experience on and off the work, and like to tinker with ideas both through coding and this blog <https://eed3si9n.com/> as my personal platform. Here is a select list of my writing/works:
 
 - [Cached compilation for sbt (2020)](/cached-compilation-for-sbt)
 - [Selective functor in sbt (2020)](/selective-functor-in-sbt)

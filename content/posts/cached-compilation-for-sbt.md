@@ -17,7 +17,7 @@ summary:
   The PR for sbt change is [sbt/sbt#5534](https://github.com/sbt/sbt/pull/5534), and the virtualization change in Zinc is [sbt/zinc#712](https://github.com/sbt/zinc/pull/712).
 ---
 
-Ever since I learned about Google's build infrastructure Blaze, which is today open sourced as Bazel, I've thought of having a similar facility for Scala's tool chain. This is not particularly original since there's been prior works such as Peter Vlugter and Ben Dougherty's work on [nailgun Zinc](https://github.com/typesafehub/zinc/commits/master/src/main/scala/com/typesafe/zinc/SbtAnalysis.scala), which was used in Pants, and Krzysztof Romanowski's [Hoarder](https://github.com/romanowski/hoarder). These rely on the idea of transforming the absolute paths appearing in Zinc Analysis file for each working directory.
+Ever since I learned about Google's build system Blaze, which nowadays is open sourced as Bazel, I've dreamed of having a similar facility for Scala's tool chain. This is not particularly an original idea since there's been prior works such as Peter Vlugter and Ben Dougherty's work on [nailgun Zinc](https://github.com/typesafehub/zinc/commits/master/src/main/scala/com/typesafe/zinc/SbtAnalysis.scala), which was used in Pants, and Krzysztof Romanowski's [Hoarder](https://github.com/romanowski/hoarder). These rely on the idea of transforming the absolute paths appearing in Zinc Analysis file for each working directory.
 
 Before I go into the details of what I've been working on, let's demonstrate the problem space.
 
@@ -69,7 +69,7 @@ In ScalaSphere 2019's 'Analysis of Zinc' talk, I proposed two subgoals towards b
 - liberation from a machine
 - liberation from time
 
-Both Scala compiler and Java compiler is able handle an abtraction notion of virtual file. Rather than manipulating the state of Zinc, I think it's better if we can do away with the idea of using working-directory specific absolute paths during compilation. For large-scale build tools, this facility can be used for example to keep all sources in-memory. Furthermore, keeping a bunch of `java.io.File` with full absolute paths could add up.
+Both Scala compiler and Java compiler are able handle an abtract notion of virtual file. Rather than manipulating the state of Zinc, I thought it would be better if we could do away with the idea of using working-directory specific absolute paths during compilation. For large-scale build tools, this facility might be used for example to keep all sources in-memory. Furthermore, keeping a bunch of `java.io.File` with full absolute paths could add up.
 
 Internally all relevant file paths such as sources, libraries, and output `*.class` files are converted to a `VirtualFileRef`. The default implementation will convert `/Users/xxx/work/quicktest/cats-0/kernel/src/main/scala/cats/kernel/Band.scala` to `${BASE}/kernel/src/main/scala/cats/kernel/Band.scala`. (It's currently `${0}`, but we'll likely change it to `${BASE}`.)
 
