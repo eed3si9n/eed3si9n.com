@@ -2,7 +2,6 @@
 title:       "revisiting implicits without import tax"
 type:        story
 date:        2012-01-02
-draft:       true
 promote:     true
 sticky:      false
 url:         /revisiting-implicits-without-import-tax

@@ -2,7 +2,6 @@
 title:       "再考「import 税のかからない implicit」"
 type:        story
 date:        2012-01-02
-draft:       true
 promote:     true
 sticky:      false
 url:         /ja/revisiting-implicits-without-import-tax
