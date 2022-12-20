@@ -1,6 +1,6 @@
 ---
 title:       "about me"
-type:        story
+type:        page
 date:        2022-11-23
 draft:       false
 promote:     true
