@@ -22,6 +22,7 @@ summary:     <img border="0" alt="" src="/images/ts_sonokai_main2.png" width="10
   [62]: https://github.com/tree-sitter/tree-sitter-scala/pull/62
   [43]: https://github.com/tree-sitter/tree-sitter-scala/issues/43
   [7499]: https://users.scala-lang.org/t/scala-3-syntax-highlighting-in-vim/7499
+  [5435]: https://contributors.scala-lang.org/t/scala-3-syntax-support-in-other-editors/5435
   [indoorvivants]: https://indoorvivants.com/
   [2]: https://github.com/keynmol/tree-sitter-scala/pull/2
   [external]: https://tree-sitter.github.io/tree-sitter/creating-parsers#external-scanners
@@ -43,7 +44,7 @@ Compared to performing regex at runtime, which is what more common parsing libra
 
 A few interesting features of Tree-sitter are that its capable of incremental parsing, and also its capable of parsing code that contains errors. These two aspects make Tree-sitter particularly useful for language features in editors, like syntax highlight and code folding.
 
-Analogous to the Language Server Protocol (LSP), Tree-sitter own its own is unaware of specific programming languages, but once the C code is generated for the language you're interested in, it could be invoked programmatically to annotate the source code with the syntax. One way of thinking about this that `tree-sitter` CLI is capable of turning any source code into LISP. Once the code is in the common format, other people can write common tooling to manipulate it, like highlighting (and more features).
+Analogous to the Language Server Protocol (LSP), Tree-sitter on its own is unaware of specific programming languages, but once the C code is generated for the language you're interested in, it could be invoked programmatically to annotate the source code with the syntax. One way of thinking about this that `tree-sitter` CLI is capable of turning any source code into LISP. Once the code is in the common format, other people can write common tooling to manipulate it, like highlighting (and more features).
 
 ## Neovim, Tree-sitter, and Scala
 
@@ -51,9 +52,9 @@ Vim has a built-in [syntax highlight][vim] feature, mostly based on keyword sear
 
 <iframe src="https://types.pl/@eed3si9n/109508264904537444/embed" class="mastodon-embed" style="max-width: 100%; border: 0" width="400px" allowfullscreen="allowfullscreen"></iframe>
 
-When I tried this out on Tuesday, the highlighting for Scala 3's new [optional brace syntax][indentation] was pretty bad. As mentioned, Tree-sitter own its own is unaware of specific programming languages, but there is a separate repo called [tree-sitter/tree-sitter-scala][tree-sitter-scala] that's maintaining the Tree-sitter grammar for Scala, and that seems to not support the new syntax introduced by Scala 3 yet.
+When I tried this out last Tuesday, the highlighting for Scala 3's new [optional brace syntax][indentation] was pretty bad. As mentioned, Tree-sitter on its own is unaware of specific programming languages, but there is a separate repo called [tree-sitter/tree-sitter-scala][tree-sitter-scala] that's maintaining the Tree-sitter grammar for Scala, and that seems to not support the new syntax introduced by Scala 3 yet.
 
-Once Tree-sitter can process Scala 3 code, it provides much richer constructs (also known as scopes) of the language, that we can create better syntax highlighting, and other features beyond highlighting using the parsed syntax tree. While this might be a pinacle of the law of triviality -- color of paint to put on the bikeshed -- as a Scala 3 enthusiast on a winter vacation, I felt like this yacc was calling for me.
+Once Tree-sitter can process Scala 3 code, it provides much richer annotation (also known as scopes) of the language, that we can create better syntax highlighting, and other features beyond highlighting using the parsed syntax tree. While this might be a pinacle of the law of triviality -- color of paint to put on the bikeshed -- as a Scala 3 enthusiast on a winter vacation, I felt like this yacc was calling for me.
 
 ## conversion from EBNF
 
@@ -93,7 +94,7 @@ Note that `def run` is not highlighted since it doesn't recognize the optional b
 
 ### optional braces, part 1
 
-On Tuesday, I sent the first PR ['Optional braces, part 1' (#61)][61], and here's the main change:
+Last Tuesday, I sent the first PR ['Optional braces, part 1' (#61)][61], and here's the main change:
 
 ```diff
 -    template_body: $ => seq(
@@ -160,7 +161,7 @@ class A:
 val y = 2
 ```
 
-In the above, `val y` becomes a top-level statement. Since there is a growing interest in this area, it's not surprising that [Anton Sviridov][indoorvivants] looked at it last week, and told me about his [wip][2] branch.
+In the above, `val y` becomes a top-level statement. Since there is a growing interest in this area, it's not surprising that [Anton Sviridov][indoorvivants] looked at it 2 weeks ago, and told me about his [wip][2] branch.
 
 {{% note %}}
 **Note**: external scanner<br>
@@ -394,7 +395,7 @@ class A:
 Looking at the error, it looks like `val y = 2` fails to be part of `class A`.
 This is likely outdent consumes the newline character, but the dection of automatic semicolon is required between the methods and fields within a template:
 
-```
+```javascript
     _block: $ => prec.left(seq(
       sep1($._semicolon, choice(
         $.expression,
@@ -736,7 +737,7 @@ $ time tree-sitter parse $HOME/work/dotty/compiler/src/dotty/tools/dotc/typer/Er
 tree-sitter parse  -q  0.01s user 0.00s system 85% cpu 0.013 total
 ```
 
-| source                 | lines  | scalc    |  tree-sitter | speedup |
+| source                 | lines  | Dotty    |  tree-sitter | speedup |
 | ---------------------- | :----: | :------: | :---------: | :-------: |
 | `Types.scala`          | `5835` | `1980ms` | `73ms`      | `27x`     |
 | `Parsers.scala`        | `3971` | `1854ms` | `40ms`      | `46x`     |
@@ -757,7 +758,7 @@ Tree-sitter's lack of Scala 3 syntax support has been a topic that's been brough
 
 - On Scala Users forum Graham Brown asked about [Scala 3 Syntax Highlighting in vim][7499] in May 2021.
 - Github issue 'Scala 3 syntax support?' [#43][43], opened in Nov 2021 has 41 likes, and no comments from the maintainers as of this writing.
-- Chris Kipp brought up ['Scala 3 syntax support in "other" editors'][7499] on Scala Contributors forum in Nov 2021.
+- Chris Kipp brought up ['Scala 3 syntax support in "other" editors'][5435] on Scala Contributors forum in Nov 2021.
 
 #### references
 
