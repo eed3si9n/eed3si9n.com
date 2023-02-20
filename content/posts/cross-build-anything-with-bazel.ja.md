@@ -1,7 +1,7 @@
 ---
-title:       "cross build anything with Bazel"
+title:       "Bazel を用いて何でもクロスビルドする方法"
 type:        story
-date:        2023-02-19
+date:        2023-02-20
 draft:       false
 promote:     true
 sticky:      false
@@ -16,23 +16,34 @@ tags:        [ "bazel", "scala" ]
   [module_extension]: https://bazel.build/external/extension
   [rules_jvm_external]: https://github.com/bazelbuild/rules_jvm_external/blob/master/defs.bzl
 
-Bazel generally prefers monoversioning, in which all targets in the monorepo uses the same version given any library (JUnit or Pandas). Monoversioning greatly reduces the version conflict concerns within the monorepo, and in return enables better code reuse. In practice, monoversioning has a drawback of tying everyone at the hip. If service A, B, C, D, etc are all using Big Framework 1.1, it becomes costly to migrate all to Big Framework 1.2 if there might be a regression. Years would go by, and Big Framework 2.0 might come out, and again, it would be too risky.
+一般論として Bazel は、モノバージョンニングといって、(JUnit や Pandas など) どのライブラリでもモノリポ内の全てのターゲットが同一のバージョンを使うという形態を好む。
+モノバージョニングは、モノリポ内で発生しうるバージョン衝突を劇的に減らすため、よりコード再利用性を改善させるという効果がある。
+しかし、実際に運用してみると全社が二人三脚状態になるという欠点も出てくる。
+例えばサービス A、B、C、D の全てが Big Framework 1.1 を使っていると、デグレ (regression) があるかもしれないので全てを同時に Big Framework 1.2 に移植するのは人的負荷が高かったりする。
+そんなこんなで数年が経ち、Big Framework 2.0 がリリースされて、やっぱりこれも採用はリスキーなのではということになる。
 
-In Scala ecosystem, using sbt, library authors often build a library against multiple versions of Scala standard libraries, or some other framework. This is called *cross building*. (Note that this is different from *cross compiling* from one CPU architecture like x86 to aarch64.)
+Scala エコシステムでは、sbt を用いてライブラリ作者がライブラリを複数の Scala 標準ライブラリやその他のフレームワークに対してビルドするというのは普通に行われている。
+これは**クロスビルド**と呼ばれている。(x86 から aarch64 など CPU アーキテクチャをまたいだコンパイルを**クロスコンパイル**と言ったりするがそれとは別なことに注意)
 
-This idea of cross building could be useful in Bazel as well, which allows the migration of some axis to take place *in situ* over a course of some time. For example you could start with Scala 2.12 in the monorepo, but gradually try to migrate to 2.13 such that most targets would build in *both* Scala 2.12 and Scala 2.13. This allows some teams to try out the new version ahead of everyone else while the codebase keeps marching on.
+このクロスビルドという概念は、同ブランチ内で中長期に渡って色々な軸のマイグレーションを可能とすることから、Bazel においても有用なものじゃないかと思っている。
+例えば現行のモノリポが Scala 2.12 だとして、徐々にマイグレーションを行ってほとんどのターゲットが Scala 2.12 と Scala 2.13 の両方でビルド可能な状態へ持っていく。
+これは、一部のチームが全社に先行して新バージョンを試しつつ、コードベースとしては普通に進んでいくことができる。
 
-### local_repository hack
+### local_repository ハック
 
-This week [@ianoc](https://macaw.social/@ianoc) showed me a trick that can be used as a mechanism of cross building in Bazel. We wanted it for Python 3rdparty dependencies, but in this post I'll demonstrate that we can use this to implement Scala cross building. (I am pretty sure Long Cao tried to explain this to me while waiting on a line to get into a bar last year, but at the time I didn't quite see how powerful this technique was.)
+先週、[@ianoc](https://macaw.social/@ianoc)さんに Bazel でクロスビルドを可能とする機構を教えてもらった。
+僕たちがやったのは Python の外部ライブラリの切り替えだが、本稿では Scala のクロスビルドを実装する。
+(思い出すと去年、Long Cao さんがバーに入る行列で待っている間にこの説明を試みてくれた気がするが、当時はこのテクニックが非常に強力なものだと僕がイマイチ理解できなかった。)
 
-Here's the basics. You declare a [`local_repository`][local_repository] in the root `WORKSPACE` pointing to a subdirectory, like an in-workspace workspace. Then at runtime, you can override it to something else using [`--override_repository`][override_repository] flag. The local repository can expose constant variables, macros, targets, including files, which should be sufficient override anything.
+まず基本を先に言うと、ルートの `WORKSPACE` 内でサブディレクトリを参照する [`local_repository`][local_repository] を宣言して、入れ子ワークスペースを作る。
+実行時に [`--override_repository`][override_repository] オプションを使って、これを別のワークスペースへとオーバーライドする。
+このローカル・リポジトリは定数、マクロ、ファイルを含むターゲットなどを公開することができ、これを使うことで何でもオーバーライドできるはずだ。
 
-### Hello world example
+### Hello world の例
 
 #### `WORKSPACE`
 
-Here's a snippet of `WORKSPACE`:
+`WORKSPACE` から一部抜粋:
 
 ```python
 ....
@@ -57,7 +68,7 @@ cross_scala_config()
 ....
 ```
 
-See [rules_scala][rules_scala] for the rest of the file.
+このファイルの残りは [rules_scala][rules_scala] 参照。
 
 #### `tools/local_repo/default/WORKSPACE`
 
@@ -179,13 +190,13 @@ INFO: Build completed successfully, 1 total action
 hello, Scala 2.13.6
 ```
 
-This demonstrates that from the commmand line we can switch the Scala version used for the build.
+これは、コマンドライン上からビルドに使う Scala バージョンを切り替えれることを示す。
 
-### Modifying the 3rdparty resolution (traditonal)
+### 3rdparty 解決の変更 (従来型)
 
-It depends on how you are currently handling 3rdparty resolution, but the basic idea is to either put the lock file or the `bzl` file into `tools/local_repos/default/` or `tools/local_repos/scala_2.13`.
+3rdparty 解決処理をどのように行っているかによるが、基本的な考え方としてはロックファイルか `deps.bzl` を `tools/local_repos/default/` か `tools/local_repos/scala_2.13` に入れるということだ。
 
-For bazel-multiversion, the process looks like:
+bazel-multiversion の場合は、このような手順となる:
 
 ```bash
 echo 'multiversion_config(scala_versions = ["2.12.14"])' > 3rdparty/jvm/BUILD
@@ -194,7 +205,7 @@ echo 'multiversion_config(scala_versions = ["2.13.6"])' > 3rdparty/jvm/BUILD
 bin/multiversion import-build --output-path=tools/local_repos/scala_2.13/jvm_deps.bzl
 ```
 
-Then in WORKSPACE,
+そして `WORKSPACE` 内で:
 
 #### `WORKSPACE`
 
@@ -235,18 +246,18 @@ $ bazel query 'deps(//core/src/main:main)' --override_repository="scala_multiver
 @maven//:com.typesafe_ssl-config-core_2.13_0.6.1_-1177452640
 ```
 
-### Switching out source code
+### ソースコードの切り替え
 
-In some situations, it would be convenient to switch out the source code depending on the Scala version etc.
-Since we can expose variables from the local repository, implementing it is easy.
+Scala バージョンなどによってソースコードごと切り替えてしまった方が便利な場合もある。
+ローカル・リポジトリから変数を公開できるので、簡単に実装できる。
 
-Recall that we've define a variable named `IS_SCALA_2_12`:
+`IS_SCALA_2_12` という変数を定義したことを思い出してほしい:
 
 ```python
 IS_SCALA_2_12 = True
 ```
 
-Let's say we want to use different source code for the hello world app, we could implement it as follows:
+先ほどの hello world の例で別のソースコードを使いたいとすると、以下のように実装できる:
 
 #### `hello/BUILD.bazel`
 
@@ -269,10 +280,10 @@ $ bazel run //hello:bin --override_repository="scala_multiverse=$(pwd)/tools/loc
 hi, Scala 2.13.6!
 ```
 
-### Hiding the command line option
+### コマンドライン・オプションの隠蔽
 
-Let's say you would like to hide the command line option because it's too verbose.
-We could do that using a `.bazelrc` file.
+コマンドライン・オプションが冗長なので、これを隠したいとする。
+これは `.bazelrc` ファイルを使って行う。
 
 #### `bazelenv`
 
@@ -324,13 +335,14 @@ $ bazel query 'deps(//core/src/main:main)' | grep '@maven//:com.*ssl-config'
 @maven//:com.typesafe_ssl-config-core_2.13_0.6.1_-1177452640
 ```
 
-Using `.bazelrc`, we can now switch between the Scala version without passing in the command line option.
+`.bazelrc` を使うことで、コマンドライン・オプション無しで Scala バージョンを切り替えることができた。
 
-### Modifying the 3rdparty resolution (MODULE.bazel)
+### 3rdparty 解決の変更 (MODULE.bazel)
 
-As of Bazel 6 [MODULE.bazel][bzlmod] ("Bzlmod") is no longer experimental, so naturally I wanted to see how this technique can be implemented in the new way. Unlike the traditional workspace way, [module extensions][module_extension] can only expose the extension or a repo.
+Bazel 6 より [MODULE.bazel][bzlmod] (コードネーム Bzlmod) は実験的機能でな無くなったため、このテクニックがどのように実装できるか当然気になった。従来のワークスペースと違って、[module extension][module_extension] は extension 自体かリポジトリしか公開することができない。
 
-**Update: 2023-02-20**: The general strategy seems to be use the tag class as declaration inside the `MODULE.bazel` file, and call repository rules inside the module extension to perform the side effects as before, including `http_archive(...)`. On Bazel Slack, Xudong Yang [wrote](https://bazelbuild.slack.com/archives/C014RARENH0/p1660212206376779?thread_ts=1659965864.646099&cid=C014RARENH0):
+そのため、大まかな戦略としては `MODULE.bazel` ファイル内ではタグクラスを用いて依存性の宣言を行い、module extension 内で従来どおり repository rule を呼び出して `http_archive` を含む副作用を実行するということらしい。
+Bazel の Slack での Xudong Yang さんの[発言](https://bazelbuild.slack.com/archives/C014RARENH0/p1660212206376779?thread_ts=1659965864.646099&cid=C014RARENH0)を引用すると:
 
 > The module extension is as simple as
 >
@@ -345,7 +357,7 @@ As of Bazel 6 [MODULE.bazel][bzlmod] ("Bzlmod") is no longer experimental, so na
 >
 > it's _basically_ a workspace macro
 
-Thankfully [rules_jvm_external][rules_jvm_external] exposes `maven_install(...)` as a traditional repository rule, so we can use that as a Couriser frontend.
+幸いなことに [rules_jvm_external][rules_jvm_external] は、`maven_install(...)` を従来の repositori rule として公開しているので、それを Coursier フロントエンドとして使うことができる。
 
 #### `tools/local_modules/default/WORKSPACE`
 
@@ -493,7 +505,7 @@ load("@rules_jvm_external//:defs.bzl", "artifact", "maven_install")
 
 SCALA_SUFFIX = "_2.13"
 
-# Rest is same as tools/local_modules/default/extensions.bzl
+# ... 以下 tools/local_modules/default/extensions.bzl と同じ
 ```
 
 #### `MODULE.bazel`
@@ -533,12 +545,12 @@ $ bazel query 'filter('com_typesafe_ssl', @maven//...)' --override_module=mod_sc
 @maven//:com_typesafe_ssl_config_core_2_13_0_6_1
 ```
 
-This shows that we were able to switch out the local module extension to resolve Scala 2.13 libraries.
-A minor issue is that the Scala suffix bleeds out to the target name.
+これは、module extension を使って Scala 2.13 ライブラリ群へと依存性解決を切り替えることができたことを示す。
+些細な問題だが、Scala バージョンの接尾詞がターゲット名に漏れ出しているのが分かる。
 
-### Papering over the differences
+### 違いの取り繕い
 
-We can paper over the difference between `@maven//:com_typesafe_ssl_config_core_2_12` and `@maven//:com_typesafe_ssl_config_core_2_13` by defining a macro `maven_dep(...)`.
+`maven_dep()` というマクロを定義することで `@maven//:com_typesafe_ssl_config_core_2_12` と `@maven//:com_typesafe_ssl_config_core_2_13` の違いを取り繕うことができる。
 
 #### `tools/local_repos/default/cross_scala_config.bzl`
 
@@ -607,9 +619,9 @@ def _parse_maven_coordinates(coordinates_string):
     return result
 ```
 
-#### some BUILD
+#### 適当な BUILD
 
-This uses `::` to denote Scala librarie with the `_2.12` suffix.
+これは `::` を使って、`_2.12` という接尾詞付きの Scala ライブラリであることを表記する。
 
 ```python
 load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
@@ -664,12 +676,13 @@ $ bazel query 'deps(//core/src/main:main)' | grep '@maven//:.*ssl-config.*'
 @maven//:v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.13/0.6.1/ssl-config-core_2.13-0.6.1.jar
 ```
 
-### summary
+### まとめ
 
-- Bazel has a built-in feature called [`local_repository`][local_repository]. By pushing configurations related to the language versions and 3rdparty lock files into it, we can switch between different configurations while being on the same monorepo branch.
-- Some tweaks to the existing tooling might be required, but generally this means that we can cross build along various axes like language versions and major library upgrades.
-- The new MODULE.bazel allows overriding module extension, which we can use to process the declarative dependencies in different ways.
+- Bazel には [`local_repository`][local_repository] という機能が付いてきている。言語バージョンや 3rdparty のロックファイルなどをそこに押し込むことで、同一のモノリポのブランチから異なる設定を用いることができる。
+- 現行のツールに対する多少の変更が必要になるかもしれないが、これは言語バージョンやライブラリのアップグレードなどさまざま軸に対してクロスビルドを行うことを示唆する。
+- 新しい MODULE.bazel は module extension のオーバーライドを可能とし、そこで宣言的に定義された依存性を異なる方法で処理することができる。
 
-### license
+### ライセンス
 
-To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to the code examples to the public domain worldwide. The code examples are distributed without any warranty. See http://creativecommons.org/publicdomain/zero/1.0/.
+法令上認められる最大限の範囲で作者は、本稿におけるコード例の著作権および著作隣接権を放棄して、全世界のパブリック・ドメインに提供している。
+コード例は一切の保証なく公開される。<http://creativecommons.org/publicdomain/zero/1.0/> 参照。
