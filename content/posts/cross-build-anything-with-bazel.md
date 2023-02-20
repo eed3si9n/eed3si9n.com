@@ -5,7 +5,7 @@ date:        2023-02-19
 draft:       false
 promote:     true
 sticky:      false
-url:         /cross-building-anything-with-bazel
+url:         /cross-build-anything-with-bazel
 tags:        [ "bazel", "scala" ]
 ---
 
@@ -14,6 +14,7 @@ tags:        [ "bazel", "scala" ]
   [rules_scala]: https://github.com/bazelbuild/rules_scala
   [bzlmod]: https://bazel.build/versions/6.0.0/build/bzlmod
   [module_extension]: https://bazel.build/external/extension
+  [rules_jvm_external]: https://github.com/bazelbuild/rules_jvm_external/blob/master/defs.bzl
 
 Bazel generally prefers monoversioning, in which all targets in the monorepo uses the same version given any library (JUnit or Pandas). Monoversioning greatly reduces the version conflict concerns within the monorepo, and in return enables better code reuse. In practice, monoversioning has a drawback of tying everyone at the hip. If service A, B, C, D, etc are all using Big Framework 1.1, it becomes costly to migrate all to Big Framework 1.2 if there might be a regression. Years would go by, and Big Framework 2.0 might come out, and again, it would be too risky.
 
@@ -86,10 +87,10 @@ MULTIVERSE_NAME="default"
 IS_SCALA_2_12 = True
 
 def cross_scala_config(enable_compiler_dependency_tracking = False):
-    scala_config(
-        "2.12.14",
-        enable_compiler_dependency_tracking = enable_compiler_dependency_tracking,
-    )
+  scala_config(
+    "2.12.14",
+    enable_compiler_dependency_tracking=enable_compiler_dependency_tracking,
+  )
 ```
 
 #### `tools/local_repo/scala_2.13/WORKSPACE`
@@ -120,10 +121,10 @@ MULTIVERSE_NAME="scala_2.13"
 IS_SCALA_2_12 = False
 
 def cross_scala_config(enable_compiler_dependency_tracking = False):
-    scala_config(
-        "2.13.6",
-        enable_compiler_dependency_tracking = enable_compiler_dependency_tracking,
-    )
+  scala_config(
+    "2.13.6",
+    enable_compiler_dependency_tracking = enable_compiler_dependency_tracking,
+  )
 ```
 
 #### `hello/BUILD.bazel`
@@ -150,7 +151,7 @@ object Hello extends App {
 }
 ```
 
-#### demo
+#### demo 1
 
 ```bash
 $ bazel run //hello:bin
@@ -204,7 +205,7 @@ load("@maven//:jvm_deps.bzl", "load_jvm_deps")
 load_jvm_deps()
 ```
 
-#### demo
+#### demo 2
 
 ```bash
 $ bazel build //core/src/main:main
@@ -260,7 +261,7 @@ scala_binary(
 )
 ```
 
-#### demo
+#### demo 3
 
 ```bash
 $ bazel run //hello:bin --override_repository="scala_multiverse=$(pwd)/tools/local_repos/scala_2.13"
@@ -301,7 +302,7 @@ fi
 try-import ".bazelenv"
 ```
 
-#### demo
+#### demo 4
 
 ```bash
 $ chmod +x bazelenv
@@ -327,50 +328,196 @@ Using `.bazelrc`, we can now switch between the Scala version without passing in
 
 ### Modifying the 3rdparty resolution (MODULE.bazel)
 
-As of Bazel 6 [MODULE.bazel][bzlmod] ("Bzlmod") is no longer experimental, so naturally I wanted to see how this technique can be implemented in the new way, and thus far I am lost. I wish there was way to load variables and macros, but as far as I can tell, [module extensions][module_extension] can only expose the extension or a repo, unlike `load(...)`.
+As of Bazel 6 [MODULE.bazel][bzlmod] ("Bzlmod") is no longer experimental, so naturally I wanted to see how this technique can be implemented in the new way. Unlike the traditional workspace way, [module extensions][module_extension] can only expose the extension or a repo.
 
-#### use_value?
+**Update: 2023-02-20**: The general strategy seems to be use the tag class as declaration inside the `MODULE.bazel` file, and call repository rules inside the module extension to perform the side effects as before, including `http_archive(...)`. On Bazel Slack, Xudong Yang [wrote](https://bazelbuild.slack.com/archives/C014RARENH0/p1660212206376779?thread_ts=1659965864.646099&cid=C014RARENH0):
 
-It would be nice if there were `use_value`:
+> The module extension is as simple as
+>
+> ```python
+> def http_stuff():
+>   http_file(...)
+>   http_file(...)
+>   http_archive(...)
+> 
+> my_ext = module_extension(implementation=lambda ctx: http_stuff())
+> ```
+>
+> it's _basically_ a workspace macro
+
+Thankfully [rules_jvm_external][rules_jvm_external] exposes `maven_install(...)` as a traditional repository rule, so we can use that as a Couriser frontend.
+
+#### `tools/local_modules/default/WORKSPACE`
 
 ```python
-bazel_dep(name = "local_module")
-IS_SCALA_2_12 = use_value("@local_module//:extensions.bzl", "IS_SCALA_2_12")
+# Empty file
 ```
 
-or a way to create a macro in a local extension:
+#### `tools/local_modules/default/BUILD`
 
 ```python
-def scala_maven_artifact(group, artifact, version):
-  return maven.artifact(
-    group=group,
-    artifact=artifact + "_2.12",
-    version=version,
-  )
+# Empty file
 ```
 
-#### Maybe workaround?
-
-The only workaround I can think of to parameterize the `MODULE.bazel` would be to copy-paste the implementation of rules_jvm_external `maven` module and do the switching in there:
+#### `tools/local_modules/default/MODULE.bazel`
 
 ```python
-local_path_override(
-  module_name="local_module",
-  path="tools/local_repos/default",
+module(
+  name = "mod_scala_multiverse",
 )
-bazel_dep(name = "local_module")
-maven = use_extension("@local_module//:extensions.bzl", "maven")
+bazel_dep(
+  name = "rules_jvm_external",
+  version = "4.5",
+)
+bazel_dep(
+  name = "bazel_skylib",
+  version = "1.3.0",
+)
+```
+
+#### `tools/local_modules/default/extensions.bzl`
+
+```python
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+SCALA_SUFFIX = "_2.12"
+
+_install = tag_class(
+  attrs = {
+    "artifacts": attr.string_list(
+      doc = "Maven artifact tuples, in `artifactId:groupId:version` format",
+      allow_empty = True,
+    ),
+  },
+)
+
+def _modify_artifact(artifact):
+  return artifact.replace("{scala_suffix}", SCALA_SUFFIX)
+
+def _local_ext_impl(mctx):
+  artifacts = []
+  for mod in mctx.modules:
+    for install in mod.tags.install:
+      artifacts += [_modify_artifact(artifact) for artifact in install.artifacts]
+  maven_install(
+    artifacts=artifacts,
+    repositories=[
+      "https://repo1.maven.org/maven2",
+    ],
+  )
+
+maven = module_extension(
+  implementation=_local_ext_impl,
+  tag_classes={"install": _install},
+)
+```
+
+#### `tools/local_modules/scala_2.13/WORKSPACE`
+
+```python
+# Empty file
+```
+
+#### `tools/local_modules/scala_2.13/BUILD`
+
+```python
+# Empty file
+```
+
+#### `tools/local_modules/scala_2.13/MODULE.bazel`
+
+```python
+module(
+  name = "mod_scala_multiverse",
+)
+bazel_dep(
+  name = "rules_jvm_external",
+  version = "4.5",
+)
+bazel_dep(
+  name = "bazel_skylib",
+  version = "1.3.0",
+)
+```
+
+#### `tools/local_modules/scala_2.13/extensions.bzl`
+
+```python
+load("@rules_jvm_external//:defs.bzl", "artifact", "maven_install")
+
+SCALA_SUFFIX = "_2.13"
+
+_install = tag_class(
+  attrs = {
+    "artifacts": attr.string_list(
+      doc = "Maven artifact tuples, in `artifactId:groupId:version` format",
+      allow_empty = True,
+    ),
+  },
+)
+
+def _modify_artifact(artifact):
+  return artifact.replace("{scala_suffix}", SCALA_SUFFIX)
+
+def _local_ext_impl(mctx):
+  artifacts = []
+  for mod in mctx.modules:
+    for install in mod.tags.install:
+      artifacts += [_modify_artifact(artifact) for artifact in install.artifacts]
+  maven_install(
+    artifacts=artifacts,
+    repositories=[
+      "https://repo1.maven.org/maven2",
+    ],
+  )
+
+maven = module_extension(
+  implementation=_local_ext_impl,
+  tag_classes={"install": _install},
+)
+```
+
+#### `MODULE.bazel`
+
+```python
+bazel_dep(name = "mod_scala_multiverse")
+local_path_override(
+    module_name="mod_scala_multiverse",
+    path="tools/local_modules/default",
+)
+
+maven = use_extension("@mod_scala_multiverse//:extensions.bzl", "maven")
 
 maven.install(
-  artifacts=["com.typesafe:ssl-config-core{scala_suffix}:0.6.1"],
+    artifacts = [
+       "com.typesafe:ssl-config-core{scala_suffix}:0.6.1",
+    ],
 )
 use_repo(maven, "maven")
 ```
 
-In that hypothetical module extension, `{scala_suffix}` will be replaced to `_2.12`, and we can I think switch out the module location of `local_module` elsewhere from the command line.
+#### demo 5
+
+```bash
+$ bazel query 'filter('com_typesafe_ssl', @maven//...)'
+@maven//:com_typesafe_ssl_config_core_2_12
+@maven//:com_typesafe_ssl_config_core_2_12_0_6_1
+Loading: 0 packages loaded
+
+$ bazel query 'filter('com_typesafe_ssl', @maven//...)' --override_module=mod_scala_multiverse=$(pwd)/tools/local_modules/scala_2.13
+@maven//:com_typesafe_ssl_config_core_2_13
+@maven//:com_typesafe_ssl_config_core_2_13_0_6_1
+```
+
+This shows that we were able to switch out the local module extension to resolve Scala 2.13 libraries.
+A minor issue is that the Scala suffix bleeds out to the target name.
+
+### Paper over the differences
+
+We can paper over the difference between `@maven//:com_typesafe_ssl_config_core_2_12` and `@maven//:com_typesafe_ssl_config_core_2_13` by defining a macro.
 
 ### summary
 
 - Bazel has a built-in feature called [`local_repository`][local_repository]. By pushing configurations related to the language versions and 3rdparty lock files into it, we can switch between different configurations while being on the same monorepo branch.
 - Some tweaks to the existing tooling might be required, but generally this means that we can cross build along various axes like language versions and major library upgrades.
-- The new MODULE.bazel system currently seem to lack switching mechanism. Let me know if you have suggestions.
+- The new MODULE.bazel allows overriding module extension, which we can use to process the declarative dependencies in different ways.
