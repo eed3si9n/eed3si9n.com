@@ -512,12 +512,140 @@ $ bazel query 'filter('com_typesafe_ssl', @maven//...)' --override_module=mod_sc
 This shows that we were able to switch out the local module extension to resolve Scala 2.13 libraries.
 A minor issue is that the Scala suffix bleeds out to the target name.
 
-### Paper over the differences
+### Papering over the differences
 
-We can paper over the difference between `@maven//:com_typesafe_ssl_config_core_2_12` and `@maven//:com_typesafe_ssl_config_core_2_13` by defining a macro.
+We can paper over the difference between `@maven//:com_typesafe_ssl_config_core_2_12` and `@maven//:com_typesafe_ssl_config_core_2_13` by defining a macro `maven_dep(...)`.
+
+#### `tools/local_repos/default/cross_scala_config.bzl`
+
+```python
+load("@io_bazel_rules_scala//:scala_config.bzl", "scala_config")
+
+MULTIVERSE_NAME="default"
+IS_SCALA_2_12 = True
+
+def cross_scala_config(enable_compiler_dependency_tracking = False):
+  scala_config(
+    "2.12.14",
+    enable_compiler_dependency_tracking=enable_compiler_dependency_tracking,
+  )
+
+TARGET_SCALA_SUFFIX="_2_12"
+
+def maven_dep(coordinates_string):
+  coord = _parse_maven_coordinates(coordinates_string)
+  if coord["is_scala"]:
+    artifact_id = coord["artifact_id"] + TARGET_SCALA_SUFFIX
+  else:
+    artifact_id = coord["artifact_id"]
+  if "version" in coord:
+    str = "@maven//:{}_{}_{}".format(coord["group_id"], artifact_id, coord["version"])
+  else:
+    str = "@maven//:{}_{}".format(coord["group_id"], artifact_id)
+  return str.replace(".", "_").replace("-", "_")
+
+def _parse_maven_coordinates(coordinates_string):
+    """
+    Given a string containing a standard Maven coordinate (g:a:[p:[c:]]v),
+    returns a Maven artifact map (see above).
+    See also https://github.com/bazelbuild/rules_jvm_external/blob/4.3/specs.bzl
+    """
+    if "::" in coordinates_string:
+      idx = coordinates_string.find("::")
+      group_id = coordinates_string[:idx]
+      rest = coordinates_string[idx + 2:]
+      is_scala = True
+    elif ":" in coordinates_string:
+      idx = coordinates_string.find(":")
+      group_id = coordinates_string[:idx]
+      rest = coordinates_string[idx + 1:]
+      is_scala = False
+    else:
+      fail("failed to parse '{}'".format(coordinates_string))
+    parts = rest.split(":")
+    artifact_id = parts[0]
+    if (len(parts)) == 1:
+      result = dict(group_id=group_id, artifact_id=artifact_id, is_scala=is_scala)
+    elif len(parts) == 2:
+      version = parts[1]
+      result = dict(group_id=group_id, artifact_id=artifact_id, version=version, is_scala=is_scala)
+    elif len(parts) == 3:
+      packaging = parts[1]
+      version = parts[2]
+      result = dict(group_id=group_id, artifact_id=artifact_id, packaging=packaging, version=version, is_scala=is_scala)
+    elif len(parts) == 4:
+      packaging = parts[1]
+      classifier = parts[2]
+      version = parts[3]
+      result = dict(group_id=group_id, artifact_id=artifact_id, packaging=packaging, classifier=classifier, version=version, is_scala=is_scala)
+    else:
+      fail("failed to parse '{}'".format(coordinates_string))
+    return result
+```
+
+#### some BUILD
+
+This uses `::` to denote Scala librarie with the `_2.12` suffix.
+
+```python
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+load("@scala_multiverse//:cross_scala_config.bzl", "maven_dep")
+
+scala_library(
+    name = "main",
+    srcs = glob(["*.scala"]),
+    deps = [
+        maven_dep("com.typesafe::ssl-config-core"),
+        maven_dep("com.typesafe:config"),
+        maven_dep("org.reactivestreams:reactive-streams"),
+        maven_dep("org.slf4j:slf4j-api"),
+    ],
+    visibility = ["//visibility:public"],
+)
+```
+
+### `bazelenv`
+
+```bash
+#!/usr/bin/env bash
+
+MODE=$1
+function usage() {
+  echo "usage ./bazelenv [<multiverse>]"
+  echo ""
+  echo "available multiverses are:"
+  candidates=$(/bin/ls tools/local_repos)
+  echo "$candidates"
+}
+if [[ "$MODE" == "" ]]; then
+  usage
+elif [[ -d tools/local_repos/$MODE ]]; then
+  echo "common --override_repository=scala_multiverse=$(pwd)/tools/local_repos/$MODE" > ".bazelenv"
+  echo "common --override_module=mod_scala_multiverse=$(pwd)/tools/local_modules/$MODE" >> ".bazelenv"
+else
+  usage; exit 1
+fi
+
+```
+
+#### demo 6
+
+```bash
+$ bazel query 'deps(//core/src/main:main)' | grep '@maven//:.*ssl-config.*'
+Loading: 0 packages loaded
+@maven//:v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.6.1/ssl-config-core_2.12-0.6.1.jar
+
+$ ./bazelenv scala_2.13
+$ bazel query 'deps(//core/src/main:main)' | grep '@maven//:.*ssl-config.*'
+@maven//:v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.13/0.6.1/ssl-config-core_2.13-0.6.1.jar
+```
 
 ### summary
 
 - Bazel has a built-in feature called [`local_repository`][local_repository]. By pushing configurations related to the language versions and 3rdparty lock files into it, we can switch between different configurations while being on the same monorepo branch.
 - Some tweaks to the existing tooling might be required, but generally this means that we can cross build along various axes like language versions and major library upgrades.
 - The new MODULE.bazel allows overriding module extension, which we can use to process the declarative dependencies in different ways.
+
+### license
+
+To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to the code examples to the public domain worldwide. The code examples are distributed without any warranty. See http://creativecommons.org/publicdomain/zero/1.0/.
