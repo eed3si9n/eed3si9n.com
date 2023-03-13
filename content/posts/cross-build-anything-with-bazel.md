@@ -664,6 +664,10 @@ $ bazel query 'deps(//core/src/main:main)' | grep '@maven//:.*ssl-config.*'
 @maven//:v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.13/0.6.1/ssl-config-core_2.13-0.6.1.jar
 ```
 
+#### working example
+
+See <https://github.com/eed3si9n/gigahorse/pull/85> for a working example.
+
 ### summary
 
 - Bazel has a built-in feature called [`local_repository`][local_repository]. By pushing configurations related to the language versions and 3rdparty lock files into it, we can switch between different configurations while being on the same monorepo branch.

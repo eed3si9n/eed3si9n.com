@@ -676,6 +676,10 @@ $ bazel query 'deps(//core/src/main:main)' | grep '@maven//:.*ssl-config.*'
 @maven//:v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.13/0.6.1/ssl-config-core_2.13-0.6.1.jar
 ```
 
+#### 実用例
+
+これらをまとめた実用例は <https://github.com/eed3si9n/gigahorse/pull/85> を参照。
+
 ### まとめ
 
 - Bazel には [`local_repository`][local_repository] という機能が付いてきている。言語バージョンや 3rdparty のロックファイルなどをそこに押し込むことで、同一のモノリポのブランチから異なる設定を用いることができる。
