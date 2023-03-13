@@ -27,7 +27,7 @@ It's spring time, and spring makes us hopeful. I'll be attending Tooling Summit 
 
 Similar to sbt 0.13 to 1.0 development that I oversaw, my general philosophy is to avoid making huge jumps concepturally from sbt 1, and if we have to make jumps we should try it during sbt 1.x either as a feature release or a plugin.
 
-At the same time, taking advantage of the chance to break API compatibility, we should should aim to fix confusing things and improve some aspects where we can.
+At the same time, we should take advantage of the chance to break API compatibility, and aim to fix confusing things or improve on some aspects where we can.
 
 ### sbt 2.0.0-alpha7
 
@@ -94,15 +94,15 @@ Since `organization` setting is injected into `util` subproject, `name.value` is
 
 ### idea 2: subsume platform cross building `%%%`
 
-The `%%%` operator introduced by Scala.JS is a brilliant idea that allows sbt to build JavaScript project which can depend on mixture of Scala.JS and JVM libraries. However Anton [brought](https://github.com/sbt/sbt/discussions/6736) up:
+The `%%%` operator, introduced by Scala.JS, is a brilliant mechanism that allows sbt to build JavaScript project which can depend on mixture of Scala.JS and JVM libraries. However, Anton has [brought](https://github.com/sbt/sbt/discussions/6736) up:
 
 > `%%%` vs `%%` is a constant pain point and can lead to downstream breakages.
 
-It's hard to explain to newcomers. In short, `%%%` allows you to do _both_ Scala cross building and platform cross building. In the discussion I've proposed that:
+It's also hard to explain to newcomers what `%%%` is. In short, `%%%` allows you to do _both_ Scala cross building and platform cross building. In the discussion I've proposed that:
 
 > What I suggest would be to obliterate `%%%` and do whatever it needs to do (capture sjs prefix under JS subproject etc) as part of normal `%%`/sbt operation.
 
-sbt 2.0.0-alpha7 also implements this. `ModuleID(...)` now has a new field called `platformOpt`, which defaults to `None`. sbt has a new key called `platform`, which will automatically inject the platform suffix on `%%` dependencies.
+sbt 2.0.0-alpha7 implements this. `ModuleID(...)` now has a new field called `platformOpt`, which defaults to `None`. sbt has a new key called `platform`, which will automatically inject the platform suffix on `%%` dependencies.
 
 ```scala
 scalaVersion := "2.13.10"
@@ -192,7 +192,7 @@ $ sbt qtest ...?platform=sjs1
 
 ### idea 9: use assembly JAR for sbt
 
-This is based the idea proposed by Olaf in [#4183][4183]. To speed up the resolution, we should consider creating an über JAR that includes all of sbt code, but with normal external dependencies.
+This is based on the idea proposed by Olaf in [#4183][4183]. To speed up the resolution, we should consider creating an über JAR that includes all of sbt code, but with normal external dependencies.
 
 ## housekeeping
 
