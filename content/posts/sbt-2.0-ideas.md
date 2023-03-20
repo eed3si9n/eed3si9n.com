@@ -159,7 +159,9 @@ To preventing blocking the sbt server, we should consider shipping off long-runn
 
 ### idea 6: more disk cache and remote cache
 
-Extending the idea of cached compilation in sbt 1.4.0, we should generalize the mechanism so any tasks can participate in the remote caching.
+Extending the idea of cached compilation in sbt 1.4.0, we should generalize the mechanism so any task can participate in the remote caching.
+
+See [sbt cache ideas](/sbt-cache-ideas) for details.
 
 ### idea 7: make Coursier the default
 
