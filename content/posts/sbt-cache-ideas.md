@@ -1,5 +1,5 @@
 ---
-title:       "sbt cache ideas"
+title:       "RFC-1: sbt cache ideas"
 type:        story
 date:        2023-03-19
 url:         sbt-cache-ideas
@@ -16,7 +16,7 @@ Here are some more concrete ideas for caching.
 
 ## problem space
 
-To summarize the general problem space, currently setting up disk caching for tasks is a manual work, so it's under-utilized. Remote caching is limited to [cached compilation](/cached-compilation-for-sbt/).
+To summarize the general problem space, currently setting up disk caching for tasks is a manual work, so it's under-utilized. Remote caching is limited to [cached compilation][cached-compilation-for-sbt].
 
 Generally we would like:
 1. Easier caching for tasks
@@ -121,6 +121,19 @@ foo := {
 
 This should let the macro know which files needs to be tracked as outputs for caching.
 
+### file inputs
+
+Similar to the output story, we would need to include the content hashes of files into the input hash, not just the file name.
+
+We might need to set up some cascade of typeclasses to try re-use existing typeclass, like use `Hashable1[A]` if available, otherwise use `Hashable2[A]` via `summon`?
+
+Also in general, similar to what I had to do in Zinc for [cached compilation][cached-compilation-for-sbt], we'd likely need to remove the absolute paths and used a mapper so any cachable input paths are machine-independent.
+
+- sbt 1.x: `new File("/Users/yourname/workspace/foo/bar/src/main/scala/foo/bar/Hello.scala")`
+- sbt 2.x: `VirualFile("${BASE}/foo/bar/src/main/scala/foo/bar/Hello.scala")`
+
+Tasks that require actual `File` can convert `VirtualFileRef`s back using a mapper, which would know about all the absolute paths needed for the build.
+
 ### other inputs
 
 If you look at the example task again:
@@ -140,3 +153,6 @@ In addition, the shape of the source code also need to be part of the input hash
 ## feedback
 
 I created a discussion thread <https://github.com/sbt/sbt/discussions/7180> on GitHub. Let me know what you think there.
+
+
+  [cached-compilation-for-sbt]: /cached-compilation-for-sbt/
