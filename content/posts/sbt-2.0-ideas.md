@@ -138,6 +138,8 @@ This too was relatively small implementation, but hopefully eases the pain aroun
 Here are some more ideas to simplify sbt.
 sbt generally allows creating of custom dependency configuration, but it doesn't work well. For the most part, anything that requires custom configuration should likely be handled using separate subproject instead.
 
+See [RFC-3: drop custom config](/sbt-drop-custom-config) for details.
+
 ### idea 3-B: discourage the use of task scoping
 
 I don't know if we can eliminate task scoping altogether, but maybe we should discourage the use of task scoping, and start creating new keys like:
