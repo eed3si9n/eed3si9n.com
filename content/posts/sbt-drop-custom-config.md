@@ -45,6 +45,25 @@ lazy val PluginTool = Configuration.of(...)
 
 I think `Provided` can stay.
 
+### what about IntegrationTest?
+
+`IntegrationTest` should be removed. It doesn't add anything useful besides the fact that it hangs off a subproject.
+
+### migration for schema languages
+
+Some plugins extends sbt by adding support for schema or otherwise alternative languages such as XML Schema, Procol Buffer etc. Generally I think they would belong to `Compile` configuration, placed under `src/main/xsd/` directory for XML Schema, and code generation can follow [Generating files](https://www.scala-sbt.org/1.x/docs/Howto-Generating-Files.html).
+
+Specifically for Protocol Buffer, it seems like the [Google way](https://repo1.maven.org/maven2/com/google/api/grpc/proto-google-common-protos/2.14.3/) is to include both `.proto` file and `.class` files in a JAR:
+
+```bash
+$ unzip -l $HOME/Downloads/proto-google-common-protos-2.14.3.jar
+
+    11216  03-14-2023 15:33   com/google/geo/type/Viewport.class
+....
+     2416  03-14-2023 15:33   google/geo/type/viewport.proto
+....
+```
+
 ## alternatives
 
 ### why not drop `Compile` and `Test` as well?
