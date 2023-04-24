@@ -18,6 +18,8 @@ A two-day virtual/Tokyo hybrid ScalaMatsuri took place this weekend. Thanks to a
 
 Lots of bumps and mishaps for sure, but hopefully it was a successful conference. I join as one of 16 ScalaMatsuri organizers, and also gave a talk and an open-mic session as well.
 
+<!--more-->
+
 ## 10 years of ScalaMatsuri
 
 Here are some of the highlights of previous editions:
