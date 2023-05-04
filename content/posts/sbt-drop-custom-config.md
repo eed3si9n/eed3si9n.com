@@ -8,9 +8,10 @@ tags:        [ "sbt" ]
 
 - Author: Eugene Yokota
 - Date: 2023-03-26
-- Status: **Review**
+- Status: **Partially Accepted**
 
  [1]: https://ant.apache.org/ivy/history/2.3.0/ivyfile/configurations.html
+ [rfc2]: /sbt-2.0-rfc-process
 
 In [sbt 2.0 ideas](/sbt-2.0-ideas) I wrote:
 
@@ -82,4 +83,32 @@ It doesn't look like a good trade to me.
 
 ## feedback
 
-I created a discussion thread <https://github.com/sbt/sbt/discussions/7189>. Let me know what you think.
+I created a discussion thread <https://github.com/sbt/sbt/discussions/7189>. In there, there were some interesting inputs (reminder: [The goal of the RFC][rfc2] is to collectively explore the space of tradeoffs, and not everyone's opinion gets the same weight). In the thread Sébastien Doeraene wrote:
+
+> There are in fact 2 very different things that `Configuration`s are used for: scoping tasks and settings, and namespacing library dependencies.
+>
+> ....
+>
+> I believe that we should deprecate custom configs for task scoping, but keep them for namespacing library dependencies.
+
+The library dependency use cases listed in the threads are:
+
+1. The `Provided` configuration namespaces dependencies that should be on the compilation classpath but not the runtime classpath.
+2. Sandbox configuration used for library dependency to download tooling.
+3. Olivier Mélois mentioned tagging schema as `"org" % "artifact" % "version" % Smithy4s`, which allows Smithy graph to utilize dependency tooling like scala-steward.
+
+These are  interesting observations. Per Sébastien's suggestion, we would deprecate the scoping usage (for example `Docker / publishLocal`), but keep the `% FooConfig` usage. My counter argument is that the custom configuration resolution is a feature leakage from Apache Ivy days, and we'd be better off using synthetic subproject instead of creating a sandbox configuration.
+
+To this Sébastien pointed out that creating synthetic subproject might incur overhead.
+
+Since the main goal of RFC-3 proposal is to simplify the scoping, we could achieve that by limiting settings and task scoping to `Compile` and `Test`. At least for now, we should keep the library dependency namespacing via `% FooConfig` until the subproject performance is improved.
+
+There was also a side suggestion to rename `Compile` to `Main`. I am undecided whether this is good idea or not. On on hand this makes it more consistent with `src/main/`. On the other than, Maven and Ivy both calls it `compile` scope, and it shows up in `build.sbt` as `"compile->test"` as well, so making this change would likely require long tail of `Compile` being alive.
+
+## outcome
+
+- 2023-04-23: This RFC is **partially accepted** / put on-hold.
+- `IntegrationTest` configuration should be deprecated.
+- Setting and task scoping will be limited to `Compile` and `Test` configuration.
+- Base on the feedback, we'll put the removal of custom configuration **on hold** until we can find suitable replacement for library dependency namespace.
+- I am not sure renaming `Compile` to `Main` is good idea or going to be easy.
