@@ -136,7 +136,7 @@ Tasks that require actual `File` can convert `VirtualFileRef`s back using a mapp
 
 ### other inputs
 
-If you look at the example task again:
+Let's take a look at the example task again:
 
 ```scala
 foo := {
@@ -146,9 +146,9 @@ foo := {
 }
 ```
 
-interestingly, the only other task it's referencing here is `target`. This means that we would need a way to keep track of available declarations and classpath as part of the cache.
+In addition to the `target.value`, note that it is using `doSomething(...)` function somehow, which means that we would need a way to keep track of declarations and classpath that are available to `build.sbt` as part of the cache.
 
-In addition, the shape of the source code also need to be part of the input hash. In Scala 3, this would likely use `Expr#show`.
+Also the shape of the source code also need to be part of the input hash. In Scala 3, this would likely use `Expr#show` (or a tree hash, per Guillaume Martres).
 
 ## feedback
 
