@@ -1,7 +1,7 @@
 ---
-title:       "sbt 1.9.0-RC1"
+title:       "sbt 1.9.0-RC3"
 type:        story
-date:        2023-05-01
+date:        2023-05-15
 url:         /sbt-1.9.0-beta
 tags:        [ "sbt" ]
 ---
@@ -19,19 +19,25 @@ The headline features of sbt 1.9.0 are:
 
 ### How to upgrade
 
-Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.9.0-RC2> to upgrade the `sbt` shell script and the launcher:
+Download **the official sbt runner** from SDKMAN or download from <https://github.com/sbt/sbt/releases/tag/v1.9.0-RC3> to upgrade the `sbt` shell script and the launcher:
 
 ```bash
-$ sdk install sbt 1.9.0-RC2
+$ sdk install sbt 1.9.0-RC3
 ```
 
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=1.9.0-RC2
+sbt.version=1.9.0-RC3
 ```
 
-This mechanism allows that sbt 1.9.0-RC2 is used only for the builds that you want.
+This mechanism allows that sbt 1.9.0-RC3 is used only for the builds that you want.
+
+### Changes since sbt 1.9.0-RC2
+
+- Fixes `sbt.io.IO.withTemporaryFile` not limiting access on Unix-like systems in [io#344][io344]/[zinc#1185][zinc1185] by [@eed3si9n][@eed3si9n]
+- Deprecates misspelled `Problem#diagnosticRelatedInforamation` by [@ckipp01][@ckipp01] in [#7241][7241]
+- Adds `actions` to `Problem`, allowing the compiler to forward actions that can address diagnostics, by [@ckipp01][@ckipp01] in [#7242][7242] and [@eed3si9n][@eed3si9n] in [#7251][7251]/[zinc#1186][zinc1186]
 
 ### Changes since sbt 1.9.0-RC1
 
@@ -133,6 +139,8 @@ Why deprecate `IntegrationTest`? `IntegrationTest` was a demoware for the idea o
 - Fixes dead lock between `LoggerContext` and `Terminal` by [@adpi2][@adpi2] in [#7191][7191]
 - Notifies `ClassFileManager` from `IncOptions` in `Incremental.prune` by [@lrytz] in [zinc1148][zinc1148]
 - Updates usage info for java-home in the runner script by [@liang3zy22][@liang3zy22] in [#7171][7171]
+- Deprecates misspelled `Problem#diagnosticRelatedInforamation` by [@ckipp01][@ckipp01] in [#7241][7241]
+- Adds `actions` to `Problem`, allowing the compiler to forward actions that can address diagnostics, by [@ckipp01][@ckipp01] in [#7242][7242] and [@eed3si9n][@eed3si9n] in [#7251][7251]/[zinc#1186][zinc1186]
 
 ### Behind the scene
 
@@ -141,7 +149,7 @@ Why deprecate `IntegrationTest`? `IntegrationTest` was a demoware for the idea o
 
 ### Participation
 
-sbt 1.9.0 was brought to you by 21 contributors: Eugene Yokota (eed3si9n), Adrien Piquerez, Arman Bilge, Matthias Kurz, yoshinorin, Matthew de Detrich, Adriaan Moors, Iulian Dragos, Lukas Rytz, Anton Sviridov, Carston Schilds, Ethan Atkins, Kenji Yoshida (xuwei-k), Liang Yan, Marco Zühlke, Nicolas Rinaudo, Seth Tisue, Som Snytt, Vedant, msolomon-ck. Thanks!
+sbt 1.9.0 was brought to you by 23 contributors: Eugene Yokota (eed3si9n), Adrien Piquerez, Arman Bilge, Chris Kipp, Matthias Kurz, yoshinorin, Matthew de Detrich, Adriaan Moors, Iulian Dragos, Lukas Rytz, Anton Sviridov, Carston Schilds, Ethan Atkins, Julien Richard-Foy, Kenji Yoshida (xuwei-k), Liang Yan, Marco Zühlke, Nicolas Rinaudo, Seth Tisue, Som Snytt, Vedant, msolomon-ck. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
@@ -182,9 +190,13 @@ Scala Center is a non-profit center at EPFL to support education and open source
   [7227]: https://github.com/sbt/sbt/pull/7227
   [7171]: https://github.com/sbt/sbt/pull/7171
   [7234]: https://github.com/sbt/sbt/pull/7234
+  [7241]: https://github.com/sbt/sbt/pull/7241
+  [7242]: https://github.com/sbt/sbt/pull/7242
+  [7251]: https://github.com/sbt/sbt/pull/7251
   [zinc1182]: https://github.com/sbt/zinc/pull/1182
   [zinc1141]: https://github.com/sbt/zinc/pull/1141
   [zinc1148]: https://github.com/sbt/zinc/pull/1148
+  [zinc1186]: https://github.com/sbt/zinc/pull/1186
   [lm410]: https://github.com/sbt/librarymanagement/pull/410
   [lm411]: https://github.com/sbt/librarymanagement/pull/411
   [lm413]: https://github.com/sbt/librarymanagement/pull/413
@@ -193,3 +205,6 @@ Scala Center is a non-profit center at EPFL to support education and open source
   [io341]: https://github.com/sbt/io/pull/341
   [io343]: https://github.com/sbt/io/pull/343
   [coursier2633]: https://github.com/coursier/coursier/pull/2633
+  [io344]: https://github.com/sbt/io/pull/344
+  [zinc1185]: https://github.com/sbt/zinc/pull/1185
+  [zinc1186]: https://github.com/sbt/zinc/pull/1186
