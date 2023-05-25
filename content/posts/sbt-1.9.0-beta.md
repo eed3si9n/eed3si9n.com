@@ -52,7 +52,7 @@ sbt 1.9.0 publishes sbt plugin to Maven repository in a POM-consistent way. sbt 
 
 sbt 1.9.0 will publish using both the conventional POM-inconsistent style and POM-consisntent sytle so prior sbt releases can still consume the plugin. However, this can be opted-out using `sbtPluginPublishLegacyMavenStyle` setting.
 
-This fix was contributed by Adrien Piquerez ([@adpi2][@adpi2]) at Scala Center in [coursier#2633][coursier2633], [sbt#7096][7096] etc.
+This fix was contributed by Adrien Piquerez ([@adpi2][@adpi2]) at Scala Center in [coursier#2633][coursier2633], [sbt#7096][7096] etc. This feature was inspired by prior works [sbt-vspp](https://github.com/esbeetee/sbt-vspp), which was developed by William Narmontas ([@ScalaWilliam][@ScalaWilliam]) and Wudong Liu ([@wudong][@wudong]).
 
 ### `sbt new`, a text-based adventure
 
@@ -180,6 +180,8 @@ Scala Center is a non-profit center at EPFL to support education and open source
   [@yoshinorin]: https://github.com/yoshinorin
   [@liang3zy22]: https://github.com/liang3zy22
   [@adriaanm]: https://github.com/adriaanm
+  [@wudong]: https://github.com/wudong
+  [@ScalaWilliam]: https://github.com/ScalaWilliam
   [7096]: https://github.com/sbt/sbt/pull/7096
   [7215]: ttps://github.com/sbt/sbt/pull/7215
   [7191]: https://github.com/sbt/sbt/pull/7191
