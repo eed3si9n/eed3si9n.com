@@ -46,6 +46,7 @@ This mechanism allows that sbt 1.9.0-RC3 is used only for the builds that you wa
 - Updates to sbt-giter8-resolver 0.16.2 by [@eed3si9n][@eed3si9n]
 - More interactive `sbt new` by [@eed3si9n][@eed3si9n]
 
+<a id="pom"></a>
 ### POM consistency of sbt plugin publishing
 
 sbt 1.9.0 publishes sbt plugin to Maven repository in a POM-consistent way. sbt has been publishing POM file of sbt plugins as `sbt-something-1.2.3.pom` even though the artifact URL is suffixed as `sbt-something_2.12_1.0`. This allowed "sbt-something" to be registered by Maven Central, allowing [search](https://central.sonatype.com/search?smo=true&q=sbt-pgp). However, as more plugins moved to Maven Central, it was considered that keeping POM consisntency rule was more important, especially for corporate repositories to proxy them.
