@@ -40,7 +40,13 @@ Using the special log format `::notice` or `::error`, we can surface the parse s
   fi
 ```
 
-Initially, the baseline parsing % for Scala 2 library, Scala 2 compiler, and Scala 3 compiler were `87%`, `46%`, and `35%` respectively. As of version 0.20.0, the parse success % are: `100%`, `68%`, and `66%`. Note: Due to the robust nature of tree-sitter, even the parse results that contain errors is often usable for the purpose of syntax highlighing.
+Initially, the baseline parsing % for Scala 2 library, Scala 2 compiler, and Scala 3 compiler were `87%`, `46%`, and `35%` respectively. As of version 0.20.0, the parse success % are: `89%`, `68%`, and `66%`.
+
+{{% note %}}
+**Correction**: In the first version of this post I wrote that tree-sitter-scala 0.20.0 parses `100%` of Scala 2 library sources, but we [found out](https://github.com/tree-sitter/tree-sitter-scala/issues/238) that there was a bug in smoke test and it was actually `89%`.
+
+**Note**: Due to the robust nature of tree-sitter, even the parse results that contain errors is often usable for the purpose of syntax highlighing.
+{{% /note %}}
 
 ### C code generation
 
