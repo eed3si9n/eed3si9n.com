@@ -73,7 +73,7 @@ This was contributed by [@eed3si9n][@eed3si9n] and [@mdedetrich][@mdedetrich] in
 
 sbt 1.9.0 publishes sbt plugin to Maven repository in a POM-consistent way. sbt has been publishing POM file of sbt plugins as `sbt-something-1.2.3.pom` even though the artifact URL is suffixed as `sbt-something_2.12_1.0`. This allowed "sbt-something" to be registered by Maven Central, allowing [search](https://central.sonatype.com/search?smo=true&q=sbt-pgp). However, as more plugins moved to Maven Central, it was considered that keeping POM consisntency rule was more important, especially for corporate repositories to proxy them.
 
-sbt 1.9.0 will publish using both the conventional POM-inconsistent style and POM-consisntent sytle so prior sbt releases can still consume the plugin. However, this can be opted-out using `sbtPluginPublishLegacyMavenStyle` setting.
+sbt 1.9.0 will publish using both the conventional POM-inconsistent style and POM-consistent style so prior sbt releases can still consume the plugin. However, this can be opted-out using `sbtPluginPublishLegacyMavenStyle` setting.
 
 This fix was contributed by Adrien Piquerez ([@adpi2][@adpi2]) at Scala Center in [coursier#2633][coursier2633], [sbt#7096][7096] etc. Special thanks to William Narmontas ([@ScalaWilliam][@ScalaWilliam]) and Wudong Liu ([@wudong][@wudong]) whose experimental plugin [sbt-vspp](https://github.com/esbeetee/sbt-vspp) paved the way for this feature.
 
