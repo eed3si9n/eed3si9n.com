@@ -59,7 +59,7 @@ Here are the fixes that contributed to this jump:
 * `val` definition with multiple left-hand-side identifiers, take 2 by @susliko in #292, scala-library `95%` -> `97%`, scalac `89%` -> **`93%`**
 * Fixes multi-line parameter lists by @susliko in [#295][295], scala-library `97%` -> **`98%`**, Dotty `82%` -> `83%`
 
-### Rust and Swing bindings
+### Rust and Swift bindings
 
 tree-sitter-scala 0.20.1 is published to [crates.io](https://crates.io/crates/tree-sitter-scala/), as well as 0.20.0, which was back published. This allows easier consumption of the parser using Rust.
 
