@@ -177,7 +177,7 @@ exec "$SANDBOX_DIR/{tool}" --files {srcs} $JARS --scalac-options -Xlint $@
 """.format(
         tool = tool.short_path,
         srcs = " --files ".join([src.short_path for src in srcs]),
-        jars = " --classpath ".join([x.short_path for x in deps])
+        jars = " ".join([x.short_path for x in deps])
     )
     ctx.actions.write(out, script, is_executable = True)
     files = srcs + deps
