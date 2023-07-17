@@ -90,7 +90,7 @@ alias(
 )
 ```
 
-これによって、Scalafix を `maven_dep("org.scalameta:::semanticdb.scalac")` ではなく `//3rdparty/jvm:ch_epfl_scala__scalafix-cli` として参照できる。
+これによって、Scalafix を `maven_dep("ch.epfl.scala:::scalafix-cli")` ではなく `//3rdparty/jvm:ch_epfl_scala__scalafix-cli` として参照できる。
 
 ### Scalafix の shim を書く
 

@@ -90,7 +90,7 @@ alias(
 )
 ```
 
-This way we can reference Scalafix as `//3rdparty/jvm:ch_epfl_scala__scalafix-cli` instead of `maven_dep("org.scalameta:::semanticdb.scalac")`.
+This way we can reference Scalafix as `//3rdparty/jvm:ch_epfl_scala__scalafix-cli` instead of `maven_dep("ch.epfl.scala:::scalafix-cli")`.
 
 ### write a shim for Scalafix
 
