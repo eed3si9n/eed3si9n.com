@@ -1,0 +1,35 @@
+digraph G {
+  newrank=true
+  node [shape=box]
+  rankdir="LR"
+  graph [fontname = "Georgia"]
+  node [fontname = "Georgia"]
+  edge [fontname = "Georgia"]
+
+
+  subgraph cluster_0 {
+    scalac -> compiler_bridge [dir=both]
+    dotc -> compiler_bridge [dir=both]
+    compiler_bridge -> zinc [dir=both, label="xsbti.Problem"]
+  }
+
+  subgraph cluster_2 {
+    bsp_client -> lsp_client [dir=both]
+  }
+
+  {
+    rank=same
+    scalac
+    lsp_client
+    bsp_client
+  }
+
+  zinc -> sbt_server [dir=both, label="xsbti.Problem", style="solid"]
+  sbt_server -> bsp_client [dir=both, label="BSP Diagnostic"]
+
+  zinc[label = "Zinc"]
+  compiler_bridge[label = "compiler bridge"]
+  sbt_server[label = "sbt server"]
+  bsp_client[label = "BSP client/LSP server\n(Metals, IntelliJ)"]
+  lsp_client[label = "LSP client\n(VS Code, IntelliJ, Helix etc)"]
+}
