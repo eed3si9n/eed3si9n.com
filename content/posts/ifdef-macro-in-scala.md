@@ -6,6 +6,8 @@ url:         /ifdef-macro-in-scala
 tags:        [ "scala" ]
 ---
 
+**Update 2023-10-15**: There's now a better 0.2.0 that I implemented via [pre-typer processing](/ifdef-in-scala-via-pre-typer-processing/).
+
 Rust has an interesting feature called `cfg` attribute, which is aware of the build configuration at the language level. This lets us write unit test in the same source as the library code like this:
 
 ```rust
@@ -223,6 +225,8 @@ addSbtPlugin("com.eed3si9n.ifdef" % "sbt-ifdef" % "0.1.0")
 ```
 
 Source is available at https://github.com/eed3si9n/ifdef
+
+**Update 2023-10-15**: There's now a better 0.2.0 that I implemented via [pre-typer processing](/ifdef-in-scala-via-pre-typer-processing/). Please try that instead.
 
 ## summary
 
