@@ -78,8 +78,8 @@ tag = "tags"
 
 [[menu.main]]
   identifier = 'Mastodon'
-  name = '🐘 @eed3si9n@types.pl '
-  url = 'https://types.pl/@eed3si9n'
+  name = '🐘 @eed3si9n'
+  url = 'https://mastodon.social/@eed3si9n'
   weight = -85
 
 [[menu.main]]
