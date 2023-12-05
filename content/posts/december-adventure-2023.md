@@ -11,6 +11,13 @@ my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some po
 
 <!--more-->
 
+<a id="#4"></a>
+#### 2023-12-04
+
+went to a local park after work to skate for a while. it was cold, but it's nice to have an empty basketball court for myself. worked on pushing and tictacs. I want to able to push while leaving the center of gravity above the board.
+
+worked on the [remote cache](/sbt-remote-cache) post (still draft).
+
 <a id="#3"></a>
 #### 2023-12-03
 

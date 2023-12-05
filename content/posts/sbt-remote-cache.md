@@ -35,9 +35,7 @@ class ActionValue[A1](a: A1, outs: Seq[HashedVirtualFileRef]):
 end ActionValue
 ```
 
-`HashedVirtualFileRef` represents a virtual file name with some content hash.
-
-Using these, we can define a basic cache function as follows:
+We'll come back to `HashedVirtualFileRef`, but it carries a file name with some content hash. Using these, we can define a basic cache function as follows:
 
 ```scala
 import sjsonnew.{ HashWriter, JsonFormat }
@@ -84,9 +82,47 @@ someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
 
 For this to work, `(String, String)` must satisfy `HashWriter`, and `String` must satisfy `JsonFormat`.
 
+### practical problems with caching
+
+If caching was easy, it wouldn't be listed as one of hardest problems in computer science along with making profits from open source (and off-by-one error).
+
+#### serialization issues
+
+First, caching is serialization-hard, i.e. at least as hard as serialization problem. For sbt, a build tool that has existed in the current shape for 10+ years, this is going to be one of the biggest hurdle to cross. For instance, there's a datatype called `Attributed[A1]` that holds data `A1` with an arbitrary metadata key-value. Basic things like classpath is expressed using `Seq[Attributed[File]]`, which is used to associate a Zinc `Analysis` with classpath entries.
+
+As long as we were executing tasks like compilation in-memory, `Attributed[A1]`, which is effectively a `Map[String, Any]` worked ok. But in light of caching, we'd need `HashWriter` for inputs, and `JsonFormat` for cached values, which is not possible for `Any`. In this particular case, I've worked around the issue by creating `StringAttributeMap`.
+
+#### file serialization issues
+
+Caching is file-serialization-hard, i.e. at least as hard of serializing a file. `java.io.File` (or `Path`) is such a special beast that requires its own consideration, not because of technicality, but mostly because of our own assumptions of what it means. When we say "file" it could actually mean:
+
+1. relative path from a well-known location
+2. a unique proof of a file, or a content hash
+3. materialized actual file
+
+When we use `java.io.File`, it's somewhat ambiguous that is meant by it from the above three. Technically speaking `File` just means the file path, so when we cache it we can deserialize just the file name `target/a/b.jar`. This will fail the downstream tasks if they assumed that `target/a/b.jar` would exist in the file system.
+
+To disambiguate, `xsbti.VirtualFileRef` is used for just relative paths only; and `xsbti.VirtualFile` is used for materialized virtual file with contents. When we think of a list of files in terms of caching, neither is great. Having just the file name alone doesn't guarantee that the file will be the same, and carrying the entire content of the files is too inefficient in a JSON etc.
+
+This is where the mysterious second option, a unique proof of file comes in handy. One of key innovations of Bazel cache is the idea of content-addressable storage (CAS). You can think of a directory full of files whose file name is named using the content hash of the file. Now, by knowing the content hash, we can always materialize it into an actual file, but for the purpose of data we can address it using the content hash. Actually, we'd also need the name of the file as well, so in sbt 2.x I've added `HashedVirtualFileRef` to represent this:
+
+```java
+public interface HashedVirtualFileRef extends VirtualFileRef {
+  String contentHashStr();
+}
+```
+
+#### effect issues
+
+Caching is IO-hard, if we generalize the file serialization issue. We need to manage any side effects that the tasks performs that we care about, which might include displaying text on console. We might also need to think about composition.
+
+#### granularity issues
+
+Cache invalidation is latency-tradeoff-hard. If `compile` tasks generates 100 `.class` files, and `packageBin` creates a `.jar`, cache invalidation of `compile` task then incurs 100 file read for a disk cache, and 100 file download for a remote cache. Given that a JAR file can approximate `.class` files, we should consider using JAR files for `compile` to reduce the file download chattiness.
+
 ### declaring the outputs
 
-I'm planning to introduce a new function `Def.declareOutput` in sbt 2.x:
+I'm introducing a new function `Def.declareOutput` in sbt 2.x:
 
 ```scala
 Def.declareOutput(out)
@@ -116,6 +152,8 @@ someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
       (q1 + q2 + "!", List(o1))
 })
 ```
+
+When this run for the first time, we'll evaluate `q1 + q2 + "!"`, but we'll also store `o1` into the CAS and calculate `ActionValue`, which contains a list of `HashedVirtualFileRef`. During the second run, `ActionCache.cache(...)` can materialize it into a physical file and return a `VirtualFile` for it.
 
 ### cache backend
 
