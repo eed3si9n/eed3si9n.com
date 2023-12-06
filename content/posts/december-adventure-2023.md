@@ -11,6 +11,13 @@ my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some po
 
 <!--more-->
 
+<a id="#5"></a>
+#### 2023-12-05
+
+made more progress on the [remote cache](/sbt-remote-cache) post (still draft), now around 2063 words. finally I was able to get into more concrete details on the disk cache, and also write up a case study for caching `packageBin` task.
+
+while writing it, I realized I could change the return types of some tasks to `HashedVirtualFileRef` that got added in day 2, so made that change. I guess this is a form of rubberducking.
+
 <a id="#4"></a>
 #### 2023-12-04
 
