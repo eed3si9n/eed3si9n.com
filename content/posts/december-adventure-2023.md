@@ -11,6 +11,32 @@ my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some po
 
 <!--more-->
 
+<a id="#10"></a>
+#### 2023-12-10
+worked on `compile` task caching. the mysterious bug from yesterday turned out to be something silly. I have a subproject called `utilCacheResolver`, and at some point during git history changes it dropped out of the aggregation, and it wasn't included in `publishLocal`, so basically my code changes weren't reflected in the tests.
+
+there were other small issues here and there, but eventually I got the `compile` task to cache using the new mechanism. I'll probably add more details on the blog post, but the code looks like [2023d3e8](https://github.com/eed3si9n/sbt/commit/2023d3e82b3885527533b240486f69e76e7c64b7). further tweaking is required, but I'm happy to get to this milestone.
+
+<a id="#9"></a>
+#### 2023-12-09
+working on caching of `compile` task. for some reason the output file is created under `out/${OUT}/jvm/...` even though I am looking for `${OUT}` in `syncBlobs(...)` method. I must be missing something simple, and I can't move forward until I figure this out.
+
+<a id="#7"></a>
+#### 2023-12-07
+
+a bit cheating because it's work related, but it gives me an excuse to talk about monorepo layouts, which there are a few styles.
+
+- Birdcage: this is probably a more common kind of monorepo where you have a bunch of top-level projects side-by-side, each with `src/main/scala/com/example` etc. sbt builds look a bit like this too.
+- Science: if you get rid of the top-level projects, and have `src/main/scala/com/example/` and `src/test/scala/com/example/`, you have Science layout. this is great if you want 1:1:1 rule, where you want one target per Bazel package.
+- Google3: if you get rid of the `main|test` and language marker, and directly put `com/example/`, supposedly you get Google3. at first it looks odd, but it would be nice to call `bazel build com/example/...` or `bazel test com/example/...` and let Bazel figure out what to test. it's nice for Python and Protobuf where the directory structure already matches the package.
+
+since we use a BUILD generator, I worked on polyglot BUILD generation feature a bit. [bazeltools/bzl-gen-build#170](https://github.com/bazeltools/bzl-gen-build/pull/170) adds `--append` so you can keep generating on top, and it seems to work.
+
+<a id="#6"></a>
+#### 2023-12-06
+
+released [sbt 1.10.0-M1](/sbt-1.10.0-beta), featuring various Zinc fixes and better CommandProgress API, all contributed by the community.
+
 <a id="#5"></a>
 #### 2023-12-05
 
