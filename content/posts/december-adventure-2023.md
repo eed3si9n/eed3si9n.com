@@ -12,7 +12,7 @@ my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some po
 <!--more-->
 <a id="#17"></a>
 #### 2023-12-17
-fixed all the scripted tests on [#7464][7464].
+fixed all the scripted tests on [#7464][7464], and wrapped up the blog post - [sbt 2.x remote cache](/sbt-remote-cache).
 
 <a id="#16"></a>
 #### 2023-12-16
