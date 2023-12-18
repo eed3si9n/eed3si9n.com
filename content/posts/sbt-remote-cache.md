@@ -1,29 +1,38 @@
 ---
-title: "sbt remote cache (work in progress)"
+title: "sbt 2.x remote cache"
 type: story
-date: 2023-12-05
+date: 2023-12-18
 url: /sbt-remote-cache
 ---
 
-**status**: draft
+  [build-system]: https://www.microsoft.com/en-us/research/uploads/prod/2018/03/build-systems.pdf
+  [7464]: https://github.com/sbt/sbt/pull/7464
+  [HashWriter]: https://github.com/eed3si9n/sjson-new/blob/66f05ac562a5c4ed544d24c41aacf3b69a9318f4/core/src/main/scala/sjsonnew/HashWriter.scala
+  [JsonFormat]: https://github.com/eed3si9n/sjson-new/blob/develop/core/src/main/scala/sjsonnew/JsonFormat.scala
+  [reibitto]: https://reibitto.github.io/blog/remote-caching-with-sbt-and-s3/
+  [tweets]: https://twitter.com/eed3si9n/status/1319626955159896064
 
-Among various [ideas for sbt 2.x](/sbt-2.0-ideas), I've been particularly interested in the remote cache feature, especially beyond caching the `compile` task. As part of [december adventure 2023](/december-adventure-2023), which is about making small progress, I'm going to release this post in draft state, and update it as I go.
+### introduction
 
-### intro
+A remote cache, or a cloud build system, can speed up builds dramatically by sharing build results ([Mokhov 2018][build-system]). This is a feature that I've been interested ever since heard about Blaze (now open sourced as Bazel). In 2020, I implemented [cached compilation](/cached-compilation-for-sbt) in sbt 1.x. [reibitto][reibitto] has reported that "what was once 7 minutes to compile everything now takes **15 seconds**." Others have also reported **2x ~ 5x** speedup. While this is promising, it's a bit clunky and it works only for the `compile` task. In March 2023, I jotted down [RFC-1: sbt cache ideas](/sbt-cache-ideas/) to outline the current issues and a solution design. Here are some of the problems:
 
-In a codebase shared by a team or a CI, we often end up building the same code individually on our own machines. Furthermore, we end up testing the same exact tests and executing exact same tasks. A remote cache, or a cloud build system, can speed up builds dramatically by sharing build results ([Mokhov 2018][build-system]).
+- Problem 1: sbt 1.x implements remote caching for `compile`, and disk caching for some other tasks, but we would like a solution that custom tasks can participate
+- Problem 2: sbt 1.x has separate mechanism for disk cache and remote cache, but we would like one mechanism that build user can switch between local or remote cache
+- Problem 3: sbt 1.x used Ivy resolver as the cache abstration, but we'd like a more open design for remote cache backend
 
-I was able to bolt on the [cached compilation](/cached-compilation-for-sbt) for `compile` during sbt 1.x, and while it shows promises, there are more to be desired. [RFC-1](/sbt-cache-ideas/) outlines them as:
+As my [december adventure 2023](/december-adventure-2023) project I decided to tackle the sbt 2.x remote cache feature in my free time. The proposal is on GitHub [#7464][7464]. This post explores the details of the change. **Note**: It shouldn't require too much of sbt internal knowledge, but the target audience is advanced since this is more of an extended PR description.
 
-1. Easier caching for tasks
-2. Opting in to remote cache tasks
-3. Open design for remote cache implementations
-
-This post explores the details for sbt 2.x.
+<!--more-->
 
 ### low-level foundation
 
-The result of a cached task will be represented with an `ActionValue`:
+In the abstract we can think of a cached task as:
+
+```scala
+(In1, In2, In3, ...) => (A1 && Seq[Path])
+```
+
+If we can save the hash of inputs and the result somewhere, like on a disk, we can skip the evaluation of expensive tasks, and present the result instead. The result of a cached task is be represented as an `ActionValue`:
 
 ```scala
 import xsbti.HashedVirtualFileRef
@@ -35,7 +44,7 @@ class ActionValue[A1](a: A1, outs: Seq[HashedVirtualFileRef]):
 end ActionValue
 ```
 
-We'll come back to `HashedVirtualFileRef`, but it carries a file name with some content hash. Using these, we can define a basic cache function as follows:
+We'll come back to `HashedVirtualFileRef` later, but it carries a file name with some content hash. Using these, we can define the `cache` function as follows:
 
 ```scala
 import sjsonnew.{ HashWriter, JsonFormat }
@@ -49,7 +58,7 @@ object ActionCache:
 end ActionCache
 ```
 
-The type parameter `I` would typically be a tuple, and `HashWriter` is a typeclass to create a hash string. The signature of the `action` function looks a bit odd, because it includes `Seq[VirtualFile]`. This is to capture file output effects during a task.
+The type parameter `I` would typically be a tuple. The signature of the `action` function looks a bit odd, because it includes `Seq[VirtualFile]`. This is to capture file output effects during a task.
 
 ### automatic derivation of cacheable task
 
@@ -61,7 +70,7 @@ someKey := {
 }
 ```
 
-into something like:
+into an Applicative `mapN` expression via macros:
 
 ```scala
 someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
@@ -69,7 +78,7 @@ someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
 })
 ```
 
-We can automatically derive a cacheable task by further wrapping the output:
+Using Scala 3 macros, we can automatically derive a cacheable task by further wrapping the output:
 
 ```scala
 someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
@@ -80,7 +89,7 @@ someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
 })
 ```
 
-For this to work, `(String, String)` must satisfy `HashWriter`, and `String` must satisfy `JsonFormat`.
+For this to work, the input tuple must satisfy [`sjsonnew.HashWriter`][HashWriter], and the result type, for example `String`, must satisfy `JsonFormat`. One way to think about this is that we are constructing a [Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree) out of the abstract syntax tree of your `build.sbt` and [pseudo case classes](/contraband-an-alternative-to-case-class/).
 
 ### cache backend
 
@@ -178,10 +187,6 @@ public interface HashedVirtualFileRef extends VirtualFileRef {
 
 Caching is IO-hard, if we generalize the file serialization issue. We need to manage any side effects that the tasks perform that we care about, which might include displaying text on the console. We might also need to think about composition.
 
-#### granularity issues
-
-Cache invalidation is latency-tradeoff-hard. If the `compile` task generates 100 `.class` files, and `packageBin` creates a `.jar`, cache invalidation of `compile` task then incurs 100 file read for a disk cache, and 100 file download for a remote cache. Given that a JAR file can approximate `.class` files, we should consider using JAR files for `compile` to reduce the file download chattiness.
-
 #### declaring the outputs
 
 I'm introducing a new function `Def.declareOutput` in sbt 2.x:
@@ -246,9 +251,13 @@ val streams = taskKey[TaskStreams]("Provides streams for logging and persisting 
 
 In general, we might want to exclude anything machine-specific or non-hermetic from the cache key when possible.
 
+#### granularity issues
+
+Cache invalidation is latency-tradeoff-hard. If the `compile` task generates 100 `.class` files, and `packageBin` creates a `.jar`, cache invalidation of `compile` task then incurs 100 file read for a disk cache, and 100 file download for a remote cache. Given that a JAR file can approximate `.class` files, we should consider using JAR files for `compile` to reduce the file download chattiness.
+
 ### case study: packageBin task
 
-In sbt, the `pacakgeBin` task creates a JAR file. In general `package*` family of tasks are created using [`packageTaskSettings` and `packageTask` functions](https://github.com/sbt/sbt/blob/v1.9.7/main/src/main/scala/sbt/Defaults.scala#L1848-L1871) and [`Package` object](https://github.com/sbt/sbt/blob/v1.9.7/main-actions/src/main/scala/sbt/Package.scala). We can try turning `packageBin` into a cached task.
+The `pacakgeBin` task creates the JAR file of the class files. In general `package*` family of tasks are created using [`packageTaskSettings` and `packageTask` functions](https://github.com/sbt/sbt/blob/v1.9.7/main/src/main/scala/sbt/Defaults.scala#L1848-L1871) and [`Package` object](https://github.com/sbt/sbt/blob/v1.9.7/main-actions/src/main/scala/sbt/Package.scala). We can try turning `packageBin` into a cached task.
 
 First we need to make `PackageOption` serializable. I turned it into an enum, implemented `JsonFormat` for each cases, and then defined an union:
 
@@ -336,4 +345,119 @@ If the task's output was `VirtualFile`, we'd have to serialize the entire file c
 
 Once the disk cache is hydrated, even after `clean`, `packageBin` will now be able to quickly make a symbolic link to the disk cache, instead of zipping the inputs.
 
-  [build-system]: https://www.microsoft.com/en-us/research/uploads/prod/2018/03/build-systems.pdf
+### case study: compile task
+
+Now that `packageBin` is cached automatically, we can extend this idea to `compile` as well. One of the challenges, as mentioned above is the granularity problem. In sbt 1.x, we can basically create as fine grained tasks as we want since it's used only to denote the chunk of work that are typed and can be parallelized. Thankfully we have JAR file that the compiler is already used to dealing with, so we can let `compile` generate a JAR instead of trying to cache all `*.class` files.
+
+Here's a rough snippet of `compileIncremental`:
+
+```scala
+compileIncremental := (Def.cachedTask {
+  val s = streams.value
+  val ci = (compile / compileInputs).value
+  val c = fileConverter.value
+  // do the normal incremental compilation here:
+  val analysisResult: CompileResult =
+    BspCompileTask
+      .compute(bspTargetIdentifier.value, thisProjectRef.value, configuration.value) {
+        bspTask => compileIncrementalTaskImpl(bspTask, s, ci, ping, reporter)
+      }
+  val analysisOut = c.toVirtualFile(setup.cachePath())
+  Def.declareOutput(analysisOut)
+
+  // inline packageBin to create a JAR file
+  val mappings = ....
+  val pkgConfig = Pkg.Configuration(...)
+  val out = Pkg(...)
+  s.log.info(s"wrote $out")
+  Def.declareOutput(out)
+  analysisResult.hasModified() -> (out: HashedVirtualFileRef)
+})
+.tag(Tags.Compile, Tags.CPU)
+.value,
+```
+
+Here's how we can use this:
+
+```scala
+$ sbt
+[info] welcome to sbt 2.0.0-alpha8-SNAPSHOT (Azul Systems, Inc. Java 1.8.0_352)
+[info] loading project definition from hello1/project
+[info] compiling 1 Scala source to hello1/target/out/jvm/scala-3.3.1/hello1-build/classes ...
+[info] wrote ${OUT}/jvm/scala-3.3.1/hello1-build/hello1-build-0.1.0-SNAPSHOT-noresources.jar
+....
+sbt:Hello> compile
+[info] compiling 1 Scala source to hello1/target/out/jvm/scala-3.3.1/hello/classes ...
+[info] wrote ${OUT}/jvm/scala-3.3.1/hello/hello_3-0.1.0-SNAPSHOT-noresources.jar
+[success] Total time: 3 s
+sbt:Hello> clean
+[success] Total time: 0 s
+sbt:Hello> compile
+[success] Total time: 1 s
+sbt:Hello> run
+[info] running example.Hello
+hello
+[success] Total time: 1 s
+sbt:Hello> exit
+[info] shutting down sbt server
+```
+
+This shows that even after `clean`, which currently cleans the target directory, `compile` is cached. It's actually not an no-op because some of the dependent tasks are not yet cached, but it finished in 1s. We can also exit the sbt session and remove `target/` to be sure:
+
+```scala
+$ rm -rf project/target
+$ rm -rf target
+$ sbt
+[info] welcome to sbt 2.0.0-alpha8-SNAPSHOT (Azul Systems, Inc. Java 1.8.0_352)
+....
+sbt:Hello> run
+[info] running example.Hello
+hello
+[success] Total time: 2 s, completed Dec 18, 2023 3:36:51 AM
+sbt:Hello> exit
+[info] shutting down sbt server
+$ ls -l target/out/jvm/scala-3.3.1/hello/
+total 0
+drwxr-xr-x  4 xxx  staff  128 Dec 18 03:36 classes/
+lrwxr-xr-x  1 xxx  staff   65 Dec 18 03:36 hello_3-0.1.0-SNAPSHOT-noresources.jar@ -> /Users/xxx/Library/Caches/sbt/v2/cas/farm64-ac08c53b3364a204
+lrwxr-xr-x  1 xxx  staff   65 Dec 18 03:36 hello_3-0.1.0-SNAPSHOT.jar@ -> /Users/xxx/Library/Caches/sbt/v2/cas/farm64-b9c876a13587c8e2
+```
+
+Again, `run` worked without invoking the Scala compiler. The reason why we have two JARs is that technically `compile` task does not include `src/main/resources/` contents. In sbt 1.x, that's the job of `copyResources` task, which is called by `products`.
+
+Again, there's a tradeoff of granularity. By sepearating compilation and resources, we can avoid uploading resource files into the cache when we make source changes. On the other hand, the separation requires double uploading when you want the product output, which for us is `packageBin`.
+
+#### new Classpath type
+
+As mentioned above, in sbt 1.x, classpaths were expressed using `Seq[Attributed[File]]`. `java.io.File` isn't suitable as cache inputs since it ends up capturing the absolute path and it's woefully unaware of the content changes. In sbt 2.x, the new `Classpath` is defined as follows:
+
+```scala
+type Classpath = Seq[Attributed[HashedVirtualFileRef]]
+```
+
+Note that `HashedVirtualFileRef` can always be turned back into `Path` given an instance of `FileConverter`, which is available via `fileConverter.value`. There's an extended method `files` that can be used to turn a classpath into a `Seq[Path]`:
+
+```scala
+given FileConverter = fileConverter.value
+val cp = (Compile / dependencyClasspath).value.files
+```
+
+### summary
+
+Based on [RFC-1: sbt cache ideas](/sbt-cache-ideas/), [#7464][7464] implements automatic cached task called `Def.cachedTask`:
+
+```scala
+someKey := Def.cachedTask {
+  val output = StringVirtualFile1("a.txt", "foo")
+  Def.declareOutput(output)
+  name.value + version.value + "!"
+}
+```
+
+This uses Scala 3 macro to automatically track the dependent tasks as cache keys, and serialize and deserialize the outputs. The requirement for the inputs is that they must implement [`sjsonnew.HashWriter`][HashWriter] a typeclass for a [Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree). The result type must satisfy [`sjsonnew.JsonFormat`][JsonFormat].
+
+To track files, sbt 2.x uses two types: `VirtualFile` and `HashedVirtualFileRef`. `VirtualFile` is used by the tasks for actual reading and writing, while `HashedVirtualFileRef` is used as a cache-friendly reference to files, including classpath-related tasks.
+
+`Def.declareOutput(...)` is used to explicitly declare the file creation that is relevant to the task. For example, `compile` task may create `*.class` files, but they will not be cached. Instead a JAR file will be registered using `Def.declareOutput(...)`.
+
+To put the mechanism to test, [#7464][7464] implements automatic caching for both `packageBin` and `compile` task.

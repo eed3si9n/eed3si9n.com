@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2023"
 type:        story
-date:        2023-12-02
+date:        2023-12-14
 url:         /december-adventure-2023
 ---
 
@@ -10,6 +10,59 @@ Inspired by [d6](http://plastic-idolatry.com/erik/2023/dec/) and [the original](
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
 <!--more-->
+<a id="#17"></a>
+#### 2023-12-17
+fixed all the scripted tests on [#7464][7464].
+
+<a id="#16"></a>
+#### 2023-12-16
+went out to a nice Sichuan restaurant called [Peppercorn Station 青花椒](https://www.peppercornstation.com/) in Jersey City to celebrate my first boss's retirement. enjoyed catching up with him after a long time, as well as the elevated Sichuan cuisine. went staking in my local park afterwards for a while.
+
+continuing on the scripted test, looked into `source-dependencies/binary`, which looks like this:
+
+```scala
+lazy val dep = project
+
+lazy val use = project
+  .settings(
+    (Compile / unmanagedJars) += ((dep / Compile / packageBin) map Attributed.blank).value
+  )
+```
+
+it dawned on me looking at this seemingly innocuous build that if I'm changing `packageBin` to `HashedVirtualFileRef`, I'd have to change `unmanagedJars`, and other tasks related to JARs also to `HashedVirtualFileRef`. eventually I changed the definition of `Def.Classpath` to:
+
+```scala
+type Classpath = Seq[Attributed[HashedVirtualFileRef]]
+```
+
+this is a pretty big change, since various code in sbt relates to classpath.
+
+<a id="#15"></a>
+#### 2023-12-15
+continuing from yesterday, addressed scripted test failures under `dependency-management/*`. one of bugs I caught along the way was that compiler options weren't part of the cache key, and test legitimately failed when it succeeded to compile with bogus `javacOptions`.
+
+<a id="#14"></a>
+#### 2023-12-14
+back to hacking on sbt 2.x remote cache. I tried to change `target` back to per subproject, but quickly realized that for virtual files having a unified `${OUT}` location is more convenient. in other words, instead of dealing with `foo/target/` and `bar/target/` separately we want one `target/out/` directory that I can map as `${OUT}`.
+
+so I just need to tackle the scripted tests head on. I looked at a handful today under `actions/*` and `package/*`, and they weren't too bad. to navigate around deeply nested scripted tests quickly, I did bust out Sublime Text. opened a draft PR [#7464][7464].
+
+<a id="#13"></a>
+#### 2023-12-13
+released [sbt 1.9.8](/sbt-1.9.8), featuring a fix of `IO.getModifiedOrZero` to use `clib.stat()` so it would work on Alpine 3.19, contributed by Simon F.
+
+<a id="#12"></a>
+#### 2023-12-12
+I haven't gotten enough sleep, so went to bed before midnight last night. woke up a few times in the middle and commented on a few GitHub issues, but slept till the morning.
+
+one of the issues I've been commenting says that sbt doesn't work on Alpine 3.19. back in 2017, sbt impled its own `getLastModifiedTime` using `libc.__xstat` because JDK 8 had an accuracy bug. this apprently broke on recent Alpine. I encouraged the reporter to send a PR for the fix, and he did. also it turned out that timestamp has been fixed in JDK 8
+[#7455](https://github.com/sbt/sbt/issues/7455).
+
+<a id="#11"></a>
+#### 2023-12-11
+looking into failing scripted tests. a large number of tests are failing, but this was expected because many of the tests use existence of directory as a proxy to check if something compiled or not. as part of caching, I've changed the `target` setting to point to `target/out/jvm/scala-<scalaVersion>/<moduleName>` of the working directory, as opposed to creating `target/` directory per subproject.
+
+I might defer the change till later to reduce the breaking tests. in general, if `compile` become cached, some characteristics of the tests might change, like returning a cached answer, as opposed to excercising Zinc, so I might need to disable caching.
 
 <a id="#10"></a>
 #### 2023-12-10
@@ -73,3 +126,4 @@ some progress on [rfc-1][rfc-1]. during the inital prototype I realized it's use
 I drove 5 hours with immunologists across new england. released my 5h mixtape, which I used to reprogram them. [hyperparameter optimization (2023.12 mixtape)](/2023.12-mixtape). worked on scalaxb at night.
 
   [rfc-1]: https://eed3si9n.com/sbt-cache-ideas/
+  [7464]: https://github.com/sbt/sbt/pull/7464
