@@ -251,9 +251,9 @@ val streams = taskKey[TaskStreams]("Provides streams for logging and persisting 
 
 In general, we might want to exclude anything machine-specific or non-hermetic from the cache key when possible.
 
-#### granularity issues
+#### latency tradeoff issues
 
-Cache invalidation is latency-tradeoff-hard. If the `compile` task generated 100 `.class` files, and `packageBin` created a `.jar`, cache invalidation of `compile` task then incurs 100 file read for a disk cache, and 100 file download for a remote cache. Given that a JAR file can approximate `.class` files, we should use JAR files for `compile` to reduce the file download chattiness.
+Caching is latency-tradeoff-hard. If the `compile` task generated 100 `.class` files, and `packageBin` created a `.jar`, cache hit of `compile` task then incurs 100 file read for a disk cache, and 100 file download for a remote cache. Given that a JAR file can approximate `.class` files, we should use JAR files for `compile` to reduce the file download chattiness.
 
 ### case study: packageBin task
 
@@ -326,7 +326,7 @@ def packageTask: Initialize[Task[HashedVirtualFileRef]] =
   }
 ```
 
-A suble point I want to make is that in the above, I chose to use `HashedVirtualFileRef` instead of `VirtualFile` as the return type even though `out` is a `VirtualFile`. In fact it would not compile if the task key is changed to `Initialize[Task[VirtualFile]]`:
+A subtle point I want to make is that in the above, I chose to use `HashedVirtualFileRef` instead of `VirtualFile` as the return type even though `out` is a `VirtualFile`. In fact it would not compile if the task key is changed to `Initialize[Task[VirtualFile]]`:
 
 ```scala
 [error] -- [E172] Type Error: /user/xxx/sbt/main/src/main/scala/sbt/Defaults.scala:1979:5
@@ -341,13 +341,13 @@ Recall `ac/39b46ba4b` in disk cache:
 {"$fields":["value","outputs"],"value":"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2","outputs":["${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"]}
 ```
 
-If the task's output was `VirtualFile`, we'd have to serialize the entire file content in the above JSON. Instead, we're storing only the relative path along with its unique proof of the file, calculated using FarmHash: `"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"`. The actual content is given to the CAS via `Def.declareOutput(out)`.
+If the task's return type was `VirtualFile`, we'd have to serialize the entire file content in the above JSON. Instead, we're storing only the relative path along with its unique proof of the file, calculated using FarmHash: `"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"`. The actual content is given to the CAS via `Def.declareOutput(out)`.
 
 Once the disk cache is hydrated, even after `clean`, `packageBin` will now be able to quickly make a symbolic link to the disk cache, instead of zipping the inputs.
 
 ### case study: compile task
 
-Now that `packageBin` is cached automatically, we can extend this idea to `compile` as well. One of the challenges, as mentioned above is the granularity problem. In sbt 1.x, we can basically create as fine grained tasks as we want since it's used only to denote the chunk of work that are typed and can be parallelized. Thankfully we have JAR file that the compiler is already used to dealing with, so we can let `compile` generate a JAR instead of trying to cache all `*.class` files.
+Now that `packageBin` is cached automatically, we can extend this idea to `compile` as well. One of the challenges, as mentioned above is the latency-tradeoff problem. In sbt 1.x, we can basically create as fine grained tasks as we want since it's used only to denote the chunk of work that are typed and can be parallelized. In sbt 2.x, we might need to be mindful about the network latencies (Something we should experimment). Thankfully we have JAR file that the compiler is already used to dealing with, so we can let `compile` generate a JAR instead of trying to cache all `*.class` files.
 
 Here's a rough snippet of `compileIncremental`:
 
@@ -425,7 +425,7 @@ lrwxr-xr-x  1 xxx  staff   65 Dec 18 03:36 hello_3-0.1.0-SNAPSHOT.jar@ -> /Users
 
 Again, `run` worked without invoking the Scala compiler. The reason why we have two JARs is that technically `compile` task does not include `src/main/resources/` contents. In sbt 1.x, that's the job of `copyResources` task, which is called by `products`.
 
-Again, there's a tradeoff of granularity. By sepearating compilation and resources, we can avoid uploading resource files into the cache when we make source changes. On the other hand, the separation requires double uploading when you want the product output, which for us is `packageBin`.
+Again, there's a tradeoff of task granularity. By sepearating compilation and resources, we can avoid uploading resource files into the cache when we make source changes. On the other hand, the separation requires double uploading when you want the product output, which for us is `packageBin`.
 
 #### new Classpath type
 
@@ -435,7 +435,7 @@ As mentioned above, in sbt 1.x, classpaths were expressed using `Seq[Attributed[
 type Classpath = Seq[Attributed[HashedVirtualFileRef]]
 ```
 
-Note that `HashedVirtualFileRef` can always be turned back into `Path` given an instance of `FileConverter`, which is available via `fileConverter.value`. There's an extended method `files` that can be used to turn a classpath into a `Seq[Path]`:
+Note that `HashedVirtualFileRef` can always be turned back into `Path` given an instance of `FileConverter`, which is available via `fileConverter.value`. There's a Scala 3 extension method `files` that can be used to turn a classpath into a `Seq[Path]`:
 
 ```scala
 given FileConverter = fileConverter.value
