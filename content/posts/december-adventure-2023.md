@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2023"
 type:        story
-date:        2023-12-14
+date:        2023-12-18
 url:         /december-adventure-2023
 ---
 
@@ -10,6 +10,23 @@ Inspired by [d6](http://plastic-idolatry.com/erik/2023/dec/) and [the original](
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
 <!--more-->
+
+<a id="#19"></a>
+#### 2023-12-19
+signed myself up to an Advent Calendar, and started translating the [sbt 2.x remote cache](/sbt-remote-cache) post into Japanese.
+
+one feedback I got on Discord from Matthias Berndt on the blog post:
+
+> Ideally it would be possible to cache compilation at a more granular level, like files or even top-level definitions.
+
+this is an interesting feedback, apparently based on his experiment using Pants 2 that implements file-level caching. another way of thinking about this what I called "wildfire" problem in Analysis of Zinc talk. simply reverting the dependency graph would spread invalidation like a wildfire. Zinc 1.x uses name hashing to tackle this.
+
+<a id="#18"></a>
+#### 2023-12-18
+not much coding progress, but thinking about initialization of the cache. one somewhat unique characteristic of sbt is that the `build.sbt` file together with `project/*.scala` are compiled using sbt. this is called metabuild.
+
+if we cached the `compile` task, then the compilation of the metabuild will also be cached. I was going to let the build user configure the cache stores in `build.sbt`. if we go with that plan, then I guess metabuild caching would just be hardcoded to an unobtrusive default? we can let the user pass some settings in environment variables etc. if we let build users configure cache stores using plugins, and metabuild and meta-metabuild requires disk cache, hopefully it's not too bad.
+
 <a id="#17"></a>
 #### 2023-12-17
 fixed all the scripted tests on [#7464][7464], and wrapped up the blog post - [sbt 2.x remote cache](/sbt-remote-cache).
