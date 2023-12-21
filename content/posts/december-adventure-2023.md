@@ -11,6 +11,12 @@ my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some po
 
 <!--more-->
 
+<a id="#20"></a>
+#### 2023-12-20
+finished translating the blog post into Japanese.
+
+added a few sections that I thought about while translating: hermeticity issues, and package aggregation issue, which is the issue I mentioned yesterday.
+
 <a id="#19"></a>
 #### 2023-12-19
 signed myself up to an Advent Calendar, and started translating the [sbt 2.x remote cache](/sbt-remote-cache) post into Japanese.

@@ -255,6 +255,27 @@ In general, we might want to exclude anything machine-specific or non-hermetic f
 
 Caching is latency-tradeoff-hard. If the `compile` task generated 100 `.class` files, and `packageBin` created a `.jar`, cache hit of `compile` task then incurs 100 file read for a disk cache, and 100 file download for a remote cache. Given that a JAR file can approximate `.class` files, we should use JAR files for `compile` to reduce the file download chattiness.
 
+<a id="hermeticity"></a>
+#### hermeticity issues
+
+Remote caching is hermecity-hard. The premise of remote cache is that the cached results are sharable across different machines. When we end up capturing machine-specific information unintentionally into the artifact, we could either end up with a growing cache size, low cache hit%, or a runtime error. This is called a hermeticity break.
+
+Two common issues are capturing the absolute path via `java.io.File`, or the current timestamp. More subtle ones that I've seen are JVM bug that captures timezone of the machine, and GraalVM capturing the glibc version.
+
+<a id="package-aggregation"></a>
+#### package aggregation issue
+
+Cache invalidation is package-aggregation hard. See [Analysis of Zinc](https://www.youtube.com/watch?v=h8ACmUHQ2jg) talk for more details. I just made up the name _package aggregation_ here, but the gist of the issue is that the more source files you aggregate into a subproject, the more inter-connected the subprojects become, and naïve invalidation of simply inverting the dependency graph would end up spreading the initial invalidation (code changes) to most of the monorepo like a wildfire.
+
+Build tools deal with this issue in various ways:
+
+- Make the subproject more granular. Like 1:1:1 Rule (one directory, one package, one target)
+- Ignore transitive dependency, also known as strict deps (Bazel does this for Java)
+- Track dependency at the method usage granularity (Zinc does this)
+- Remove unused imports and library dependencies
+
+Initially I'm going to implement the simple naïve invalidation, but we should leave a door open to iterate in this area. (Thanks Matthias Berndt for remind me about this)
+
 ### case study: packageBin task
 
 The `pacakgeBin` task creates the JAR file of the class files. In general `package*` family of tasks are created using [`packageTaskSettings` and `packageTask` functions](https://github.com/sbt/sbt/blob/v1.9.7/main/src/main/scala/sbt/Defaults.scala#L1848-L1871) and [`Package` object](https://github.com/sbt/sbt/blob/v1.9.7/main-actions/src/main/scala/sbt/Package.scala). We can try turning `packageBin` into a cached task.
