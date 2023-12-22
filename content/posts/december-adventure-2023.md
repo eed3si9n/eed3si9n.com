@@ -11,6 +11,12 @@ my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some po
 
 <!--more-->
 
+<a id="#21"></a>
+#### 2023-12-21
+reviewed a Zinc [pull request](https://github.com/sbt/zinc/pull/1312) by Jerry Tan regarding infinite compilation loop. incremental compilation is confusing, but this is especially confusing one because it has something to do with mixed Scala and Java compilation, that regressed when we started support for build pipelining (ability to start compiling depender subprojects midway through the compiler phases).
+
+I am also starting to browse Bazel's [Remote Execution API][remote_execution] as one does. One thing that I did notice is that the hashing algorithms are hard coded to a few sets, and does not include FarmHash. It's not uncommon to have 1000 JARs on a classpath, and really didn't want to introduce cryptographic hash, but I might have to potentially for safety. MD5 is the most commonly available non-cryptographic hash (just kidding, or am I?).
+
 <a id="#20"></a>
 #### 2023-12-20
 finished translating the blog post into Japanese.
@@ -150,3 +156,4 @@ I drove 5 hours with immunologists across new england. released my 5h mixtape, w
 
   [rfc-1]: https://eed3si9n.com/sbt-cache-ideas/
   [7464]: https://github.com/sbt/sbt/pull/7464
+  [remote_execution]: https://github.com/bazelbuild/remote-apis/blob/main/build/bazel/remote/execution/v2/remote_execution.proto
