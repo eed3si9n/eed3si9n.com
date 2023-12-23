@@ -12,7 +12,7 @@ url: /ja/sbt-remote-cache
   [reibitto]: https://reibitto.github.io/blog/remote-caching-with-sbt-and-s3/
   [tweets]: https://twitter.com/eed3si9n/status/1319626955159896064
 
-> 本稿は [Scala Advent Calendar 2023](https://qiita.com/advent-calendar/2023/scala) の 23日目です。
+> これは [Scala Advent Calendar 2023](https://qiita.com/advent-calendar/2023/scala) の 23日目の記事です。21日目は、さっちゃんの[path 依存型って何? 調べてみました!](https://c4se.hatenablog.com/entry/2023/12/22/001904)でした。
 
 ### はじめに
 
@@ -22,7 +22,7 @@ url: /ja/sbt-remote-cache
 - 問題2: sbt 1.x はディスクキャッシュとリモートキャッシュで別の機構を持つが、ビルドユーザがローカルかリモートのキャッシュかを切り替えられる統一した機構が望ましい。
 - 問題3: sbt 1.x は Ivy resolver をキャッシュの抽象化に用いたが、よりオープンなリモートキャッシュ・バックエンドが望ましい
 
-12月中は適当に自分でプロジェクトを選んで 毎日少しでもいいから作業して、それをブログに数行ずつ記録したり [#decemberadventure](https://mastodon.social/tags/DecemberAdventure) というハッシュタグをつけて投稿するという独りアベントが Mastodon 界隈の一部で流行ってて、僕の [december adventure 2023](/december-adventure-2023) として、sbt 2.x のリモートキャッシュに挑戦してみようと思った。実装の提案は GitHub [#7464][7464] で、本稿では、提案した変更点の解説を行う。**注意**: sbt の内部構造に関する予備知識はあんまり必要としないが、プルリクコメントの拡張版のようなものなので上級レベルの読者を想定している。
+12月中は適当に自分でプロジェクトを選んで 毎日少しでもいいから作業して、それをブログに数行ずつ記録したり [#decemberadventure](https://mastodon.social/tags/DecemberAdventure) というハッシュタグをつけて投稿するという独りアベントが Mastodon 界隈の一部で流行ってて、僕の [december adventure 2023](/december-adventure-2023) として、sbt 2.x のリモートキャッシュに挑戦してみようと思った。実装の提案は GitHub [#7464][7464] で、本稿では、提案した変更点の解説を行う。**注意**: sbt の内部構造に関する予備知識はあんまり必要としないが、プルリクコメントの拡張版のようなものなので上級レベルの読者を想定している。あと、プルリク段階なので書いている先から詳細はどんどん変わっていくかもしれない。
 
 <!--more-->
 
