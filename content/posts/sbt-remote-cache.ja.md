@@ -34,16 +34,16 @@ url: /ja/sbt-remote-cache
 (In1, In2, In3, ...) => (A1 && Seq[Path])
 ```
 
-インプット値のハッシュと結果値をどこか (例えばディスク内) に保存できれば、次回呼ばれたときには重いタスクの評価をする代わりに結果だけを返すことができる。キャッシュ化されたタスクの結果値は `ActionValue` として表される:
+インプット値のハッシュと結果値をどこか (例えばディスク内) に保存できれば、次回呼ばれたときには重いタスクの評価をする代わりに結果だけを返すことができる。キャッシュ化されたタスクの結果値は `ActionResult` として表される:
 
 ```scala
 import xsbti.HashedVirtualFileRef
 
-class ActionValue[A1](a: A1, outs: Seq[HashedVirtualFileRef]):
+class ActionResult[A1](a: A1, outs: Seq[HashedVirtualFileRef]):
   def value: A1 = a
   def outputs: Seq[HashedVirtualFileRef] = outs
   ....
-end ActionValue
+end ActionResult
 ```
 
 `HashedVirtualFileRef` は後でもみるが、ファイル名とコンテンツハッシュを持つ。これらを使って以下のように `cache` 関数を実装できる:
@@ -55,7 +55,7 @@ import xsbti.VirtualFile
 object ActionCache:
   def cache[I: HashWriter, O: JsonFormat: ClassTag](key: I, otherInputs: Long)(
       action: I => (O, Seq[VirtualFile])
-  ): ActionValue[O] =
+  ): ActionResult[O] =
     ...
 end ActionCache
 ```
@@ -111,9 +111,9 @@ trait ActionCacheStore:
       key: ActionInput,
       value: A1,
       blobs: Seq[VirtualFile],
-  ): ActionValue[A1]
+  ): ActionResult[A1]
 
-  def get[A1: ClassTag: JsonFormat](key: ActionInput): Option[ActionValue[A1]]
+  def get[A1: ClassTag: JsonFormat](key: ActionInput): Option[ActionResult[A1]]
 
   def putBlobs(blobs: Seq[VirtualFile]): Seq[HashedVirtualFileRef]
 
@@ -222,7 +222,7 @@ someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
 })
 ```
 
-このタスクを最初に走らせたときは、sbt は `q1 + q2 + "!"` を評価して、また別に `o1` を CAS に保存して `HashedVirtualFileRef` のリストを持つ `ActionValue` を計算する。2度目にこのタスクが呼び出されたときは、`ActionCache.cache(...)` はこのファイルを物理ファイルとして具現化してそれを参照する `VirtualFile` を返す。
+このタスクを最初に走らせたときは、sbt は `q1 + q2 + "!"` を評価して、また別に `o1` を CAS に保存して `HashedVirtualFileRef` のリストを持つ `ActionResult` を計算する。2度目にこのタスクが呼び出されたときは、`ActionCache.cache(...)` はこのファイルを物理ファイルとして具現化してそれを参照する `VirtualFile` を返す。
 
 #### シリアライゼーションからのオプトアウト
 

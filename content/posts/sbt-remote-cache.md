@@ -32,16 +32,16 @@ In the abstract, we can think of a cached task as:
 (In1, In2, In3, ...) => (A1 && Seq[Path])
 ```
 
-If we saved the hash of inputs and the result somewhere, like on a disk, we can skip the evaluation of expensive tasks, and present the result instead. The result of a cached task is represented as an `ActionValue`:
+If we saved the hash of inputs and the result somewhere, like on a disk, we can skip the evaluation of expensive tasks, and present the result instead. The result of a cached task is represented as an `ActionResult`:
 
 ```scala
 import xsbti.HashedVirtualFileRef
 
-class ActionValue[A1](a: A1, outs: Seq[HashedVirtualFileRef]):
+class ActionResult[A1](a: A1, outs: Seq[HashedVirtualFileRef]):
   def value: A1 = a
   def outputs: Seq[HashedVirtualFileRef] = outs
   ....
-end ActionValue
+end ActionResult
 ```
 
 We'll come back to `HashedVirtualFileRef` later, but it carries a file name with some content hash. Using these, we can define the `cache` function as follows:
@@ -53,7 +53,7 @@ import xsbti.VirtualFile
 object ActionCache:
   def cache[I: HashWriter, O: JsonFormat: ClassTag](key: I, otherInputs: Long)(
       action: I => (O, Seq[VirtualFile])
-  ): ActionValue[O] =
+  ): ActionResult[O] =
     ...
 end ActionCache
 ```
@@ -109,9 +109,9 @@ trait ActionCacheStore:
       key: ActionInput,
       value: A1,
       blobs: Seq[VirtualFile],
-  ): ActionValue[A1]
+  ): ActionResult[A1]
 
-  def get[A1: ClassTag: JsonFormat](key: ActionInput): Option[ActionValue[A1]]
+  def get[A1: ClassTag: JsonFormat](key: ActionInput): Option[ActionResult[A1]]
 
   def putBlobs(blobs: Seq[VirtualFile]): Seq[HashedVirtualFileRef]
 
@@ -220,7 +220,7 @@ someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
 })
 ```
 
-When we run the task for the first time, sbt evaluates `q1 + q2 + "!"`, but it'll also store `o1` into the CAS and calculate an `ActionValue`, which contains a list of `HashedVirtualFileRef`. During the second run, `ActionCache.cache(...)` can materialize it into a physical file and return a `VirtualFile` for it.
+When we run the task for the first time, sbt evaluates `q1 + q2 + "!"`, but it'll also store `o1` into the CAS and calculate an `ActionResult`, which contains a list of `HashedVirtualFileRef`. During the second run, `ActionCache.cache(...)` can materialize it into a physical file and return a `VirtualFile` for it.
 
 #### opting out of serialization
 
