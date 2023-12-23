@@ -131,12 +131,12 @@ end ActionCacheStore
 $ tree $HOME/Library/Caches/sbt/v2/
 ~/Library/Caches/sbt/v2/
 ├── ac
-│   └── 39b46ba4b
+│   └── sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c
 └── cas
     └── farm64-b9c876a13587c8e2
 ```
 
-`ac/39b46ba4b` のファイルの内容は:
+`ac/sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c` のファイルの内容は:
 
 ```json
 {"$fields":["value","outputs"],"value":"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2","outputs":["${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"]}
@@ -358,7 +358,7 @@ def packageTask: Initialize[Task[HashedVirtualFileRef]] =
 [error]      |Cannot find JsonWriter or JsonFormat type class for xsbti.VirtualFile.
 ```
 
-ディスクキャッシュ `ac/39b46ba4b` の中身が以下であることを思い出してほしい:
+ディスクキャッシュ `ac/sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c` の中身が以下であることを思い出してほしい:
 
 ```json
 {"$fields":["value","outputs"],"value":"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2","outputs":["${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"]}

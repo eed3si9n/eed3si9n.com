@@ -129,12 +129,12 @@ Here's how the cache directory looks after running `pacakgeBin`, which is a cach
 $ tree $HOME/Library/Caches/sbt/v2/
 ~/Library/Caches/sbt/v2/
 ├── ac
-│   └── 39b46ba4b
+│   └── sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c
 └── cas
     └── farm64-b9c876a13587c8e2
 ```
 
-The file content of `ac/39b46ba4b` is:
+The file content of `ac/sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c` is:
 
 ```json
 {"$fields":["value","outputs"],"value":"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2","outputs":["${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"]}
@@ -356,7 +356,7 @@ A subtle point I want to make is that in the above, I chose to use `HashedVirtua
 [error]      |Cannot find JsonWriter or JsonFormat type class for xsbti.VirtualFile.
 ```
 
-Recall `ac/39b46ba4b` in disk cache:
+Recall `ac/sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c` in disk cache:
 
 ```json
 {"$fields":["value","outputs"],"value":"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2","outputs":["${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"]}
