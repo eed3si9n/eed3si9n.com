@@ -10,6 +10,37 @@ Inspired by [d6](http://plastic-idolatry.com/erik/2023/dec/) and [the original](
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
 <!--more-->
+<a id="#26"></a>
+#### 2023-12-26
+went to a brunch hosted at a friend's house. we've learned the lession and contacted the hosts ahead of bringing a baker's dozen of Hoboken Hot Bagels, in my opinion the best bagel in the world, with two kind of cream cheese and a pound of lox (smoked salmon), and other pastries
+
+went skating in the evening at the park. worked on tail stall while rolling.
+
+for the remote cache PR, contiued on change the blob hashing to SHA-256 because bunch of tests failed yesterday. eventually got it to work. I've been faking the caching of metabuild, but somehow this change required me to actually implement a disk cache during the booting process.
+
+<a id="#25"></a>
+#### 2023-12-25
+fixed JavaDoc support. it's not that the JavaDoc support has regressed but the caching around JavaDoc needed tweaking because of the version conflict of sjson-new between that's being used in Zinc and sbt/sbt.
+
+also modified the blob hashing to use SHA-256.
+
+<a id="#23"></a>
+#### 2023-12-23
+my wife and I were invited to a fancy holiday party. only we didn't know it was going to be a fancy, catered party, so we baked two pies and brought them (no one else brought food).
+
+![baked brie](/images/dec_2023_baked_brie.jpg)
+
+first one is straight up Alexa Weibel's [baked brie and caramelized vegetable pie](https://cooking.nytimes.com/recipes/1024809-baked-brie-and-caramelized-vegetable-pie?unlocked_article_code=1.IU0.PuB4.V6kEMLD0JVhe&smid=share-url) on nyt cooking. I made it for Thanksgiving this year, and made this again, this time with puff pastry. so good.
+
+![apple pie](/images/dec_2023_apple_pie.jpg)
+
+second one is an americanized tarte au pomme, using new york honeycrisps and apple sauce.
+
+<a id="#22"></a>
+#### 2023-12-22
+renamed `ActionValue` to `ActionResult` to match the name on [Remote Execution API][remote_execution].
+
+similarly for compatibility, hashed the action puts using SHA256 at the end. the input Merkle tree is still hashed using Murmur3 64-bit, so it's not a true tree of SHA256s. to avoid collisions, maybe extending the middle part to Murmur3 128-bit would be a good improvement later.
 
 <a id="#21"></a>
 #### 2023-12-21

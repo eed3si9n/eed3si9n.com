@@ -131,27 +131,31 @@ end ActionCacheStore
 $ tree $HOME/Library/Caches/sbt/v2/
 ~/Library/Caches/sbt/v2/
 ├── ac
-│   └── sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c
+│   ├── sha256-d3ea49940f3ec7f983ddfe91f811161d2fee53c19ec58db224c789b63c5d759d
+│   └── sha256-e2d1010d6ce5808902e35222ec91d340ae7ecb013ec7cb3b568c3b2c33c3ffa0
 └── cas
-    └── farm64-b9c876a13587c8e2
+    ├── sha256-02775d17841ec170a97b2abec01f56fb3e3949fefc8d69121e811f80c041cfb1
+    ├── sha256-601ba6379aeed7fefd522d3a916b3750c35fe8cd02afe95a7be4960de1fbcfa7
+    └── sha256-f824ffec2c48cbc5e4cdcaec71670983064312055d3e9cfcc1220d7f4f193027
 ```
 
-`ac/sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c` のファイルの内容は:
+`ac/sha256-d3ea49940f3ec7f983ddfe91f811161d2fee53c19ec58db224c789b63c5d759d` のファイルの内容は:
 
 ```json
-{"$fields":["value","outputs"],"value":"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2","outputs":["${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"]}
+{"$fields":["value","outputFiles"],"value":"${OUT}/jvm/scala-3.3.1/hello/hello_3-0.1.0-SNAPSHOT.jar>sha256-f824ffec2c48cbc5e4cdcaec71670983064312055d3e9cfcc1220d7f4f193027","outputFiles":["${OUT}/jvm/scala-3.3.1/hello/hello_3-0.1.0-SNAPSHOT.jar>sha256-f824ffec2c48cbc5e4cdcaec71670983064312055d3e9cfcc1220d7f4f193027"]}
 ```
 
-`cas/farm64-b9c876a13587c8e2` は JAR ファイルだ:
+`cas/sha256-f824ffe...` は JAR ファイルだ:
 
 ```bash
-$ unzip -l $HOME/Library/Caches/sbt/v2/cas/farm64-b9c876a13587c8e2
-Archive:  ~Library/Caches/sbt/v2/cas/farm64-b9c876a13587c8e2
+$ unzip -l $HOME/Library/Caches/sbt/v2/cas/sha256-f824ffec2c48cbc5e4cdcaec71670983064312055d3e9cfcc1220d7f4f193027
+Archive:  ~/Library/Caches/sbt/v2/cas/sha256-f824ffec2c48cbc5e4cdcaec71670983064312055d3e9cfcc1220d7f4f193027
   Length      Date    Time    Name
 ---------  ---------- -----   ----
       298  01-01-2010 00:00   META-INF/MANIFEST.MF
         0  01-01-2010 00:00   example/
       608  01-01-2010 00:00   example/Greeting.class
+      363  01-01-2010 00:00   example/Greeting.tasty
 ....
 ```
 
@@ -358,13 +362,13 @@ def packageTask: Initialize[Task[HashedVirtualFileRef]] =
 [error]      |Cannot find JsonWriter or JsonFormat type class for xsbti.VirtualFile.
 ```
 
-ディスクキャッシュ `ac/sha256-eeefc535fd395cb6bfd300197acc2a3512f4e71b1eb7006c7d0a168ae919538c` の中身が以下であることを思い出してほしい:
+ディスクキャッシュ `ac/sha256-d3ea49940f3ec7f983ddfe91f811161d2fee53c19ec58db224c789b63c5d759d` の中身が以下であることを思い出してほしい:
 
 ```json
-{"$fields":["value","outputs"],"value":"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2","outputs":["${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"]}
+{"$fields":["value","outputFiles"],"value":"${OUT}/jvm/scala-3.3.1/hello/hello_3-0.1.0-SNAPSHOT.jar>sha256-f824ffec2c48cbc5e4cdcaec71670983064312055d3e9cfcc1220d7f4f193027","outputFiles":["${OUT}/jvm/scala-3.3.1/hello/hello_3-0.1.0-SNAPSHOT.jar>sha256-f824ffec2c48cbc5e4cdcaec71670983064312055d3e9cfcc1220d7f4f193027"]}
 ```
 
-もしタスクの戻り値の型が `VirtualFile` ならば、この JSON の中に全ファイルコンテンツを埋め込む必要がある。代わりに、相対パスと FarmHash を使ったファイルに関する一意な証明のみを保存する: `"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"`。実際のコンテンツは `Def.declareOutput(out)` にて CAS に渡す。
+もしタスクの戻り値の型が `VirtualFile` ならば、この JSON の中に全ファイルコンテンツを埋め込む必要がある。代わりに、相対パスと SHA-256 を使ったファイルに関する一意な証明のみを保存する: `"${OUT}/jvm/3.3.1/hello/scala-3.3.1/hello_3-0.1.0-SNAPSHOT.jar>farm64-b9c876a13587c8e2"`。実際のコンテンツは `Def.declareOutput(out)` にて CAS に渡す。
 
 ディスクキャッシュが潤うと、`clean` の後でも、`packageBin` はインプットを zip せずともディスクキャッシュに対して高速にシンボリックリンクを張るだけでよくなる。
 
@@ -436,14 +440,19 @@ $ sbt
 sbt:Hello> run
 [info] running example.Hello
 hello
-[success] Total time: 2 s, completed Dec 18, 2023 3:36:51 AM
+[success] Total time: 2 s
 sbt:Hello> exit
 [info] shutting down sbt server
 $ ls -l target/out/jvm/scala-3.3.1/hello/
+$ ls -l target/out/jvm/scala-3.3.1/hello/
 total 0
-drwxr-xr-x  4 xxx  staff  128 Dec 18 03:36 classes/
-lrwxr-xr-x  1 xxx  staff   65 Dec 18 03:36 hello_3-0.1.0-SNAPSHOT-noresources.jar@ -> /Users/xxx/Library/Caches/sbt/v2/cas/farm64-ac08c53b3364a204
-lrwxr-xr-x  1 xxx  staff   65 Dec 18 03:36 hello_3-0.1.0-SNAPSHOT.jar@ -> /Users/xxx/Library/Caches/sbt/v2/cas/farm64-b9c876a13587c8e2
+drwxr-xr-x  4 xxx  staff  128 Dec 27 03:44 classes/
+lrwxr-xr-x  1 xxx  staff  113 Dec 27 03:44 hello_3-0.1.0-SNAPSHOT-noresources.jar@ -> /Users/xxx/Library/Caches/sbt/v2/cas/sha256-02775d17841ec170a97b2abec01f56fb3e3949fefc8d69121e811f80c041cfb1
+lrwxr-xr-x  1 eed3si9n  staff  113 Dec 27 03:44 hello_3-0.1.0-SNAPSHOT.jar@ -> /Users/xxx/Library/Caches/sbt/v2/cas/sha256-f824ffec2c48cbc5e4cdcaec71670983064312055d3e9cfcc1220d7f4f193027
+drwxr-xr-x  5 xxx  staff  160 Dec 27 03:44 streams/
+drwxr-xr-x  3 xxx  staff   96 Dec 27 03:44 sync/
+drwxr-xr-x  3 xxx  staff   96 Dec 27 03:44 update/
+drwxr-xr-x  3 xxx  staff   96 Dec 27 03:44 zinc/
 ```
 
 Scala コンパイラを呼ばずに `run` を動かすことができた。ここで 2つの JAR があるのは、厳密には `compile` タスクは `src/main/resources/` のコンテンツを含まないからだ。sbt 1.x ではこの作業は `copyResources` というタスクで行われ、`products` タスクがそれを呼び出す。
