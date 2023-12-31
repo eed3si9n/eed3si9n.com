@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2023"
 type:        story
-date:        2023-12-18
+date:        2023-12-27
 url:         /december-adventure-2023
 ---
 
@@ -10,11 +10,128 @@ Inspired by [d6](http://plastic-idolatry.com/erik/2023/dec/) and [the original](
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
 <!--more-->
+<a id="#30"></a>
+#### 2023-12-30
+my wife and I prepare osechi (お節), japanese new year food some vegan, others non-veg. given that osechi is actually similar to korean dishes, we first hit H-Mart to grab side dishes like pickled radish, boiled black beans, also cream puffs, clementines, imported kelp, dried shiitake mushrooms etc.
+
+next I prepared two kinds of vegan dashi (broth), kombu dashi and dried shiitake dashi, which form the foundation of osechi. recipe is at </recipes/vegan-dashi.html>.
+
+<a id="#28"></a>
+#### 2023-12-28
+I wanted to generalize `@cacheOptOut(...)` attribute to:
+
+```scala
+@cacheLevel(incude = Array(CacheLevelTag.Local, ...))
+```
+
+so we can mark some input to be no-cache, local-only, or both local and remote.
+
+```scala
+@meta.getter
+class cacheLevel(
+    include: Array[CacheLevelTag],
+) extends StaticAnnotation
+
+enum CacheLevelTag:
+  case Local
+  case Remote
+end CacheLevelTag
+
+object CacheLevelTag:
+  private[sbt] val all: Array[CacheLevelTag] = Array(CacheLevelTag.Local, CacheLevelTag.Remote)
+
+  given CacheLevelTagToExpr: ToExpr[CacheLevelTag] with
+    def apply(tag: CacheLevelTag)(using Quotes): Expr[CacheLevelTag] =
+      tag match
+        case CacheLevelTag.Local  => '{ CacheLevelTag.Local }
+        case CacheLevelTag.Remote => '{ CacheLevelTag.Remote }
+
+  given CacheLevelTagFromExpr: FromExpr[CacheLevelTag] with
+    def unapply(expr: Expr[CacheLevelTag])(using Quotes): Option[CacheLevelTag] =
+      expr match
+        case '{ CacheLevelTag.Local }  => Some(CacheLevelTag.Local)
+        case '{ CacheLevelTag.Remote } => Some(CacheLevelTag.Remote)
+        case _                         => None
+end CacheLevelTag
+```
+
+the macro code to extract the `cacheLevel` tags looks like this:
+
+```scala
+def isCacheInput: Boolean = tags.nonEmpty
+lazy val tags = extractTags(qual)
+private def extractTags(tree: Term): List[CacheLevelTag] =
+  def getAnnotation(tree: Term) =
+    Option(tree.tpe.termSymbol) match
+      case Some(x) => x.getAnnotation(cacheLevelSym)
+      case None    => tree.symbol.getAnnotation(cacheLevelSym)
+  def extractTags0(tree: Term) =
+    getAnnotation(tree) match
+      case Some(annot) =>
+        annot.asExprOf[cacheLevel] match
+          case '{ cacheLevel(include = Array.empty[CacheLevelTag]($_)) } => Nil
+          case '{ cacheLevel(include = Array[CacheLevelTag]($include*)) } =>
+            include.value.get.toList
+          case _ => sys.error(Printer.TreeStructure.show(annot) + " does not match")
+      case None => CacheLevelTag.all.toList
+  tree match
+    case Inlined(_, _, tree) => extractTags(tree)
+    case Apply(_, List(arg)) => extractTags(arg)
+    case _                   => extractTags0(tree)
+```
+
+it's pretty cool that we can pattern match on the `cacheLevel(...)` tree using quote syntax. in the above, `include.value` uses `FromExpr` to directly parse the direct values. to pass the tags back into the code, we do something like the following, which uses `ToExpr` typeclass, to construct an `Expr` of a list:
+
+```scala
+val tagsExpr = '{ List(${ Varargs(tags.map(Expr[CacheLevelTag](_))) }: _*) }
+```
+
+This refactoring required some repetitive edits, so picked up a few Helix tricks along the way (all in the user manual):
+
+- jump to next error in the buffer: `]d`
+- select inside of a closest surrounding pair: `mim`
+- use a register: `"<reg>`
+- replace with yanked text: `R`
+
+<a id="#27"></a>
+#### 2023-12-27
+I've implemented the new caching in a new subproject called `utilCacheResolver`, but I've consolidated it to existing `utilCache` instead by dropping Scala 2.x support.
+
+next, I've [replaced](https://github.com/sbt/sbt/pull/7464/commits/8f393e8c23837f1b55731430c4ca98a77e5057d0) `ActionInput` class with a Scala 3 [opaque type](https://docs.scala-lang.org/scala3/reference/other-new-features/opaques.html) called `Digest` instead:
+
+```scala
+import sjsonnew.IsoString
+
+opaque type Digest = String
+
+object Digest:
+  def apply(s: String): Digest =
+    validateString(s)
+    s
+
+  private def validateString(s: String): Unit =
+    val tokens = s.split("-").toList
+    tokens match
+      case "md5" :: value :: Nil     => ()
+      case "sha1" :: value :: Nil    => ()
+      case "sha256" :: value :: Nil  => ()
+      case "sha384" :: value :: Nil  => ()
+      case "sha512" :: value :: Nil  => ()
+      case "murmur3" :: value :: Nil => ()
+      case _                         => throw IllegalArgumentException(s"unexpected digest: $s")
+    ()
+
+  given IsoString[Digest] = IsoString.iso(x => x, s => s)
+end Digest
+```
+
+for some reason I thought it's not possible to implement an opaque type at top-level, but I guess it's not a problem. it almost doesn't do anything, and that's sort of the point. previously, these almost-nothings still required a dedicated case class (or value class) but opaque type gives a nicer solution that compiles away, and hopefully easier to maintain binary compatibility.
+
 <a id="#26"></a>
 #### 2023-12-26
-went to a brunch hosted at a friend's house. we've learned the lession and contacted the hosts ahead of bringing a baker's dozen of Hoboken Hot Bagels, in my opinion the best bagel in the world, with two kind of cream cheese and a pound of lox (smoked salmon), and other pastries
+went to a brunch at friends' house. we've learned the lesson and contacted the hosts ahead of bringing a baker's dozen of Hoboken Hot Bagels (the best bagel in the world) with two kinds of cream cheese and a pound of lox (smoked salmon), and other pastries
 
-went skating in the evening at the park. worked on tail stall while rolling.
+went skating at the park in the evening. worked on tail stop.
 
 for the remote cache PR, contiued on change the blob hashing to SHA-256 because bunch of tests failed yesterday. eventually got it to work. I've been faking the caching of metabuild, but somehow this change required me to actually implement a disk cache during the booting process.
 
