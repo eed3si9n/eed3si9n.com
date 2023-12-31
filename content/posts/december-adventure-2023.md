@@ -14,14 +14,14 @@ my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some po
 #### 2023-12-30
 my wife and I prepare osechi (お節), japanese new year food some vegan, others non-veg. given that osechi is actually similar to korean dishes, we first hit H-Mart to grab side dishes like pickled radish, boiled black beans, also cream puffs, clementines, imported kelp, dried shiitake mushrooms etc.
 
-next I prepared two kinds of vegan dashi (broth), kombu dashi and dried shiitake dashi, which form the foundation of osechi. recipe is at </recipes/vegan-dashi.html>.
+next I prepared two kinds of vegan dashi (broth), kombu dashi and dried shiitake dashi, which form the foundation of osechi. recipe is at [/recipes/vegan-dashi](/recipes/vegan-dashi.html).
 
 <a id="#28"></a>
 #### 2023-12-28
 I wanted to generalize `@cacheOptOut(...)` attribute to:
 
 ```scala
-@cacheLevel(incude = Array(CacheLevelTag.Local, ...))
+@cacheLevel(include = Array(CacheLevelTag.Local, ...))
 ```
 
 so we can mark some input to be no-cache, local-only, or both local and remote.

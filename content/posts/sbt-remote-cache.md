@@ -96,22 +96,19 @@ For this to work, the input tuple must satisfy [`sjsonnew.HashWriter`][HashWrite
 The following trait abstracts over a cache backend.
 
 ```scala
-class ActionInput(hash: String):
-  def inputHash: String = hash
-  ....
-end ActionInput
+opaque type Digest = String
 
 /**
  * An abstration of a remote or local cache store.
  */
 trait ActionCacheStore:
   def put[A1: ClassTag: JsonFormat](
-      key: ActionInput,
+      actionDigest: Digest,
       value: A1,
       blobs: Seq[VirtualFile],
   ): ActionResult[A1]
 
-  def get[A1: ClassTag: JsonFormat](key: ActionInput): Option[ActionResult[A1]]
+  def get[A1: ClassTag: JsonFormat](input: Digest): Option[ActionResult[A1]]
 
   def putBlobs(blobs: Seq[VirtualFile]): Seq[HashedVirtualFileRef]
 
@@ -238,17 +235,24 @@ ActionCache.cache[(String, String), String](
 
 This is probably a decent default behavior, but in practice there are some keys that you'd want to exclude from the cache key. For example, `streams` key is used for logging, and is given a fresh value each time, which has no meaningful value for serialization. There's no reason to try to turn it into JSON.
 
-I've added an annotation called `cacheOptOut(...)` for this purpose:
+I've added an annotation called `cacheLevel(...)` for this purpose:
 
 ```scala
 @meta.getter
-class cacheOptOut(reason: String = "") extends StaticAnnotation
+class cacheLevel(
+    include: Array[CacheLevelTag],
+) extends StaticAnnotation
+
+enum CacheLevelTag:
+  case Local
+  case Remote
+end CacheLevelTag
 ```
 
 Now we can opt-out `streams` as follows:
 
 ```scala
-@cacheOptOut(reason = "not useful as a cache key")
+@cacheLevel(include = Array.empty)
 val streams = taskKey[TaskStreams]("Provides streams for logging and persisting data.")
   .withRank(DTask)
 ```

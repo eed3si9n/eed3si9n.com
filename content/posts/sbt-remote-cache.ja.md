@@ -98,22 +98,19 @@ someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
 以下の trait はキャッシュのバックエンドを抽象化する。
 
 ```scala
-class ActionInput(hash: String):
-  def inputHash: String = hash
-  ....
-end ActionInput
+opaque type Digest = String
 
 /**
  * An abstration of a remote or local cache store.
  */
 trait ActionCacheStore:
   def put[A1: ClassTag: JsonFormat](
-      key: ActionInput,
+      actionDigest: Digest,
       value: A1,
       blobs: Seq[VirtualFile],
   ): ActionResult[A1]
 
-  def get[A1: ClassTag: JsonFormat](key: ActionInput): Option[ActionResult[A1]]
+  def get[A1: ClassTag: JsonFormat](input: Digest): Option[ActionResult[A1]]
 
   def putBlobs(blobs: Seq[VirtualFile]): Seq[HashedVirtualFileRef]
 
@@ -240,17 +237,24 @@ ActionCache.cache[(String, String), String](
 
 これは多分デフォルトのふるまいとしては適切だが、実際にはキャッシュキーから除外したいキーもあるはずだ。例えば、ログに使われる `streams` キーなんかは、新しい値が毎回与えられ、シリアライゼーションできる意味のある値を特に持たない。そのため、無理にこれを JSON に変換する必要性が無い。
 
-このような除外のために、`cacheOptOut(...)` というアノテーションを追加した:
+このような除外のために、`cacheLevel(...)` というアノテーションを追加した:
 
 ```scala
 @meta.getter
-class cacheOptOut(reason: String = "") extends StaticAnnotation
+class cacheLevel(
+    include: Array[CacheLevelTag],
+) extends StaticAnnotation
+
+enum CacheLevelTag:
+  case Local
+  case Remote
+end CacheLevelTag
 ```
 
 これで、以下のようにして `streams` をキャッシュからオプトアウトすることができる:
 
 ```scala
-@cacheOptOut(reason = "not useful as a cache key")
+@cacheLevel(include = Array.empty)
 val streams = taskKey[TaskStreams]("Provides streams for logging and persisting data.")
   .withRank(DTask)
 ```
