@@ -131,6 +131,26 @@ Go-to-definition to read the code around. I guess one thing that could be conven
 
 ### what is with the Jazz sounds?
 
-It's partly to comedic effect and to keep the attention. But there's also a bit more. I'm not a huge Jazz buff, I think Bill Evans along with Miles Davis is considered someone who created a more sophisticated modern Jazz sound. While piano, the instrument he plays, is capable of producing all ranges in the orchestra, when he is playing in a trio with bass and drums, he intentionally doesn't play the key note because the bassist would play it, or emulate the bass line. Instead he plays a chord above it, [for example FM7/A](https://www.youtube.com/watch?v=dH3GSrCmzC8). So our ear would hear F but we would feel A with the mixed texture of left hand, right hand, and bass. This elevated both piano and bass from being an accompaniment to front and center.
+It's partly to comedic effect and to keep the attention. But there's also a bit more. I'm not a huge Jazz buff, I think Bill Evans along with Miles Davis is considered someone who created a more sophisticated modern Jazz sound. While piano, the instrument he plays, is capable of producing all ranges in the orchestra, when he is playing in a trio with bass and drums, he intentionally doesn't play the key note because the bassist would play it, or emulate the bass line. Instead he plays a chord above it, [for example FM7/A](https://www.youtube.com/watch?v=wCINvavqFXk). So our ear would hear F but we would feel A with the mixed texture of left hand, right hand, and bass. This elevated both piano and bass from being an accompaniment to front and center.
 
 Helix's simplicity to me feels similar, because it assumes Tree-Sitter and LSP to be the bass note provided by the language tooling.
+
+## tips and tricks
+
+Here are some more tips and tricks, which I'll write down as my own memo.
+
+### normal: jumping to next error in the buffer
+
+`]d`
+
+### normal: replace with yanked text
+
+`R`
+
+### normal: use a register to yank
+
+`"<reg>y`. When you want to yank something into a non-default register, use `"` followed by a letter, like `"ay`.
+
+### match: select inside of closest surrounding pair
+
+`mim`. First `m` goes to Match mode, `i` for inside, and the last `m` is the [closest surround pair](https://docs.helix-editor.com/usage.html#surround).
