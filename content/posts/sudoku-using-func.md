@@ -19,11 +19,11 @@ As covered in [learning Scalaz day 12](http://eed3si9n.com/learning-scalaz-day12
 
 By "applicative functors" Gibbons and Oliveira actually mean composition of applicative functions, not just the typeclass instances. This is evident in the following snippet from the paper:
 
-<haskell>
+```haskell
 data (m ⊠ n) a = Prod { pfst :: m a, psnd :: n a }
 (⊗) :: (Functor m, Functor n) ⇒ (a → m b) → (a → n b) → (a → (m ⊠ n) b)
 (f ⊗ g) x = Prod(f x)(gx)
-</haskell>
+```
 
 The algebraic data type `⊠` is the type-level product, while the infix function `⊗` is the value-level product of two applicative functions, which returns applicative function of type `a → (m ⊠ n) `. In other words, the programmer would construct functions that return an applicative functor, and the type-level compositions are done automatically.
 

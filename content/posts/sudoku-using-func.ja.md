@@ -19,11 +19,11 @@ tags:        [ "scalaz" ]
 
 Gibbons と Oliveira の言う「applicative functor」は実は型クラスのインスタンスだけではなく、applicative 関数の合成も指している。これは論文からの以下の抜粋をみれば明らかだ:
 
-<haskell>
+```haskell
 data (m ⊠ n) a = Prod { pfst :: m a, psnd :: n a }
 (⊗) :: (Functor m, Functor n) ⇒ (a → m b) → (a → n b) → (a → (m ⊠ n) b)
 (f ⊗ g) x = Prod(f x)(gx)
-</haskell>
+```
 
 代数データ型の `⊠` は型レベルの積だが、中置関数の `⊗` は 2つの applicative 関数の値レベルの積で、`a → (m ⊠ n) ` という型の applicative 関数を返す。言い換えると、プログラマは applicative functor を返す関数を構築するだけよくて、型レベルでの合成は自動的に行われる。
 
