@@ -51,10 +51,19 @@ import sjsonnew.{ HashWriter, JsonFormat }
 import xsbti.VirtualFile
 
 object ActionCache:
-  def cache[I: HashWriter, O: JsonFormat: ClassTag](key: I, otherInputs: Long)(
+  def cache[I: HashWriter, O: JsonFormat: ClassTag](
+      key: I,
+      codeContentHash: Digest,
+      extraHash: Digest,
+      tags: List[CacheLevelTag],
+  )(
       action: I => (O, Seq[VirtualFile])
-  ): ActionResult[O] =
-    ...
+  )(
+      config: BuildWideCacheConfiguration
+  ): O =
+    val input =
+      Digest.sha256Hash(codeContentHash, extraHash, Digest.dummy(Hasher.hashUnsafe[I](key)))
+    ....
 end ActionCache
 ```
 
