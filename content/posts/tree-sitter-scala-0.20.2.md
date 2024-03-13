@@ -6,7 +6,7 @@ url:         /tree-sitter-scala-0.20.2
 tags:        [ "scala" ]
 ---
 
-Hi everyone. On behalf of the tree-sitter-scala project, I am happy to announce tree-sitter-scala 0.20.2. The first two segment of the version number comes from the tree-sitter-cli that was used to generate the parser, and the last segment is our actual version number.
+Hi everyone. On behalf of the tree-sitter-scala project, I am happy to announce tree-sitter-scala 0.20.2. The first two segments of the version number comes from the tree-sitter-cli that was used to generate the parser, and the last segment is our actual version number.
 
 ### About tree-sitter-scala
 
