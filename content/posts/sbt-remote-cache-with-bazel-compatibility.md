@@ -39,7 +39,11 @@ This duration is still a few minutes because not all sbt tasks are cached. ... O
 >
 > In real life, what engineers experience often falls somewhere between these two extremes. Build times can vary significantly based on the changes they make.
 
-Back in sbt 2.x cache, thus far I've mostly focused on retrofitting the foundation for a generic mechanism using `compile` tasks, and I have not gotten around to implementing the *remote* part of the remote cache. We'll take a look at it in this post. The implementation proposal is at [sbt/sbt#7525](https://github.com/sbt/sbt/pull/7525).
+Back in sbt 2.x cache, thus far I've mostly focused on retrofitting the foundation for a generic mechanism using `compile` tasks, and I have not gotten around to implementing the *remote* part of the remote cache. We'll take a look at it in this post.
+
+![sbt 2.x and bazel-remote](/images/bazel-remote-2024.png)
+
+The implementation proposal is at [sbt/sbt#7525](https://github.com/sbt/sbt/pull/7525).
 
 <!-- more -->
 
