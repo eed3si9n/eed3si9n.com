@@ -3,6 +3,7 @@ title: "sbt 2.x remote cache with Bazel compatibility"
 type: story
 date: 2024-04-05
 url: /sbt-remote-cache-with-bazel-compat
+tags: [ "sbt" ]
 ---
 
   [remote_execution.proto]: https://github.com/bazelbuild/remote-apis/blob/main/build/bazel/remote/execution/v2/remote_execution.proto
