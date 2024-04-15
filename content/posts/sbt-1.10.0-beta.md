@@ -1,7 +1,7 @@
 ---
-title: "sbt 1.10.0-RC1"
+title: "sbt 1.10.0-RC2"
 type: story
-date: 2024-04-08
+date: 2024-04-15
 url: /sbt-1.10.0-beta
 tags: [ "sbt" ]
 ---
@@ -56,7 +56,7 @@ tags: [ "sbt" ]
   [lm436]: https://github.com/sbt/librarymanagement/pull/436
   [lm433]: https://github.com/sbt/librarymanagement/pull/433
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.10.0-RC1. This is the tenth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.10.0-RC2. This is the tenth feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
 
 The headline features of sbt 1.10.0 are:
 
@@ -72,10 +72,15 @@ The headline features of sbt 1.10.0 are:
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=1.10.0-RC1
+sbt.version=1.10.0-RC2
 ```
 
-This mechanism allows that sbt 1.10.0-RC1 is used only for the builds that you want.
+This mechanism allows that sbt 1.10.0-RC2 is used only for the builds that you want.
+
+### Changes since sbt 1.10.0-RC1
+
+- ConsistentAnalysisFormat is enabled by default.
+- Updates to SIP-51 error message.
 
 ### Changes with compatibility implications
 
@@ -95,9 +100,13 @@ Lukas has also contributed changes to sbt 1.10.0 to enforce stricter `scalaVersi
 ```scala
 sbt:foo> run
 [error] stack trace is suppressed; run last scalaInstance for the full output
-[error] (scalaInstance) `foo/scalaVersion` needs to be upgraded to 2.13.10. To support backwards-only
-[error] binary compatibility (SIP-51), the Scala compiler cannot be older than scala-library on the
-[error] dependency classpath. See `foo/evicted` why scala-library was upgraded from 2.13.5 to 2.13.10.
+[error] (scalaInstance) expected `foo/scalaVersion` to be "2.13.10" or later,
+[error] but found "2.13.5"; upgrade scalaVerion to fix the build.
+[error]
+[error] to support backwards-only binary compatibility (SIP-51),
+[error] the Scala 2.13 compiler cannot be older than scala-library on the
+[error] dependency classpath.
+[error] see `foo/evicted` to know why scala-library 2.13.10 is getting pulled in.
 ```
 
 When you see the error message like above, you can fix this by updating the Scala version to the suggested version (e.g. 2.13.10):
@@ -132,15 +141,27 @@ This was contributed by Lukas Rytz in [#7480][7480].
 
 ### ConsistentAnalysisFormat: new Zinc Analysis serialization
 
-sbt 1.10.0 adds a new Zinc serialization format that is faster and repeatable, unlike the current Protobuf-based serialization. **Note**: We missed this for RC-1. We will adopt this in RC-2.
+sbt 1.10.0 adds a new Zinc serialization format that is faster and repeatable, unlike the current Protobuf-based serialization. Benchmark data based on scala-library + reflect + compiler:
 
-This was contributed by Stefan Zeiger in [zinc#1326][zinc1326].
+|                             | Write time | Read time | File size |
+|-----------------------------|------------|-----------|-----------|
+| sbt Text                    |    1002 ms |    791 ms |   ~ 7102 kB |
+| sbt Binary                  |     654 ms |    277 ms |   ~ 6182 kB |
+| ConsistentBinary            |     157 ms |    100 ms |   3097 kB |
+
+Since Zinc Analysis is internal to sbt, sbt 1.10.0 will enable this format by default. The following setting can be used to opt-out:
+
+```scala
+Global / enableConsistentCompileAnalysis := false
+```
+
+This was contributed by Stefan Zeiger at Databricks in [zinc#1326][zinc1326].
 
 ### New CommandProgress API
 
 sbt 1.10.0 adds a new CommandProgress API.
 
-This was contributed by @dragos in [#7350][7350].
+This was contributed by Iulian Dragos at Gradle Inc in [#7350][7350].
 
 ### Other updates
 
@@ -154,6 +175,14 @@ This was contributed by @dragos in [#7350][7350].
 * Fixes eviction warning message by avoid repeating versions by [@rtyley][@rtyley] in [lm#433][lm433]
 * BSP: Implements `buildTarget/javacOptions` by [@adpi2][@adpi2] in [#7352][7352]
 * BSP: Adds `noOp` field in the compile report by [@adpi2][@adpi2] in [#7496][7496]
+
+### Participation
+
+sbt 1.10.0-RC2 was brought to you by 23 contributors and two good bots: Jerry Tan (friendseeker), Scala Steward, Eugene Yokota (eed3si9n), Kenji Yoshida (xuwei-k), Lukas Rytz, Adrien Piquerez, Iulian Dragos, Dale Wijnand, Domantas Petrauskas, dependabot[bot], Martin Duhem, Heikki Vesalainen, Aleksandra Zdrojowa, Matthias Kurz, Regis Kuckaertz, Seth Tisue, Stefan Zeiger, Alex Zolotko, Hagai Ovadia, Jakub Kozłowski, Michel Davit, Minkyu Lee, Philippus Baalman, Roberto Tyley, Tammo Steffens. Thanks!
+
+Thanks to everyone who's helped improve sbt and Zinc by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
+
+For anyone interested in helping sbt, there are many avenues for you to help, depending on your interest. If you're interested, [Contributing](https://github.com/sbt/sbt/blob/develop/CONTRIBUTING.md), ["help wanted"](https://github.com/sbt/sbt/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22), ["good first issue"](https://github.com/sbt/sbt/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), and [Discussions](https://github.com/sbt/sbt/discussions/) are good starting points.
 
 ----
 
