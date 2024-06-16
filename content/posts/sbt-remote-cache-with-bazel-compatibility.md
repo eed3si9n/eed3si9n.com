@@ -280,19 +280,23 @@ sbt:remote-cache-example> compile
 
 [NativeLink][nativelink] is a relatively new open-source Bazel remote execution backend implementated in Rust with emphasis on performance.
 
-```bash
-cargo install --git https://github.com/TraceMachina/nativelink --tag v0.2.0
-curl -O https://raw.githubusercontent.com/TraceMachina/nativelink/main/nativelink-config/examples/basic_cas.json
-nativelink basic_cas.json
+**Update**: As of June 2024, there's NativeLink Cloud in beta.
+
+1. From <https://app.nativelink.com/>, go to Quickstart and take note of the URLs and `--remote_header`.
+2. Create a file called `$HOME/.sbt/nativelink_credential.txt` and put in the API key:
+
+```
+x-nativelink-api-key=*******
 ```
 
-With the default setup, this should start a remote cache at port 50051. The sbt 2.x configuration would look like this:
+The sbt 2.x configuration would look like this:
 
 ```scala
-Global / remoteCache := Some(uri("grpc://localhost:50051/main"))
+Global / remoteCache := Some(uri("grpcs://something.build-faster.nativelink.net"))
+Global / remoteCacheHeaders += IO.read(BuildPaths.defaultGlobalBase / "nativelink_credential.txt").trim
 ```
 
-Note the instance name `/main`. Run the following twice:
+Run the following twice:
 
 ```bash
 $ rmtrash $HOME/Library/Caches/sbt/v2/ && rmtrash target
