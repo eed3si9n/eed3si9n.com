@@ -12,6 +12,8 @@ tags:        [ "scala" ]
 
 何で Scala 3 をそんなに推すのかと聞かれることがあるので、リスト形式で書き出してみた。順は特に無し。これは僕が Scala 3 をどう書いているかとか、将来どう書きたいのかみたいな個人的な好みに基づいているので、それは注意してほしい。
 
+<!--more-->
+
 <a id="enums-and-gadt"></a>
 ### 1. enum (と GADT)
 
@@ -58,7 +60,7 @@ val res4: List[NewOption[Int]] = List(Some(1))
 
 僕が sbt 2.x で `enum` をどう使うかという例は[酢鶏、パート1](/ja/sudori-part1/)を参照。
 
-GADT というのは、case が具象型を補足できるという意味だ。例えば、`Option[A]` は、`A` に何が入っているかが分かっていない。2つの整数を足すことができるミニ言語を例に GADT を定義する:
+GADT というのは、case が具象型を捕捉できるという意味だ。例えば、`Option[A]` は、`A` に何が入っているかが分かっていない。2つの整数を足すことができるミニ言語を例に GADT を定義する:
 
 ```scala
 scala> enum MiniExpr[A]:
@@ -235,7 +237,7 @@ if condition then expression1 else expression2
 
 という構文を使う。
 
-Scala 3 は[新しい制御構文](https://docs.scala-lang.org/scala3/reference/other-new-features/control-syntax.html)を導入し、これは `then` を使った `if` 式も含まれる。僕が 2018 に書いた　[The state of then](https://contributors.scala-lang.org/t/the-state-of-then/1638) も参照。
+Scala 3 は[新しい制御構文](https://docs.scala-lang.org/scala3/reference/other-new-features/control-syntax.html)を導入し、これは `then` を使った `if` 式も含まれる。僕が 2018 に書いた [The state of then](https://contributors.scala-lang.org/t/the-state-of-then/1638) も参照。
 
 Python、Rust、Swift といった今どきの言語も条件に括弧を必要としないが、`then` も採用していない。if の括弧を `then` で置き換えるたびに、これが Pascala/ML 系言語としての Scala の本来の姿だと笑みがこぼれてしまう。
 
@@ -288,7 +290,7 @@ scala> head(makeList(1))
 val res0: Int = 1
 ```
 
-Miles Sabin さんのような人たちは 10年ぐらいこういうことをやり続けてきてたという背景がある。例えば、Dave Gurnell さんが書いた「The Type Astronaut's Guide to Shapeless」というガイドの [Functional operations on HLists][shapeless-guide] セクション参照。Scala 3 によって「型宇宙飛行士」的アイディアが一次創作に入ってきたのは嬉しい。
+Miles Sabin さんのような人たちが 10年ぐらいこういうことをやり続けてきてたという背景がある。例えば、Dave Gurnell さんが書いた「The Type Astronaut's Guide to Shapeless」というガイドの [Functional operations on HLists][shapeless-guide] セクション参照。Scala 3 によって「型宇宙飛行士」的アイディアが一次創作に入ってきたのは嬉しい。
 
 <a id="tuples"></a>
 ### 7. タプル
@@ -348,7 +350,7 @@ Scala 3 に飛び乗ってしまえばこれらはあんまり考えなくても
 <a id="optional-braces"></a>
 ### 10. 中括弧省略構文
 
-Scala 3 は[中括弧省略構文](https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html)して、多くの `{` と `}` が `:` と文字の字下げで置き換えられるようになった。これは、完全に自由にオプトインできる構文の変更にも関わらず恐らく最も物議を醸した変更点だ。
+Scala 3 は[中括弧省略構文](https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html)を導入して、多くの `{` と `}` が `:` と文字の字下げで置き換えられるようになった。これは、完全に自由にオプトインできる構文の変更にも関わらず恐らく最も物議を醸した変更点だ。
 
 個人的には、この新しい構文は気に入っている。定義の構文は好きだし、`match` その他が中括弧が要らなくなるのも好きだし、関数の本文に中括弧が要らなくなるもの好きだし、"fewer braces" と呼ばれる新しいラムダ構文も好きだ。可能な場合は、基本的に中括弧省略構文を選んでいる:
 
