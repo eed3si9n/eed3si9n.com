@@ -10,9 +10,7 @@ tags: [ "sbt" ]
 
 In February 2024, GitHub released macOS 13 and 14 runner images, making it possible to run CI on ARM macs easily. However, people who started using it noticed that `sbt` runner script was missing from the new macOS images ([actions/runner-images#9369][runner-images-9369]). `ubuntu-24.04` is also missing `sbt` runner.
 
-<s>I've created `sbt/setup-sbt` action to install the official `sbt` runner script and the launcher.</s>
-
-**Update 2024-06-25**: Since there's already another action with the same name, I've renamed it to `sbt/setup-sbt-runner`.
+I've created `sbt/setup-sbt` action to install the official `sbt` runner script and the launcher.
 
 <!--more-->
 
@@ -30,7 +28,7 @@ steps:
     distribution: temurin
     java-version: 17
     cache: sbt
-- uses: sbt/setup-sbt-runner@v1
+- uses: sbt/setup-sbt@v1
 - name: Build and test
   shell: bash
   run: sbt -v +test
@@ -72,7 +70,7 @@ runs:
         path: setupsbt
         key: ${{ runner.os }}-sbt-${{ inputs.sbt-runner-version }}
 
-    - name: "Install sbt runner"
+    - name: "Install sbt"
       shell: bash
       if: steps.cache-dir.outputs.cache-hit != 'true'
       run: |
@@ -95,4 +93,4 @@ runs:
 
 ### summary
 
-Some newer runner images on GitHub Actions are now missing `sbt` runner script. `- uses: sbt/setup-sbt-runner@v1` provides a one-liner workaround to this incovenience.
+Some newer runner images on GitHub Actions are now missing `sbt` runner script. `- uses: sbt/setup-sbt@v1` provides a one-liner workaround to this incovenience.
