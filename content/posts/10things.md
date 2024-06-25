@@ -30,9 +30,9 @@ Scala 3 added [enums](https://docs.scala-lang.org/scala3/book/types-adts-gadts.h
 <div class="admonition note">
 
 An aside about **case**:<br>
-Going back to Scala 2 for a moment, has anyone wondered where the term *case* came from for `case class`es? One theory might be that `case` tracks back from the `switch` statement in language like C and Java, and it's already a reserved word.
+Going back to Scala 2 for a moment, has anyone wondered where the term *case* came from for `case class`es? One theory might be that `case` tracks back from the `switch` statement in languages like C and Java, and it's already a reserved word.
 
-Another origin I might suggest is 1998 email Philip Wadler called [The expression problem][wadler1998] (Wadler was involved in Java generics along with Martin) sent to `java-genericity@galileo.East.Sun.COM`, `odersky@cis.unisa.edu.au`, among others:
+Another origin I might suggest is a 1998 email Philip Wadler called [The expression problem][wadler1998] (Wadler was involved in Java generics along with Martin) sent to `java-genericity@galileo.East.Sun.COM`, `odersky@cis.unisa.edu.au`, among others:
 
 > The Expression Problem is a new name for an old problem.  The goal is
 to define a datatype by **cases**, where one can add new **cases** to the
@@ -43,7 +43,7 @@ casts).
 This shows that back in 1998 "case" was used as a noun to indicate a typelevel branch of a datatype. In this view, a case class provides the users a way to define a typelevel case. However, Scala 2.x's case leaks to the type, which is not great.
 </div>
 
-In Scala 2.x case classes, like `Some(...)` and `None` cases, the values are typed also as `Some[A]` and `None` respectively. This is often not convenient since at the typelevel, we'd want to treat them as `Option[A]`.
+In Scala 2.x case classes, like `Some(...)` and `None` cases, the values are also typed as `Some[A]` and `None` respectively. This is often not convenient since at the typelevel, we'd want to treat them as `Option[A]`.
 
 With Scala 3 enums, `case`s are again used to define typelevel cases, and the values are statically typed to `NewOption[A]`:
 
@@ -102,7 +102,7 @@ scala> MiniExpr.Sum(MiniExpr.I32(1), MiniExpr.Bool(false))
 <a id="opaque-types"></a>
 ### 2. Opaque types
 
-Scala 3 added [`opaque` type aliases](https://docs.scala-lang.org/scala3/reference/other-new-features/opaques.html) (commonly called "opaque types"), which create a new type without overhead. It probably most make sense to wrap numeric types, but I like using it to wrap `String` as well.
+Scala 3 added [`opaque` type aliases](https://docs.scala-lang.org/scala3/reference/other-new-features/opaques.html) (commonly called "opaque types"), which create a new type without overhead. It probably makes the most sense to wrap numeric types, but I like using it to wrap `String` as well.
 
 For example, in [sbt 2.x remote cache](/sbt-remote-cache/), I define an opaque type representing hash digests:
 
@@ -118,7 +118,7 @@ object Digest:
 end Digest
 ```
 
-This creates a lightweight way of defining a new type that hides the internal.
+This creates a lightweight way of defining a new type that hides the internal representation.
 
 ```scala
 scala> def something(d: Digest): Unit = ()
@@ -135,12 +135,12 @@ scala> something("foo")
 1 error found
 ```
 
-Note: Yoshida-san noted that, similar to value class, opaque types in Scala 3 isn't concealed at the JVM level. So if you want to maintain binary compatibility, you have to keep that in mind.
+Note: Yoshida-san noted that, similar to value class, opaque types in Scala 3 aren't concealed at the JVM level. So if you want to maintain binary compatibility, you have to keep that in mind.
 
 <a id="inline"></a>
 ### 3. Inline
 
-Scala 2.x also had `@inline`, but it was more of a directive to the optimizer than a language construct, and so it was difficult to use. On the other hand, Scala 3 adds a proper `inline`, which is guaranteed to inline.
+Scala 2.x also had `@inline`, but it was more of a directive to the optimizer than a language construct, so it was difficult to use. On the other hand, Scala 3 adds a proper `inline`, which is guaranteed to inline.
 
 The `inline` can appear as:
 - [`inline def`](https://docs.scala-lang.org/scala3/reference/metaprogramming/inline.html#inline-definitions-1)
@@ -173,7 +173,7 @@ Inline condition even evaluates constant expression at the compile-time. Since w
 
 In Scala 2.x, the macro system was bolted on as an experimental feature that mostly exposed the guts of the compiler to library authors. With Scala 3, [macros](https://docs.scala-lang.org/scala3/guides/macros/macros.html) are recognized as a legitimate feature, and given many considerations around maintainability and gradual knobs of power. I've written [intro to Scala 3 macros](/intro-to-scala-3-macros/), which hopefully should be a helpful supplementary to the official docs.
 
-In general Scala 3 macro is hygienic, which means that the system prevent unintentional name clashes. Consider a macro that adds 1 at compile-time:
+In general Scala 3 macro is hygienic, which means that the system prevents unintentional name clashes. Consider a macro that adds 1 at compile-time:
 
 ```scala
 import scala.quoted.*
@@ -233,12 +233,12 @@ def taskIfImpl[A1: Type](expr: Expr[A1])(using
       report.errorAndAbort(s"Def.taskIf(...) must contain if expression but found ${expr.asTerm}")
 ```
 
-The end user would pass in either an `if` expression or something else in `Def.task { ... }`, and check is done using pattern matching. With Scala 2.x macros, these operation often required traversing into the abstract syntax tree structure.
+The end user would pass in either an `if` expression or something else in `Def.task { ... }`, and check is done using pattern matching. With Scala 2.x macros, these operations often required traversing into the abstract syntax tree structure.
 
 <a id="then"></a>
 ### 5. then
 
-On a more lighter-hearted things, let's talk about syntax. As someone who coded Object Pascal for a while, I'm happy that in Scala 3 the `if` expression can be written without parenthesis. Likely around 1972, programming language C started putting parenthesis around the `if` condition, and subsequently C++ and Java followed. However, this is more of an anomaly than the rule.
+On a more lighter-hearted note, let's talk about syntax. As someone who coded Object Pascal for a while, I'm happy that in Scala 3 the `if` expression can be written without parenthesis. Likely around 1972, programming language C started putting parenthesis around the `if` condition, and subsequently C++ and Java followed. However, this is more of an anomaly than the rule.
 
 Algol 60, Pascal, ML family of languages (SML, F#), and Haskell all use:
 
@@ -273,7 +273,7 @@ val res0: Boolean = true
 <a id="polymorphic-function"></a>
 ### 6. Polymorphic function
 
-Even with Scala 2.x can implement a parametric functions `makeList` and `head` as follows:
+Even with Scala 2.x, we can implement parametric functions `makeList` and `head` as follows:
 
 ```scala
 scala> def makeList[A1](a: A1): List[A1] = List(a)
@@ -286,7 +286,7 @@ scala> head(makeList(1))
 val res1: Int = 1
 ```
 
-What if we wanted to store that into a `val` instead? What would its type be? This notion, sometimes called rank-n polymorphism is a useful concept that's been popping up in functional programming. See for example [FunctionK](/herding-cats/FunctionK.html). Scala 3 added [polymorphic function](https://docs.scala-lang.org/scala3/reference/new-types/polymorphic-function-types.html) and corresponding polymorphic function type, so poly function can be passed around.
+What if we wanted to store that into a `val` instead? What would its type be? This notion, sometimes called rank-n polymorphism, is a useful concept that's been popping up in functional programming. See for example [FunctionK](/herding-cats/FunctionK.html). Scala 3 added [polymorphic function](https://docs.scala-lang.org/scala3/reference/new-types/polymorphic-function-types.html) and corresponding polymorphic function type, so poly function can be passed around.
 
 ```scala
 scala> val makeList = [a] => (a: a) => List(a)
@@ -299,7 +299,7 @@ scala> head(makeList(1))
 val res0: Int = 1
 ```
 
-People like Miles Sabin have been eating these for breakfast for the last 10 years. See [Functional operations on HLists][shapeless-guide] section of the 'The Type Astronaut's Guide to Shapeless' by Dave Gurnell. Now Scala 3 has adopted these "type astronaut" ideas into the canon, which makes me happy.
+People like Miles Sabin have been eating these for breakfast for the last 10 years. See [Functional operations on HLists][shapeless-guide] section of 'The Type Astronaut's Guide to Shapeless' by Dave Gurnell. Now Scala 3 has adopted these "type astronaut" ideas into the canon, which makes me happy.
 
 <a id="tuples"></a>
 ### 7. Tuples
@@ -322,7 +322,7 @@ scala> type R = Tuple.Size[Int *: String *: Boolean *: EmptyTuple]
 // defined alias type R = 3
 ```
 
-A more useful thing would be to wrap each types into an effect type like `IO[a]`. Let's use `Option[a]` for now:
+A more useful thing would be to wrap each type into an effect type like `IO[a]`. Let's use `Option[a]` for now:
 
 ```scala
 scala> val makeOption: [a] => a => Option[a] = [a] => (a: a) => Option(a)
@@ -352,14 +352,14 @@ extension [A1](inline in: Initialize[A1])
 <a id="scala-2.13-interop"></a>
 ### 9. Scala 2.13 interop
 
-An interesting aspect of Scala 3.x is that it is backward compatible throughout 3.x series, and it's [interoperable between Scala 2.13 ecosystem](https://docs.scala-lang.org/scala3/guides/migration/compatibility-intro.html). In fact, its standard library that of Scala 2.13. Or put another way, it has frontloaded any runtime changes into Scala 2.13, like collection library rewrites.
+An interesting aspect of Scala 3.x is that it is backward compatible throughout 3.x series, and it's [interoperable with the Scala 2.13 ecosystem](https://docs.scala-lang.org/scala3/guides/migration/compatibility-intro.html). In fact, its standard library that of Scala 2.13. Or put another way, it has front-loaded any runtime changes into Scala 2.13, like the collection library rewrites.
 
-This becomes less of a concern once you made the leap to Scala 3, but for companies assessing the migration to Scala 3, it should be a releaf that the runtime semantics of Scala 3 would mostly stay the same. The interop also allows gradual migration to Scala 3.x for application developers.
+This becomes less of a concern once you have made the leap to Scala 3, but for companies assessing the migration to Scala 3, it should be a relief that the runtime semantics of Scala 3 would mostly stay the same. The interop also allows gradual migration to Scala 3.x for application developers.
 
 <a id="optional-braces"></a>
 ### 10. Optional braces syntax
 
-Scala 3 introduced [optional braces](https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html), which allows many of the `{` and `}` to be replaced with `:` indentation instead. This was probably the most controvertial change, even though it was totally an opt-in syntax change.
+Scala 3 introduced [optional braces](https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html), which allows many of the `{` and `}` to be replaced with `:` indentation instead. This was probably the most controversial change, even though it was totally an opt-in syntax change.
 
 Personally, I really like the new syntax. I like the new definition syntax, I like `match` etc not needing braces, I like the function body not needing braces, and I also like the "fewer braces" lambda syntax as well. When possible, I usually opt for the braceless syntax:
 
@@ -391,12 +391,12 @@ scala> def foo: Int =
          x + y
 ```
 
-It would be nice if that is not allowed, but as I've noted, overall I'm a fan of the indentation syntax in Scala 3.
+It would be nice if that were not allowed, but as I've noted, overall I'm a fan of the indentation syntax in Scala 3.
 
 <a id="union-types"></a>
 ### honorable mention: Union types
 
-Scala 3 added [union types](https://docs.scala-lang.org/scala3/reference/new-types/union-types-spec.html). I was kinded of excited about the union type, but in practice I haven't used it yet.
+Scala 3 added [union types](https://docs.scala-lang.org/scala3/reference/new-types/union-types-spec.html). I was kind of excited about the union type, but in practice I haven't used it yet.
 
 ```scala
 scala> type OSIOI = Option[String] | Int | Option[Int]
@@ -430,7 +430,7 @@ It's great that we're no longer constructing a LUB, but even in this case, would
 <a id="multiversal-equality"></a>
 ### honorable mention: Multiversal equality
 
-Scala 2 out of box is notoriously loose about its equality, comparing two values instead of failing to compile. Scala 3 added [multiversal equality](https://docs.scala-lang.org/scala3/book/ca-multiversal-equality.html) to counter this, but the feature is not enabled by default.
+Scala 2 out of the box is notoriously loose about its equality, comparing two uncomparable values instead of failing to compile. Scala 3 added [multiversal equality](https://docs.scala-lang.org/scala3/book/ca-multiversal-equality.html) to counter this, but the feature is not enabled by default.
 
 ```scala
 scala> Option(1) == Option("foo")
