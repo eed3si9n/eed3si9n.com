@@ -239,7 +239,7 @@ if condition then expression1 else expression2
 
 Scala 3 は[新しい制御構文](https://docs.scala-lang.org/scala3/reference/other-new-features/control-syntax.html)を導入し、これは `then` を使った `if` 式も含まれる。僕が 2018 に書いた [The state of then](https://contributors.scala-lang.org/t/the-state-of-then/1638) も参照。
 
-Python、Rust、Swift といった今どきの言語も条件に括弧を必要としないが、`then` も採用していない。if の括弧を `then` で置き換えるたびに、これが Pascala/ML 系言語としての Scala の本来の姿だと笑みがこぼれてしまう。
+Python、Rust、Swift といった今どきの言語も条件に括弧を必要としないが、`then` も採用していない。if の括弧を `then` で置き換えるたびに、これが Pascal/ML 系言語としての Scala の本来の姿だと笑みがこぼれてしまう。
 
 1つ不満を言わせてもらうならば、以下が許されることだ:
 
@@ -295,7 +295,7 @@ Miles Sabin さんのような人たちが 10年ぐらいこういうことを�
 <a id="tuples"></a>
 ### 7. タプル
 
-アリティーと言えば (Shapeless はアリティーを抽象化する)、Scala 3 ではアリティー・ジェネリックな能力を獲得した。詳細は [Tuple.scala](https://github.com/scala/scala3/blob/3.3.3/library/src/scala/Tuple.scala) とか Vincenzo Bazzucchi さんの [Tuples bring generic programming to Scala 3](https://www.scala-lang.org/2021/02/26/tuples-bring-generic-programming-to-scala-3.html) が参考になる:
+アリティーと言えば (Shapeless はアリティーを抽象化する)、Scala 3 ではタプルがアリティー・ジェネリックな能力を獲得した。詳細は [Tuple.scala](https://github.com/scala/scala3/blob/3.3.3/library/src/scala/Tuple.scala) とか Vincenzo Bazzucchi さんの [Tuples bring generic programming to Scala 3](https://www.scala-lang.org/2021/02/26/tuples-bring-generic-programming-to-scala-3.html) が参考になる:
 
 > Scala 3 ではタプルは、新しい演算、型安全性の向上、より少ない制約と、ジェネリックプログラミングの基礎となるデータ構造の Heterogeneous Lists (HLists) への方向性を示す能力を得た。
 
@@ -421,7 +421,7 @@ LUB を作らなくなったのはいいが、`String` と `Option[String]` の�
 <a id="multiversal-equality"></a>
 ### 選外佳作: 多元的等価性
 
-素の状態の Scala 2.x は等価性がザルで、コンパイルを失敗するべき状況でも 2つの値を比較してしまうことで悪名高い。Scala 3 ではその対策として[多元的等価性](https://docs.scala-lang.org/scala3/book/ca-multiversal-equality.html)が導入されたが、デフォルトでは使われていない。
+素の状態の Scala 2.x は等価性がザルで、コンパイルを失敗するべき比較不能な状況でも 2つの値を比較してしまうことで悪名高い。Scala 3 ではその対策として[多元的等価性](https://docs.scala-lang.org/scala3/book/ca-multiversal-equality.html)が導入されたが、デフォルトでは使われていない。
 
 ```scala
 scala> Option(1) == Option("foo")
