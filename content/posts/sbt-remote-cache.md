@@ -219,11 +219,10 @@ This becomes:
 
 ```scala
 someKey <<= i.mapN((wrap(name), wrap(version)), (q1: String, q2: String) => {
-  var o0 = _
+  var o1: VirtualFile = _
   ActionCache.cache[(String, String), String](
     key = (q1, q2),
     otherInputs = 0): input =>
-      var o1: VirtualFile = _
       val output = StringVirtualFile1("a.txt", "foo")
       o1 = output
       (q1 + q2 + "!", List(o1))
