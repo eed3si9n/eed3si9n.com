@@ -168,12 +168,14 @@ It might be worth trying to remove plain settings, and make everything a task of
 
 ### idea 5: BSP support + persistent workers
 
+**status: Needs an RFC?**
+
 To preventing blocking the sbt server, we should consider shipping off long-running tasks to persistent workers, similar to today's `fork` or `bgRun`. The candidate tasks are `run`, `test`, and `console`, but `compile` could be one too.
 
 ### idea 6: more disk cache and remote cache
 
 **status: In Progress**
-implemented in [#7464](https://github.com/sbt/sbt/pull/7464), [#7525](https://github.com/sbt/sbt/pull/7525), etc
+implemented in [#7464](https://github.com/sbt/sbt/pull/7464), [#7525](https://github.com/sbt/sbt/pull/7525), etc. One of the remaining items is test support [#6292](https://github.com/sbt/sbt/issues/6292)
 
 Extending the idea of cached compilation in sbt 1.4.0, we should generalize the mechanism so any task can participate in the remote caching.
 
@@ -183,11 +185,20 @@ See [sbt cache ideas](/sbt-cache-ideas) for details.
 
 Coursier is already the default for dependency resolution, but I think Ivy is involved in publishing. We should consider dropping Ivy from the main artifact, and default to `publishM2` for `publishLocal` etc.
 
+See
+- [Ivyless publishing #7639](https://github.com/sbt/sbt/issues/7639)
+- [Move Ivy library management to a plugin #7640](https://github.com/sbt/sbt/issues/7640)
+
 ### idea 8-A: in-source project matrix
 
 For cross building, in-source and document project matrix.
 
+See
+- [#7641](https://github.com/sbt/sbt/issues/7641)
+
 ### idea 8-B: sbt query
+
+**status: Needs an RFC?**
 
 See [sbt query][query]. Query would be used to filter down the subprojects:
 
