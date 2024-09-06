@@ -46,6 +46,9 @@ Normally during the sbt 1.x cycle, all we can do is add features, and we can't c
 
 ### idea 1: simplify sbt with common settings
 
+**status: Done**<br>
+implemented in [dbaa34](https://github.com/sbt/sbt/pull/6746/commits/dbaa34bdacb796dfca54ecc83e8ed85ea27b5756) in [#6746](https://github.com/sbt/sbt/pull/6746)
+
 About an year ago I wrote an idea-only blog post [simplifying sbt with common settings][common-settings], in which I proposed that we can treat bare settings as common settings in all subprojects. 2.0.0-alpha7 implements this unification of common settings and bare settings. It took me only a day to get the initial implementation.
 
 ```scala
@@ -94,6 +97,9 @@ Since `organization` setting is injected into `util` subproject, `name.value` is
 
 ### idea 2: subsume platform cross building `%%%`
 
+**status: Done**<br>
+implemented in [72af50](https://github.com/sbt/sbt/pull/6746/commits/72af500294f508223195256a5be12bbc7b8c8718) in [#6746](https://github.com/sbt/sbt/pull/6746)
+
 The `%%%` operator, introduced by Scala.JS, is a brilliant mechanism that allows sbt to build JavaScript project which can depend on mixture of Scala.JS and JVM libraries. However, Anton has [brought](https://github.com/sbt/sbt/discussions/6736) up:
 
 > `%%%` vs `%%` is a constant pain point and can lead to downstream breakages.
@@ -135,12 +141,15 @@ This too was relatively small implementation, but hopefully eases the pain aroun
 
 ### idea 3-A: limit dependency configuration to `Compile` and `Test`
 
+**status: On Hold**<br>
+See [RFC-3: drop custom config](/sbt-drop-custom-config) for details.
+
 Here are some more ideas to simplify sbt.
 sbt generally allows creating of custom dependency configuration, but it doesn't work well. For the most part, anything that requires custom configuration should likely be handled using separate subproject instead.
 
-See [RFC-3: drop custom config](/sbt-drop-custom-config) for details.
-
 ### idea 3-B: discourage the use of task scoping
+
+**status: On Hold**
 
 I don't know if we can eliminate task scoping altogether, but maybe we should discourage the use of task scoping, and start creating new keys like:
 
@@ -151,6 +160,8 @@ docScalacOptions
 
 ### idea 4: unify settings and tasks
 
+**status: On Hold**
+
 It might be worth trying to remove plain settings, and make everything a task of some kind, maybe well-cached tasks, available in layers of cache.
 
 ## improving on sbt 1.x innovations
@@ -160,6 +171,9 @@ It might be worth trying to remove plain settings, and make everything a task of
 To preventing blocking the sbt server, we should consider shipping off long-running tasks to persistent workers, similar to today's `fork` or `bgRun`. The candidate tasks are `run`, `test`, and `console`, but `compile` could be one too.
 
 ### idea 6: more disk cache and remote cache
+
+**status: In Progress**
+implemented in [#7464](https://github.com/sbt/sbt/pull/7464), [#7525](https://github.com/sbt/sbt/pull/7525), etc
 
 Extending the idea of cached compilation in sbt 1.4.0, we should generalize the mechanism so any task can participate in the remote caching.
 
@@ -209,9 +223,12 @@ See [#3681][3681].
 
 ### idea 11: documentation
 
+**status: Done**
+implemented in [sbt/website#1173](https://github.com/sbt/website/pull/1173), [sbt/website#1189](https://github.com/sbt/website/pull/1189), [sbt/website#1190](https://github.com/sbt/website/pull/1190).
+
 All sbt 1.x major changes and 2.0 changes need to be documented.
 
-Maybe this is also a good timing to switch to some other static site generator like MkDocs or Docusaurus.
+This is also a good timing to switch to some other static site generator like MkDocs or Docusaurus.
 
 ## feedback
 
