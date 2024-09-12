@@ -397,3 +397,5 @@ sbt:inctest> testQuick
      INVOKESPECIAL munit/Location.<init> (Ljava/lang/String;I)V
      INVOKEVIRTUAL example/CowTest.assert (Lscala/Function0;Lscala/Function0;Lmunit/Location;)V
 ```
+
+**追記**: [scalameta/munit#823](https://github.com/scalameta/munit/pull/823) にて修正プルリクを投げた。

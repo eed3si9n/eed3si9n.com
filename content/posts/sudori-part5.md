@@ -397,3 +397,5 @@ It turns out that some test frameworks use non-hermetic macros. For example, whe
      INVOKESPECIAL munit/Location.<init> (Ljava/lang/String;I)V
      INVOKEVIRTUAL example/CowTest.assert (Lscala/Function0;Lscala/Function0;Lmunit/Location;)V
 ```
+
+**Update**: I sent [scalameta/munit#823](https://github.com/scalameta/munit/pull/823) to fix this.
