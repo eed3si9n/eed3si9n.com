@@ -198,9 +198,9 @@ See
 
 ### idea 8-B: sbt query
 
-**status: Needs an RFC?**
+**status: In Porgress**
 
-See [sbt query][query]. Query would be used to filter down the subprojects:
+See [#7699](https://github.com/sbt/sbt/pull/7699). See [sbt query][query]. Query would be used to filter down the subprojects:
 
 ```scala
 $ sbt query ...
