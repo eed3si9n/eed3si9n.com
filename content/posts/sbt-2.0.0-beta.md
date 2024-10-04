@@ -14,7 +14,7 @@ I work on sbt in my own time with collaboration with Adrien Piquerez at Scala Ce
 
 - sbt 2.x uses Scala 3.x for build definitions and plugins (Both sbt 1.x and 2.x are capable of building Scala 2.x and 3.x)
 - Common settings. Bare settings are added to all subprojects, as opposed to just the root subproject, and thus replacing the role that ThisBuild has played.
-- Local/remote cache system that is Bazel-compatible.
+- Local/remote cache system that is Bazel-compatible. `compile` and `test` are both rewritten to be cachable tasks.
 - `test` changed to incremental test.
 - Extension of the unified slash syntax to support query of subprojects.
 - New documentation
@@ -103,7 +103,7 @@ The above runs all subprojects whose `scalaBinaryVersion` is `3`. Contributed by
 
 ### Local/remote cache system
 
-sbt 2.x implements cached task, which can automatically cache the task results to local disk and Bazel-compatible remote cache.
+sbt 2.x implements cached task, which can automatically cache the task results to local disk and Bazel-compatible remote cache. Initially, `compile` and `test` are both rewritten to be cachable. Plugin authors can use this to make their tasks remote-cachable.
 
 ```scala
 lazy val task1 = taskKey[String]("doc for task1")
