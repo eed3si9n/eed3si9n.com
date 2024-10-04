@@ -97,10 +97,38 @@ The PR is at <https://github.com/sbt/sbt/pull/7699>.
 Why use `...` and `@` instead of, let's say `*` and `?`? The dot (`.`) and at-sign (`@`) seem to work on shell evironment without quoting. So I could write:
 
 ```bash
-$ sbt --client ...@scalaBinaryVersion=3/test
+$ sbt --client .../test
 ```
 
-Otherwise, we would need to quote that.
+On the other hand, if we used `*`, we'd need to to quote the whole thing. `*` might appear to be an intuitive choice, but we'd be creating affordance push door into a pitall. Consider the following:
+
+```bash
+$ sbt */test
+```
+
+In Bash, `*/test` will look for any directories that contains a file or directory named `test`, so there's a good chance it would match `src/test`, so it would actually invoke:
+
+```bash
+$ sbt src/test
+```
+
+This would then fail with the following error message:
+
+```bash
+[error] Expected ID character
+[error] Not a valid command: src (similar: set)
+[error] Expected <unspecified>
+[error] Expected '@scalaBinaryVersion='
+[error] Expected project ID
+[error] Expected configuration
+[error] Expected ':'
+[error] Expected key
+[error] Not a valid key: src (similar: sources, ps, run)
+[error] src/test
+[error]    ^
+```
+
+I can only picture people asking on GitHub issue or elsewhere why they get "Not a valid key: src" when they try to use the query, over and over.
 
 ### `act` command
 
