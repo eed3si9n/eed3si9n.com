@@ -8,7 +8,9 @@ tags: [ "sbt" ]
 
 Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-M2, a beta version of sbt 2.x. Please try it out, and report any issues you might come across. Note that sbt 2.x is released under Semantic Versioning, and the plugins will need to be published for the specific milestone version.
 
-I work on sbt in my own time with collaboration with Adrien Piquerez at Scala Center and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy at EngFlow to name a few.
+I work on sbt in my own time with collaboration with [Adrien Piquerez](https://www.linkedin.com/in/adrien-piquerez-22b478177/) at Scala Center and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy at EngFlow to name a few.
+
+**Note**: This is still a beta. You might need to occasionally wipe out `target`, `project/target/`, `$HOME/Library/Caches/sbt/v2/` etc
 
 ### Headline features
 
@@ -16,7 +18,9 @@ I work on sbt in my own time with collaboration with Adrien Piquerez at Scala Ce
 - Common settings. Bare settings are added to all subprojects, as opposed to just the root subproject, and thus replacing the role that ThisBuild has played.
 - Local/remote cache system that is Bazel-compatible. `compile` and `test` are both rewritten to be cachable tasks.
 - `test` changed to incremental test.
+- Project matrix, which was available via plugin in sbt 1.x, is in-sourced in sbt 2.x.
 - Extension of the unified slash syntax to support query of subprojects.
+- Build Server Protocol improvements. In sbt 2.x the `run` task is non-blocking.
 - New documentation
 
 ### How to upgrade
@@ -35,7 +39,7 @@ Download **the official sbt runner** from SDKMAN, or download from <https://gith
 
 We're rewriting and reorganizing documentation as [The Book of sbt](https://www.scala-sbt.org/2.x/docs/en/index.html). See [sbt 2.0 changes](https://www.scala-sbt.org/2.x/docs/en/changes/sbt-2.0-change-summary.html) for the full list of changes.
 
-See [Migrating from sbt 1.x](https://www.scala-sbt.org/2.x/docs/en/changes/migrating-from-sbt-1.x.html) for the migration guide.
+See [Migrating from sbt 1.x][migration] for the migration guide.
 
 ### Cross build plugins
 
@@ -127,12 +131,14 @@ task1 := (Def.cachedTask {
 }).value
 ```
 
-Contributed by [@eed3si9n][@eed3si9n] in [#7464][7464] / [#7525][7525]
+See also [Caching](https://www.scala-sbt.org/2.x/docs/en/concepts/caching.html) documentation. Contributed by [@eed3si9n][@eed3si9n] in [#7464][7464] / [#7525][7525]
 
 ### Next steps
 
+See [Migrating from sbt 1.x][migration] for the migration guide.
+
 - Please try using it, and report bugs, or contribute bug fixes.
-- sbt ecosystem has a lot of plugins. Help us cross build them to both sbt 1.x and 2.x.
+- sbt ecosystem has a lot of plugins. [Help us cross build](https://github.com/sbt/sbt/wiki/sbt-2.x-plugin-migration) them to both sbt 1.x and 2.x.
 
   [6746]: https://github.com/sbt/sbt/pull/6746
   [7464]: https://github.com/sbt/sbt/pull/7464
@@ -144,3 +150,5 @@ Contributed by [@eed3si9n][@eed3si9n] in [#7464][7464] / [#7525][7525]
   [7712]: https://github.com/sbt/sbt/pull/7712
   [@eed3si9n]: https://github.com/eed3si9n
   [@adpi2]: https://github.com/adpi2
+  [migration]: https://www.scala-sbt.org/2.x/docs/en/changes/migrating-from-sbt-1.x.html
+
