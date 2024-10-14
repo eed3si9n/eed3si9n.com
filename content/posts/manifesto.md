@@ -6,13 +6,15 @@ url:         /manifesto
 tags:        [ "scala" ]
 ---
 
-I released Scala 3 Manifesto, a small library to reimplement `scala.reflect.Manifest` in Scala 3.
+Over the weekend, I created Scala 3 Manifesto 0.1.0, a small library to re-implement `scala.reflect.Manifest` in Scala 3.
 
 Programming languages operate at two levels. First, the material level where bits and bytes are moved to take actions. Second, there is a higher, spiritual level that describes the material level. The first level is the runtime. The second level is the compile-time. Scala programs are written using `val` terms that are typed, but at the JVM bytecode, JS, or Native, the variables turn into something different, often more general. For example, a variable typed to `List[Int]` becomes `List[AnyRef]` at runtime.
 
 ### Example of Scala 2.x Manifest
 
 In Scala 2.x, `scala.reflect.Manifest` provides a mechanism to materialize the spiritual (type) information into the runtime. This is called _reification_.
+
+Here's a demonstration of the limitation caused by type erasure:
 
 ```scala
 // BAD EXAMPLE in Scala 2.12.20
@@ -31,7 +33,7 @@ object Hello extends App {
 }
 ```
 
-If you run the code using Scala 2.12.20, you get:
+If you run the code on either Scala 2.x or 3.x, you get an incorrect answer:
 
 ```scala
 sbt:foo> run
@@ -39,7 +41,9 @@ sbt:foo> run
 xs is List[Int]
 ```
 
-This is because the pattern match runs at runtime, and `List[Int]` and `List[String]` are not distinguished. We can fix this by capturing the type information of `List("hi")`:
+This is because the pattern match runs at runtime, and `List[Int]` and `List[String]` are not distinguished.
+
+We can fix this problem by capturing the type information of `List("hi")`, and do our own type checking:
 
 ```scala
 package example
@@ -69,13 +73,13 @@ sbt:foo> run
 xs is List[String]
 ```
 
-`Manifest` provides `typeArguments` method to traverse into the type parameters. Generally `Manifest` provides a lightweight interface for metaprogramming without going into the macros.
+`Manifest` also provides `typeArguments` method to traverse into the type parameters. Generally speaking, `Manifest` provides a lightweight interface for metaprogramming without going into the macros.
 
 #### Scala 3 problem
 
 In Scala 3 `Manifest` still works, but it shows a deprecation warning:
 
-```
+```scala
 [warn] -- Deprecation Warning: src/main/scala/Hello.scala:6:25 -------
 [warn] 6 |  println(foo(List("hi")))
 [warn]   |                         ^
@@ -106,8 +110,24 @@ def foo[A1: ClassTag](xs: A1): String =
     case xs: List[String] if m == mls => "xs is List[String]"
 ```
 
-```
+```scala
 sbt:foo> run
+[info] running example.hello
+xs is List[Int]
+```
+
+Scala 3 also adds a mechanism called [TypeTest](https://docs.scala-lang.org/scala3/reference/other-new-features/type-test.html), which might make the pattern match look nicer, but the default `TypeTest` cannot capture the type arguments:
+
+```scala
+sbt:foo> run
+[info] compiling 1 Scala source to xxx/target/out/jvm/scala-3.5.1/foo/backend ...
+[warn] -- [E092] Pattern Match Unchecked Warning: xxx/src/main/scala/Hello.scala:7:25
+[warn] 7 |  println(foo(List("hi")))
+[warn]   |                         ^
+[warn]   |the type test for List[Int] cannot be checked at runtime because its type arguments can't be determined from List[String]
+[warn]   |
+[warn]   | longer explanation available when compiling with `-explain`
+[warn] one warning found
 [info] running example.hello
 xs is List[Int]
 ```
@@ -187,3 +207,11 @@ end Manifesto
 The [derivation code](https://github.com/eed3si9n/manifesto/blob/main/src/main/scala/com/eed3si9n/manifesto/Derivation.scala) is a relatively simple Scala 3 macro that traverses over the `TypeRepr`. `TypeRepr` provides access to the type information during compile-time. So we can retreieve the class name at each level, and recursively creates `Manifesto` structure.
 
 `Manifest` provides more features, but for my own use case having this information allows me to cross build with both Scala 2.x and 3.x with a minimum shim.
+
+### Prior works
+
+There are several projects that are related to this idea:
+
+- [gzoller/scala-reflection](https://github.com/gzoller/scala-reflection)
+- [zio/izumi-reflect](https://github.com/zio/izumi-reflect)
+- [typelevel/shapeless-3](https://github.com/typelevel/shapeless-3/blob/main/modules/typeable/src/main/scala/shapeless3/typeable/typeable.scala)
