@@ -35,11 +35,11 @@ In addition, cross building against Scala.JS, Scala Native, or arbitrary virtual
 
 In case you're not aware, Scala 3.x series shares the standard library with Scala 2.13.x series, and through compatibility efforts like TASTy reader, libraries compiled against Scala 2.13 and 3.x can interoperate with each other. I've been calling this Scala 2.13-3.x sandwich:
 
-- Apps compiled against Scala 2.13.x
-- Libraries compiled against Scala 3.x
-- scala-library, and Scala 2.13 only libraries
+- Apps compiled against Scala 2.13.x can depend on the following layers
+- Libraries compiled against Scala 3.x can depend on the following layers
+- scala-library, and libraries that depend only on Scala 2.13
 
-I implemented [parallel cross building sandwich](/parallel-cross-building-sandwich), before Scala 3.0 actually shipped, and apparently it worked only for beta versions. I recently fixed this on sbt 2.x code base, and [#97](https://github.com/sbt/sbt-projectmatrix/pull/97) backports a part of the fix so Scala 2.13-3.x sandwich actually works with projectMatrix.
+I implemented [parallel cross building sandwich](/parallel-cross-building-sandwich), before Scala 3.0 actually shipped, and apparently it worked only for beta versions. I recently fixed this on sbt 2.x code base, and [#97](https://github.com/sbt/sbt-projectmatrix/pull/97) backports some parts of the fix so Scala 2.13-3.x sandwich actually works with projectMatrix.
 
 ## updates
 
