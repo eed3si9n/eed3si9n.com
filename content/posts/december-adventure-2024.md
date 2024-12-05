@@ -22,7 +22,7 @@ went skating in the morning before work. 8.25 inch + AF-1 still feels heavy comp
 | Independent Stage 11 Hollow |   [351 g](https://nhsskatedirect.com/products/stage-11-hollow-silver-ano-red-standard-skateboard-trucks-independent?variant=45317833392285) |
 | Ace AF-1 44 | [393 g](https://www.skatedeluxe.com/en/p/ace-x-carhartt-wip-44-af1-truck-carhartt-orange-silver-8-25-2-pack_p173877#&gid=1&pid=1) |
 
-the above chart illustrates why AF-1 feels heavier to me. on the positive side, I'm exploring non-ollie tricks too so I should keep skating this setup until I get bored.
+the above chart illustrates why AF-1 feels heavier to me. on the positive side, I'm exploring non-ollie tricks too so I should keep skating this setup a bit more.
 
 no night hacking today, but I'll document one of sbt 2.x bug fix that I implemented on day 1.
 
