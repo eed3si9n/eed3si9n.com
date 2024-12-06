@@ -9,7 +9,50 @@ I'm going to try to work on something small everyday during december. see the or
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
+<a id="#5"></a>
+### 2024-12-05
+
+my two cents on compilers: compilers should be silent if it did exactly what was told. any warnings should be actionable such that the user can get rid of the warning somehow. `-Xmigration` notices might be an exception. I feel like I've been saying this for [years](https://github.com/scala/scala-dev/issues/513#issuecomment-402602751).
+
+<!--
+https://github.com/scala/bug/issues/12961#issuecomment-1971224874
+-->
+
+as a low effort exploration, I decided to try the next Scala 3.x, Scala 3.6.2-RC3. unfortunately the compilation failed under `-Xfatal-warnings` because Scala 3.6.2-RC3 decided to display some warnings:
+
+```scala
+[warn] -- Warning: /xxx/sbt/protocol/src/main/contraband-scala/sbt/protocol/codec/SettingQuerySuccessFormats.scala:14:91
+[warn] 14 |      val value = unbuilder.readField[sjsonnew.shaded.scalajson.ast.unsafe.JValue]("value")
+[warn]    |                                                                                           ^
+[warn]    |Given search preference for sjsonnew.JsonReader[sjsonnew.shaded.scalajson.ast.unsafe.JValue] between alternatives
+[warn]    |  (SettingQuerySuccessFormats.this.JValueFormat :
+[warn]    |  sjsonnew.JsonFormat[sjsonnew.shaded.scalajson.ast.unsafe.JValue])
+[warn]    |and
+[warn]    |  (SettingQuerySuccessFormats.this.JValueJsonReader :
+[warn]    |  sjsonnew.JsonReader[sjsonnew.shaded.scalajson.ast.unsafe.JValue])
+[warn]    |will change.
+[warn]    |Current choice           : the first alternative
+[warn]    |New choice from Scala 3.7: the second alternative
+[error] No warnings can be incurred under -Werror (or -Xfatal-warnings)
+[warn] two warnings found
+[error] one error found
+```
+
+so in Scala 3.6 givens search prioritization is going to change, and we're using compiler to announce this? setting aside the change itself, I think these "FYI - something WILL change" notification should go to `-Xmigration:3.5.0`. if anyone uses Scala 3.x for a library or an app, they'll look at this warning every time they compile the code. I submitted [scala/scala3#22153](https://github.com/scala/scala3/issues/22153) to file this as a bug.
+
+sent PR [#7928](https://github.com/sbt/sbt/pull/7928) to update the Scala CLA checker URL to <https://contribute.akka.io/contribute/cla/scala/check/>. note that the checker is hosted by Lightbend, Inc. dba Akka, but the CLA signs the rights away to EPFL for sbt code.
+
+addressed one of review comments, from last night's URI changes and landed [#7927](https://github.com/sbt/sbt/pull/7927).
+
 <!-- more -->
+
+<a id="#4"></a>
+### 2024-12-04
+sent a PR [#7927](https://github.com/sbt/sbt/pull/7927).
+
+`java.net.URL` infamously calls out to the network to perform `equals`, so likely we should avoid it for keys and data types that might be used in caching. thankfully not too many keys are URLs so I changed them all to URI.
+
+related, I cherry picked a commit from a dormant PR that turns license information into a data type, as opposed to a tuple of `(String, URL)`. I had a few backward compatibility suggestions in the PR, and I just implemented the suggestions myself.
 
 <a id="#3"></a>
 ### 2024-12-03
