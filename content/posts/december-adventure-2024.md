@@ -1,13 +1,275 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-03
+date:        2024-12-08
 url:         /december-adventure-2024
 ---
 
 I'm going to try to work on something small everyday during december. see the original [December Adventure](https://eli.li/december-adventure).
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
+
+<a id="#8"></a>
+### 2024-12-08
+
+switching gear to sbt 2.0.0-M2 bug. let's look into the `exists` problem [#7931](https://github.com/sbt/sbt/issues/7931), which is the top priority issue we need for 2.0.0-M3. one of the changes I made in sbt 2.x is the location of `target` directory. in sbt 1.x each subproject has its own `target` directory where the build artifacts like `*.class` files and `*.jar` files are created. in this model, the source code and binary directory are intertwined with each other. in sbt 2.x, there's going to be one `target` directory for the entire build, and each subproject would create a subdirectory under `target`:
+
+```bash
+target/out/jvm/scala-3.5.2/root/classes/example/A.class
+```
+
+the problem is that now it's difficult to write a scripted test that would work for both sbt 1.x and 2.x. a solution that I came up today is to allow glob support in the scripted test commands liks like `exists` and `absent`. for example the above can be tested as:
+
+```bash
+$ exists target/**/classes/example/A.class
+```
+
+the `**` part would match to zero or more directories, so that should ignore the extra levels in sbt 2.x. a more tricky example might be:
+
+```bash
+# sbt 1.x
+$ exists core/target/scala-3.5.2/classes/example/A.class
+
+# sbt 2.x
+$ exists target/out/jvm/scala-3.5.2/core/classes/example/A.class
+```
+
+for this, I've added `||` so we can write:
+
+```bash
+$ exists core/target/scala-3.5.2/classes/example/A.class || target/out/jvm/scala-3.5.2/core/classes/example/A.class
+```
+
+this would match either the path. given that `||` isn't going to exist as a file name, this should be a safe change to introduce. we should still abstract out the Scala version so we don't have to update it each time we bump the Scala version:
+
+```bash
+$ exists core/target/scala-3.*/classes/example/A.class || target/out/jvm/scala-3.*/core/classes/example/A.class
+```
+
+in scripted, the file commands are implemented in [FileCommands.scala](https://github.com/sbt/sbt/blob/ffb6770bdee26e7ac94fcd3bc250132b626c805e/internal/util-scripted/src/main/scala/sbt/internal/scripted/FileCommands.scala). glob functionality already exists in sbt 1.x as part of a change Ethan implemented for `~` improvements. first, we need to progress the arguments passed into `exitst` into `List[PathFilter]`:
+
+```scala
+def filterFromStrings(exprs: List[String]): List[PathFilter] =
+  def orGlobs =
+    val exprs1 = exprs.mkString("").split(OR)
+      .filter(_ != OR).toList.map(_.trim)
+    val combined = exprs1.map(Glob(baseDirectory, _)) match
+      case Nil      => sys.error("unexpected Nil")
+      case g :: Nil => (g: PathFilter)
+      case g :: gs =>
+        gs.foldLeft(g: PathFilter) { case (acc, g) =>
+          acc || (g: PathFilter)
+        }
+    List(combined)
+  if exprs.contains("||") then orGlobs
+  else exprs.map(Glob(baseDirectory, _): PathFilter)
+```
+
+we can then pass this into `FileTreeView.Ops(FileTreeView.default)` to see if the filter returns anything. is the returns is non-empty `exists` succeeds, and if the result is empty `absent` succeeds. PR for this is [#7932](https://github.com/sbt/sbt/pull/7932).
+
+#### skating notes
+
+went skating in the afternoon a bit since it's relatively nicer 11C/52F. more awkward penguin walks and monster walks. still trying to get used to ollie with AF-1. AF-1 is physically heavier, but what's throwing me off literally might be more to do with timing of Indy Hollow vs AF-1. with Indy Hollow, I just needed to put some pressure upfront, and jump, and the pop happened on its own a split seconds later. with AF-1, part of the heaviness might just be unweighing timing. with AF-1 I sometimes jump up and I'm off the board, which likely means front leg needs to go up faster? on a positive note, when I can pop, it feels like the board comes up slower. if I can hang in the air, the perceived slowness could buy me time, potentially to a leveled out the ollie.
+
+<a id="#7"></a>
+### 2024-12-07
+went skating for a few hours in the evening. given that people go skiing and snow boarding in the mountain, I guess any temperature is skatable if you wear the right layers. my 4C/38F outfit was t-shirt, [uniqlo flannel](https://www.uniqlo.com/us/en/products/E470187-000/00?colorDisplayCode=03), big hoodie, [lululemon jogger in a nice chino pants color](https://shop.lululemon.com/p/men-joggers/Abc-Jogger/_/prod8530240?color=29283), beanie hat, and a pair of thin gloves. after a while, I was running too warm and it was windy so switched hoodie with a marmot minimalist. put another way, skateboarding is snowboarding that you can do at your local empty park.
+
+continuing from yesterday on the thin client. in case you didn't know, sbt ships with a native thin client called sbtn, which can communicate with an existing sbt session. the motivation for the thin client is to reduce the startup speed (if the server is already up) and share the session with IDEs.
+
+I posted the `socat` dump of the UNIX domain socket: <https://gist.github.com/eed3si9n/0e104e33caa18e468aab92af10dfaf28>. in the session I issued `compile` task. it might be surprising to see nearly 700 lines of log for passing in `compile`. same as LSP, the first handshake is called [initialize](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#initialize). next, we identified `sbt/attach` method.
+
+next, sbt server starts asking the thin client back for information:
+
+```json
+{"jsonrpc":"2.0","id":"b8d058b0-af7a-4d40-93a9-5e2432183fe7","method":"sbt/terminalPropertiesQuery","params":""}
+```
+
+to this the thin client responds:
+
+```json
+{ "jsonrpc": "2.0", "id": "b8d058b0-af7a-4d40-93a9-5e2432183fe7", "result": {"type":"TerminalPropertiesResponse","width":316,"height":43,"isAnsiSupported":true,"isColorEnabled":true,"isSupershellEnabled":true,"isEchoEnabled":true} }
+```
+
+sbt server then starts forwarding stdout:
+
+```json
+{"jsonrpc":"2.0","method":"sbt/systemOut","params":[27,91,48,74]}
+{"jsonrpc":"2.0","method":"sbt/systemOut","params":[27,91,50,75,27,91,49,48,48,48,68,27,91,48,74]}
+{"jsonrpc":"2.0","method":"sbt/systemOut","params":[27,91,50,75,27,91,49,48,48,48,68,27,91,48,74]}
+```
+
+I typed the following to chatgpt:
+
+> Decode the following, assuming that the numbers represent ASCII code in decimal:
+> `[27,91,48,74]`
+
+the response was:
+
+> `ESC [ 0 J`<br>
+> This sequence is a common ANSI escape code used in terminal control. Specifically, `ESC [ 0 J` clears the screen from the cursor to the end.
+
+so far this all makes sense. then comes lines after lines of `sbt/terminalCapabilities` method by sbt server:
+
+```json
+{"jsonrpc":"2.0","id":"10a87b11-001f-407f-aa67-a48e6cead549","method":"sbt/terminalCapabilities","params":{"numeric":"max_colors"}}
+{ "jsonrpc": "2.0", "id": "10a87b11-001f-407f-aa67-a48e6cead549", "result": {"type":"TerminalCapabilitiesResponse","numeric":256} }
+{"jsonrpc":"2.0","id":"67296a90-e9b1-4dd9-af4b-8adf89f8556e","method":"sbt/terminalCapabilities","params":{"string":"key_a1"}}
+{ "jsonrpc": "2.0", "id": "67296a90-e9b1-4dd9-af4b-8adf89f8556e", "result": {"type":"TerminalCapabilitiesResponse","string":"null"} }
+{"jsonrpc":"2.0","id":"ac7e102d-2815-401e-8cc6-f490c3aa9a5a","method":"sbt/terminalCapabilities","params":{"string":"key_a3"}}
+{ "jsonrpc": "2.0", "id": "ac7e102d-2815-401e-8cc6-f490c3aa9a5a", "result": {"type":"TerminalCapabilitiesResponse","string":"null"} }
+{"jsonrpc":"2.0","id":"b846fbb7-6370-4a0b-8fde-47d5ea94ba2e","method":"sbt/terminalCapabilities","params":{"string":"key_b2"}}
+{ "jsonrpc": "2.0", "id": "b846fbb7-6370-4a0b-8fde-47d5ea94ba2e", "result": {"type":"TerminalCapabilitiesResponse","string":"\\\\EOE"} }
+....
+{"jsonrpc":"2.0","id":"b90e4668-8d51-4e83-bf8f-8c958da17dd6","method":"sbt/terminalCapabilities","params":{"string":"exit_alt_charset_mode"}}
+{ "jsonrpc": "2.0", "id": "b90e4668-8d51-4e83-bf8f-8c958da17dd6", "result": {"type":"TerminalCapabilitiesResponse","string":"\\\\E(B"} }
+```
+
+some more `sbt/systemout`:
+
+```json
+{"jsonrpc":"2.0","method":"sbt/systemOut","params":[27,91,63,49,104,27,61,27,91,63,50,48,48,52,104,115,98,116,58,102,111,111,27,91,51,54,109,62,32,27,91,48,109]}
+```
+
+according to chatgpt that's:
+
+> `ESC[?1h ESC= ESC[?2004h sbt:foo ESC[36m> ESC[0m`
+
+this is the sbt prompt with cyan `>`.
+
+sbt server then sends
+
+```json
+{"jsonrpc":"2.0","method":"sbt/readSystemIn","params":""}
+```
+
+to prompt for stdin. sbtn sends
+
+```json
+{ "jsonrpc": "2.0", "method": "sbt/systemIn", "params": 99 }
+```
+
+`99` is `c` for `compile`. sbt server goes back to asking a few more the terminal capabilities and sends 'c' back in `sbt/systemOut` method:
+
+```json
+{"jsonrpc":"2.0","method":"sbt/systemOut","params":[99]}
+```
+
+basically it goes on to send `compile` and `\n` (CR). after a few stdout of ANSI control sequences, sbt server sends:
+
+```json
+{"jsonrpc":"2.0","id":"06433732-e24f-4f6a-b278-a39a1b927f1b","method":"sbt/terminalSetRawMode","params":{"toggle":false}}
+```
+
+eventually we get stdout from some super shell outputs from the server:
+
+```json
+{"jsonrpc":"2.0","method":"sbt/systemOut","params":[27,91,49,48,48,48,68,10,27,91,50,75,27,91,50,75,32,32,124,32,61,62,32,102,111,111,32,47,32,117,112,100,97,116,101,32,48,115,10,27,91,50,75,27,91,50,65,27,91,49,48,48,48,68]}
+```
+
+per chatgpt, that says:
+
+```bash
+  | => foo / update 0s
+```
+
+next we kind of get a progress report from the server as well:
+
+```json
+{"jsonrpc":"2.0","method":"build/taskStart","params":{"taskId":{"id":"2","parents":[]},"eventTime":1733553247768,"message":"Compiling foo","dataKind":"compile-task","data":{"target":{"uri":"file:/private/tmp/foo/#foo/Compile"}}}}
+```
+
+in any case, I think we get the idea of the style of communication between the thin client and sbt server. to put simply, it seems like Ethan has implemented `telnet` / `ssh` equivalent over the existing JSON RPC protocol, including color support. let's try uparrow.
+
+```json
+{"jsonrpc":"2.0","method":"sbt/readSystemIn","params":""}
+{ "jsonrpc": "2.0", "method": "sbt/systemIn", "params": 27 }
+{"jsonrpc":"2.0","method":"sbt/readSystemIn","params":""}
+{ "jsonrpc": "2.0", "method": "sbt/systemIn", "params": 79 }
+{"jsonrpc":"2.0","method":"sbt/readSystemIn","params":""}
+{ "jsonrpc": "2.0", "method": "sbt/systemIn", "params": 65 }
+```
+
+sbt server reponded as follows:
+
+```json
+{"jsonrpc":"2.0","method":"sbt/systemOut","params":[99,111,109,112,105,108,101]}
+```
+
+chatgpt says it's `compile`, which mean up-arrow history works! in other words, the thin client faithfully reproduces the sbt shell experience including the history lookup and tab completions. we'll continue tomorrow.
+
+<a id="#6"></a>
+### 2024-12-06
+an area of sbt that likely few people know the details about is the thin client, which was sort of [prototyped first](https://github.com/sbt/sbt/pull/4227) by me, but Ethan Atkins took it to the next level by supporting almost all tasks in a general way. let's try reverse engineering sbtn to see how the native code is communicating with sbt 1.x.
+
+the thin client is part of sbt 1.x's code base, and it's written in Scala 2.12. it is then compiled using GraalVM native-image to turn into a native app. it talks with sbt server, which uses JSON-RPC over a UNIX domain socket like an LSP server. to monitor the communication, first install [socat](https://formulae.brew.sh/formula/socat).
+
+start an sbt session in `/tmp/foo`:
+
+```bash
+$ sbt
+[info] Updated file /private/tmp/foo/project/build.properties: set sbt.version to 1.10.6
+[info] welcome to sbt 1.10.6 (Azul Systems, Inc. Java 1.8.0_402)
+.....
+[info] sbt server started at local:///Users/xxxx/.sbt/1.0/server/aaaa/sock
+[info] started sbt server
+```
+
+`/Users/xxxx/.sbt/1.0/server/aaaa/sock` is the UNIX domain socket, the sbt server is listening. in another terminal, proxy the UNIX domain socket as follows:
+
+```bash
+$ socat -v UNIX-LISTEN:$HOME/.sbt/1.0/server/aaaa/proxy.sock,fork UNIX-CONNECT:$HOME/.sbt/1.0/server/aaaa/sock
+```
+
+next, open `project/target/active.json`:
+
+```json
+{"uri":"local:///Users/xxxx/.sbt/1.0/server/aaaa/sock"}
+```
+
+change the content to `proxy.sock` instead:
+
+```json
+{"uri":"local:///Users/xxxx/.sbt/1.0/server/aaaa/proxy.sock"}
+```
+
+open yet another terminal window in `/tmp/foo`:
+
+```bash
+$ sbt --client
+[info] entering *experimental* thin client - BEEP WHIRR
+[info] terminate the server with `shutdown`
+[info] disconnect from the server with `exit`
+sbt:foo> compile
+[success] Total time: 0 s
+```
+
+if you go back to the `socat` window, the screen should be filled with JSON-RPC.
+
+```json
+> 2024/12/07 01:30:49.000005239  length=181 from=0 to=180
+Content-Length: 158\r
+\r
+{ "jsonrpc": "2.0", "id": "cb0ffdd8-be63-42cb-b853-4fce15a5c9f5", "method": "initialize", "params": { "initializationOptions": { "skipAnalysis" : true } } }\r
+> 2024/12/07 01:30:49.000005821  length=148 from=181 to=328
+Content-Length: 125\r
+\r
+{ "jsonrpc": "2.0", "id": "44b67b11-1551-424d-9b5f-1454112b769c", "method": "sbt/attach", "params": {"interactive": true} }\r
+< 2024/12/07 01:30:49.000028766  length=338 from=0 to=337
+Content-Length: 258\r
+Content-Type: application/vscode-jsonrpc; charset=utf-8\r
+\r
+{"jsonrpc":"2.0","id":"cb0ffdd8-be63-42cb-b853-4fce15a5c9f5","result":{"capabilities":{"textDocumentSync":{"openClose":true,"change":0,"willSave":false,"willSaveWaitUntil":false,"save":{"includeText":false}},"hoverProvider":false,"definitionProvider":true}}}< 2024/12/07 01:30:49.000039588  length=192 from=338 to=529
+....
+```
+
+this shows that sbtn sent `initialize` method, and `sbt/attach` method, and sbt serer responsed to the first request cb0ffdd8 with the list of capabilities supported by the server:
+
+```json
+{"capabilities":{"textDocumentSync":{"openClose":true,"change":0,"willSave":false,"willSaveWaitUntil":false,"save":{"includeText":false}},"hoverProvider":false,"definitionProvider":true}}
+```
+
+full output is here <https://gist.github.com/eed3si9n/0e104e33caa18e468aab92af10dfaf28>. this looks promising. we'll continue tomorrow.
 
 <a id="#5"></a>
 ### 2024-12-05
