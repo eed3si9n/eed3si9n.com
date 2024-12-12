@@ -1,15 +1,237 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-08
+date:        2024-12-11
 url:         /december-adventure-2024
 ---
+
+  [3.6.2]: https://www.scala-lang.org/news/3.6.2
 
 I'm going to try to work on something small everyday during december. see the original [December Adventure](https://eli.li/december-adventure).
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
-<a id="#8"></a>
+<a id="11"></a>
+### 2024-12-11
+continuing with the [Scala 3.6.2][3.6.2] theme. anytime Scala syntax changes are introduced, there are sometimes period of adjustment for development tooling. then it dawned on me that it's not someone else's problem since I maintain tree-sitter-scala with others. see [fast Scala 3 parsing with tree-sitter](/fast-scala3-parsing-with-tree-sitter/) post from 2022.
+
+in general, humans are remarkably good at skimming through something without appreciating the point of something. my process of working through something is to get my hands dirty and create some form of output. what better way to familiarize myself with the syntax changes than reimplemting them myself in native code (tree-sitter generates C).
+
+#### SIP-47 clause interleaving support
+
+I sent [tree-sitter-scala#439](https://github.com/tree-sitter/tree-sitter-scala/pull/439), which supports [SIP-47](https://docs.scala-lang.org/sips/clause-interleaving.html) clause interleaving:
+
+> We propose to generalize method signatures to allow any number of type parameter lists, interleaved with term parameter lists and using parameter lists.
+
+here are some examples:
+
+```scala
+def getOrElse(k: Key)[V >: k.Value](default: V): V
+
+def aaa[A](using a: A)(b: List[A])[C <: a.type, D](cd: (C, D))[E]: Unit
+```
+
+Here's the change to the syntax:
+
+```diff
+  _function_constructor: $ =>
+    prec.right(
+      seq(
+        field("name", $._identifier),
+-       field("type_parameters", optional($.type_parameters)),
+        field(
+          "parameters",
+-         repeat(seq(optional($._automatic_semicolon), $.parameters)),
++          repeat(seq(optional($._automatic_semicolon),
++           choice(
++             $.parameters,
++             $.type_parameters
++           )
++         )),
+        ),
+        optional($._automatic_semicolon),
+      ),
+    ),
+```
+
+#### SIP-64 - syntax for context bounds and givens
+
+I sent [tree-sitter-scala#442](https://github.com/tree-sitter/tree-sitter-scala/pull/442), which supports [SIP-64](https://docs.scala-lang.org/sips/sips/typeclasses-syntax.html). SIP-64 bundles a number of changes both syntactical changes and new features.
+
+first, we can now define givens without `with` and use `:` instead.
+
+```scala
+  given intFoo: CanFoo[Int]:
+    def foo(x: Int): Int = 0
+```
+
+tree-sitter-scala change is:
+
+```javascript
+choice(
+  ":",
+  "with"
+),
+```
+
+then a new syntax to name context bounds using `as`:
+
+```scala
+def reduce[A : Monoid as m](xs: List[A]): A = ()
+```
+
+here's new context bound:
+
+```javascript
+context_bound: $ => seq(
+  ":",
+  field("type", $._type),
+  optional(seq(
+    "as",
+    field("name", $._identifier),
+  )),
+),
+```
+
+also a new syntax to aggregate context bounds:
+
+```scala
+def showMax[X : {Ordering, Show}](x: X, y: X): String = ()
+```
+
+here's new context bounds:
+
+```javascript
+_context_bounds: $ => choice(
+  repeat1(seq(
+    ":",
+    $.context_bound
+  )),
+  seq(
+    ":",
+    "{",
+    trailingCommaSep1($.context_bound),
+    "}",
+  )
+),
+````
+
+there's also conditional givens and context bound for type members. I can't remember the last time a SIP had this many changes.
+
+#### SIP-62 - for comprehension syntax
+
+because tree-sitter-scala parser is more relaxed than the real parser, I didn't have to make changes for [SIP-62](https://docs.scala-lang.org/sips/better-fors.html), which lets you start `for` with an alias enumerator.
+
+I sent [tree-sitter-scala#443](https://github.com/tree-sitter/tree-sitter-scala/pull/443) as a test.
+
+#### SIP-64 again
+
+there's actually another change in [SIP-64](https://docs.scala-lang.org/sips/sips/typeclasses-syntax.html), which is to allow context bound in polymorphic function type.
+
+apparently we haven't implemented polymorphic function type support, so I sent [tree-sitter-scala#444](https://github.com/tree-sitter/tree-sitter-scala/pull/444) for that. example looks like this:
+
+```scala
+class A:
+  type Comparer = [X: Ord] => (X, X) => Boolean
+  val less: Comparer = [X: Ord] => (x: X, y: X) => ???
+```
+
+here's poly function type:
+
+```javascript
+    function_type: $ =>
+      prec.left(
+        choice(
+          seq(field("type_parameters", $.type_parameters), $._arrow_then_type),
+          seq(field("parameter_types", $.parameter_types), $._arrow_then_type),
+        )
+      ),
+```
+
+at least for tree-sitter-scala, it didn't take too long to catch up with Scala 3.6.2.
+
+<!--more-->
+
+<a id="10"></a>
+### 2024-12-10
+#### bumping to Scala 3.6.2, and improving the compiler
+since [Scala 3.6.2][3.6.2] seems to have been released, I sent a PR to update sbt 2.x to Scala 3.6.2 in [#7941](https://github.com/sbt/sbt/pull/7941).
+
+not sure why there are no tweets from the official [scala-lang.bsky.social](https://bsky.app/profile/scala-lang.bsky.social) and [scala_lang@fosstodon.org](https://fosstodon.org/@scala_lang). if you're curious who are the people behind Scala 3, there's a helpful [Scala 3 Compiler Team](https://www.scala-lang.org/maintainers/) page.
+
+if you recall from [day 5](#5), Scala 3.6.x adds a new compiler warning related to the givens search prioritization change that is planned for Scala 3.7. today I discovered [Upcoming Changes to Givens in Scala 3.7](https://www.scala-lang.org/2024/08/19/given-priority-change-3.7.html) post written by Oliver Bračevac in August 2024 detailing the change. as it turns out, the warning isn't unactionable since we can suppress it by passing in `-source 3.5`, `-source 3.7`, or by filtering by the warning message:
+
+```scala
+import scala.annotation.nowarn
+
+@nowarn("msg=Given search preference") // not great
+val x = summon[A]
+```
+
+to commemorate the release of Scala 3.6 series, I've sent in a pull request [scala/scala3#22189](https://github.com/scala/scala3/pull/22189) 'refactor: improve Given search preference warning'.
+
+1. this refactors the code to give the warning an error code `E205`.
+2. when this is displayed as a warning, tell the user to choose `-source 3.5` vs `3.7`, or use `@nowarn("id=205")` annotation.
+
+#### follow up on SbtParser ConcurrentModificationException
+
+I sent [#7938](https://github.com/sbt/sbt/pull/7938) last night as an attempt to fix a `ConcurrentModificationException`, and wrote
+
+> since this wasn't failing on CI, it's hard to say if the fix would actually hold.
+
+my trepidation about the fix was warranted, since overnight I got helpful code review by Adrien Piquerez that it won't fix the concurrency issue by protecting the initialization per se.
+
+> Looking at the stack trace, it seems that dotty is iterating the `System.properties` while another thread modifies them.
+
+João Ferreira also pointed out that in Scala 2.x compiler already implements a workaround for it in 2018 in [scala/scala#6413](https://github.com/scala/scala/pull/6413). for now, I decided to wrap it in `Retry(...)`, which should fix the issue in case we observe `sys.prop` changes.
+
+<a id="9"></a>
+### 2024-12-09
+a quick sbt 2.0.0-M2 bug fix today. about a month ago, xuwei-k reported [#7873](https://github.com/sbt/sbt/issues/7873) 'ConcurrentModificationException in SbtParser':
+
+```scala
+Error:  Exception in thread "sbt-parser-init-thread" java.lang.ExceptionInInitializerError
+Error:    at sbt.internal.parser.SbtParserInit$$anon$1.run(SbtParser.scala:179)
+Error:  Caused by: java.util.ConcurrentModificationException
+Error:    at java.util.Hashtable$Enumerator.next(Hashtable.java:1408)
+....
+Error:    at dotty.tools.dotc.core.Contexts$ContextBase.<init>(Contexts.scala:857)
+Error:    at dotty.tools.dotc.Driver.initCtx(Driver.scala:61)
+Error:    at sbt.internal.parser.SbtParser$ParseDriver.<init>(SbtParser.scala:138)
+Error:    at sbt.internal.parser.SbtParser$.<clinit>(SbtParser.scala:135)
+```
+
+a few days ago João Ferreira reported that he's seen it too. to parse `build.sbt` DSL, sbt uses ligthtly customized Scala 3 compiler. for sbt 1.x, that's Scala 2.12, and sbt 2.x it's Scala 3.x. because the compiler JARs are hefty to JIT, we give it a head start by creating a thread to classload `SbtParser` when sbt starts up.
+
+```scala
+/**
+ * This gives JVM a head start to JIT Scala 3 compiler JAR.
+ * Called by sbt.internal.ClassLoaderWarmup.
+ */
+private class SbtParserInit:
+  val t = new Thread("sbt-parser-init-thread"):
+    setDaemon(true)
+    override def run(): Unit =
+      val _ = SbtParser.defaultGlobalForParser
+  t.start()
+end SbtParserInit
+```
+
+the problem is that if sbt starts up quickly enough, now the initialization might end up concurrency issue. I sent [#7938](https://github.com/sbt/sbt/pull/7938) as an attempt to fix this:
+
+```diff
++  private lazy val defaultGlobalForParser = ParseDriver()
++  private[sbt] def getGlobalForParser: ParseDriver = synchronized:
++    defaultGlobalForParser
+
+....
+
++    val _ = SbtParser.getGlobalForParser
+```
+
+since this wasn't failing on CI, it's hard to say if the fix would actually hold.
+
+<a id="8"></a>
 ### 2024-12-08
 
 switching gear to sbt 2.0.0-M2 bug. let's look into the `exists` problem [#7931](https://github.com/sbt/sbt/issues/7931), which is the top priority issue we need for 2.0.0-M3. one of the changes I made in sbt 2.x is the location of `target` directory. in sbt 1.x each subproject has its own `target` directory where the build artifacts like `*.class` files and `*.jar` files are created. in this model, the source code and binary directory are intertwined with each other. in sbt 2.x, there's going to be one `target` directory for the entire build, and each subproject would create a subdirectory under `target`:
@@ -71,7 +293,7 @@ we can then pass this into `FileTreeView.Ops(FileTreeView.default)` to see if th
 
 went skating in the afternoon a bit since it's relatively nicer 11C/52F. more awkward penguin walks and monster walks. still trying to get used to ollie with AF-1. AF-1 is physically heavier, but what's throwing me off literally might be more to do with timing of Indy Hollow vs AF-1. with Indy Hollow, I just needed to put some pressure upfront, and jump, and the pop happened on its own a split seconds later. with AF-1, part of the heaviness might just be unweighing timing. with AF-1 I sometimes jump up and I'm off the board, which likely means front leg needs to go up faster? on a positive note, when I can pop, it feels like the board comes up slower. if I can hang in the air, the perceived slowness could buy me time, potentially to a leveled out the ollie.
 
-<a id="#7"></a>
+<a id="7"></a>
 ### 2024-12-07
 went skating for a few hours in the evening. given that people go skiing and snow boarding in the mountain, I guess any temperature is skatable if you wear the right layers. my 4C/38F outfit was t-shirt, [uniqlo flannel](https://www.uniqlo.com/us/en/products/E470187-000/00?colorDisplayCode=03), big hoodie, [lululemon jogger in a nice chino pants color](https://shop.lululemon.com/p/men-joggers/Abc-Jogger/_/prod8530240?color=29283), beanie hat, and a pair of thin gloves. after a while, I was running too warm and it was windy so switched hoodie with a marmot minimalist. put another way, skateboarding is snowboarding that you can do at your local empty park.
 
@@ -198,7 +420,7 @@ sbt server reponded as follows:
 
 chatgpt says it's `compile`, which mean up-arrow history works! in other words, the thin client faithfully reproduces the sbt shell experience including the history lookup and tab completions. we'll continue tomorrow.
 
-<a id="#6"></a>
+<a id="6"></a>
 ### 2024-12-06
 an area of sbt that likely few people know the details about is the thin client, which was sort of [prototyped first](https://github.com/sbt/sbt/pull/4227) by me, but Ethan Atkins took it to the next level by supporting almost all tasks in a general way. let's try reverse engineering sbtn to see how the native code is communicating with sbt 1.x.
 
@@ -271,7 +493,7 @@ this shows that sbtn sent `initialize` method, and `sbt/attach` method, and sbt 
 
 full output is here <https://gist.github.com/eed3si9n/0e104e33caa18e468aab92af10dfaf28>. this looks promising. we'll continue tomorrow.
 
-<a id="#5"></a>
+<a id="5"></a>
 ### 2024-12-05
 
 my two cents on compilers: compilers should be silent if it did exactly what was told. any warnings should be actionable such that the user can get rid of the warning somehow. `-Xmigration` notices might be an exception. I feel like I've been saying this for [years](https://github.com/scala/scala-dev/issues/513#issuecomment-402602751).
@@ -306,9 +528,7 @@ sent PR [#7928](https://github.com/sbt/sbt/pull/7928) to update the Scala CLA ch
 
 addressed one of review comments, from last night's URI changes and landed [#7927](https://github.com/sbt/sbt/pull/7927).
 
-<!-- more -->
-
-<a id="#4"></a>
+<a id="4"></a>
 ### 2024-12-04
 sent a PR [#7927](https://github.com/sbt/sbt/pull/7927).
 
@@ -316,7 +536,7 @@ sent a PR [#7927](https://github.com/sbt/sbt/pull/7927).
 
 related, I cherry picked a commit from a dormant PR that turns license information into a data type, as opposed to a tuple of `(String, URL)`. I had a few backward compatibility suggestions in the PR, and I just implemented the suggestions myself.
 
-<a id="#3"></a>
+<a id="3"></a>
 ### 2024-12-03
 
 went skating in the morning before work. 8.25 inch + AF-1 still feels heavy compared to previous setups. the temperature was like 3C/37F going to 4C/39F. initially it was a bit cold, so I warmed up by pushing around the park then tictac, switch push, awkward penguin walks and monster walks on smooth surface. see Mike Osterman's [How to Monster Walk](https://www.youtube.com/watch?v=kDob9qNPTW4).
@@ -367,7 +587,7 @@ the fix I sent in [#7925](https://github.com/sbt/sbt/pull/7925) was to evaluate 
 + val (root, nonRoot) = rawProjects.partition(p => isRootPath(p.base, projectBase))
 ```
 
-<a id="#2"></a>
+<a id="2"></a>
 ### 2024-12-02
 
 sent [Artifact publishing proposal](https://github.com/scalacenter/advisoryboard/pull/168) PR to Scala Center. not going to repeat the content here, but there's been a number of changes to the landscape of publishing, but the solutions are worked on independently by the build tool silos, so I've been thinking it would be useful to consolidate the effort. this could start with basic things like generating correct `ivy.xml` and `pom.xml`, but also include more recent developments like bill-of-materials (BOM) support.
@@ -376,7 +596,7 @@ released [sbt-jupiter-interface 0.13.3](https://github.com/sbt/sbt-jupiter-inter
 
 worked on [december mixtape](/2024.12-mixtape/) at night. 3h assortment of electronica for taking a walk or skating.
 
-<a id="#1"></a>
+<a id="1"></a>
 ### 2024-12-01
 
 looking at sbt 2.x bugs that's been reported against 2.0.0-M2.
