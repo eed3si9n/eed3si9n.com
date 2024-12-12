@@ -50,7 +50,8 @@ Analogous to the Language Server Protocol (LSP), Tree-sitter on its own is unawa
 
 Vim has a built-in [syntax highlight][vim] feature, mostly based on keyword searches, and while it's searvicable, compared to editors like Sublime Text and VS Code, the highlighting seems less accurate. There's an experimental [Tree-sitter support in Neovim][neovim-doc], which in theory can improve the accuracy. You can follow [nvim-treesitter][nvim-treesitter] to enable hightlighting using Tree-sitter in current Neovim.
 
-<iframe src="https://types.pl/@eed3si9n/109508264904537444/embed" class="mastodon-embed" style="max-width: 100%; border: 0" width="400px" allowfullscreen="allowfullscreen"></iframe>
+<!-- https://types.pl/@eed3si9n/109508264904537444/ -->
+<img src="/images/109508266173324302.png" style="width:587px"></img>
 
 When I tried this out last Tuesday, the highlighting for Scala 3's new [optional brace syntax][indentation] was pretty bad. As mentioned, Tree-sitter on its own is unaware of specific programming languages, but there is a separate repo called [tree-sitter/tree-sitter-scala][tree-sitter-scala] that's maintaining the Tree-sitter grammar for Scala, and that seems to not support the new syntax introduced by Scala 3 yet.
 
@@ -62,7 +63,8 @@ Scala 3's syntax is available on [Scala 3 Reference: Scala 3 Syntax Summary][sca
 
 In general, though, while working a transription of a parser it's useful and important to reference the EBNF of the syntax construct.
 
-<iframe src="https://types.pl/@eed3si9n/109519562667384382/embed" class="mastodon-embed" style="max-width: 100%; border: 0" width="400" allowfullscreen="allowfullscreen"></iframe>
+<!-- https://types.pl/@eed3si9n/109519562667384382/ -->
+<img src="/images/109519563301756850.png" style="width:584px"></img>
 
 {{% note %}}
 **Note**: catch<br>
