@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-11
+date:        2024-12-12
 url:         /december-adventure-2024
 ---
 
@@ -10,6 +10,44 @@ url:         /december-adventure-2024
 I'm going to try to work on something small everyday during december. see the original [December Adventure](https://eli.li/december-adventure).
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
+
+<a id="12"></a>
+### 2024-12-12
+sent [giter8#935](https://github.com/foundweekends/giter8/pull/935) to fix the 'SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder"' issue.
+
+SLF4J highlights the dynamic nature of JVM languages like Java and Scala. even though these languages have static type system, at the point of deployment, we swap out the JARs and depending on what's on the classpath, some function calls behavior would change. in other words, classpath acts as a global variable. combine that with the trend of automatic version updates, people can update the dependency libraries without ever having to run them on their own machine or reading the release notes.
+
+here's a test I added with the help from chatgpt to switchout stderr:
+
+```scala
+  test("log scala/scala-seed.g8") {
+    val (r, err) = withErr {
+      IO.withTemporaryDirectory { dir =>
+        launcher.run(Array("scala/scala-seed.g8", "--name=hello"), dir)
+        assert((dir / "hello" / "build.sbt").exists)
+      }
+    }
+    assert(!err.contains("SLF4J"))
+  }
+
+  def withErr[A1](f: => A1): (A1, String) = {
+    val originalErr           = System.err
+    val byteArrayOutputStream = new ByteArrayOutputStream()
+    val inMemoryPrintStream   = new PrintStream(byteArrayOutputStream)
+    val result =
+      try {
+        System.setErr(inMemoryPrintStream)
+        val r = f
+        inMemoryPrintStream.flush()
+        r
+      } finally {
+        System.setErr(originalErr)
+      }
+    (result, byteArrayOutputStream.toString)
+  }
+```
+
+<!--more-->
 
 <a id="11"></a>
 ### 2024-12-11
@@ -149,8 +187,6 @@ here's poly function type:
 ```
 
 at least for tree-sitter-scala, it didn't take too long to catch up with Scala 3.6.2.
-
-<!--more-->
 
 <a id="10"></a>
 ### 2024-12-10
