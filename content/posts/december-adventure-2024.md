@@ -11,6 +11,123 @@ I'm going to try to work on something small everyday during december. see the or
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
+<a id="14"></a>
+### 2024-12-14
+#### SIP-58 Named tuples support, continued
+got a review on [tree-sitter-scala#446](https://github.com/tree-sitter/tree-sitter-scala/pull/446) by Anton:
+> I think we also need a modified case_class_pattern with the named arguments: <https://docs.scala-lang.org/sips/named-tuples.html#pattern-matching-with-named-fields-in-general>
+
+so implemented the suport for the named tuple case class pattern.
+
+```javascript
+    case_class_pattern: $ =>
+      seq(
+        field("type", choice($._type_identifier, $.stable_type_identifier)),
+        "(",
+        choice(
+          field("pattern", trailingCommaSep($._pattern)),
+          field("pattern", trailingCommaSep($.named_pattern)),
+        ),
+        ")",
+      ),
+```
+
+#### mappings
+there's a key in sbt 1.x called `mappings`, `Seq[(File, String)]`, which is sequence of file name and its path inside a JAR:
+
+```scala
+val mappings = taskKey[Seq[(File, String)]]("Defines the mappings from a file to a path, used by packaging, for example.").withRank(BTask)
+```
+
+I spent the last december describing how problematic `java.io.File` is for remote caching. [sbt 2.x remote cache](/sbt-remote-cache/) has a full write-up, but the problem is that it captures absolute paths unnecessarily, and doesn't have content hash, to simultaneously too much and not enough.
+
+```scala
+val mappings = taskKey[Seq[(HashedVirtualFileRef, String)]]("Defines the mappings from a file to a path, used by packaging, for example.").withRank(BTask)
+```
+
+João Ferreira has been highlighting some of the UX challenges with sbt 2.0.0-M2, and suggested that we might revert it back to `Seq[(File, String)]`. that might make the migration easier, but I'm concerned if that would hold sbt 2.x back. many of the tasks that deals with deployment uses `mappings`. if we used `File`, those tasks would likely remain to use `File`, which can't be cached as-is. on the other hand, if we used `HashedVirtualFileRef`, the task results would be cachable.
+
+#### java.home problem
+as I was looking at a draft PR [#7939](https://github.com/sbt/sbt/pull/7939) by João, which failed a test unexpectedly, so I pulled it on my machine to examine. after some debugging, I realized that the problem is:
+
+```bash
+java.io.IOException: Cannot run program "/Users/xxx/.sdkman/candidates/java/zulu8.76.0.17-ca-jdk8.0.402-macosx_aarch64/zulu-8.jdk/Contents/Home/jre/bin/javac"
+```
+
+note `jre/bin/javac`. JRE doesn't have `javac`. this is happening because a few places in the code we are passing into `sys.props("java.home")` as `javaHome`. according to [System Properties](https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html), `java.home` points to:
+
+> Installation directory for Java Runtime Environment (JRE)
+
+I sent [#7948](https://github.com/sbt/sbt/pull/7948) to change `javaHome` in the failing test to the JDK path instead.
+
+```scala
+  lazy val javaHome: Path =
+    if sys.props("java.home").endsWith("jre") then Paths.get(sys.props("java.home")).getParent()
+    else Paths.get(sys.props("java.home"))
+```
+
+<!--more-->
+
+<a id="13"></a>
+### 2024-12-13
+released [Giter8 0.17.0](https://github.com/foundweekends/giter8/releases/tag/v0.17.0) after confirming the fix from yesterday with 0.17.0-RC1. [#7947](https://github.com/sbt/sbt/pull/7947) updates the sbt-giter8-resolver to 0.17.0.
+
+#### SIP-58 Named tuples support
+going back to the [Scala 3.6.2][3.6.2] changes, I sent [tree-sitter-scala#446](https://github.com/tree-sitter/tree-sitter-scala/pull/446) to add named tuples support.
+
+Scala example looks like this:
+
+```scala
+object O:
+  type A = (name: String, age: Int)
+```
+
+tree-sitter-scala changes are:
+
+```javascript
+/*
+ * NameAndType       ::=  id ':' Type
+ */
+name_and_type: $ =>
+  prec.left(
+    PREC.control,
+    seq(
+      field("name", $._identifier),
+      ":",
+      field("type", $._param_type),
+    ),
+  ),
+
+named_tuple_type: $ => seq(
+  "(",
+  trailingCommaSep1($.name_and_type),
+  ")",
+),
+```
+
+there's also named tuple patterns, which seems useful:
+
+```scala
+$ scala -language:experimental.namedTuples
+
+scala> case class City(zip: Int, name: String, population: Int)
+// defined case class City
+
+scala> val c = City(zip = 7030, name = "Hoboken", population = 57000)
+val c: City = City(7030,Hoboken,57000)
+
+scala> c match
+     |   case c @ City(name = "Hoboken") => c.population
+     |
+val res0: Int = 57000
+```
+
+in the above we're passing in only the `name` to match against the `City` case class.
+
+#### E205 given search preference warning
+
+also speaking of Scala 3.6, my humble [scala3#22189](https://github.com/scala/scala3/pull/22189), which we implemented on [day 10](#10) to improve the warning message has landed.
+
 <a id="12"></a>
 ### 2024-12-12
 sent [giter8#935](https://github.com/foundweekends/giter8/pull/935) to fix the 'SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder"' issue.
@@ -46,8 +163,6 @@ here's a test I added with the help from chatgpt to switchout stderr:
     (result, byteArrayOutputStream.toString)
   }
 ```
-
-<!--more-->
 
 <a id="11"></a>
 ### 2024-12-11
