@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-12
+date:        2024-12-15
 url:         /december-adventure-2024
 ---
 
@@ -10,6 +10,40 @@ url:         /december-adventure-2024
 I'm going to try to work on something small everyday during december. see the original [December Adventure](https://eli.li/december-adventure).
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
+
+<a id="16"></a>
+### 2024-12-16
+
+#### merge 1.10.x continued
+addressed a few review comments on [#7950](https://github.com/sbt/sbt/pull/7950). thanks reviewers!
+
+#### release note
+we recently in-source lm module into sbt/sbt, which makes the git history somewhat complicated. I asked chatgpt how to get a diff between two versions, exclude commits from existing tag, and filter by date, and here's what we came up with:
+
+```bash
+git log v2.0.0-M2..develop --since 2024-10-04 --not 1.10.x --reverse
+```
+
+I might just use GitHub's generate relese note button, but I'll have some head start.
+
+#### scala-sbt.org update
+there was an odd caching bug with the scala-sbt.org it seems, so I decided to update Docusaurus to the latest. since sbt 2.x docs adopted mdBooks, there's no real benefit to using Docusaurus to overcome some of the buggy behaviors it has exhibited.
+
+<a id="15"></a>
+### 2024-12-15
+
+#### mappings
+looked at one of draft PRs by João Ferreira [#7939](https://github.com/sbt/sbt/pull/7939), which port `Mapper` functions to create `(HashedVirtualFileRef, String)` version. the test needed to be updated, so I created a new branch and landed it as [[2.x] Add Mapper that returns VirtualFile based mappings, take 2](https://github.com/sbt/sbt/pull/7949).
+
+#### merge 1.10.x
+sent a PR to merge 1.10.x into develop branch - [#7950](https://github.com/sbt/sbt/pull/7950). also sent a PR to merge 1.10.x into develop branch for Zinc - [zinc#1515](https://github.com/sbt/zinc/pull/1515).
+
+#### skating notes
+went skating in the evening. around 3C/38F, and the big park was mostly empty except for people walking their dog. I try to incorporate switch pushing into warm up. so I'm ok at pushing. switch tictac is a whole different story. generally, I'm horrible at lifting tail (switch nose). I tried switch tictac today, and ended up slipping and falling (no injury), likely because I'm tilting the body axis.
+
+back to ollie, which is still more difficult on current setup. one thing that crossed my mind today is that AF-1 is heavy, but maybe the shape of 8.25 Habitat twin tail is a contributing factor. compared to other decks like Chocolate, I feel like 8.25 Habitat one has steeper kick.
+
+<!--more-->
 
 <a id="14"></a>
 ### 2024-12-14
@@ -66,7 +100,8 @@ I sent [#7948](https://github.com/sbt/sbt/pull/7948) to change `javaHome` in the
     else Paths.get(sys.props("java.home"))
 ```
 
-<!--more-->
+#### skating notes
+went skating during the day around 0C/32F. with Patagonia retro fleece I looked like a pollar bear, but was comfortable the whole time, partly because there weren't much wind.
 
 <a id="13"></a>
 ### 2024-12-13
