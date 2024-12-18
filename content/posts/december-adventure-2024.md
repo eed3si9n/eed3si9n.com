@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-15
+date:        2024-12-16
 url:         /december-adventure-2024
 ---
 
@@ -28,6 +28,7 @@ I might just use GitHub's generate relese note button, but I'll have some head s
 
 #### scala-sbt.org update
 there was an odd caching bug with the scala-sbt.org it seems, so I decided to update Docusaurus to the latest. since sbt 2.x docs adopted mdBooks, there's no real benefit to using Docusaurus to overcome some of the buggy behaviors it has exhibited.
+<!--more-->
 
 <a id="15"></a>
 ### 2024-12-15
@@ -42,8 +43,6 @@ sent a PR to merge 1.10.x into develop branch - [#7950](https://github.com/sbt/s
 went skating in the evening. around 3C/38F, and the big park was mostly empty except for people walking their dog. I try to incorporate switch pushing into warm up. so I'm ok at pushing. switch tictac is a whole different story. generally, I'm horrible at lifting tail (switch nose). I tried switch tictac today, and ended up slipping and falling (no injury), likely because I'm tilting the body axis.
 
 back to ollie, which is still more difficult on current setup. one thing that crossed my mind today is that AF-1 is heavy, but maybe the shape of 8.25 Habitat twin tail is a contributing factor. compared to other decks like Chocolate, I feel like 8.25 Habitat one has steeper kick.
-
-<!--more-->
 
 <a id="14"></a>
 ### 2024-12-14
