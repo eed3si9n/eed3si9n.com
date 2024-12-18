@@ -28,7 +28,7 @@ I work on sbt in my own time with collaboration with [Adrien Piquerez](https://w
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=2.0.0-M2
+sbt.version=2.0.0-M3
 ```
 
 This mechanism allows that sbt 2.0.0-M2 is used only for the builds that you want.
