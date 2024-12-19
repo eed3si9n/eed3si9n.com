@@ -11,6 +11,20 @@ I'm going to try to work on something small everyday during december. see the or
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
+<a id="17"></a>
+### 2024-12-17
+
+#### sbt 2.0.0-M3
+
+released [sbt 2.0.0-M3](/sbt-2.0.0-M3). beside small code adjustments between sbt and Zinc repos, most of the work was organizing and writing up the release notes.
+
+there's one I publish on GitHub that includes most of the pull requests, and another that I publish on this site that focuses on what the users would see, which includes upgrade instruction, more details on some of the changes etc.
+
+#### skating notes
+went skating in the morning. some breakthrough with AF-1/8.25. if I crouch, and while crouched down extend both arms like like wings, and then jump, I could pop 9 out of 10 times stationary. it was so consistent, I tried fakie ollie (moving backwards), and I sorted of landed it after a few attempts. spreading the arms forces body axis to be vertical?
+
+this is a thought I've had for nth times, but to ollie, you need normal vector (ground reaction force), which means you need to put pressure on the front wheel and release it.
+
 <a id="16"></a>
 ### 2024-12-16
 
