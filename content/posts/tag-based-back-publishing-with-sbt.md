@@ -6,7 +6,7 @@ url:         /tag-based-back-publishing-with-sbt
 tags:        [ "sbt" ]
 ---
 
-sbt-ci-release 1.9.0 is released, implementing tag-based back publishing support.
+sbt-ci-release 1.9.2 is released, implementing tag-based back publishing support.
 
 <!--more-->
 
@@ -16,11 +16,11 @@ In the earlier years of Scala, every patch version broke binary compatibility, a
 
 In June 2018, Ólafur Geirsson revolutionlized library publishing in Scala by creating sbt-ci-release [1.0.0](https://github.com/sbt/sbt-ci-release/tree/v1.0.0), which fully automated the publishing process from tags. What was amazing was how it reused GPG signing from sbt-pgp, tag versioning from sbt-dynver, and Sonatype releasing from sbt-sonatype. In other words, the ingredient for the full automation was _almost_ there. What Olaf standardized with extensive REAME was how information can be passed via environment variables.
 
-Today, I released sbt-ci-release 1.9.0, implementing tag-based back publishing support.
+Today, I released sbt-ci-release 1.9.x, implementing tag-based back publishing support.
 
 ## back publishing
 
-sbt-ci-release 1.9.0 implements a mini DSL for the Git tag:
+sbt-ci-release 1.9.2 implements a mini DSL for the Git tag:
 
 ```
 version[@command|@a.b.c|@a.b."x"][#comment]
@@ -39,7 +39,7 @@ If you prefer to keep most of the information in a git branch, you can just use 
    b. Modify the `CI_RELEASE` environment variable to encode the actions you want to take, like `;++3.x;foo_native/publishSigned`. For GitHub Actions, it would be in `.github/workflows/release.yml`
 2. Tag the branch to `v1.2.3#unique_comment`. For record keeping, encode the version you're trying to back publishing for e.g. `v1.2.3#native0.5_3`
 
-Previously the version would've been `v1.2.3#native0.5_3`, but with sbt-ci-release 1.9.0, the version would be `v1.2.3`.
+Previously the version would've been `v1.2.3#native0.5_3`, but with sbt-ci-release 1.9.x, the version would be `v1.2.3`.
 
 #### Publishing against a specific Scala version
 
@@ -80,5 +80,5 @@ This will run the `+foo_native/publishSigned` command as the `CI_RELEASE` comman
 
 ## summary
 
-sbt-ci-release 1.9.0 implements a mini DSL for the Git tag to support back publishing.
+sbt-ci-release 1.9.2 implements a mini DSL for the Git tag to support back publishing.
 Library authors can use this to either implement GitOps-style back publishing, or tag-based back publishing where the Scala version and the commands are embedded in the Git tag.
