@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-16
+date:        2024-12-19
 url:         /december-adventure-2024
 ---
 
@@ -10,6 +10,41 @@ url:         /december-adventure-2024
 I'm going to try to work on something small everyday during december. see the original [December Adventure](https://eli.li/december-adventure).
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
+
+<a id="19"></a>
+### 2024-12-19
+at the outer most layer, `sbt` runner is a shell script, and sometimes the features and bugs appear in that layer. tonight I looked into a few issues related to `sbt`'s working directory check, which confirms if the user wants to continue when `sbt` is launched a directory without `build.sbt` file. for most users, this feature is not enabled.
+
+the reason why it's not enabled by default in most cases is because `sbt` reads default options from `sbtopts` file that ships with the installer, and in the installer currently contains:
+
+```
+-create-sbt
+```
+
+there are a number of issues related to this.
+
+1. `-create-sbt` as option name isn't great
+2. there's no clear mechanism for people to opt into this feature
+3. apparently this mechanism could get triggered for `sbt --script-version`
+4. we shouldn't block for input
+
+I sent [#7966](https://github.com/sbt/sbt/pull/7966), which does the following:
+
+1. remove `-create-sbt` from the default `sbtopts` file, so everyone would get the feature
+2. rename the option to `--allow-empty`, like git
+3. to opt out again, users can create `$XDG_CONFIG_HOME/sbt/sbtopts` (or `%LOCALAPPDATA%\sbt\sbtconfig.txt` on Windows)
+4. when `sbt` is called in a directory without `build.sbt`, and a non-new comand is about to be invoked, print an error and exit
+<!--more-->
+
+<a id="18"></a>
+### 2024-12-18
+
+see [back publishing actually](back-publishing-actually.md).
+
+#### skating notes
+went skating in the morning. in the past weeks, I've been mostly skating on relatively smooth surface like volleyball court since the park is mostly empty. I couldn't pop the ollie straight, so moved to the bleacher area where the surface is rougher concrete. at first I could not do stationary ollie. but eventually I got the hang of it, and the board started popping better on asphalt.
+
+one hypothesis is that my stance is based on visual cue from the deck, but I should reproduce the stance I'd take on 8 inch deck, ergonomically. another hypothesis is that popping on rough surface scrapes the flattened wood, and fresher grain becomes available. or it's just timing.
 
 <a id="17"></a>
 ### 2024-12-17
@@ -42,7 +77,6 @@ I might just use GitHub's generate relese note button, but I'll have some head s
 
 #### scala-sbt.org update
 there was an odd caching bug with the scala-sbt.org it seems, so I decided to update Docusaurus to the latest. since sbt 2.x docs adopted mdBooks, there's no real benefit to using Docusaurus to overcome some of the buggy behaviors it has exhibited.
-<!--more-->
 
 <a id="15"></a>
 ### 2024-12-15
