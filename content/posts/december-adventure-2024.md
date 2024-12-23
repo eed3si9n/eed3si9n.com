@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-19
+date:        2024-12-21
 url:         /december-adventure-2024
 ---
 
@@ -10,6 +10,21 @@ url:         /december-adventure-2024
 I'm going to try to work on something small everyday during december. see the original [December Adventure](https://eli.li/december-adventure).
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
+
+<a id="21"></a>
+### 2024-12-21
+during the day, fixed the sbt 2.x documentation whose navigation had broken recently. this seemed to be a known mdbook issue where the theme file and the mdbook version had drifted, so I had to manually update the theme file, which implements globalization support.
+
+sent [#7968](https://github.com/sbt/sbt/pull/7968) to fix the glob support in scripted. it doesn't really make sense, but apparently some scripted tests use absolute path, so that required slightly different glob construction.
+
+started releasing a few modules in preparation for an sbt 1.10.x release.
+
+<!--more-->
+<a id="20"></a>
+### 2024-12-20
+there were some review comments re: [#7966](https://github.com/sbt/sbt/pull/7966) on Windows, so I pulled out my Lenovo Ideapad S130 for testing. as far as I can tell the batch script worked ok.
+
+afterwards, I was looking into some tree-sitter-scala issues unsuccessfully, like adding support for lambda expression with parenthesis around the parameter. implementing the parser itself is not too difficult, but I think the problem is that there's similar-looking syntax such that adding it would break other parsers.
 
 <a id="19"></a>
 ### 2024-12-19
@@ -34,7 +49,6 @@ I sent [#7966](https://github.com/sbt/sbt/pull/7966), which does the following:
 2. rename the option to `--allow-empty`, like git
 3. to opt out again, users can create `$XDG_CONFIG_HOME/sbt/sbtopts` (or `%LOCALAPPDATA%\sbt\sbtconfig.txt` on Windows)
 4. when `sbt` is called in a directory without `build.sbt`, and a non-new comand is about to be invoked, print an error and exit
-<!--more-->
 
 <a id="18"></a>
 ### 2024-12-18
