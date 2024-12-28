@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-21
+date:        2024-12-27
 url:         /december-adventure-2024
 ---
 
@@ -11,6 +11,51 @@ I'm going to try to work on something small everyday during december. see the or
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
 
+<a id="27"></a>
+### 2024-12-27
+sent [sbt/website#1273](https://github.com/sbt/website/pull/1273) to update the migration guide.
+
+going back to [day 6](#6) / [day 7](#7), I wanted to optimize the sbtn JSON-RPC traffic being full of terminal queries by JLine. sent [#7977](https://github.com/sbt/sbt/pull/7977) to cache the terminal capability, which hopefully should be ok.
+
+#### skating notes
+went skating in the evening after a long time. it wasn't for lack of trying, but there's been slushy snow on my goto spot. it was dry today and also the temperature was nice 5C/41F. I was pretty much skating the whole time with Vermont flannel, and occasional Marmot shell.
+
+I moved from smooth surface to rougher concrete a bit halfway into the session, and the board feel improved significantly. it might be partly tails getting scraped you get a fresh layer. another hypothesis I have is that something about the surface forces my toes to grip the board, which improves the board feel? as you get better at ollie, the side of the front shoe supposedly would get damaged, but the side of mine is as good as new. however, the bottom is getting damaged and pieces of rubbers are coming off, so I think it's some progress. I did attempt the foot sliding once or twice midair too.
+
+<!--more-->
+
+<a id="26"></a>
+### 2024-12-26
+tying up some loose ends from yesterday. back published [sbt-buildinfo 0.13.1](https://github.com/sbt/sbt-buildinfo/releases/tag/v0.13.1) for sbt 2.0.0-M3 after working around the URL to URI changes that were introduced in M3.
+
+released [tree-sitter-scala 0.23.4](https://github.com/tree-sitter/tree-sitter-scala/releases/tag/v0.23.4), which includes Scala 3.6.x syntax changes.
+
+merged João's [PR-on-PR](https://github.com/eed3si9n/sbt-native-packager/pull/1) onto [sbt-native-packager#1647](https://github.com/sbt/sbt-native-packager/pull/1647), which fixed all but one test failures, and updated the scripted tests to use glob expression. sbt-native-packager PR is now green.
+
+<a id="25"></a>
+### 2024-12-25
+back published sbt-vimquit 0.1.1 using sbt 2.0.0-M3.
+
+updated [sbt-native-packager#1647](https://github.com/sbt/sbt-native-packager/pull/1647), which is still faling scripted tests. also sent a draft PR [sbt-buildinfo#213](https://github.com/sbt/sbt-buildinfo/pull/213), which is also failing scripted tests.
+
+<a id="24"></a>
+### 2024-12-24
+made vegan meatless meat sauce. [basic recipe](/recipes/meatless-meat-sauce.html) + carrots + biber salçası (Aleppo pepper paste) + gochugaru (Korean pepper flakes), which are both flavorful but very mild.
+
+sent [sbt-assembly#545](https://github.com/sbt/sbt-assembly/pull/545) to cross build against sbt 2.0.0-M3, and also to try the new glob expression for sbt 1.x / 2.x testing, undoing some of the custom tasks that I added to cross build for 2.0.0-M2.
+
+<a id="23"></a>
+### 2024-12-23
+went to 唐家食府 (M & T Restaurant) in Fairfield, NJ for the first time with a flexi-vegetarian friend. it's authentic Shandong cuisine. my mostly-vegeratian friend likes their spicy fried string beans (干煸四季豆), and it was quite good actually.
+
+we also ordered shimp dumpings, tomato and egg drop soup (customized to add dumpings), and fish fillet in chili oil. the soup was too large for two, but I enjoyed it. in terms of of the cuisine, Shandong cuisine seems to use a lot of garlic, and influenced partly by Sichuan, and also a lot of sea food, so reminds be a bit of Shanghai as well. I'd love to go back and try different items.
+
+<a id="22"></a>
+### 2024-12-22
+released [Zinc 1.10.7](https://github.com/sbt/zinc/releases/tag/v1.10.7) and [sbt 1.10.7](/sbt-1.10.7). writing good release note is work.
+
+to workaround the Coursier perf regression on the new BOM-respecting resolution, I've sent [sbt-coursier#545](https://github.com/coursier/sbt-coursier/pull/545) so we can toggle the behavior from sbt side. this is then exposed as `csrMavenDependencyOverride`, which is set to `false` by default.
+
 <a id="21"></a>
 ### 2024-12-21
 during the day, fixed the sbt 2.x documentation whose navigation had broken recently. this seemed to be a known mdbook issue where the theme file and the mdbook version had drifted, so I had to manually update the theme file, which implements globalization support.
@@ -19,7 +64,6 @@ sent [#7968](https://github.com/sbt/sbt/pull/7968) to fix the glob support in sc
 
 started releasing a few modules in preparation for an sbt 1.10.x release.
 
-<!--more-->
 <a id="20"></a>
 ### 2024-12-20
 there were some review comments re: [#7966](https://github.com/sbt/sbt/pull/7966) on Windows, so I pulled out my Lenovo Ideapad S130 for testing. as far as I can tell the batch script worked ok.
