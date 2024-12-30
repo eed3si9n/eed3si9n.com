@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-27
+date:        2024-12-28
 url:         /december-adventure-2024
 ---
 
@@ -10,6 +10,39 @@ url:         /december-adventure-2024
 I'm going to try to work on something small everyday during december. see the original [December Adventure](https://eli.li/december-adventure).
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
+
+<a id="29"></a>
+### 2024-12-29
+drove 5h to Massachusetts.
+
+two podcasts that I queued up to listen with my wife in the car:
+1. [Ologies](https://www.alieward.com/ologies?offset=1517892078170) by alie ward.
+   Wired says:
+   > Lighthearted, enthusiastic, and endlessly curious host Alie Ward interviews smart people about their specialist subjects. This accessible podcast covers many topics from a scientific perspective and delights in diving down random rabbit holes.
+
+   we started chronological order and listened:
+   1. Volcanology (VOLCANOES) with Jess Phoenix
+   2. Primatology (APES & MONKEYS) with Kate Gilmore
+2. [Swingled](https://swindledpodcast.com/) by a concerned citizen
+   > Swindled is a podcast that utilizes narrative storytelling, archival audio, and immersive soundscapes to tell true stories of white-collar criminals, con artists, and corporate evil.
+
+   1. The Lucky Winner. (lottery fraud)
+
+also listened to [december mixtape](/2024.12-mixtape/).
+
+<a id="28"></a>
+### 2024-12-28
+#### Windows, here be dragons
+for JVM app authors, Windows is a cursed dagons' den. I think it's totally possible to develop Windows apps using SDKs and IDEs for Windows, but I get burnt anytime I assume that a code tested on macOS would run fine on Windows. even using the NIO API, Windows throws exceptions as effortlessly as a winter breeze scatters petals. for example, on [day 26](#26) I noticed while sending a PR to sbt-native-packager that on AppVeyor sbt 2.x throws exceptions at few different points: <https://ci.appveyor.com/project/muuki88/sbt-native-packager/builds/51230330>
+
+I've also ran into concurrency issues of Coursier trying to create files on Windows. determining the cache directory alone from JVM is a mess. the file system doesn't support symbolic links.
+
+sent [#7979](https://github.com/sbt/sbt/pull/7979) to switch NIO `Files.createDirectories(...)` to `IO.createDirectory(...)`, which internally calls `Retry(...)`. sent [io#398](https://github.com/sbt/io/pull/398) to retry file moves.
+
+#### Retrying non-IOException
+speaking of `Retry`, sbt 2.0.0-M3 attempted to workaround a Scala 3 concurrency bug using `Retry(...)`, but unfortunately it only retries `IOException`s only, so we failed to work around the issue. here's [io#397](https://github.com/sbt/io/pull/397) to retry non-IOExceptions too.
+
+<!--more-->
 
 <a id="27"></a>
 ### 2024-12-27
@@ -21,8 +54,6 @@ going back to [day 6](#6) / [day 7](#7), I wanted to optimize the sbtn JSON-RPC 
 went skating in the evening after a long time. it wasn't for lack of trying, but there's been slushy snow on my goto spot. it was dry today and also the temperature was nice 5C/41F. I was pretty much skating the whole time with Vermont flannel, and occasional Marmot shell.
 
 I moved from smooth surface to rougher concrete a bit halfway into the session, and the board feel improved significantly. it might be partly tails getting scraped you get a fresh layer. another hypothesis I have is that something about the surface forces my toes to grip the board, which improves the board feel? as you get better at ollie, the side of the front shoe supposedly would get damaged, but the side of mine is as good as new. however, the bottom is getting damaged and pieces of rubbers are coming off, so I think it's some progress. I did attempt the foot sliding once or twice midair too.
-
-<!--more-->
 
 <a id="26"></a>
 ### 2024-12-26
