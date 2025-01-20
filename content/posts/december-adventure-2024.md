@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2024"
 type:        story
-date:        2024-12-28
+date:        2024-12-31
 url:         /december-adventure-2024
 ---
 
@@ -10,6 +10,30 @@ url:         /december-adventure-2024
 I'm going to try to work on something small everyday during december. see the original [December Adventure](https://eli.li/december-adventure).
 
 my goal: work on sbt 2.x, other open source like sbt 1.x and plugins, or some post on this site, like music or recipe.
+
+<a id="31"></a>
+### 2024-12-31
+checking out Boston suburbs. had coffee at Tatte Bakery & Cafe, and skated a bit at Newton Centre Playground nearby.
+
+in the evening, we picked up some veggies at Whole Foods, dinner from 八福川菜 (Sichuan Gourmet House), and prepped for the midnight soba noodle, and ozouni for the new year.
+
+addressed a review comment on [io#397](https://github.com/sbt/io/pull/397), which retries non-IOExceptions.
+<!--more-->
+
+<a id="30"></a>
+### 2024-12-30
+
+#### This Is How You Lose the Time War (2019)
+
+recently I got two copies of 'This Is How You Lose the Time War' (2019) by Amal El-Mohtar and Max Gladstone, so I can read it along with my wife over the holidays because it showed up on my recommendation, and the title sounded cool.
+
+a friend recently told me that distinction between hard scifi and soft scifi are not as meaningful since different cultures may accept different premises. from the title I expected hard-side, but this is more fairy tale, than scifi, like the main characters shape-shift, messages apear in flames, etc.
+
+'This Is How You Lose the Time War' is a novella, written as a series of letters between agents of warring empires. who both happen to be she/her, and very capable, which is cool. but if you're into capable she/her cyborg kicking ass, 'All Systems Red' (2017) or ['Ancillary Justice'](/ancillary-justice/) (2013) might be your jam. Time War was more personal, and it was a quick fun read, but I wasn't amazed by it either.
+
+#### ifdef 0.4.0
+
+released [ifdef 0.4.0](/ifdef-0.4.0).
 
 <a id="29"></a>
 ### 2024-12-29
@@ -23,12 +47,14 @@ two podcasts that I queued up to listen with my wife in the car:
    we started chronological order and listened:
    1. Volcanology (VOLCANOES) with Jess Phoenix
    2. Primatology (APES & MONKEYS) with Kate Gilmore
-2. [Swingled](https://swindledpodcast.com/) by a concerned citizen
+2. [Swindled](https://swindledpodcast.com/) by a concerned citizen
    > Swindled is a podcast that utilizes narrative storytelling, archival audio, and immersive soundscapes to tell true stories of white-collar criminals, con artists, and corporate evil.
 
    1. The Lucky Winner. (lottery fraud)
 
 also listened to [december mixtape](/2024.12-mixtape/).
+
+<!--more-->
 
 <a id="28"></a>
 ### 2024-12-28
@@ -41,8 +67,6 @@ sent [#7979](https://github.com/sbt/sbt/pull/7979) to switch NIO `Files.createDi
 
 #### Retrying non-IOException
 speaking of `Retry`, sbt 2.0.0-M3 attempted to workaround a Scala 3 concurrency bug using `Retry(...)`, but unfortunately it only retries `IOException`s only, so we failed to work around the issue. here's [io#397](https://github.com/sbt/io/pull/397) to retry non-IOExceptions too.
-
-<!--more-->
 
 <a id="27"></a>
 ### 2024-12-27
