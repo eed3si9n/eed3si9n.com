@@ -131,10 +131,10 @@ On one hand, it provides your program an isolation from the sbt server. The flip
 
 Here's the above tradeoffs summarized into a table:
 
-| feature                    | sbt 1.x | sbt 2.x | availability | console / stdin | JIT perf |
-|----------------------------|:-------:|:-------:|:----------------:|:---------------:|:--------:|
-| server-side x              |    ✅   |    ✅  |        ❌        |        ⚠️      |     ✅    |
-| client-side x              |    ✅   |    ✅  |        ✅        |        ✅      |     ⚠️    |
-| persistent worker (planned)|    ❌   |   ✅   |        ✅        |        ❌        |     ✅    |
+| feature                    | sbt 1.x | sbt 2.x | availability    | console / stdin | JIT perf | isolation |
+|----------------------------|:-------:|:-------:|:----------------:|:---------------:|:--------:|:--------:|
+| server-side x              |    ✅   |    ✅  |        ❌        |        ⚠️      |     ✅    |   ❌      |
+| client-side x              |    ✅   |    ✅  |        ✅        |        ✅      |     ⚠️    |     ✅    |
+| persistent worker (planned)|    ❌   |   ✅   |        ✅        |        ❌      |     ✅    |     ✅    |
 
 So this makes it clear that to improve the sbt server availability, we should go for client-side x (run, console, etc) if the task requires stdin; and try the persistent worker route for performance sensitive tasks like test.
