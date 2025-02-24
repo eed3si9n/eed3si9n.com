@@ -137,4 +137,4 @@ Here's the above tradeoffs summarized into a table:
 | client-side x              |    ✅   |    ✅  |        ✅        |        ✅      |     ⚠️    |     ✅    |
 | persistent worker (planned)|    ❌   |   ✅   |        ✅        |        ❌      |     ✅    |     ✅    |
 
-So this makes it clear that to improve the sbt server availability, we should go for client-side x (run, console, etc) if the task requires stdin; and try the persistent worker route for performance sensitive tasks like test.
+So this hopefully clarifies that to improve the sbt server availability, we should go for client-side x (run, console, etc) if the task requires stdin; and try the persistent worker route for performance sensitive tasks like test.
