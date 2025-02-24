@@ -9,7 +9,7 @@ url:         /about
 aliases:     [ /node/330 ]
 ---
 
-I am Eugene Yokota (@eed3si9n on [Twitter](https://twitter.com/eed3si9n) and [GitHub](https://github.com/eed3si9n)), a software engineer with years of experience working on Scala tooling. Most recently I was a Staff Engineer at Twitter's _EE Build/Bazel Migration_ team migrating the largest Scala monorepo into Bazel (See [2 years at Twitter](/2years-at-twitter/) for details).
+I am Eugene Yokota (@eed3si9n on [Mastodon](https://mastodon.social/@eed3si9n) and [GitHub](https://github.com/eed3si9n)), a software engineer with years of experience working on Scala tooling. Most recently, I've been an L6 (equivalent to Staff Engineer) at Netflix's _Productivity, Tooling, and Reliability team_ in the _AIMS_ org that is responsible for recommendation algorithms. Previously I was a Staff Engineer at Twitter's _EE Build/Bazel Migration_ team migrating the largest Scala monorepo into Bazel (See [2 years at Twitter](/2years-at-twitter/) for details).
 
 My specialties are researching and documenting complex landscapes of problems through reading, and talking to people, and bringing them into concrete implementations. I'm great at taking existing tools, and making them more performant and developer-friendly.
 
@@ -30,6 +30,7 @@ See also ['herding cats'](/herding-cats/) series, a tutorial for Typelevel Cats 
 
 I also have twelve years of experience on various open source projects on GitHub, and eleven years of experience working remotely. Most people would describe me as a friendly person to work with.
 
+<!--
 ### I'm looking for a new team
 
 I'm looking for a new team to solve the next big problem. Beyond my current field of Scala and developer tooling, I'm keen on continuing to be a student of the art. Some of the potential area of interest might be large-scale data processing and bioinformatics.
@@ -51,6 +52,7 @@ Some topics I'll want to discuss with you:
 - Is it okay if I continued contributing to open source projects in my own time?
 
 I'm looking for the right fit and eager to explore opportunities. Here's my [cv](/cv.pdf). If you think we're a match, please email me at eed3si9n at gmail.com.
+-->
 
 ### talks / workshops
 
