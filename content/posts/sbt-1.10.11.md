@@ -33,12 +33,11 @@ sbt.version=1.10.11
 
 This mechanism allows that sbt 1.10.11 is used only for the builds that you want.
 
-Download **the official sbt runner** from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.10.10> to upgrade the `sbt` shell script and the launcher.
+Download **the official sbt runner** from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.10.11> to upgrade the `sbt` shell script and the launcher.
 
 ### Bug fixes and updates
 
 * Updates Coursier from 2.1.22 → 2.1.23 by [@eed3si9n][@eed3si9n] in [#8069](https://github.com/sbt/sbt/pull/8069)
-* fix: Works around Coursier throwing `OverlappingFileLockException` by retrying by [@eed3si9n][@eed3si9n] in [sbt-coursier#558](https://github.com/coursier/sbt-coursier/pull/558)
 * fix: Fixes `compile` task retrying itself on compiler crashes by [@eed3si9n][@eed3si9n] in [#8070](https://github.com/sbt/sbt/pull/8070)
 * fix: `sbt --client shutdown` short-circuits if the server is not already running by [@eed3si9n][@eed3si9n] in [#8057](https://github.com/sbt/sbt/pull/8057)
 * fix: Fixes `sbt --client` on Windows by [@eed3si9n][@eed3si9n] in [#8071](https://github.com/sbt/sbt/pull/8071)
