@@ -47,12 +47,6 @@ tag = "tags"
   weight = -100
 
 [[menu.main]]
-  identifier = 'herding-cats-ja'
-  name = '猫番'
-  url = 'https://eed3si9n.com/herding-cats/ja/'
-  weight = -100
-
-[[menu.main]]
   identifier = 'sbt'
   name = 'sbt'
   url = 'https://scala-sbt.org'
@@ -62,6 +56,12 @@ tag = "tags"
   identifier = 'scalaxb'
   name = 'scalaxb'
   url = 'https://scalaxb.org'
+  weight = -90
+
+[[menu.main]]
+  identifier = 'projects'
+  name = 'list of projects'
+  url = '/projects/'
   weight = -90
 
 [[menu.main]]
