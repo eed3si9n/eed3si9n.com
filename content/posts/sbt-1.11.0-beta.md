@@ -51,9 +51,15 @@ Next, call `sonaUpload` to upload to the Central Portal and manually release the
 
 This was contributed by [@eed3si9n][@eed3si9n] in [#8126](https://github.com/sbt/sbt/pull/8126). The feature was inspired by sbt-sonatype's workflow pioneered by Taro Saito, and [sonatype-central-client](https://github.com/lumidion/sonatype-central-client) spearheaded by David Doyle at [Lumidion](https://www.lumidion.com/).
 
+
+#### Note: Central Portal account
+
+To convert an account to the Central Portal, go to <https://central.sonatype.com/>, nagivate to **Sign In**, then use the existing Sonatype user name and password to try to log in. If it doesn't work, use **Forgot password** link to reset the password instead of creating a fresh account.
+This should let you log into the Central Portal while still keeping your namespaces still associated with Legacy OSSRH publishing until you migrate them.
+
 ### What about sbt-ci-release?
 
-sbt-ci-release 1.11.0-RC1 is published as well, which defaults to using `sonaRelease` as the `CI_SONATYPE_RELEASE` step. In other words, newer version of sbt-ci-release assumes that you have sbt 1.11.0 or later.
+sbt-ci-release 1.11.0-RC2 is published as well, which defaults to using `sonaRelease` as the `CI_SONATYPE_RELEASE` step. In other words, newer version of sbt-ci-release assumes that you have sbt 1.11.0 or later.
 
 I think this is a reasonable assumption since there will be no Legacy OSSRH endpoint after June 30, 2025.
 
