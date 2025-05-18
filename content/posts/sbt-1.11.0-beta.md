@@ -1,7 +1,7 @@
 ---
-title: "sbt 1.11.0-RC1"
+title: "sbt 1.11.0-RC2"
 type: story
-date: 2025-05-17
+date: 2025-05-18
 url: /sbt-1.11.0-beta
 tags: [ "sbt" ]
 ---
@@ -17,7 +17,7 @@ The headline features of sbt 1.11.0 are:
 
 - Support for the Central Repository publishing
 
-Full release note is here - <https://github.com/sbt/sbt/releases/tag/v1.11.0-RC1>
+Full release note is here - <https://github.com/sbt/sbt/releases/tag/v1.11.0-RC2>
 
 <!--more-->
 
@@ -26,10 +26,14 @@ Full release note is here - <https://github.com/sbt/sbt/releases/tag/v1.11.0-RC1
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=1.11.0-RC1
+sbt.version=1.11.0-RC2
 ```
 
-This mechanism allows that sbt 1.11.0-RC1 is used only for the builds that you want.
+This mechanism allows that sbt 1.11.0-RC2 is used only for the builds that you want.
+
+### Changes since sbt 1.11.0-RC1
+
+1.11.0-RC2 fixes a few bugs related to the Central Repository publishing that was found in RC1.
 
 ### Central Repository publishing
 
@@ -46,6 +50,12 @@ Add `credentials` to the host `central.sonatype.com` using the generated user to
 Next, call `sonaUpload` to upload to the Central Portal and manually release the bundle, or call `sonaRelease` to upload and automatically release to the Cental Repository.
 
 This was contributed by [@eed3si9n][@eed3si9n] in [#8126](https://github.com/sbt/sbt/pull/8126). The feature was inspired by sbt-sonatype's workflow pioneered by Taro Saito, and [sonatype-central-client](https://github.com/lumidion/sonatype-central-client) spearheaded by David Doyle at [Lumidion](https://www.lumidion.com/).
+
+### What about sbt-ci-release?
+
+sbt-ci-release 1.11.0-RC1 is published as well, which defaults to using `sonaRelease` as the `CI_SONATYPE_RELEASE` step. In other words, newer version of sbt-ci-release assumes that you have sbt 1.11.0 or later.
+
+I think this is a reasonable assumption since there will be no Legacy OSSRH endpoint after June 30, 2025.
 
 ### Participation
 
