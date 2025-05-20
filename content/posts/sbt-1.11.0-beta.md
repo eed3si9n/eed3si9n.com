@@ -42,7 +42,11 @@ The Central Repository (aka Maven Central) has long been the pillar of the JVM e
 sbt 1.11.0 implements a built-in support to publish to Central Repository via the Central Portal. To publish to the Central Portal, first set `ThisBuild / publishTo` setting to the `localStaging` repository:
 
 ```scala
-ThisBuild / publishTo := localStaging.value
+ThisBuild / publishTo := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
 ```
 
 Add `credentials` to the host `central.sonatype.com` using the generated user token user name and password. When you're ready to publish, call `publishSigned` task (available via [sbt-pgp](https://github.com/sbt/sbt-pgp)). At this point, the JARs and POM files will be staged to your local `target/sona-staging` directory.
