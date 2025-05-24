@@ -1,8 +1,8 @@
 ---
-title: "sbt 1.11.0-RC2"
+title: "sbt 1.11.0"
 type: story
-date: 2025-05-18
-url: /sbt-1.11.0-beta
+date: 2025-05-24
+url: /sbt-1.11.0
 tags: [ "sbt" ]
 ---
 
@@ -11,13 +11,13 @@ tags: [ "sbt" ]
   [@dwijnand]: https://github.com/dwijnand
   [@xuwei-k]: https://github.com/xuwei-k
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.11.0-RC2. This is the eleventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 1.11.0. This is the eleventh feature release of sbt 1.x, a binary compatible release focusing on new features. sbt 1.x is released under Semantic Versioning, and the plugins are expected to work throughout the 1.x series. Please try it out, and report any issues you might come across.
 
 The headline features of sbt 1.11.0 are:
 
 - Support for the Central Repository publishing
 
-Full release note is here - <https://github.com/sbt/sbt/releases/tag/v1.11.0-RC2>
+Full release note is here - <https://github.com/sbt/sbt/releases/tag/v1.11.0>
 
 <!--more-->
 
@@ -26,14 +26,10 @@ Full release note is here - <https://github.com/sbt/sbt/releases/tag/v1.11.0-RC2
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=1.11.0-RC2
+sbt.version=1.11.0
 ```
 
-This mechanism allows that sbt 1.11.0-RC2 is used only for the builds that you want.
-
-### Changes since sbt 1.11.0-RC1
-
-1.11.0-RC2 fixes a few bugs related to the Central Repository publishing that was found in RC1.
+This mechanism allows that sbt 1.11.0 is used only for the builds that you want.
 
 ### Central Repository publishing
 
