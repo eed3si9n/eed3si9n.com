@@ -45,7 +45,20 @@ ThisBuild / publishTo := {
 }
 ```
 
-Add `credentials` to the host `central.sonatype.com` using the generated user token user name and password. When you're ready to publish, call `publishSigned` task (available via [sbt-pgp](https://github.com/sbt/sbt-pgp)). At this point, the JARs and POM files will be staged to your local `target/sona-staging` directory.
+Add `credentials` to the host `central.sonatype.com` using the generated user token user name and password.
+
+sbt 1.11.0 will read from the environment variables `SONATYPE_USERNAME` and `SONATYPE_PASSWORD` and append a credential for `central.sonatype.com` out-of-box, which might be useful for automatic publishing from the CI environment, such as GitHub Actions.
+
+```yaml
+- run: sbt ci-release
+  env:
+    PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+    PGP_SECRET: ${{ secrets.PGP_SECRET }}
+    SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+    SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+```
+
+When you're ready to publish, call `publishSigned` task (available via [sbt-pgp](https://github.com/sbt/sbt-pgp)). At this point, the JARs and POM files will be staged to your local `target/sona-staging` directory.
 
 Next, call `sonaUpload` to upload to the Central Portal and manually release the bundle, or call `sonaRelease` to upload and automatically release to the Cental Repository.
 
@@ -57,9 +70,17 @@ This was contributed by [@eed3si9n][@eed3si9n] in [#8126](https://github.com/sbt
 To convert an account to the Central Portal, go to <https://central.sonatype.com/>, nagivate to **Sign In**, then use the existing Sonatype user name and password to try to log in. If it doesn't work, use **Forgot password** link to reset the password instead of creating a fresh account.
 This should let you log into the Central Portal while still keeping your namespaces still associated with Legacy OSSRH publishing until you migrate them.
 
+#### Note: sbt plugin publishing
+
+Central Portal apparently no longer allows the legacy style file name `sbt-foo-1.2.3.jar`, and allow only the POM-consistent `sbt-foo_2.12_1.0-1.2.3.jar`. This means you need to set:
+
+```scala
+ThisBuild / sbtPluginPublishLegacyMavenStyle := false
+```
+
 ### What about sbt-ci-release?
 
-sbt-ci-release 1.11.0-RC3 is published as well, which defaults to using `sonaRelease` as the `CI_SONATYPE_RELEASE` step. In other words, newer version of sbt-ci-release assumes that you have sbt 1.11.0 or later.
+sbt-ci-release 1.11.0 is published as well, which defaults to using `sonaRelease` as the `CI_SONATYPE_RELEASE` step. In other words, newer version of sbt-ci-release assumes that you have sbt 1.11.0 or later.
 
 I think this is a reasonable assumption since there will be no Legacy OSSRH endpoint after June 30, 2025.
 

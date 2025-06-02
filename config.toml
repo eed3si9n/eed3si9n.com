@@ -4,7 +4,7 @@ title = 'eed3si9n'
 
 theme = "hyde"
 pygmentsstyle = "monokai"
-paginate = 50
+pagination.pagerSize = 50
 googleAnalytics = "UA-40469856-1"
 
 [languages]
