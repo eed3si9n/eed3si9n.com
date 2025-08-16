@@ -1,16 +1,14 @@
 ---
-title: "sbt 2.0.0-RC2"
+title: "sbt 2.0.0-RC3"
 type: story
-date: 2025-08-10
-url: /sbt-2.0.0-RC2
+date: 2025-08-16
+url: /sbt-2.0.0-RC3
 tags: [ "sbt" ]
-build:
-  list: never
 ---
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC2, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC3, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
 
-Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC2 will keep binary compatibility with 2.0.0 and 2.x.
+Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC3 will keep binary compatibility with 2.0.0 and 2.x.
 
 ### Headline features
 
@@ -25,15 +23,14 @@ Please try it out, and report any issues you might come across. **Note**: sbt 2.
 
 See also [sbt 2.0 change summary](https://www.scala-sbt.org/2.x/docs/en/changes/sbt-2.0-change-summary.html) for the details.
 
-## Key changes since 2.0.0-M4
+## Key changes since 2.0.0-RC2
 
-See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC2> for the full details.
+See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC3> for the full details.
 
-* Defaults all tasks to be a cached task by [@eed3si9n][@eed3si9n] in [#8161](https://github.com/sbt/sbt/pull/8161)
-* Unifies various dependencyTree-related tasks to `dependencyTree` input task by [@eed3si9n][@eed3si9n] in [#8199](https://github.com/sbt/sbt/pull/8199)
-* Scala compiler plugin remote cache support by [@eed3si9n][@eed3si9n] in [#8101](https://github.com/sbt/sbt/pull/8101)
-* Support debug output for macros by [@eed3si9n][@eed3si9n] in [#8140](https://github.com/sbt/sbt/pull/8140)
-* Update forked test to use a new worker implementation by [@eed3si9n][@eed3si9n] in [#8170](https://github.com/sbt/sbt/pull/8170)
+* fix: Supports annotated definitions in `build.sbt` by [@Duhemm][@Duhemm] in [#8205](https://github.com/sbt/sbt/pull/8205)
+* Uses `scala.transient` to denote the empty cache level by [@eed3si9n][@eed3si9n] in [#8210](https://github.com/sbt/sbt/pull/8210)
+* deps: Bump to sjson-new 0.14.0-M4, which moves some of the JSON codecs into the `JsonFormat` companion by [@eed3si9n][@eed3si9n] in [#8209](https://github.com/sbt/sbt/pull/8209)
+* Auto reload by default by [@eed3si9n][@eed3si9n] in [#8211](https://github.com/sbt/sbt/pull/8211)
 
 ### How to upgrade
 
@@ -42,10 +39,10 @@ Download **the official sbt runner** for sbt 1.11.4 or later from SDKMAN, or dow
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=2.0.0-RC2
+sbt.version=2.0.0-RC3
 ```
 
-This mechanism allows that sbt 2.0.0-RC2 is used only for the builds that you want.
+This mechanism allows that sbt 2.0.0-RC3 is used only for the builds that you want.
 
 ### Performance improvements
 
@@ -62,30 +59,28 @@ sbt 2.0.0-RC2 uses Scala 3.7.2 in the metabuild. Rather than staying with Scala 
 
 ### Plugin ecosystem migration
 
-After we released [sbt 2.0.0-M2](/sbt-2.0.0-beta) in October 2024, we initially focused on learning through migrating the sbt plugins. [Help us cross build](https://github.com/sbt/sbt/wiki/sbt-2.x-plugin-migration) wiki page currently lists dozens migrated to sbt 2.0.0-M2 through 2.0.0-M4 by cross building to sbt 1.x and 2.x.
-
-This includes popular plugins like sbt-assembly and sbt-buildinfo, but also sbt-ci-release, which includes sbt-pgp, sbt-sonatype, sbt-dynver, and sbt-git. See [Migrating from sbt 1.x][migration] if you're interested in cross building plugins.
+After we released [sbt 2.0.0-M2](/sbt-2.0.0-beta) in October 2024, we initially focused on learning through migrating the sbt plugins. [Help us cross build](https://github.com/sbt/sbt/wiki/sbt-2.x-plugin-migration) wiki page currently lists dozens migrated to sbt 2.0.0-M2 through 2.x by cross building to sbt 1.x and 2.x.
 
 ### Participation
 
 I work on sbt in my own time with collaboration with Adrien Piquerez and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy at EngFlow to name a few.
 
-sbt 2.0.0-RC2 was brought to you by many contributors, including those who contributed to sbt 1.x series, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC2 --not 1.11.x`:
+sbt 2.0.0-RC2 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC3 --not 1.11.x`:
 
 ```
-304 Eugene Yokota (eed3si9n)
+310 Eugene Yokota (eed3si9n)
 133 Adrien Piquerez
-66  Kenji Yoshida (xuwei-k)
+68  Kenji Yoshida (xuwei-k)
 31  Jerry Tan (friendseeker)
 14  Yasuhiro Tatsuno
 10  João Ferreira
 9   Anton Sviridov
 3   Brice Jaglin
+3   Martin Duhem
 2   Damian Reeves
 2   Dmitrii Naumenko
 2   Frank S. Thomas
 2   Josh Soref
-2   Martin Duhem
 2   Matt Dziuban
 2   Miguel Vilá
 2   dependabot[bot]
@@ -97,6 +92,7 @@ sbt 2.0.0-RC2 was brought to you by many contributors, including those who contr
 1   Matthias Kurz
 1   Nikita Vilunov
 1   OlegYch
+1   Roberto Tyley
 1   SlowBrainDude
 1   kijuky
 1   nathanlao
@@ -116,6 +112,7 @@ Scala Center is a non-profit center at EPFL to support education and open source
 
   [@eed3si9n]: https://github.com/eed3si9n
   [@adpi2]: https://github.com/adpi2
+  [@Duhemm]: https://github.com/Duhemm
   [@xuwei-k]: https://github.com/xuwei-k
   [@Friendseeker]: https://github.com/Friendseeker
   [@unkarjedy]: https://github.com/unkarjedy
