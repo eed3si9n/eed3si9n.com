@@ -30,11 +30,28 @@ See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC5> for the full details.
 * Updates Contraband to generate `given`s instead of `implicit lazy val` by  [@xuwei-k][@xuwei-k] in [contraband#188](https://github.com/sbt/contraband/pull/188)
 * Updates Contraband to generate `enum` instead of `case object` by [@xuwei-k][@xuwei-k] in [contraband#207](https://github.com/sbt/contraband/pull/207)
 * deps: Scala 3.7.3 by [@xuwei-k][@xuwei-k] in [#8276](https://github.com/sbt/sbt/pull/8276)
-* Adds Auto aggregate `.autoAggregate` on `Project` by [@eed3si9n][@eed3si9n] in [#8290](https://github.com/sbt/sbt/pull/8290)
+* Adds Auto aggregate `.autoAggregate` on `Project`. See below
 * Adds `runTaskUnhandled` to `Extracted` by [@BillyAutrey][@BillyAutrey] in [#8283](https://github.com/sbt/sbt/pull/8283)
 * fix: Fixes removeN operator `--=` by [@eed3si9n][@eed3si9n] in [#8260](https://github.com/sbt/sbt/pull/8260)
 * fix: Fixes forked test error handling on JDK 17 by [@eed3si9n][@eed3si9n] in [#8271](https://github.com/sbt/sbt/pull/8271)
 * fix: Catches Gson parsing error during forked tests by [@eed3si9n][@eed3si9n] in [#8282](https://github.com/sbt/sbt/pull/8282)
+
+### Auto aggregation
+
+In sbt 0.13 and 1.x, users had to choose between defining the root project manually to get the stable id or let sbt automatically define the root project that aggregates the subprojects.
+
+sbt 2.0.0-RC5 adds `Project#autoAggregate` method so you get both the benefits.
+
+```scala
+lazy val root = (project in file("."))
+  .autoAggregate
+  .settings(
+    name := "foo-root",
+    publish / skip := true,
+  )
+```
+
+This was contributed by [@eed3si9n][@eed3si9n] in [#8290](https://github.com/sbt/sbt/pull/8290).
 
 ### How to upgrade
 
@@ -60,6 +77,12 @@ Adrien Piquerez contributed a series of PRs to improve performance while he was 
 ### Scala 3.7.4 in the metabuild
 
 sbt 2.0.0-RC5 uses Scala 3.7.3 in the metabuild. Rather than staying with Scala 3.3.x LTS (which will EOL in 2026), our current decision is to adopt the latest stable Scala 3.x versions built on JDK 8.
+
+### Documentation localization
+
+[sbt 2.x documentation](https://www.scala-sbt.org/2.x/docs/en/index.html) is reorganized following the four-documentation principle ([Diátaxis](https://diataxis.fr/)).
+
+Some of the pages are localized, for example [why sbt exists](https://www.scala-sbt.org/2.x/docs/en/guide/why-sbt-exists.html) (English), [sbt の存在理由](https://www.scala-sbt.org/2.x/docs/ja/guide/why-sbt-exists.html) (Japanese), and [sbt 的存在理由](https://www.scala-sbt.org/2.x/docs/zh-cn/guide/why-sbt-exists.html) (Chinese, Simplified). Contributions are welcome in this area as well.
 
 ### Plugin ecosystem migration
 
