@@ -1,18 +1,26 @@
 ---
-title: "sbt 2.0.0-RC4"
+title: "sbt 2.0.0-RC6"
 type: story
-date: 2025-08-31
-url: /sbt-2.0.0-RC4
+date: 2025-09-29
+url: /sbt-2.0.0-RC6
 tags: [ "sbt" ]
-build:
-  list: never
 ---
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC4, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC6, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
 
-Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC4 will keep binary compatibility with 2.0.0 and 2.x.
+Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC6 will keep binary compatibility with 2.0.0 and 2.x.
 
-### Headline features
+### Key changes since 2.0.0-RC5
+
+See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC6> for the full details.
+
+* fix: sbt 2.0.0-RC6 fixes binary compatibility issue that was introduced in 2.0.0-RC5 when it started generating enum for Contraband ADTs. This was fixed by [@eed3si9n][@eed3si9n] in [#8310](https://github.com/sbt/sbt/pull/8310)
+* fix: Fixes Giter8 integration by [@eed3si9n][@eed3si9n] in [#8302](https://github.com/sbt/sbt/pull/8302)
+* Support JDK 25 JEP-512/JEP-445 Main run. See below.
+
+<!-- more -->
+
+### Headline features of sbt 2.0
 
 - sbt 2.x uses Scala 3.x for build definitions and plugins (Both sbt 1.x and 2.x are capable of building Scala 2.x and 3.x)
 - Common settings. Bare settings are added to all subprojects, as opposed to just the root subproject, and thus replacing the role that ThisBuild has played.
@@ -25,25 +33,35 @@ Please try it out, and report any issues you might come across. **Note**: sbt 2.
 
 See also [sbt 2.0 change summary](https://www.scala-sbt.org/2.x/docs/en/changes/sbt-2.0-change-summary.html) for the details.
 
-## Key changes since 2.0.0-RC3
+### JDK 25 Main class detection
 
-See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC3> for the full details.
+In [JEP-512](https://openjdk.org/jeps/512)/JEP-445, JDK 25 relaxed the requirements for the `main` method entry point to:
+1. No longer requires `Array[String]` parameter.
+2. No longer requires the method to be static.
+3. No longer requires to be public.
 
-* fix: Fixes Java-only tests by [@eed3si9n][@eed3si9n] in [#8238](https://github.com/sbt/sbt/pull/8238)
-* fix: Fixes `exportJars` false support by [@eed3si9n][@eed3si9n] in [#8240](https://github.com/sbt/sbt/pull/8240) / [#8247](https://github.com/sbt/sbt/pull/8247)
-* fix: Fixes `set` command error handling by [@eed3si9n][@eed3si9n] in [#8250](https://github.com/sbt/sbt/pull/8250)
+This means that on JDK 25, the following can be used as an entry point:
+
+```scala
+// Works on Scala 2.13.11
+class A {
+  def main(): Unit = println("hi")
+}
+```
+
+This was contributed by [@eed3si9n][@eed3si9n] + [@lrytz][@lrytz] in [#8303](https://github.com/sbt/sbt/pull/8303) and [zinc#1601](https://github.com/sbt/zinc/pull/1601).
 
 ### How to upgrade
 
-Download **the official sbt runner** for sbt 1.11.5 or later from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.11.5> to upgrade the `sbt` shell script and the launcher. Runner can launch any version of sbt.
+Download **the official sbt runner** for sbt 1.11.6 or later from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.11.6> to upgrade the `sbt` shell script and the launcher. Runner can launch any version of sbt.
 
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=2.0.0-RC4
+sbt.version=2.0.0-RC6
 ```
 
-This mechanism allows that sbt 2.0.0-RC4 is used only for the builds that you want.
+This mechanism allows that sbt 2.0.0-RC6 is used only for the builds that you want.
 
 ### Performance improvements
 
@@ -54,9 +72,15 @@ Adrien Piquerez contributed a series of PRs to improve performance while he was 
 * perf: Refactor `Settings` and optimize indexing of aggregate keys by [@adpi2][@adpi2] in [#7879](https://github.com/sbt/sbt/pull/7879)
 * perf: Remove instances of `Info` and `BasicAttributeMap` by [@adpi2][@adpi2] in [#7882](https://github.com/sbt/sbt/pull/7882)
 
-### Scala 3.7.2 in the metabuild
+### Scala 3.7.3 in the metabuild
 
-sbt 2.0.0-RC2 uses Scala 3.7.2 in the metabuild. Rather than staying with Scala 3.3.x LTS (which will EOL in 2026), our current decision is to adopt the latest stable Scala 3.x versions built on JDK 8.
+sbt 2.0.0-RC5 uses Scala 3.7.3 in the metabuild. Rather than staying with Scala 3.3.x LTS (which will EOL in 2026), our current decision is to adopt the latest stable Scala 3.x versions built on JDK 8.
+
+### Documentation localization
+
+[sbt 2.x documentation](https://www.scala-sbt.org/2.x/docs/en/index.html) is reorganized following the four-documentation principle ([Diátaxis](https://diataxis.fr/)).
+
+Some of the pages are localized, for example [why sbt exists](https://www.scala-sbt.org/2.x/docs/en/guide/why-sbt-exists.html) (English), [sbt の存在理由](https://www.scala-sbt.org/2.x/docs/ja/guide/why-sbt-exists.html) (Japanese), and [sbt 的存在理由](https://www.scala-sbt.org/2.x/docs/zh-cn/guide/why-sbt-exists.html) (Chinese, Simplified). Contributions are welcome in this area as well.
 
 ### Plugin ecosystem migration
 
@@ -64,38 +88,44 @@ sbt 2.0.0-RC2 uses Scala 3.7.2 in the metabuild. Rather than staying with Scala 
 
 ### Participation
 
-I work on sbt in my own time with collaboration with Adrien Piquerez and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy at EngFlow to name a few.
+I work on sbt in my own time with collaboration with Scala Center, Adrien Piquerez (alumni), and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy at EngFlow to name a few.
 
-sbt 2.0.0-RC2 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC4 --not 1.11.x`:
+sbt 2.0.0-RC6 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC5 --not 1.11.x`:
 
 ```
-320 Eugene Yokota (eed3si9n)
+341 Eugene Yokota (eed3si9n)
 133 Adrien Piquerez
-74  Kenji Yoshida (xuwei-k)
+119 Kenji Yoshida (xuwei-k)
 31  Jerry Tan (friendseeker)
 14  Yasuhiro Tatsuno
 10  João Ferreira
 9   Anton Sviridov
-4   dependabot[bot]
+9   dependabot[bot]
 3   Brice Jaglin
 3   Martin Duhem
+2   Billy Autrey
 2   Damian Reeves
 2   Dmitrii Naumenko
 2   Frank S. Thomas
 2   Josh Soref
+2   Kamil Podsiadło
 2   Matt Dziuban
+2   Matthew de Detrich
 2   Miguel Vilá
+1   Guillaume Massé
 1   Hamza Remmal
 1   Hugo van Rijswijk
 1   Jakub Kozłowski
 1   James Roper
 1   Karl Yngve Lervåg
-1   Matthew de Detrich
+1   Lukas Rytz
+1   Marco Zühlke
 1   Matthias Kurz
 1   Nikita Vilunov
 1   OlegYch
 1   Roberto Tyley
 1   SlowBrainDude
+1   Zainab Ali
 1   kijuky
 1   nathanlao
 ```
@@ -120,7 +150,7 @@ Scala Center is a non-profit center at EPFL to support education and open source
   [@adpi2]: https://github.com/adpi2
   [@Duhemm]: https://github.com/Duhemm
   [@xuwei-k]: https://github.com/xuwei-k
-  [@Friendseeker]: https://github.com/Friendseeker
+  [@BillyAutrey]: https://github.com/BillyAutrey
   [@unkarjedy]: https://github.com/unkarjedy
-  [@bjaglin]: https://github.com/bjaglin
+  [@lrytz]: https://github.com/lrytz
   [migration]: https://www.scala-sbt.org/2.x/docs/en/changes/migrating-from-sbt-1.x.html

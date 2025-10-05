@@ -4,6 +4,8 @@ type: story
 date: 2025-09-21
 url: /sbt-2.0.0-RC5
 tags: [ "sbt" ]
+build:
+  list: never
 ---
 
 Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC5, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
