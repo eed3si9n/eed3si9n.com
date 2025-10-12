@@ -8,6 +8,8 @@ tags: ["scala"]
 
 Gigahorse 0.9.0 is released. Gigahorse is an HTTP client for Scala that I started in 2016, with multiple backend support: Apache HttpClient 5.x, AsyncHttpClient 2.12.x, OkHttp 3.x, and Pekko HTTP 1.x.
 
+<!--more-->
+
 Gigahorse 0.9.0 is JDK 8 compatible. See [documentation](/gigahorse/) for more details on Gigahorse itself.
 
 ### multipart/form-data support
