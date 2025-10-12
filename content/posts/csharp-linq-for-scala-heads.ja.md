@@ -5,7 +5,7 @@ date:        2012-07-22
 draft:       false
 promote:     true
 sticky:      false
-url:         /csharp-linq-for-scala-heads
+url:         /ja/csharp-linq-for-scala-heads
 aliases:     [ /node/59 ]
 ---
 

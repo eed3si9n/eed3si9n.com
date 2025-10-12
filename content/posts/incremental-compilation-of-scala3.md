@@ -57,9 +57,11 @@ object Use {
 }
 ```
 
+All this should compile.
+
 ![inc1](/images/inc1.svg)
 
-All this should compile. Next, we change `Core` as follows to break the function:
+Next, we change `Core` as follows to break the function:
 
 ```scala
 object Core {
@@ -81,7 +83,7 @@ Now when you `compile` from the sbt shell, the compilation fails (**successfully
 
 ![inc2](/images/inc2.svg)
 
-This feels unremarkable, like water coming out of a tap, but if we think about it, it is remarkable that Zinc is able to detect that `object Client` requires recompilation since `Provider.foo(1)` generated a synthetic function call to `Core.core`, which now have changed its function signature since before.
+This feels unremarkable, like water coming out of a tap, but if we think about it, it is remarkable that Zinc is able to detect that `object Use` requires recompilation since `Provider.foo(1)` generated a synthetic function call to `Core.core`, which now have changed its function signature since before.
 
 ### a macro in Scala 3.7.3
 
@@ -115,6 +117,7 @@ object Use extends App {
 }
 ```
 
+In other words, the incremental compilation **succeeds incorrectly**. We call this under-compilation.
 This results in an runtime error:
 
 ```scala
@@ -130,7 +133,7 @@ The expected behavior was to catch the breakage of `Dep` at compile-time, but in
 Where could the difference between Scala 2.13 and Scala 3.x coming from?
 Besides the fact that Scala 3.x has a different mechanism for metaprogramming, it also has its own implemetation of the _compiler bridge_. The compiler bridge is the adaptation layer between Zinc the Scala compilers, and one of the functionality is to inject custom phases needed for incremental compilation.
 
-For the purpose of fixing this issue, we don't have to unpack the details of incremental compilation, beyond the fact that we need to register member-reference relationship between the use site (like `Client` and `Component`) and the generated code (like `Core` and `Dep`). See [Analysis of Zinc][analysis] talk if you're interested in more details.
+For the purpose of fixing this issue, we don't have to unpack the details of incremental compilation, beyond the fact that we need to register member-reference relationship between the use site (like `Use`) and the generated code (like `Core` and `Dep`). See [Analysis of Zinc][analysis] talk if you're interested in more details.
 
 In Scala 2.13, `xsbt-dependency` phase is injected by Zinc after `xsbti-api` phase, which in turn is injected after the typer phase. In Scala 2.13, the macros are expanded as part of the typer phase. This means, that on Scala 2.13, Zinc see the code post-macro-expansion.
 
