@@ -27,7 +27,7 @@ Erik Aybar's [Git Tip: Deleting Old Local Branches][1] takes the second approach
 
 ### git gone
 
-`git gone` is a custom git command that I wrote based on Erik Aybar's technique. I'm not comfortable with Bash scripting, so it took me some Googling and Stackoverflowing, but hopefully it does the job. Save the source in [eed3si9n/git-gone](https://github.com/eed3si9n/git-gone) as `git-gone` in `~/bin` or wherever you keep your local scripts.
+`git gone` is a custom git command that I wrote based on Erik Aybar's technique. I'm not comfortable with Bash scripting, so it took me some Googling and Stackoverflowing, but hopefully it does the job. Save the source in [eed3si9n/git-gone](https://codeberg.org/eed3si9n/git-gone) as `git-gone` in `~/bin` or wherever you keep your local scripts.
 
 To read how to use it type in `git gone`:
 

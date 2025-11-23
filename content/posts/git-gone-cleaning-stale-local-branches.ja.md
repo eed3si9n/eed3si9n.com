@@ -27,7 +27,7 @@ Erik Aybar さんの [Git Tip: Deleting Old Local Branches][1] というブロ�
 
 ### git gone
 
-`git gone` は、Erik Aybar さんのテクニックをベースに僕が書いたカスタム git コマンドだ。Bash でスクリプト書くのは不慣れなので Google とか Stackoverflow を見ながら書いたが、一応動いてくれていると思う。[eed3si9n/git-gone](https://github.com/eed3si9n/git-gone) にソースを貼ったのでそれを `~/bin` など適当な場所に `git-gone` として保存する。
+`git gone` は、Erik Aybar さんのテクニックをベースに僕が書いたカスタム git コマンドだ。Bash でスクリプト書くのは不慣れなので Google とか Stackoverflow を見ながら書いたが、一応動いてくれていると思う。[eed3si9n/git-gone](https://codeberg.org/eed3si9n/git-gone) にソースを貼ったのでそれを `~/bin` など適当な場所に `git-gone` として保存する。
 
 使い方は `git gone` と打てば出てくるようにした:
 
