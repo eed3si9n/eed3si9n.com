@@ -80,7 +80,15 @@ etude 0002:
 - <https://youtube.com/shorts/6-aDdCCuJPg>
 - <https://www.instagram.com/reel/DRzFlFPAJRf/>
 
+<!--
 <video preload="none" poster="https://files.mastodon.social/cache/media_attachments/files/115/655/194/414/084/020/small/d5fe37235121c097.png" loop="" playsinline="" controls="" rounded-lg="" object-cover="" fullscreen:object-contain="" width="720" height="1280" class="" style="aspect-ratio: 0.8 / 1; object-position: 50% 50%;" data-ready="true"><source src="https://files.mastodon.social/cache/media_attachments/files/115/655/194/414/084/020/original/d5fe37235121c097.mp4" type="video/mp4"></video>
+-->
+
+<a id="0003"></a>
+### 0003
+
+
+
 
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
