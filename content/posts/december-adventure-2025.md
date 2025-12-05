@@ -17,7 +17,7 @@ my goals:
 
 | ☾ | ♂ | ☿ | ♃ | ♀︎ | ♄ | ☉ |
 |---|---|---|---|---|---|---|
-| [0001](#0001) | [0002](#0002) | [0003](#0003) | 0004 | 0005 | 0006 | 0007 |
+| [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | 0005 | 0006 | 0007 |
 | 0008 | 0009 | 0010 | 0011 | 0012 | 0013 | 0014 |
 | 0015 | 0016 | 0017 | 0018 | 0019 | 0020 | 0021 |
 | 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
@@ -104,7 +104,32 @@ etude 0003:
 - <https://www.instagram.com/reel/DR1OHtMgP2s/>
 - <https://loops.video/v/coPbdJE62j> (60s)
 
-it came out to be more acid-like, but I can play around with different effects and filter settings.
+this came out to be more acid-like, but I can play around with different effects and filter settings.
+
+<a id="0004"></a>
+### 0004
+
+I got a delivery of the RCA to 1/4 inch jack converter today, so I can record from EP-40 Riddim line-in. for the audio interface, I'm using Arturia MiniFuse 2. EP-40 outputs to MiniFuse, and it connects to my laptop via USB-C. I'm just going to tweak [etude 0003][0003], and focus on the recording today. while it's fun record off the janky EP-40 speaker, the low frequency often gets lost.
+
+I should note that the main synth riff is loosely based on a Basic Channel track called Q 1.2:
+
+- [Q 1.2 - Basic Channel][q_1_2] (1995)
+- [Part 2 - Basic Channel, Scion][q_1_2_arrange] (2002)
+
+1995 Q 1.2 is a timeless classic in its own right, and kickless. this is another 2/4 signature. the main riff starts out sounding like a Hammond organ, and with the digital delay the faint echo at times sounds like a ghost of reggae stab, which apparently is called skank.
+
+in 2002, Scion released Tresor 200 _Arrange And Process Basic Channel Tracks_, a mixed CD of Basic Channel tracks. Part 2 mixes Presence, Q 1.2, and a few more tracks with the kick drum, giving it a feel of a basement nightclub in Berlin.
+
+I've kept the first half of etude 0004 filtered using low pass filter, and the latter half heavy on kick. using X and Y knob, I can change the parameters to Digital Delay effect, and using the fader I can move the LPF etc.
+
+etude 0004:
+- <https://www.youtube.com/watch?v=6V_dQAHyqAQ>
+- <https://www.instagram.com/reel/DR3z95nDQ8_/>
+- <https://loops.video/v/coPbdJE62j> (60s)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/6V_dQAHyqAQ?si=MwdT5NJmlHHetJC0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+I recorded the sound and video separately, and mixed them together using iMovie.
 
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
@@ -113,4 +138,7 @@ it came out to be more acid-like, but I can play around with different effects a
   [dont_show_up]: https://www.youtube.com/watch?v=o_Hkx64TFAY
   [no_war]: https://www.youtube.com/watch?v=X1BlZDMB8xs
   [nata_alma]: https://www.youtube.com/watch?v=enQoSvoc7kI
+  [q_1_2]: https://www.youtube.com/watch?v=Pvv4WDzVUBk
+  [q_1_2_arrange]: https://www.youtube.com/watch?v=tLyUajBZfyA
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
+  [0003]: https://www.youtube.com/shorts/cj4najlp6tE
