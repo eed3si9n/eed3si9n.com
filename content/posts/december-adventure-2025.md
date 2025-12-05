@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-02
+date:        2025-12-03
 url:         /december-adventure-2025
 ---
 
@@ -17,7 +17,7 @@ my goals:
 
 | ☾ | ♂ | ☿ | ♃ | ♀︎ | ♄ | ☉ |
 |---|---|---|---|---|---|---|
-| [0001](#0001) | [0002](#0002) | 0003 | 0004 | 0005 | 0006 | 0007 |
+| [0001](#0001) | [0002](#0002) | [0003](#0003) | 0004 | 0005 | 0006 | 0007 |
 | 0008 | 0009 | 0010 | 0011 | 0012 | 0013 | 0014 |
 | 0015 | 0016 | 0017 | 0018 | 0019 | 0020 | 0021 |
 | 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
@@ -62,7 +62,7 @@ let's start with a few house tracks:
 
 these may not cover all bases, but hopefully you can see the commonality among them. the time signature is very 4/4, with four kick drum, and the motif repeats over 2 or 4 bars. 1998 _Future of the Future_, for instance makes a synth arpeggio loop of 8 beats (2 bars), highhat exactly at 1/8 position, and clap at 2 and 4, and piano chord stabs around 7 at the end.
 
-Robag Wruhme's 2019 has more modern feel, but the note placement is similar. 4/4 kick drum, highhat at 1/8 position, and snare at 2 and 4. a nice fill at the end of 16 beat loop (4 bars). given that this track has 118 beats per minute, each bar is 2s, and 4 bar loops in 8s.
+Robag Wruhme's 2019 _Nata Alma_ has a more modern feel, but the note placement is similar. 4/4 kick drum, highhat at 1/8 position, and snare at 2 and 4. a nice fill at the end of 16 beat loop (4 bars). given that this track has 118 beats per minute, each bar is 2s, and 4 bar loops in 8s.
 
 coming back to Cyrus/Basic Channel's _Inversion/Precense_:
 
@@ -71,7 +71,7 @@ coming back to Cyrus/Basic Channel's _Inversion/Precense_:
 
 _Inversion_ can be interpreted as either 1 bar loop of 4/4 or 2 bar loop of 2/4 TB-303 arpeggio. 4/4 kick drum, and no highhat for the first 3 minutes. the sound stage feels echoey, and there's a slight hint of piano among the echo and white noise.
 
-without obvious drums _Presence_ makes the 2/4 feel more obvious. the main synth riff loops in 1 bar of 2/4. in other words, if you can feel the invisible kick drum, the riff repeats in the count of "one, two", which contains just one high note and another lower note of the synth. thus far it's stoically minimal. what keeps chainging for 20 minutes is the effects, which brings out different aspects of the loop. with reverb and digital delay, the simple few notes multiply into a tapestry of ghost notes, and filters can highlight the hidden harmonics.
+without obvious drums, _Presence_ makes the 2/4 feel more obvious. the main synth riff loops in 1 bar of 2/4. in other words, if you can feel the invisible kick drum, the riff repeats in the count of "one, two", which contains just one high note and another lower note of the synth. thus far it's stoically minimal. what keeps chainging for 20 minutes is the effects, which brings out different aspects of the loop. with the reverb and the digital delay, the simple few notes multiply into a tapestry of ghost notes, and filters can highlight the hidden harmonics.
 
 trying out the Main mode of EP-40 Riddim today. we can punch in the kick drum and synth riff, and adjust the effects while looping.
 
@@ -87,8 +87,24 @@ etude 0002:
 <a id="0003"></a>
 ### 0003
 
+[etude 0002][0002] was the first time I used EP-40 Riddim's Main mode, which is a looping sequencer. partly due to the fact that I can't use multiple effects serially, the track lacks the general atmospheric noise. given that EP-40 is built on top of a portable sampler, I thought I can emulate the noise by sampling outside noise.
 
+so I went outside, and just recorded a nearby highway noise on the phone. after connecting the phone to EP-40 via 3.5 mm jack audio cable, I could follow [EP-40's instruction on the sample mode](https://teenage.engineering/guides/ep-40/functions#10.1-sample) and load the sound as a sample. I guess because background noise is typically something you want to cut out, it wasn't easy to get it to be recognized at first. unfortunately, it will also be cut out through the speaker and iPhone video recording of 0003.
 
+a bigger issue with [etude 0002][0002] I thought was that, although I was able to play around with the effects a bit, the main synth loop sounded untreated, except when I hit the `FX + 8` combo, which I guessed to be some kind of a low pass filter (LPF).
+
+fortunately, what I discovered is that the sliding fader functionality can be switched using `FADER` button + pad:
+
+<img src="/images/dec2025-fader.png" style="width: 522px;"></img>
+
+`FADER + 1` or `FADER +` group is level (default), `FADER + 4` is low pass filter, and `FADER + 5` is high pass filter. I can set independent values for each of the 4 groups. the level can be used for muting tracks, and LPF is used to make the synth round and basey. for the drum track, we can also use LPF to mute the highhat while keeping the kick. if we can slightly let the higher frequency leak in, that would give the subtle noise.
+
+etude 0003:
+- <https://www.youtube.com/shorts/cj4najlp6tE>
+- <https://www.instagram.com/reel/DR1OHtMgP2s/>
+- <https://loops.video/v/coPbdJE62j> (60s)
+
+it came out to be more acid-like, but I can play around with different effects and filter settings.
 
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
@@ -97,3 +113,4 @@ etude 0002:
   [dont_show_up]: https://www.youtube.com/watch?v=o_Hkx64TFAY
   [no_war]: https://www.youtube.com/watch?v=X1BlZDMB8xs
   [nata_alma]: https://www.youtube.com/watch?v=enQoSvoc7kI
+  [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
