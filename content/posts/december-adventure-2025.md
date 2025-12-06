@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-03
+date:        2025-12-05
 url:         /december-adventure-2025
 ---
 
@@ -17,7 +17,7 @@ my goals:
 
 | ☾ | ♂ | ☿ | ♃ | ♀︎ | ♄ | ☉ |
 |---|---|---|---|---|---|---|
-| [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | 0005 | 0006 | 0007 |
+| [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | 0006 | 0007 |
 | 0008 | 0009 | 0010 | 0011 | 0012 | 0013 | 0014 |
 | 0015 | 0016 | 0017 | 0018 | 0019 | 0020 | 0021 |
 | 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
@@ -127,9 +127,29 @@ etude 0004:
 - <https://www.instagram.com/reel/DR3z95nDQ8_/>
 - <https://loops.video/v/coPbdJE62j> (60s)
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/6V_dQAHyqAQ?si=MwdT5NJmlHHetJC0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
 I recorded the sound and video separately, and mixed them together using iMovie.
+
+<a id="0005"></a>
+### 0005
+
+in [etude 0004][0004] when I faded in the kick drum, the kicks are on 1, 2, 3, 4 position, or 1, 2, if we feel it as 2/4, which is okay since we have the skank guitar sample that floats on 1/8 upbeat.
+
+Scion who released Tresor 200 _Arrange And Process Basic Channel Tracks_ is an alias of Peter Kuschnereit and René Löwe. Peter Kuschnereit is also known as Substance. Substance's 1996 Relish is such a nice dub techno track.
+
+- [Relish (Original) - Substance][relish] (1996)
+
+the main looping pattern is actually 4/4, with reverb, and synchopated to start on the upbeat of 1, creating a rhythmical groove. in general, the offset looping pattern I think was one of minimal techno style in late 90s, maybe coming from mixing vinyl tracks in the club. I'm going to call this offsetting the kick, or metric inversion. when they mixed kickless Q 1.2, the added kick was offset by 1/8 note relative the original 1.
+
+- [Part 2 - Basic Channel, Scion][q_1_2_arrange] (2002)
+
+for etude 0005, I've re-punched the kick offset by 1/8.
+
+etude 0005:
+- <https://www.youtube.com/shorts/daXgkuQZRug>
+- <https://www.instagram.com/reel/DR6ezGPgCJc/>
+- <https://loops.video/v/crrirlYFZr>
+
+the skank guitar stabs perceptionally shift from being the upbeat to downbeat when the kick comes in. another thing I tried today was to resample the skank guitar with high-pass filter (HPF) and the digital delay, so I can use it together with the main riff on low-pass filter (LPF).
 
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
@@ -140,5 +160,8 @@ I recorded the sound and video separately, and mixed them together using iMovie.
   [nata_alma]: https://www.youtube.com/watch?v=enQoSvoc7kI
   [q_1_2]: https://www.youtube.com/watch?v=Pvv4WDzVUBk
   [q_1_2_arrange]: https://www.youtube.com/watch?v=tLyUajBZfyA
+  [relish]: https://www.youtube.com/watch?v=FNTbfQkdXJA
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
   [0003]: https://www.youtube.com/shorts/cj4najlp6tE
+  [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
+  [0005]: https://www.youtube.com/shorts/daXgkuQZRug
