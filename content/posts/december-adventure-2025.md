@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-05
+date:        2025-12-06
 url:         /december-adventure-2025
 ---
 
@@ -17,7 +17,7 @@ my goals:
 
 | ☾ | ♂ | ☿ | ♃ | ♀︎ | ♄ | ☉ |
 |---|---|---|---|---|---|---|
-| [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | 0006 | 0007 |
+| [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | 0007 |
 | 0008 | 0009 | 0010 | 0011 | 0012 | 0013 | 0014 |
 | 0015 | 0016 | 0017 | 0018 | 0019 | 0020 | 0021 |
 | 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
@@ -151,6 +151,36 @@ etude 0005:
 
 the skank guitar stabs perceptionally shift from being the upbeat to downbeat when the kick comes in. another thing I tried today was to resample the skank guitar with high-pass filter (HPF) and the digital delay, so I can use it together with the main riff on low-pass filter (LPF).
 
+<a id="0006"></a>
+### 0006
+
+yesterday, Burak Emir replied to one of my Mastodon posts about this december adventure, and said:
+
+> I expect a bad dub techno remix of "scala genau" ;)
+
+during the time at EPFL under Martin Ordersky, Burak worked on various aspects of Scala, and also created a track called Scala genau!
+
+- [Scala genau! - Burak Emir][genau]
+
+I'd still have to figure out a few things, but I think it's feasible to try a remix/rework. the original track is in the style of EDM/trance music with the strings, organ (?), piano, and vocal sample "Scala genau" layered heavily in the main part A.
+
+the intro and part B features a fast synth riff. there are a few bars during the intro without any drumkit, so I've used that for sampling the synth riff. next, by hitting `SHIFT + SOUND` button on EP-40 Riddim, I can edit the sample, mostly by trimming so it lines up with 1. interestingly there's a bass, sort of skank stabbing on 0.5, 1.5, etc. maybe it's manually avoiding to be on the kick. next, I wanted the feel to be less rushed, so slowed down the tempo to 85 bmp. thankfully there's an isolated "Scala genau" towards the end that I could sample.
+
+borrowing from the house music theory in day 2, I've expanded the loop to 4 bars, and vocal sample at the end of it. I want to layer something on, but the bass sound is embedded into the synth riff, so I chopped a piano sample that was in EP-40, and punched in a simple rhythm riff, matching the key. piano appears in the original track too, and it works well with digital delay and filtering.
+
+for the drum pattern, I wanted it to avoid the four-on-the-floor kicks, be sparse, but stand out. this reminded me of the following track:
+
+- [Nurture (Surgeon Mix) - LFO, Surgeon][nurture]
+
+I didn't make a long pattern like Surgeon did, but I borrowed the idea of putting wobbly bass sound on 1 as kick. these are punched in ahead of time, and I'm adjusting the level, digital delay parameters, LPF, HPF, as well as FX (how much the effects affects the group).
+
+Scala genau! eed3si9n reprocess:
+- <https://youtu.be/bnvSYcxGbjc>
+- <https://www.instagram.com/p/DR9VaLQDteU/>
+- <https://loops.video/v/csUyt0yYz9>
+
+
+
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
   [future_of_the_future]: https://www.youtube.com/watch?v=HCh6QoLCbmE
@@ -161,6 +191,8 @@ the skank guitar stabs perceptionally shift from being the upbeat to downbeat wh
   [q_1_2]: https://www.youtube.com/watch?v=Pvv4WDzVUBk
   [q_1_2_arrange]: https://www.youtube.com/watch?v=tLyUajBZfyA
   [relish]: https://www.youtube.com/watch?v=FNTbfQkdXJA
+  [genau]: https://soundcloud.com/bqe-recordings/scala-genau
+  [nurture]: https://www.youtube.com/watch?v=MKJcT7ZXCaQ
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
   [0003]: https://www.youtube.com/shorts/cj4najlp6tE
   [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
