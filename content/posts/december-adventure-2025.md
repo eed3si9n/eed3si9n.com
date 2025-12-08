@@ -17,7 +17,7 @@ my goals:
 
 | ☾ | ♂ | ☿ | ♃ | ♀︎ | ♄ | ☉ |
 |---|---|---|---|---|---|---|
-| [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | 0007 |
+| [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | [0007](#0007) |
 | 0008 | 0009 | 0010 | 0011 | 0012 | 0013 | 0014 |
 | 0015 | 0016 | 0017 | 0018 | 0019 | 0020 | 0021 |
 | 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
@@ -180,6 +180,32 @@ Scala genau! eed3si9n reprocess:
 - <https://loops.video/v/csUyt0yYz9>
 
 
+<a id="0007"></a>
+### 0007
+
+we've thus far looked at minimal dub techno of earlier years, but as we enter into more dub-inspired dub techno, time signature changes to normal 4/4. in 2001, Rhythm & Sound released _King In My Empire/King Version_ vinyl:
+
+- [King In My Empire + King Version - Rhythm & Sound, Cornell Campbell][king] (2001)
+
+in the above, _King In My Empire_ is a reggae track with singing. _King Version_ is the dub of the same track. note that it's not just the instrumental, but there's some vocal here and there. in both cases, the loop is 2 bars of 4/4.
+
+Giriu Dvasios takes the source material from Lithuanian folk songs, which works well:
+
+- [Tureja liepa - Giriu Dvasios][tureja] (2015)
+- [O kas sodely - Giriu Dvasios][o_kas_sodely] (2019)
+
+the arrangement/harmonization of Giriu Dvasios is so smooth. I'm not going to be smooth at all, but I'm going to attempt a rework/reprocess of another Lithuanian folk song. some of the themes of Lithuanian folk music include Advent, like _O kas sodely pamigo_ (who fell asleep in the garden). I don't know if this is Advent-related, but I found a recording of a song called _Kas ten po mano sodelį vaikščiojo_ (who was walking around my garden):
+
+- [Kas ten po mano sodelį vaikščiojo - Augantas Braziulis, Ula Braziulienė][kas_ten_po_mano] (2022)
+
+kas ten po mano sodelį vaikščiojo reprocess:
+- <https://www.youtube.com/watch?v=lJWS3YVWStM>
+- <https://www.instagram.com/p/DR_kOJLDTBr/>
+- <https://loops.video/v/cu1l77U44f> (54s)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/lJWS3YVWStM?si=v9_RRF8qk4q_cCuP" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+besides the fact that I had to split the sample into two, it went ok. the difficult part was actual arrangement/harmonization of picking the backing chord and playing the bass line. I used a MIDI controller for exploration, but I couldn't use it for recording since with USB-C ended up adding weird extra notes, maybe existing track's note ends up repeating back.
 
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
@@ -193,6 +219,10 @@ Scala genau! eed3si9n reprocess:
   [relish]: https://www.youtube.com/watch?v=FNTbfQkdXJA
   [genau]: https://soundcloud.com/bqe-recordings/scala-genau
   [nurture]: https://www.youtube.com/watch?v=MKJcT7ZXCaQ
+  [tureja]: https://www.youtube.com/watch?v=J1TOhW5ALIM
+  [o_kas_sodely]: https://www.youtube.com/watch?v=4N256_IMcVg
+  [kas_ten_po_mano]: https://www.youtube.com/watch?v=tAUFzXym088
+  [king]: https://www.youtube.com/watch?v=Damfih85wW8
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
   [0003]: https://www.youtube.com/shorts/cj4najlp6tE
   [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
