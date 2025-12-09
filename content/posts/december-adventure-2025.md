@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-06
+date:        2025-12-07
 url:         /december-adventure-2025
 ---
 
@@ -179,7 +179,6 @@ Scala genau! eed3si9n reprocess:
 - <https://www.instagram.com/p/DR9VaLQDteU/>
 - <https://loops.video/v/csUyt0yYz9>
 
-
 <a id="0007"></a>
 ### 0007
 
@@ -207,6 +206,35 @@ kas ten po mano sodelį vaikščiojo reprocess:
 
 besides the fact that I had to split the sample into two, it went ok. the difficult part was actual arrangement/harmonization of picking the backing chord and playing the bass line. I used a MIDI controller for exploration, but I couldn't use it for recording since with USB-C ended up adding weird extra notes, maybe existing track's note ends up repeating back.
 
+<a id="0008"></a>
+### 0008
+
+I listened to music, but no EP-40 Riddim today. I did publish the track list for [chikhzen'ni (2025.12 mixtape)](/2025.12-mixtape), and posted it to Mastodon. the list contains a wide variety of electronic music, but one track I did listen to three, four times is:
+
+- [Port Gentil - Porter Ricks][port_gentil] (1996)
+
+the total time is 12:25, so it takes time to listen to it, but it's good. it starts out with just reverbation, an echo of something, and gradually kick, sampled (or resampled) noise, and eventually a minimal piano loop, but everything goes back to echo again. so it's partly ambient, and partly minimal.
+
+in addition, I was also looking at sbt and Coursier interaction. there's a mysterious bug that was reported a few weeks ago [coursier/coursier#3520](https://github.com/coursier/coursier/issues/3520), which states that if Scala 3.8 is published locally, which now includes `scala-library`, Coursier ends up returning two `scala-library` JARs if 2.13 is also transitively depended. the core part of Coursier resolution logic is at [Resolution.scala#L355-L385](https://github.com/coursier/coursier/blob/26c952ba7225d3ac2a00c3f4858c692fdcd439c1/modules/core/shared/src/main/scala/coursier/core/Resolution.scala#L355-L385), which resolves version conflicts, if any, per `Module`. the `Module` looks like this:
+
+```scala
+@data(apply = false, settersCallApply = true) class Module(
+  organization: Organization,
+  name: ModuleName,
+  attributes: Map[String, String]
+)
+```
+
+Scala 3 team added an extra attribute on the `scala-library` artifact, which in `ivy.xml` looks like this when published locally:
+
+```xml
+  <info organisation="org.scala-lang" module="scala-library" revision="3.8.0-RC3-bin-SNAPSHOT" status="integration" publication="20251209044014" e:scala.versionLine="Next" e:info.versionScheme="always">
+    <description homepage="https://scala-lang.org/">scala-library-bootstrapped</description>
+  </info>
+```
+
+by convention, extra attributes that does not start with "info" is treated as a virtual axis (like sbt version back when it published to Bintray), so Coursier correctly distingushed two `scala-library` entries.
+
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
   [future_of_the_future]: https://www.youtube.com/watch?v=HCh6QoLCbmE
@@ -223,6 +251,7 @@ besides the fact that I had to split the sample into two, it went ok. the diffic
   [o_kas_sodely]: https://www.youtube.com/watch?v=4N256_IMcVg
   [kas_ten_po_mano]: https://www.youtube.com/watch?v=tAUFzXym088
   [king]: https://www.youtube.com/watch?v=Damfih85wW8
+  [port_gentil]: https://www.youtube.com/watch?v=uX4fdvZsNSw
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
   [0003]: https://www.youtube.com/shorts/cj4najlp6tE
   [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
