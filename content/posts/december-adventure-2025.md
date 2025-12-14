@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-07
+date:        2025-12-13
 url:         /december-adventure-2025
 ---
 
@@ -18,7 +18,7 @@ my goals:
 | ☾ | ♂ | ☿ | ♃ | ♀︎ | ♄ | ☉ |
 |---|---|---|---|---|---|---|
 | [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | [0007](#0007) |
-| 0008 | 0009 | 0010 | 0011 | 0012 | 0013 | 0014 |
+| [0008](#0008) | [0009](#0009) | [0010](#0010) | [0011](#0011) | 0012 | [0013](#0013) | 0014 |
 | 0015 | 0016 | 0017 | 0018 | 0019 | 0020 | 0021 |
 | 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
 | 0029 | 0030 | 0031 | - | - | - |
@@ -202,7 +202,9 @@ kas ten po mano sodelį vaikščiojo reprocess:
 - <https://www.instagram.com/p/DR_kOJLDTBr/>
 - <https://loops.video/v/cu1l77U44f> (54s)
 
+<!--
 <iframe width="560" height="315" src="https://www.youtube.com/embed/lJWS3YVWStM?si=v9_RRF8qk4q_cCuP" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+-->
 
 besides the fact that I had to split the sample into two, it went ok. the difficult part was actual arrangement/harmonization of picking the backing chord and playing the bass line. I used a MIDI controller for exploration, but I couldn't use it for recording since with USB-C ended up adding weird extra notes, maybe existing track's note ends up repeating back.
 
@@ -235,6 +237,92 @@ Scala 3 team added an extra attribute on the `scala-library` artifact, which in 
 
 by convention, extra attributes that does not start with "info" is treated as a virtual axis (like sbt version back when it published to Bintray), so Coursier correctly distingushed two `scala-library` entries.
 
+<a id="0009"></a>
+### 0009
+
+I wrote about _Port Gentil_ yesterday:
+
+- [Port Gentil - Porter Ricks][port_gentil] (1996)
+
+my hypothesis is that it's using resampled tracks as drone. for example, have an isolated kick track, play it through filtering and reverb, and resample it.
+
+also I've been using some of the piano skunk chord samples that came in EP-40, but I think it would be interesting to sample a jazz track, like Thelonious Monk:
+
+- [Smoke Gets In Your Eyes - Thelonious Monk][smoke] (1954)
+
+sampled a small part, played it through reverb, and got the resample. similarly, I resampled quantized four-on-the-floor kicks.
+
+etude 0009:
+- <https://www.youtube.com/shorts/1kUB_fnE8_I>
+- <https://www.instagram.com/reel/DSE7L-PDq8q/>
+- <https://loops.video/v/cwGANtx4Sa>
+
+this is still in progress, but it does demonstrate the hypothsis.
+
+<a id="0010"></a>
+### 0010
+
+continuing with _Port Gentil_:
+
+- [Port Gentil - Porter Ricks][port_gentil] (1996)
+
+towards the beginning, there's a part that sounds a sampling of field recording, like train sound. it's possible that something else ends up sounding like train after resampling, but I'll go with the train idea.
+
+speaking of trains, 2010 album _Liumin_ by Echospace, listed as among the best dub techno albums, features field recordings in Tokyo, including the motor acceleration sound of a subway car:
+
+- [Summer Haze - Deepchord Presents: Echospace][summer_haze] (2010)
+
+Echospace is a project by Rod Modell and Stephen Hitchell. Rob Modell is also known as DeepChord. it's been a long time since I first heard DeepChord, but I remember feeling a joy to see dub echo progressing, and just how good his tracks were. taking from a Echospace page, I'll use a field recording from a Tokyo train.
+
+- [
+Nishi-Nippori to Tokyo Station Train Ride On Yamanote Line](https://www.youtube.com/watch?v=aTndS_KmbBk)
+
+etude 0010:
+- <https://www.youtube.com/watch?v=vrji4Trx-fU>
+- <https://www.instagram.com/reel/DSHlYVCDtrs/>
+- <https://loops.video/v/cy0wgk9yde>
+
+<a id="0011"></a>
+### 0011
+
+towards the middle of _Port Gentil_ it ducks out of ambient, and has a more minimal piano loop:
+
+- [Port Gentil - Porter Ricks][port_gentil] (1996)
+
+in day 7 I tried to record with MIDI controller unsuccessfully, but I've been thinking that I probably just need to limit the input MIDI channel to the controller, so EP-40 Riddim's signal doesn't loop back, which seemed to have worked.
+
+I've been meaning to use EP-40's Supertone synth, which sets EP-40 apart from just being a sampling machine. I wish it came with piano and organ, but there's either bass or synth lead.
+
+etude 0011:
+- <https://www.youtube.com/watch?v=oiEgncN8wOE>
+- <https://www.instagram.com/reel/DSKT-adgCh9/>
+- <https://loops.video/v/czn0hapgDb>
+
+synth lead exposes cut off filter, which is fun to tweak. I'm constantly reassigning the fader and knobs, so it would be useful if I can use the MIDI controller for this purpose.
+
+<a id="0012"></a>
+### 0012
+
+no progress today.
+
+<a id="0013"></a>
+### 0013
+
+shifting gear to DeepChord, I listened to 2003 _Kettle Point_ EP by Rod Modell. in the early 00s, sometime before DeepChord, Rod Modell release a few tracks as Rod Modell.
+
+- [Luminescent - Rod Modell][luminescent] (2003)
+
+the basic structure of the track is relatively simple. the signature feels like 4/4, and slightly wonky synth loop that's 4 or 8 bars long. the bass is one note. kick is four on the floor. distant conga sample. however with filtering and reverb, the whole thing sounds like a dub techno.
+
+to emulate the synth loop, I recorded organ chords and resampled it through phaser.
+
+etude 0013:
+- <https://www.youtube.com/watch?v=ojl4JZu7W4o>
+- <https://www.instagram.com/reel/DSPiQIAgCg4/>
+- <https://loops.video/v/cBZTCCBSpX>
+
+pressing `SHIFT + TEMPO` creates a mini loop while playing, which has a cool effect, but it's difficult to execute it in a predictable manner.
+
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
   [future_of_the_future]: https://www.youtube.com/watch?v=HCh6QoLCbmE
@@ -252,7 +340,11 @@ by convention, extra attributes that does not start with "info" is treated as a 
   [kas_ten_po_mano]: https://www.youtube.com/watch?v=tAUFzXym088
   [king]: https://www.youtube.com/watch?v=Damfih85wW8
   [port_gentil]: https://www.youtube.com/watch?v=uX4fdvZsNSw
+  [summer_haze]: https://www.youtube.com/watch?v=zbzP1Zy3U7Q
+  [smoke]: https://www.youtube.com/watch?v=M_-DX1kIRK8
+  [luminescent]: https://www.youtube.com/watch?v=0kp3BHrMK0U
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
   [0003]: https://www.youtube.com/shorts/cj4najlp6tE
   [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
   [0005]: https://www.youtube.com/shorts/daXgkuQZRug
+  [0009]: https://www.youtube.com/shorts/1kUB_fnE8_I
