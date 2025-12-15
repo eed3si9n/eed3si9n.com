@@ -18,7 +18,7 @@ my goals:
 | ☾ | ♂ | ☿ | ♃ | ♀︎ | ♄ | ☉ |
 |---|---|---|---|---|---|---|
 | [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | [0007](#0007) |
-| [0008](#0008) | [0009](#0009) | [0010](#0010) | [0011](#0011) | 0012 | [0013](#0013) | 0014 |
+| [0008](#0008) | [0009](#0009) | [0010](#0010) | [0011](#0011) | 0012 | [0013](#0013) | [0014](#0014) |
 | 0015 | 0016 | 0017 | 0018 | 0019 | 0020 | 0021 |
 | 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
 | 0029 | 0030 | 0031 | - | - | - |
@@ -321,7 +321,22 @@ etude 0013:
 - <https://www.instagram.com/reel/DSPiQIAgCg4/>
 - <https://loops.video/v/cBZTCCBSpX>
 
-pressing `SHIFT + TEMPO` creates a mini loop while playing, which has a cool effect, but it's difficult to execute it in a predictable manner.
+pressing `SHIFT + TEMPO` creates a mini loop while playing, which has a cool effect.
+
+<a id="0014"></a>
+### 0014
+
+did a bit of GitHub issue gardening today. first, I've searched through the issues, and labeled all sbt 2.x related issues with a label called [area/sbt2](https://github.com/sbt/sbt/issues?q=is%3Aissue%20state%3Aopen%20label%3Aarea%2Fsbt2). there are several GitHub milestones:
+
+- [2.0.0-RC9](https://github.com/sbt/sbt/milestone/111)
+- [2.0.0](https://github.com/sbt/sbt/milestone/34)
+- [2.x backlog](https://github.com/sbt/sbt/milestone/108)
+
+the allocation of which issue goes into which bucket is subject to change. there are a few issues that need fixing, but I've been putting off since they are relatively easy, so decided to work on them today.
+
+first is creating a shaded Gson. sbt 2.x uses Gson in the forked test, but this will collide if the test itself uses another version of Gson. a quick fix is to publish a shaded version of it, and use that instead. this was fixed in [Switch to using shaded-gson (#8419)][8419].
+
+next is Scala 3.8 REPL support. I've implemented that in sbt 1.x side, so I just need merge them into 2.x side. I thought I've done that already for 2.0.0-RC7, but apparently I didn't for Zinc, so I've sent a merge PR in [zinc#1620](https://github.com/sbt/zinc/pull/1620).
 
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
@@ -348,3 +363,4 @@ pressing `SHIFT + TEMPO` creates a mini loop while playing, which has a cool eff
   [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
   [0005]: https://www.youtube.com/shorts/daXgkuQZRug
   [0009]: https://www.youtube.com/shorts/1kUB_fnE8_I
+  [8419]: https://github.com/sbt/sbt/pull/8419
