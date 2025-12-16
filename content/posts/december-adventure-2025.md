@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-13
+date:        2025-12-14
 url:         /december-adventure-2025
 ---
 
@@ -338,6 +338,13 @@ first is creating a shaded Gson. sbt 2.x uses Gson in the forked test, but this 
 
 next is Scala 3.8 REPL support. I've implemented that in sbt 1.x side, so I just need merge them into 2.x side. I thought I've done that already for 2.0.0-RC7, but apparently I didn't for Zinc, so I've sent a merge PR in [zinc#1620](https://github.com/sbt/zinc/pull/1620).
 
+<a id="0015"></a>
+### 0015
+
+fixing low-hanging (for me) sbt 2.x bugs, continuing from yesterday. I published a new Zinc milestone, but still wasn't able to run Scala 3.8 REPL. it looks like there was a diff missing in `develop` branch, so fixed that in [fix: Scala 3.8 REPL support #8420][8420].
+
+next, there was a report that sbt 2.x's projectMatrix is missing the [crossVersion](https://github.com/sbt/sbt-projectmatrix/pull/101) feature that's in sbt-projectmatrix, which allows the user to pass `crossVersion = CrossVersion.full` for compiler plugin projects. this was fixed in [projectMatrix crossVerson support #8421][8421]. this wasn't necessarily hard, but cumbersome to port since there are numerous overloaded methods.
+
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
   [future_of_the_future]: https://www.youtube.com/watch?v=HCh6QoLCbmE
@@ -364,3 +371,5 @@ next is Scala 3.8 REPL support. I've implemented that in sbt 1.x side, so I just
   [0005]: https://www.youtube.com/shorts/daXgkuQZRug
   [0009]: https://www.youtube.com/shorts/1kUB_fnE8_I
   [8419]: https://github.com/sbt/sbt/pull/8419
+  [8420]: https://github.com/sbt/sbt/pull/8420
+  [8421]: https://github.com/sbt/sbt/pull/8421
