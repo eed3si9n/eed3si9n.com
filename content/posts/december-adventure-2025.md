@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-14
+date:        2025-12-19
 url:         /december-adventure-2025
 ---
 
@@ -19,7 +19,7 @@ my goals:
 |---|---|---|---|---|---|---|
 | [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | [0007](#0007) |
 | [0008](#0008) | [0009](#0009) | [0010](#0010) | [0011](#0011) | 0012 | [0013](#0013) | [0014](#0014) |
-| 0015 | 0016 | 0017 | 0018 | 0019 | 0020 | 0021 |
+| [0015](#0015) | [0016](#0016) | [0017](#0017) | [0018](#0018) | [0019](#0019) | 0020 | 0021 |
 | 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
 | 0029 | 0030 | 0031 | - | - | - |
 
@@ -345,6 +345,99 @@ fixing low-hanging (for me) sbt 2.x bugs, continuing from yesterday. I published
 
 next, there was a report that sbt 2.x's projectMatrix is missing the [crossVersion](https://github.com/sbt/sbt-projectmatrix/pull/101) feature that's in sbt-projectmatrix, which allows the user to pass `crossVersion = CrossVersion.full` for compiler plugin projects. this was fixed in [projectMatrix crossVerson support #8421][8421]. this wasn't necessarily hard, but cumbersome to port since there are numerous overloaded methods.
 
+<a id="0016"></a>
+### 0016
+
+listening to _Mass Digital_ from the 2015 album _Ultraviolet Music_, 2h 37m of the sound closer to what I think of DeepChord dub techno:
+
+- [Mass Digital - DeepChord][mass_digital] (2015)
+
+taking notes of some of the EP-40 steps
+
+- to switch to project 6, `MAIN + 6`
+- to erase the project 6, `MAIN + 6 + ERASE`
+- to assign a sample to a pad, `SOUND`, then drums group, `7`, and use `SHIFT + +` and `+`/`-` to navigate to some sample, like `824` (jammy drums A) as a placeholder beat
+- go to <https://www.all8.com/tools/bpm.htm> to tap for BPM. the track I'm listening to has 129 BPM
+- `TEMPO`, use `X` knob to change the tempo to 129
+- to play from the beginning, `MAIN`, `SHIFT + PLAY`. if the tempo is matched, you should have a drum track matching the track you're listening to
+
+there's an electronic piano loop at the beginning. it might be difficult to fully reproduce it, but we can capture the gist using 628 chord.
+
+- `SOUND`, keyboard group, orange, then pick 628
+- `FADER + 6` to change the fader to FX, and move to 70
+- `MAIN`, `RECORD`, `+` to select 2 bars, `PLAY` to record 2 bars
+- `FADER + 4` to change the fader to LPF
+
+record low pass filter (LPF) movement over the 2 bars to filter out some sounds. same for high pass filter (HPF).
+
+- `SHIFT + MAIN` to commit changes
+
+next we need some white noise, which I guess is supposed to be field recording. 736 has a generic hiss sound, so we can use that for now.
+
+- `SOUND`, sample group, `7`, move to 736
+- `SHIFT + SOUND`, use X knob to change the sound mode to loop
+- `SOUND`, and use X knob to change the amp to lower the level a bit
+
+the bass make like two sound, so low that almost sounds like a kick drum. 413 has the super low bass, but the attack is too weak for short notes so we have to go with 412
+
+- `SOUND`, bass group, `organge`, move to 412
+- `RECORD`, then `PLAY` to record bass notes
+
+there's also a djembe-like drum sample after a few bars. I opted to play this instead of trying to sample something that matches. normally this would go into the drum group, but we want drum group for kick and highhats, so we'll play it on the sample group.
+
+- `SOUND`, sample group, `1`, move to 316, lower the amplitude
+- `SOUND`, sample group, `2`, move to 317, lower the amplitude
+- `RECORD`, then `PLAY` to record distant afro drum
+
+finally, we can put kicks and highhats into the drum group, which I will omit here.
+
+- `SHIFT + MAIN` to commit changes
+
+each time we hit `SHIFT + MAIN`, EP-40 automatically creates a scene.
+
+- `MAIN + -` to move back to the previous scene
+- `MAIN + +` to move to the next scene
+
+the intro part will be S10, and the main part will be S11.
+
+etude 0016:
+- <https://www.youtube.com/watch?v=A5mtG_ehvyI>
+- <https://www.instagram.com/reel/DSXIycMgCsB/>
+- <https://loops.video/v/cFOgCUiSxA>
+
+I also sent a quick bug fix PR [fix: Replace Scala version with u when crossPaths is false #8422][8422].
+
+<a id="0017"></a>
+### 0017
+
+followed up on [fix: Replace Scala version with u when crossPaths is false #8422][8422], by fixing a few failing scripted tests.
+
+<a id="0018"></a>
+### 0018
+
+released [Zinc 1.12.0-M2](https://github.com/sbt/zinc/releases/tag/v1.12.0-M2) and [lm 1.12.0-M2](https://github.com/sbt/librarymanagement/releases/tag/v1.12.0-M2) in preparation for 1.12.0-RC.
+
+<a id="0019"></a>
+### 0019
+
+released [sbt 1.2.0-RC1](/sbt-1.12.0-RC1).
+
+listening to Fluxion's 1998 Atlos:
+
+- [Atlos - Fluxion][atlos] (1998)
+
+it got included into _Vibrant Forms_ compilation in 1999, but the EP came out in 1998. first the drony sample loops, with faint kick, which makes the track initially feel like 64 BPM. after about 2 min in, the kick comes in at 128 BPM. afterwards, spacy synth floats over both.
+
+for the sample loop, I'm using a seconds of a jazz sample.
+
+etude 0019:
+
+- <https://www.youtube.com/watch?v=9a7M6FVfWQY>
+- <https://www.instagram.com/reel/DSe4UY1gMEp/>
+- <https://loops.video/v/cJG50PzUyp>
+
+the synth part needs to be more echoy.
+
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
   [future_of_the_future]: https://www.youtube.com/watch?v=HCh6QoLCbmE
@@ -365,6 +458,8 @@ next, there was a report that sbt 2.x's projectMatrix is missing the [crossVersi
   [summer_haze]: https://www.youtube.com/watch?v=zbzP1Zy3U7Q
   [smoke]: https://www.youtube.com/watch?v=M_-DX1kIRK8
   [luminescent]: https://www.youtube.com/watch?v=0kp3BHrMK0U
+  [mass_digital]: https://www.youtube.com/watch?v=zQri6SoVpWY
+  [atlos]: https://www.youtube.com/watch?v=pJEjQ-ynI-Y
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
   [0003]: https://www.youtube.com/shorts/cj4najlp6tE
   [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
@@ -373,3 +468,4 @@ next, there was a report that sbt 2.x's projectMatrix is missing the [crossVersi
   [8419]: https://github.com/sbt/sbt/pull/8419
   [8420]: https://github.com/sbt/sbt/pull/8420
   [8421]: https://github.com/sbt/sbt/pull/8421
+  [8422]: https://github.com/sbt/sbt/pull/8422
