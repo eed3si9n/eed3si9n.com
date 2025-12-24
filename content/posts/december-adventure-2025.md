@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-19
+date:        2025-12-23
 url:         /december-adventure-2025
 ---
 
@@ -19,8 +19,8 @@ my goals:
 |---|---|---|---|---|---|---|
 | [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | [0007](#0007) |
 | [0008](#0008) | [0009](#0009) | [0010](#0010) | [0011](#0011) | 0012 | [0013](#0013) | [0014](#0014) |
-| [0015](#0015) | [0016](#0016) | [0017](#0017) | [0018](#0018) | [0019](#0019) | 0020 | 0021 |
-| 0022 | 0023 | 0024 | 0025 | 0026 | 0027 | 0028 |
+| [0015](#0015) | [0016](#0016) | [0017](#0017) | [0018](#0018) | [0019](#0019) | [0020](#0020) | [0021](#0021) |
+| [0022](#0022) | [0023](#0023) | 0024 | 0025 | 0026 | 0027 | 0028 |
 | 0029 | 0030 | 0031 | - | - | - |
 
 <a id="0001"></a>
@@ -438,6 +438,66 @@ etude 0019:
 
 the synth part needs to be more echoy.
 
+<a id="0020"></a>
+### 0020
+
+winter vacation begins today. went to a skate session in the evening, which is significant since I had a shoulder surgery a month ago. I figured it might be more stable to try the 8.25 inch (normally I skate 8 inch board) and AF-1, which is heavier. got used to pushing around quickly. tried a few 180 turns, trying to avoid jumping around. I kind of remember kick turns being easier on 8.25 board last year as well. eventually I tried to ollie, but it felt awkward. I did manage to record ollie and revert combo, which I think is first time.
+
+- <https://loops.video/v/cKi8enNIKu>
+- <https://www.instagram.com/reel/DSgf5bGjbzL/>
+
+went to a holiday party, said hi old colleague and their family, and went out for a dinner.
+
+continuing with Fluxion's 1998 Atlos:
+
+- [Atlos - Fluxion][atlos] (1998)
+
+with the effects on EP-40, I couldn't really make the synth part echoy, but I programmed it in so I can turn knobs for modulation instead.
+
+etude 0020 (Fluxion Atlos cover):
+
+- <https://www.youtube.com/watch?v=P6BecP_3RqM>
+- <https://www.instagram.com/reel/DShaZUBjr64/>
+- <https://loops.video/v/cKWQ_wrWTl>
+
+a minor change from 0019.
+
+<a id="0021"></a>
+### 0021
+
+went skating again. not that my ollie was good before, but still feels awkward. one thing I was trying was to load the tail to get a strong pop on release, which is satisfying when it works.
+
+to work on a non-ollie trick, I tried no comply 180 a bit, off the board, just trying to scoop, but it was still difficult.
+
+<a id="0022"></a>
+### 0022
+
+went out to [Dhamaka](https://www.dhamaka.nyc/) in the city for dinner with my lovely vegeratian wife. the overall atmosphere was okay. the seating was packed, and not much decor. I got prema and wife got garden nimbu pani for our non-alcoholic beverage. when I stole a sip, nimbu pani had the masala that immediately transported me back to my in-law's house. prema was okay.
+
+so far winning, wife started with paneer tikka (2 pc), which had the proper soft texture, usually not found in takeouts. the wait staff really recommended butter pepper garlic crab as a starter for me, so I caved in instead of gurda kapoora (goat kidney). I've had crabs in my life, and while cooking it with butter and garlic was tasty, I wasn't impressed. maybe it would hit different if I've tagged along to Goa vacays. 0-2.
+
+wife wanted to try their bread, so she's ordered paratha with main, but it just arrived on its own, between starter and main. very confusing. anyway, it was the best paratha I've had. layered, and flaky, like the outer edge of a pie, and fragrant with butter. so 0-3.
+
+for the main, I was set on nalli biryani (lamb shank rice). a huge clay pot arrived on the table sealed with dough, and inside was bone-in lamb shank, barely covered in basmati rice. opening the pot, and deboning it was a table-side show. with 50:50 lamb to rice ratio, it was a perfect biryani. wife went for dahi waali bhindi, which unfortunately was too spicy for her. it was truly a Dhamaka (explosion, bang, or sudden success). I'd be enjoying the biryani we took home. 1-3.
+
+no progress on dub techno or coding today.
+
+<a id="0023"></a>
+### 0023
+
+listening to grad_u's Sanctuary Bay from 2019 album _Umwelt_:
+
+- [Sanctuary Bay - grad_u][sanctuary_bay] (2019)
+
+tempo is 126 bpm, but it starts half-speed like _Atlos_. initially there's a synth pan and a slow piano loop. 30s in, the bass comes in offset from the piano loop, and when the kick comes in at 60s mark it's offset as well, creating the metric inversion.
+
+etude 0023:
+- <https://www.youtube.com/watch?v=lebTX67mj8o>
+- <https://www.instagram.com/reel/DSo-U8lAEA5/>
+- <https://loops.video/v/cOJz4-zDYs>
+
+I tried to get the compression effect of the pan by resampling, but it's difficult to get a crisp noise with just using EP-40.
+
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
   [future_of_the_future]: https://www.youtube.com/watch?v=HCh6QoLCbmE
@@ -459,6 +519,7 @@ the synth part needs to be more echoy.
   [smoke]: https://www.youtube.com/watch?v=M_-DX1kIRK8
   [luminescent]: https://www.youtube.com/watch?v=0kp3BHrMK0U
   [mass_digital]: https://www.youtube.com/watch?v=zQri6SoVpWY
+  [sanctuary_bay]: https://www.youtube.com/watch?v=9S8acI9tMz8
   [atlos]: https://www.youtube.com/watch?v=pJEjQ-ynI-Y
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
   [0003]: https://www.youtube.com/shorts/cj4najlp6tE
