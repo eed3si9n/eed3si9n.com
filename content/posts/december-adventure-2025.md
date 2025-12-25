@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-23
+date:        2025-12-24
 url:         /december-adventure-2025
 ---
 
@@ -20,7 +20,7 @@ my goals:
 | [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | [0007](#0007) |
 | [0008](#0008) | [0009](#0009) | [0010](#0010) | [0011](#0011) | 0012 | [0013](#0013) | [0014](#0014) |
 | [0015](#0015) | [0016](#0016) | [0017](#0017) | [0018](#0018) | [0019](#0019) | [0020](#0020) | [0021](#0021) |
-| [0022](#0022) | [0023](#0023) | 0024 | 0025 | 0026 | 0027 | 0028 |
+| [0022](#0022) | [0023](#0023) | [0024](#0024) | 0025 | 0026 | 0027 | 0028 |
 | 0029 | 0030 | 0031 | - | - | - |
 
 <a id="0001"></a>
@@ -188,7 +188,7 @@ we've thus far looked at minimal dub techno of earlier years, but as we enter in
 
 in the above, _King In My Empire_ is a reggae track with singing. _King Version_ is the dub of the same track. note that it's not just the instrumental, but there's some vocal here and there. in both cases, the loop is 2 bars of 4/4.
 
-Giriu Dvasios takes the source material from Lithuanian folk songs, which works well:
+Girių Dvasios takes the source material from Lithuanian folk songs, which works well:
 
 - [Tureja liepa - Giriu Dvasios][tureja] (2015)
 - [O kas sodely - Giriu Dvasios][o_kas_sodely] (2019)
@@ -485,11 +485,13 @@ no progress on dub techno or coding today.
 <a id="0023"></a>
 ### 0023
 
-listening to grad_u's Sanctuary Bay from 2019 album _Umwelt_:
+listening to grad_u's _Sanctuary Bay_ from 2019 album _Umwelt_:
 
 - [Sanctuary Bay - grad_u][sanctuary_bay] (2019)
 
-tempo is 126 bpm, but it starts half-speed like _Atlos_. initially there's a synth pan and a slow piano loop. 30s in, the bass comes in offset from the piano loop, and when the kick comes in at 60s mark it's offset as well, creating the metric inversion.
+grad_u is also based in Lithuania, like Girių Dvasios, but he's more Fluxion, DeepChord, Heavenchord type. somewhat analogous to Basic Channel, he created his own label called Redscale in 2012, and released a bunch of tracks as vinyl, and some became CDs afterwards.
+
+_Sanctuary Bay_'s tempo is 126 bpm, but it starts half-speed like _Atlos_. initially there's a synth pan and a slow piano loop. 30s in, the bass comes in offset from the piano loop, and when the kick comes in at 60s mark it's offset as well, creating the metric inversion.
 
 etude 0023:
 - <https://www.youtube.com/watch?v=lebTX67mj8o>
@@ -497,6 +499,14 @@ etude 0023:
 - <https://loops.video/v/cOJz4-zDYs>
 
 I tried to get the compression effect of the pan by resampling, but it's difficult to get a crisp noise with just using EP-40.
+
+<a id="0024"></a>
+### 0024
+
+getting back to fixing low-hanging sbt 2.x bugs, I sent:
+
+- [fix: Resolver.combineDefaultResolvers #8426][8426]
+- [fix: Workaround for NoSuchFileException #8427][8427]
 
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
@@ -530,3 +540,5 @@ I tried to get the compression effect of the pan by resampling, but it's difficu
   [8420]: https://github.com/sbt/sbt/pull/8420
   [8421]: https://github.com/sbt/sbt/pull/8421
   [8422]: https://github.com/sbt/sbt/pull/8422
+  [8426]: https://github.com/sbt/sbt/pull/8426
+  [8427]: https://github.com/sbt/sbt/pull/8427
