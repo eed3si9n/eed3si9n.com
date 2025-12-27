@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-24
+date:        2025-12-26
 url:         /december-adventure-2025
 ---
 
@@ -20,7 +20,7 @@ my goals:
 | [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | [0007](#0007) |
 | [0008](#0008) | [0009](#0009) | [0010](#0010) | [0011](#0011) | 0012 | [0013](#0013) | [0014](#0014) |
 | [0015](#0015) | [0016](#0016) | [0017](#0017) | [0018](#0018) | [0019](#0019) | [0020](#0020) | [0021](#0021) |
-| [0022](#0022) | [0023](#0023) | [0024](#0024) | 0025 | 0026 | 0027 | 0028 |
+| [0022](#0022) | [0023](#0023) | [0024](#0024) | [0025](#0025) | [0026](#0026) | 0027 | 0028 |
 | 0029 | 0030 | 0031 | - | - | - |
 
 <a id="0001"></a>
@@ -508,6 +508,29 @@ getting back to fixing low-hanging sbt 2.x bugs, I sent:
 - [fix: Resolver.combineDefaultResolvers #8426][8426]
 - [fix: Workaround for NoSuchFileException #8427][8427]
 
+<a id="0025"></a>
+### 0025
+
+EP-40 is supposed to be a sampler beat machine, so I figured I should add some sample layer on top of [etude 0023][0023].
+
+there's a sample loop called _Diwali Riddim_, which has been sampled by a bunch of 90s dancehall tracks. using that I can try the dub techno dub thing.
+
+etude 0025:
+- <https://www.youtube.com/watch?v=ROYViDLODRo>
+- <https://www.instagram.com/reel/DSudHRZAFq7/>
+- <https://loops.video/v/cRsigt98Lh>
+
+<a id="0026"></a>
+### 0026
+
+I've fixed the low-hanging bug fixes that I've bucketed for the next RC, so I decided to tackle a more complicated one today. there's somewhat long-standing request [#2795][2795] from 2016 to require `scalaVersion` in `build.sbt`. in a few days, 2016 would be a decade ago.
+
+this is a tricky issue since setting a `scalaVersion` requires you are familiar with Scala, and if you're already familiar with it you've likely set `scalaVersion`. if we assume that the situation where you won't have `scalaVersion` set would be either a new user or by accident, erroring out saying "scalaVersion is required" might not be helpful. instead, keeping the existing behavior of picking the Scala version used by the metabuild, and displaying a warning would be more helpful.
+
+detecting if a particular setting has been set by `build.sbt` or not is not exactly easy. I've copied some of the code from the unused setting detector since it displays the setting's source position. this has exposed at least one bug related position tracking code.
+
+- [Show warnings when scalaVersion is missing #8428][8428]
+
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
   [future_of_the_future]: https://www.youtube.com/watch?v=HCh6QoLCbmE
@@ -536,9 +559,12 @@ getting back to fixing low-hanging sbt 2.x bugs, I sent:
   [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
   [0005]: https://www.youtube.com/shorts/daXgkuQZRug
   [0009]: https://www.youtube.com/shorts/1kUB_fnE8_I
+  [0023]: https://www.youtube.com/watch?v=lebTX67mj8o
   [8419]: https://github.com/sbt/sbt/pull/8419
   [8420]: https://github.com/sbt/sbt/pull/8420
   [8421]: https://github.com/sbt/sbt/pull/8421
   [8422]: https://github.com/sbt/sbt/pull/8422
   [8426]: https://github.com/sbt/sbt/pull/8426
   [8427]: https://github.com/sbt/sbt/pull/8427
+  [2795]: https://github.com/sbt/sbt/issues/2795
+  [8428]: https://github.com/sbt/sbt/pull/8428
