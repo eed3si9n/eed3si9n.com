@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-26
+date:        2025-12-30
 url:         /december-adventure-2025
 ---
 
@@ -20,8 +20,8 @@ my goals:
 | [0001](#0001) | [0002](#0002) | [0003](#0003) | [0004](#0004) | [0005](#0005) | [0006](#0006) | [0007](#0007) |
 | [0008](#0008) | [0009](#0009) | [0010](#0010) | [0011](#0011) | 0012 | [0013](#0013) | [0014](#0014) |
 | [0015](#0015) | [0016](#0016) | [0017](#0017) | [0018](#0018) | [0019](#0019) | [0020](#0020) | [0021](#0021) |
-| [0022](#0022) | [0023](#0023) | [0024](#0024) | [0025](#0025) | [0026](#0026) | 0027 | 0028 |
-| 0029 | 0030 | 0031 | - | - | - |
+| [0022](#0022) | [0023](#0023) | [0024](#0024) | [0025](#0025) | [0026](#0026) | [0027](#0027) | [0028](#0028) |
+| [0029](#0029) | [0030](#0030) | [0031](#0031) | - | - | - |
 
 <a id="0001"></a>
 ### 0001
@@ -531,6 +531,101 @@ detecting if a particular setting has been set by `build.sbt` or not is not exac
 
 - [Show warnings when scalaVersion is missing #8428][8428]
 
+<a id="0027"></a>
+### 0027
+
+I attempted to investigate [NoClassDefFoundError: $Wrap #7424][7424], but did not make much headway.
+
+I also worked on an interesting [issue #8429][8429] reported by azdrojowa123 via Discord #sbt a few weeks ago:
+
+> I did a small test and ran a simple cached task. The symlink was added to the project directory, and then I removed the AC (once the whole directory and another time only the content of the file corresponding to my task). In both cases, in the next task execution, it was re-run, and the cache wasn't used at all (at least that's how it seems).
+>
+> So, it looks like even though there's a symlink, it still relies on (or reads? I'm not sure) the AC. Is this expected?
+
+I think I had justified the rationale behind the symlink files under `target` as an optimization mechanism to avoid reading Action Cache (AC) JSON, by pointing directly to the CAS json, but a few weeks later she exposed that the optimization wasn't really implemented on the usage side.
+
+I've sent a PR to try to address this:
+
+- [fix: Fixes task value optimization #8430][8430]
+
+however, it's failing scripted tests.
+
+<a id="0028"></a>
+### 0028
+
+continued a bit on [fix: Fixes task value optimization #8430][8430] from day 27. the optimization itself works as intended, but the value it returns is insufficient for some the tasks that captures file creation effects. we can try to make special cases for those, but it ends up making both cache reading and writing more complicated.
+
+listening to Altone's track _Buoyancy_ from 2019 _Echo Node_ EP:
+
+- [Buoyancy - Altone][buoyancy] (2019)
+- [Sanctuary Bay - grad_u][sanctuary_bay] (2019)
+
+Altone I think is based in Japan, but the _Echo Node_ is released from the Greyscale label by grad_u. the track loops on 2/4, but as the name buoyancy suggests, it has a heavy synchopation.
+
+the main loop I'm guessing is a combination of piano and synth, but synth part sounding like an echo noise.
+
+etude 0028 (Altone Buoyancy cover):
+- <https://www.youtube.com/watch?v=5v1eQKVW6ko>
+- <https://www.instagram.com/reel/DS1zpqODj9J/>
+- <https://loops.video/v/cV7L1FQexe> (1 min)
+
+I couldn't quite get the bouncy feel of the original. a fun element in etude 0028 is that I got to live tweak the envelope, attack and release, of the piano sample.
+
+<a id="0029"></a>
+### 0029
+
+went for grocery shopping to Mitsuwa and H-Mart, and also baked cookies in the evening.
+
+I'm listening to Barker's _Positive Disintegration_ from the 2025 _Stochastic Drift_ album:
+
+- [Positive Disintegration - Barker][positive] (2025)
+
+Barker's music doesn't fit into the categorization of dub techno, but since he's based in Berlin and since he has been pursuing techno without 4/4 kick, or what I call _kickless_, some of the tracks can be approached from dub techno angle, with syncopation and digital delay.
+
+when there's a feel for the beats, it's around 68 bpm. around 3:30 there's a cool synth arpeggio that comes in with high attack, which reminded me of Chinese zheng (bridged zitar). in Japan, traditional koto music is played during the new years, which is zheng that came from the Tang dynasty in 8th century. koto didn't seem to have much cultural significance until 1600s when they adopted miyako bushi scale.
+
+- [Rokudan - Yatsuhashi Kengyo, Michio Miyagi][6dan] (1947)
+
+there's some phrase we might be able to use around [4:23](https://youtu.be/WVD92qnbTJc?si=T7zRz_y023KuTeEO&t=263).
+
+the first half of the _Positive Disintegration_ has chord stabs, which I'm not sure if it's reprocessed from the later synth. I can chop a chord sound from koto, resample with chorus, and resample again with reverb.
+
+<a id="0030"></a>
+### 0030
+
+continuing Barker's _Positive Disintegration_:
+
+- [Positive Disintegration - Barker][positive] (2025)
+
+the chord stab short, so I tried resampling with shorter release. next the bass. I hooked up the MIDI controller to play along the koto sample, then step recorded the bassline.
+
+towards the end of the loop, there's a slow crescendo, almost like reversed highhat. I made the sound by stretching the chord stab to 4 bars, and lowering the attack.
+
+etude 0030 (rokudan):
+- <https://www.youtube.com/watch?v=GKhuVDmvoY0>
+-　<https://www.instagram.com/reel/DS6a_z6jaO5/>
+- <https://loops.video/v/cXufp4qJVy>
+
+used the loop feature towards the end to break the track down.
+
+<a id="0031"></a>
+### 0031
+
+made vegan soba and chikuzen'ni for the new year in the evening. listening to Akmuo's _In_ from 2025 album _Atgimimas_:
+
+- [In - Akmuo][in] (2025)
+
+this is another kickless dub techno. not only it's kickless, the main echoy sample runs at 63 bpm but the rest does not seem to line up to the grid, like _Terminator_'s misaligned loop that gives polyrhythm/odd meter feel.
+
+for the loop material, I reused yesterday's Rokudan. also as a general white noise, I'm reusing the Tokyo train sound from day 10. I resampled a chopped up koto with digital deplay, so when I'm playing I can use phaser.
+
+etude 0031:
+- <https://www.youtube.com/watch?v=WqhsEEnT5_c>
+- <https://www.instagram.com/reel/DS9s-5BgLbD/>
+- <https://loops.video/v/cZ51lSWoqg>
+
+since I don't know what I'm doing with the loop feature, I end up creating glitchy feel. a fitting end to this unfortunate series of bad dub techno.
+
   [inversion]: https://www.youtube.com/watch?v=DFZHOf89Cos
   [presence]: https://www.youtube.com/watch?v=v1ePdmmca8s
   [future_of_the_future]: https://www.youtube.com/watch?v=HCh6QoLCbmE
@@ -554,6 +649,10 @@ detecting if a particular setting has been set by `build.sbt` or not is not exac
   [mass_digital]: https://www.youtube.com/watch?v=zQri6SoVpWY
   [sanctuary_bay]: https://www.youtube.com/watch?v=9S8acI9tMz8
   [atlos]: https://www.youtube.com/watch?v=pJEjQ-ynI-Y
+  [buoyancy]: https://www.youtube.com/watch?v=JHr2Ep_Nwpg
+  [positive]: https://www.youtube.com/watch?v=iYPd9EiPbpQ
+  [6dan]: https://www.youtube.com/watch?v=WVD92qnbTJc
+  [in]: https://www.youtube.com/watch?v=Gz14dtJXzcs
   [0002]: https://www.youtube.com/shorts/6-aDdCCuJPg
   [0003]: https://www.youtube.com/shorts/cj4najlp6tE
   [0004]: https://www.youtube.com/watch?v=6V_dQAHyqAQ
@@ -568,3 +667,6 @@ detecting if a particular setting has been set by `build.sbt` or not is not exac
   [8427]: https://github.com/sbt/sbt/pull/8427
   [2795]: https://github.com/sbt/sbt/issues/2795
   [8428]: https://github.com/sbt/sbt/pull/8428
+  [7424]: https://github.com/sbt/sbt/issues/7424
+  [8429]: https://github.com/sbt/sbt/issues/8429
+  [8430]: https://github.com/sbt/sbt/pull/8430
