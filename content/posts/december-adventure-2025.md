@@ -1,7 +1,7 @@
 ---
 title:       "december adventure 2025"
 type:        story
-date:        2025-12-30
+date:        2025-12-31
 url:         /december-adventure-2025
 ---
 
