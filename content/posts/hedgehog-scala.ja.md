@@ -86,7 +86,7 @@ end FooTest
     xs.distinct ==== xs
 ```
 
-ここで僕が主張している属性は、ランダムな `xs` があるとき、`distinct` を呼び出すと、全く同じリストが得られるというもので、明らかに間違っている。
+ここで僕が主張している属性は、ランダムな `xs` があるとき、`distinct` メソッドを呼び出すと、全く同じリストが得られるというもので、明らかに間違っている。
 
 ### シュリンクのデモ
 
@@ -219,6 +219,18 @@ end BuildSettingsInstances
         (if k.scope.project == This then actual.scope.project == Select(ref)
          else true)
     )
+```
+
+### propertyN
+
+サンプル数を設定するのには以下のような関数を使っている:
+
+```scala
+import hedgehog.core.{ ShrinkLimit, SuccessCount }
+
+def propertyN(name: String, result: => Property, n: Int): Test =
+  Test(name, result)
+    .config(_.copy(testLimit = SuccessCount(n), shrinkLimit = ShrinkLimit(n * 10)))
 ```
 
 ### Hedgehog for Scala の弱み

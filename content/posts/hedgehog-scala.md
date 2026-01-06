@@ -10,7 +10,7 @@ tags:        [ "scala" ]
   [choosing]: https://fsharpforfunandprofit.com/posts/property-based-testing-2/
   [hypothesis]: https://hypothesis.works/
 
-In this post, I want to talk about [Hedgehog for Scala](https://hedgehogqa.github.io/scala-hedgehog/), a property-based testing framework created by Charles O'Farrell around 2018, and has been maintained by Kevin Lee more recently, based on Haskell Hedgehog, which was cofounded by Jacob Stanley and Nikos Baxevanis.
+In this post, I want to talk about [Hedgehog for Scala](https://hedgehogqa.github.io/scala-hedgehog/), a property-based testing framework created by Charles O'Farrell around 2018, and has been maintained by Kevin Lee more recently. Hedgehog for Scala is based on Haskell Hedgehog, which in turn was cofounded by Jacob Stanley and Nikos Baxevanis.
 
 <!--more-->
 
@@ -30,7 +30,7 @@ In the original Haskell QuickCheck, this is expressed via a typeclass called `Ar
 
 ### shrinking: automatic minimization
 
-One of an interesting features of property-based test is its ability to automatically minimize the failing example when a test fails. With QuickCheck and ScalaCheck, this process requires `shrink` implemented by the test users, which often does not happen.
+An interesting feature of property-based test is its ability to automatically minimize the failing example when a test fails. With QuickCheck and ScalaCheck, this process requires `shrink` implemented by the test users, which often does not happen.
 
 Hedgehog automates this process, by integrating shrinking into `Gen`, similar to the approach taken by [Hypothesis][hypothesis]. For more details, see Jacob Stanley's [Gens N' Roses: Appetite for Reduction](https://www.youtube.com/watch?v=LfD0DHqpeVQ) talk.
 
@@ -86,7 +86,7 @@ In the above, `intGen` and `listGen` are example generators, which is defined us
     xs.distinct ==== xs
 ```
 
-The property that I'm claim, which is that for a random `xs` calling `distinct` is going to produce the same exact list, is obviously false.
+The property that I'm claiming, which is for a random `xs`, calling `distinct` method is going to produce the same exact list, is obviously false.
 
 ### shrinking demo
 
@@ -219,6 +219,18 @@ Now, within the confine of `import BuildSettingsInstances.given`, we will have a
         (if k.scope.project == This then actual.scope.project == Select(ref)
          else true)
     )
+```
+
+### propertyN
+
+For setting the test count, I've been using the following function:
+
+```scala
+import hedgehog.core.{ ShrinkLimit, SuccessCount }
+
+def propertyN(name: String, result: => Property, n: Int): Test =
+  Test(name, result)
+    .config(_.copy(testLimit = SuccessCount(n), shrinkLimit = ShrinkLimit(n * 10)))
 ```
 
 ### limitations of Hedgehog for Scala
