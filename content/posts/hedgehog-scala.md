@@ -223,7 +223,7 @@ Now, within the confine of `import BuildSettingsInstances.given`, we will have a
 
 ### propertyN
 
-For setting the test count, I've been using the following function:
+For setting the sample count, I've been using the following function:
 
 ```scala
 import hedgehog.core.{ ShrinkLimit, SuccessCount }
