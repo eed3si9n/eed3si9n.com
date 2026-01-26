@@ -13,11 +13,11 @@ Despite Scala's accolades over the years, both sbt and Zinc remain niche project
 
 ### gold miners comes to the village
 
-One day in January 2026, this change when sbt/sbt started getting pull requests from people whom I've never heard of before. What I've put together gradually is that sbt/sbt has been added to a crypo-based open source bounty program called [Gittensor][gittensor]. According to <https://subnetalpha.ai/subnet/gittensor/>:
+One day in January 2026, this changed when sbt/sbt started getting pull requests from people whom I've never heard of before. What I've put together gradually is that sbt/sbt has been added to a crypo-based, open source bounty program called [Gittensor][gittensor]. According to <https://subnetalpha.ai/subnet/gittensor/>:
 
 > Gittensor is a specialized subnet on the Bittensor network that incentivizes and rewards developers for contributing to open-source software. In essence, it creates a decentralized "open-source workforce" by allowing developers (as miners) to earn cryptocurrency for meaningful contributions (like code improvements and pull requests) to selected open-source projects.
 
-If I understand correctly, a _subnet_ is a virtual startup within Bittensor (TAO), and the alpha token act as a stock for the startup. Bittensor funds the subnets (called _emission_) in some cadence, and the miners are rewarded with the alpha token, which they can _unstake_ to TAO. In other words, the idea behind Bittensor startup seems to be replacing the useless Bitcoin _mining_ with some form of useful activities. I have no idea who is investing into Bittensor (TAO) itself, but it market itselfs as "a decentralized network where computers work together to develop AI," not virtual venture capital.
+If I understand correctly, a _subnet_ is a virtual startup within Bittensor (TAO), and the alpha token act as a stock for the startup. Bittensor funds the subnets (called _emission_) in some cadence, and the miners are rewarded with the alpha token, which they can _unstake_ to TAO. TAO then can be traded to USD. In other words, the idea behind Bittensor startup seems to be replacing the useless Bitcoin _mining_ with some form of useful activities. I have no idea who is investing into Bittensor (TAO) itself, but it market itselfs as _a decentralized network where computers work together to develop AI_, not a venture capital.
 
 Regardless, Gittensor claims that it has a monthly $116k USD reward pool. They get 41.38 TAO/day, which is $9548, and they claim 41% goes to the "miners." I have no way to confirming the veracity of these numbers, but there are group of people who seem to think this is true. Let's assume they get paid around $100 per pull request.
 
