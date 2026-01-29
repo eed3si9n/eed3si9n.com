@@ -3,6 +3,7 @@ title: "sbt and the miners of the wild west"
 type:  story
 date:  2026-01-26
 url:   sbt-and-the-miners-of-the-wild-west
+tags: [ "sbt" ]
 ---
 
 ### small village of sbt
@@ -43,7 +44,7 @@ Unlike a bug bounty program, Gittensor has no limits to which GitHub issues the 
 > final_score = max(0, total_earned_score - total_collateral_score)
 > ```
 
-Some of the "miners"/contributors ask if they can work on an issue, others start sending pull requests. This has motivated me to close some of the inactive issues, which explains why we closed more issues than the pull requests.
+Some of the "miners"/contributors ask if they can work on an issue, while others start sending pull requests on their own. This has motivated me to close some of the inactive issues, which explains why we closed more issues than the pull requests.
 
 ### the big question: how are the PRs?
 
@@ -56,7 +57,7 @@ However, as you might imagine, the pull requests come in varying degree of readi
 | easy issue    |      ⛅     |      ☀️   |
 | complex issue |      ⛈️     |      ⛅   |
 
-My observation is that the "miner"/contributors split into two camps. Let's call them junior devs and senior devs. The senior devs can tackle a portfolio of easy and complex issues, and resolved issues that I haven't been able to give attention to in years. Meanwhile, junior devs require several round of reviews to fix easy issues, and often struggle with complex ones. This also has to do with peculiar nature of the sbt project, which sometimes requires Scala metaprogramming or working with Windows batch changes that can pass GitHub Actions CI, so it's not a judgement of the general skill level.
+My observation is that the "miner"/contributors split into two camps. Let's call them junior devs and senior devs. The senior devs can tackle a portfolio of easy and complex issues, and resolved issues that I haven't been able to give attention to in years. Meanwhile, junior devs require several round of reviews to fix easy issues, and often struggle with complex ones. This also has to do with peculiar nature of the sbt project, which sometimes requires Scala metaprogramming or working with Windows batch changes that can pass GitHub Actions CI, so it's not a judgement of their general skill level.
 
 Here are select PRs that were contributed this month:
 
@@ -96,19 +97,19 @@ I've never had to do this before, but in this age of Gen AI, I suspect some peop
 
 Given that there's no clear mechanism to forbid the use of Gen-AI assisted contributions, I'm taking the strategy to just state the bar the pull request must cross, which is that it must demonstrate the fix.
 
-I speculate that most "miners" using the Gen-AI assistance, both the junior and the senior devs, but they are arriving at different results because Gen-AI doesn't magically make programmers a better programmer, beyond regurgitating code patterns in the training set. In that sense, we can think of it as a chain saw. If you give a chain saw to a trained carpenter, they could speed up some common tasks; however, if you give a chain saw to a novice, they wouldn't know what to cut, they wouldn't know when the cut needs planing, and likely that they would hurt themselves or damage the project.
+I speculate that most "miners" are using the Gen-AI assistance, both the junior and the senior devs, but they are arriving at different results because Gen-AI doesn't magically make programmers a better programmer, beyond regurgitating code patterns in the training set. In that sense, we can think of it as a chain saw. If you give a chain saw to a trained carpenter, they could speed up some common tasks; however, if you give a chain saw to a novice, they wouldn't know what to cut, they wouldn't know when the cut needs planing, and likely that they would hurt themselves or damage the project.
 
 If people have better suggestion than carefully reviewing the PRs, testing locally, and closing untested, unexplainable, Gen-AI copy-pasted PRs and blocking the users, please let me know.
 
 ### a chaotic Tidelift
 
-In 2017, a few of the folks involved in Red Hat and Typesafe founded a company called Tidelift. Tidelift I think focused on enterprise subscription model to ensure security patches and licensing etc, but the novel aspect was paying the open source developers, rather than hiring them all like Red Hat did.
+In 2017, a few of the folks who were involved in Red Hat and Typesafe founded a company called _Tidelift_. Tidelift focused on enterprise subscription model to ensure security patches and licensing etc of open source projects; and the novel aspect was paying the open source developers, rather than hiring them all like Red Hat did.
 
-Gittensor seems like a chaotic version of the Tidelift where anyone can try to participate in this "gig". In the current form, it acts as a market of open source contribution and "miners" getting crypo coins. The energy expended by the project maintainers are externalities in this equation (I'm not interested in crypo coins), but like I mentioned above, we do get some interesting pull requests in return. See also the recent news on [curl stopping their bug bounty](https://curl.se/docs/bugbounty.html):
+Gittensor seems like a chaotic version of the Tidelift where anyone can try to participate in this "gig". In the current form, it acts as a market of open source contribution and "miners" getting crypto coins. The energy expended by the project maintainers are externalities in this equation (I'm not interested in crypto coins), but like I mentioned above, we do get some interesting pull requests in return. See also the recent news on [curl stopping their bug bounty](https://curl.se/docs/bugbounty.html):
 
 > Up until the end of January 2026 there was a curl bug bounty. It is no more.
 
-Not that I'm concerned about Gittensor's health, I'm not sure how sustainable the bounty program would be, if it only relied on the windfalls from the Bittensor handouts.
+Not that I'm concerned about Gittensor's health, I'm not sure how sustainable the bounty program would be, if it relied only on the windfalls from the Bittensor handouts.
 
   [gittensor]: https://gittensor.io/
   [scoring]: https://docs.gittensor.io/scoring.html
