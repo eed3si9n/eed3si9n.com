@@ -137,7 +137,7 @@ Scala 3.x は全く異なるメタプログラミング機構を持っている�
 
 Scala 2.13 では、Zinc は `xsbt-dependency` フェーズを `xsbti-api` フェーズの後に注入し、`xsbti-api` は Typer の後に置かれる。Scala 2.13 ではマクロ展開は Typer フェーズの一部として実行される。そのため、Scala 2.13 では Zinc はマクロ展開後のコードを見ることができる。
 
-Scala 3 チームは compiler bridge を scala/scala3 に取り込んだため、Scala 2.12 と違って compiler bridge は Maven Central にバイナリとして公開されている。これは、理にかなっていると言えるが、新しいバージョンの Scala 3 をリリースしないと差分コンパイルに関する修正をすることを意味する。[Compiler.scala](https://github.com/scala/scala3/blob/3.7.3/compiler/src/dotty/tools/dotc/Compiler.scala) によると、Scala 3 は `sbt-deps` を Typer の後に置く。しかし、Scala 3 ではインライン展開とマクロ展開をかなり後のフェーズで行う。そのため、依存性追跡をしている段階では Scala 3 コンパイラはクォートされたコードは見えるかもしれないが、マクロ展開後の生の構文木は見えない。これで差分コンパイルの不正確さを説明できるかもしれない。
+Scala 3 チームは compiler bridge を scala/scala3 に取り込んだため、Scala 2.12 と違って compiler bridge は Maven Central にバイナリとして公開されている。これは、一見理にかなっているが、新しいバージョンの Scala 3 をリリースしないと差分コンパイルに関する修正ができないという欠点もある。[Compiler.scala](https://github.com/scala/scala3/blob/3.7.3/compiler/src/dotty/tools/dotc/Compiler.scala) によると、Scala 3 は `sbt-deps` を Typer の後に置く。しかし、Scala 3 ではインライン展開とマクロ展開をかなり後のフェーズで行う。そのため、依存性追跡をしている段階では Scala 3 コンパイラはクォートされたコードは見えるかもしれないが、マクロ展開後の生の構文木は見えない。これで差分コンパイルの不正確さを説明できるかもしれない。
 
 ### sbt-deps フェーズの修正
 
