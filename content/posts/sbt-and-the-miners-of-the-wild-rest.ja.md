@@ -12,6 +12,8 @@ tags: [ "sbt" ]
 
 経年の Scala の名声とは一歩おいて、sbt も Zinc も依然としてニッチなプロジェクトで、基本的には僕個人と Scala Center との協力、そして一部 Scala ユーザと EFPL、Lightbend/Akka社、JetBrains社、VirtusLab社、Databricks社、Gradle社などのツール担当の人たちから形成される内輪の人たちが送ってくれるコントリビューションで開発が行われていて、だいたいポーランドとかスイスの Scala カンファレンスに顔を出しているとお互い面識ができてくる。
 
+<!--more-->
+
 ### 金鉱山師たちが村にやってきた
 
 2026年1月のある日、この状況は突然変化して、sbt/sbt に以前全く聞いたことが無い人たちからプルリクが送られてくるようになった。後になって徐々に分かったことは、sbt/sbt が、[Gittensor][gittensor] という名前のクリプト通貨ベースのオープンソース懸賞プログラムに追加されたということだ。<https://subnetalpha.ai/subnet/gittensor/> によると:
