@@ -57,7 +57,7 @@ This mechanism allows that sbt 2.0.0-RC9 is used only for the builds that you wa
 
 ### JDK 17 + Scala 3.8.1 in metabuild
 
-sbt 2.0.0-RC9 upgrades the Scala version used on the metabuild to Scala 3.8.1 after notifying the community in the users forum. This means that you would need JDK 17 or later to run sbt 2.x.
+sbt 2.0.0-RC9 upgrades the Scala version used on the metabuild to Scala 3.8.1 after notifying the community in [RFC: sbt 2.0 on JDK 17](https://users.scala-lang.org/t/rfc-sbt-2-0-on-jdk-17/12169). This means that you would need JDK 17 or later to run sbt 2.x.
 
 This was contributed by Eugene Yokota in [#8530](https://github.com/sbt/sbt/pull/8530).
 
@@ -316,7 +316,7 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
 
 ### FYI - Scala Days talk
 
-I gave a talk in Scala Days 2025 about sbt 2.0 ([slide deck](https://www.slideshare.net/slideshow/sbt-2-0-go-big-scala-days-2025-edition/282592302)).
+I gave a talk in Scala Days 2025 about sbt 2.0 ([recording](https://www.youtube.com/watch?v=GM2ywMb4z7A), [slide deck](https://www.slideshare.net/slideshow/sbt-2-0-go-big-scala-days-2025-edition/282592302)).
 
 ### Donate to Scala Center
 
