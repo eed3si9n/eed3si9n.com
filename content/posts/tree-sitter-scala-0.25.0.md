@@ -1,5 +1,5 @@
 ---
-title:       "tree-sitter-scala 0.25.0"
+title:       "tree-sitter-scala 0.24.1 and 0.25.0"
 type:        story
 date:        2026-03-12
 url:         /tree-sitter-scala-0.25.0
