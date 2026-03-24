@@ -8,8 +8,8 @@ tags: [ "sbt" ]
 
 The headline feature of sbt 1.12.6 is:
 
-- Coursier update
-- log4j update
+- Coursier 2.12.25-M24 update
+- log4j 2.25.3 update
 
 See also [1.12.0 release note](/sbt-1.12.0) for the details on 1.12.x features.
 
@@ -31,7 +31,7 @@ Download **the official sbt runner** from SDKMAN, or download from <https://gith
 
 ### Updates
 
-* deps: Update lm-coursier to 2.1.12 (Coursier 2.12.25-M19) by [@majk-p][@majk-p] in [#8902](https://github.com/sbt/sbt/pull/8902)
+* deps: Update lm-coursier to 2.1.12 (Coursier 2.12.25-M24) by [@majk-p][@majk-p] in [#8902](https://github.com/sbt/sbt/pull/8902)
 * feat: Retry on HTTP 5xx during dependency resolution by [@majk-p][@majk-p] in [sbt-coursier#601](https://github.com/coursier/sbt-coursier/pull/601)
 * deps: Update log4j to 2.25.3 by [@eed3si9n][@eed3si9n] in [#8872](https://github.com/sbt/sbt/pull/8872)
 * deps: Update `semanticdbVersion` in SemanticdbPlugin.scala by [@xuwei-k][@xuwei-k] in [#8885](https://github.com/sbt/sbt/pull/8885)
