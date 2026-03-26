@@ -2,7 +2,7 @@
 title: "sbt 1.12.7"
 type: story
 date: 2026-03-23
-url: /sbt-1.12.6
+url: /sbt-1.12.7
 tags: [ "sbt" ]
 ---
 
@@ -11,6 +11,8 @@ The headline feature of sbt 1.12.7 is:
 - [CVE-2026-32948][CVE-2026-32948] fix
 
 See also [1.12.0 release note](/sbt-1.12.0) for the details on 1.12.x features.
+
+**Note**: sbt 1.12.7 has a source dependency bug. Use sbt 1.12.8 instead.
 
 <!--more-->
 
