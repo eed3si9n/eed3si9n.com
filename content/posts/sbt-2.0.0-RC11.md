@@ -1,25 +1,23 @@
 ---
-title: "sbt 2.0.0-RC10"
+title: "sbt 2.0.0-RC11 and 1.12.9"
 type: story
-date: 2026-03-26
-url: /sbt-2.0.0-RC10
+date: 2026-04-07
+url: /sbt-2.0.0-RC11
 tags: [ "sbt" ]
 ---
 
-### Key changes since 2.0.0-RC9
+### Key changes since 2.0.0-RC10
 
-- JDK 17 + Scala 3.8.2 in metabuild
-- Dependency mode
-- More robust task caching
-- Slight tweak of the prompt
+- Fixes sandbox resolution using Coursier
+- Rejects `java.nio.file.Path` as cached task output type
 
-See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC10> for the full details.
+See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC11> and <https://github.com/sbt/sbt/releases/tag/v1.12.9> for the full details.
 
 <!--more-->
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC10, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC11, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
 
-Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC10 will keep binary compatibility with 2.0.0 and 2.x.
+Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC11 will keep binary compatibility with 2.0.0 and 2.x.
 
 ### Headline features of sbt 2.0
 
@@ -36,66 +34,28 @@ See also [sbt 2.0 change summary](https://www.scala-sbt.org/2.x/docs/en/changes/
 
 ### How to upgrade
 
-Download **the official sbt runner** for sbt 1.12.8 or later from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.12.8> to upgrade the `sbt` shell script, the launcher, and sbtn. Runner can launch any version of sbt.
+Download **the official sbt runner** for sbt 1.12.9 or later from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.12.9> to upgrade the `sbt` shell script, the launcher, and sbtn. Runner can launch any version of sbt.
 
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=2.0.0-RC10
+sbt.version=2.0.0-RC11
 ```
 
-This mechanism allows that sbt 2.0.0-RC10 is used only for the builds that you want.
+This mechanism allows that sbt 2.0.0-RC11 is used only for the builds that you want.
 
 ### Changes with compatibility implications
 
-* Hides Ivy-dependent `projectDescriptors` key by [@eed3si9n][@eed3si9n] in [#8959](https://github.com/sbt/sbt/pull/8959)
-* Rejects `java.io.File` as cached task output type by [@speedcoder430][@speedcoder430] in [#8766](https://github.com/sbt/sbt/pull/8766)
-
-## 🚀 Updates
-
-### JDK 17 + Scala 3.8.2 in metabuild
-
-sbt 2.0.0-RC10 upgrades the Scala version used on the metabuild to Scala 3.8.2 after notifying the community in [RFC: sbt 2.0 on JDK 17](https://users.scala-lang.org/t/rfc-sbt-2-0-on-jdk-17/12169). This means that you would need JDK 17 or later to run sbt 2.x.
-
-### Dependency mode
-
-sbt 2.0.0-RC10 introduces a new setting for `dependencyMode`, which emulates _strict dependency_ in build tools like Bazel. The idea is to make sure that we declare library dependencies using `libraryDependencies` instead of relying on the transitive graph.
-
-Available values for `dependencyMode` are:
-
-- `DependencyMode.Transitive` (default) — all transitive dependencies on the classpath (current behavior)
-- `DependencyMode.Direct` — only declared `libraryDependencies`
-- `DependencyMode.PlusOne` — declared dependencies plus their immediate transitive dependencies
-
-This feature was contributed by [@eureka928][@eureka928] in [#8960](https://github.com/sbt/sbt/pull/8960).
-
-### Slight tweak of the prompt
-
-sbt 2.0.0-RC10 updates the default prompt slightly to differentiate from that of sbt 1.x:
-
-<img src="/images/sbt2_prompt.png" width="580"></img>
-
-This was contributed by [@eed3si9n][@eed3si9n] in [#8877](https://github.com/sbt/sbt/pull/8877)
-
-### Other updates
-
-* deps: Update to Coursier 2.1.25-M24 by [@eed3si9n][@eed3si9n] + [@bitloi][@bitloi] in [#8962](https://github.com/sbt/sbt/pull/8962)
-* feat: XDG directory standard by [@bitloi][@bitloi] in [#8769](https://github.com/sbt/sbt/pull/8769) + [#8780](https://github.com/sbt/sbt/pull/8780)
-* feat: Adds VF keys such as `sourcesVF` by [@eed3si9n][@eed3si9n] in [#8915](https://github.com/sbt/sbt/pull/8915)
-* feat: Use sbt runner in BSP config by [@bittoby][@bittoby] in [#8920](https://github.com/sbt/sbt/pull/8920)
-* feat: client-side run env inheritance by [@aviu16][@aviu16] in [#8752](https://github.com/sbt/sbt/pull/8752)
-* feat: `repositories_force` support by [@bitloi][@bitloi] in [#8761](https://github.com/sbt/sbt/pull/8761)
-* feat: Add `allowMismatchScala` setting by [@dev-miro26][@dev-miro26] in [#8804](https://github.com/sbt/sbt/pull/8804)
-* feat: Pretty-print dependency lock file by [@spider-yamet][@spider-yamet] in [#8773](https://github.com/sbt/sbt/pull/8773)
-
+* Rejects `java.nio.file.Path` as cached task output type by [@eed3si9n][@eed3si9n] in [#9032](https://github.com/sbt/sbt/pull/9032)
 
 ## 🐛 Bug fixes
 
-* fix: Make task caching more robust by [@idanbenzvi][@idanbenzvi] in [#8890](https://github.com/sbt/sbt/pull/8890)
-* fix: Fixes unresolved dependency error for Coursier by [@bitloi][@bitloi] in [#8869](https://github.com/sbt/sbt/pull/8869)
-* fix: Fixes `NoClassDefFoundError` during analysis of inner classes by [@BrianHotopp][@BrianHotopp] in [zinc#1660](https://github.com/sbt/zinc/pull/1660)
+* fix: Fixes sandbox resolution using Coursier by preferring local `ScalaModuleInfo` by [@kitbellew][@kitbellew] in [#9028](https://github.com/sbt/sbt/pull/9028)
+* fix: Fixes checkBuildSources by [@eed3si9n][@eed3si9n] in [#9020](https://github.com/sbt/sbt/pull/9020)
+* fix: Fixes metabuild reloading by [@eed3si9n][@eed3si9n] in [#9019](https://github.com/sbt/sbt/pull/9019)
+* fix: Fixes `-Ypickle-write` passing during pipelining support by [@corevibe555][@corevibe555] in [#9011](https://github.com/sbt/sbt/pull/9011)
 
-See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC10> for the full details.
+See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC11> for the full details.
 
 ### Documentation localization
 
@@ -111,10 +71,10 @@ Most pages are localized, for example [why sbt exists](https://www.scala-sbt.org
 
 I work on sbt in my own time with collaboration with Scala Center, Anatolii Kmetiuk (new maintainer), Adrien Piquerez (alumni), and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy Autrey to name a few.
 
-sbt 2.0.0-RC10 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC10 --not 1.12.x`:
+sbt 2.0.0-RC11 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC11 --not 1.12.x`:
 
 ```
-470 Eugene Yokota (eed3si9n)
+475 Eugene Yokota (eed3si9n)
 204 Kenji Yoshida (xuwei-k)
 146 Adrien Piquerez
 51  Jerry Tan (friendseeker)
@@ -126,8 +86,8 @@ sbt 2.0.0-RC10 was brought to you by many contributors, including those who cont
 14  Yasuhiro Tatsuno
 13  E.G
 11  Pandaman
+10  Anatolii Kmetiuk
 10  João Ferreira
-9   Anatolii Kmetiuk
 9   Anton Sviridov
 8   Aleksandra Zdrojowa
 7   GlobalStar117
@@ -161,6 +121,7 @@ sbt 2.0.0-RC10 was brought to you by many contributors, including those who cont
 2   byteforge
 2   circlecrystalin
 2   it-education-md
+1   Albert Meltzer
 1   BitToby
 1   BrianHotopp
 1   Deborah Funmilola Olaboye
@@ -189,6 +150,7 @@ sbt 2.0.0-RC10 was brought to you by many contributors, including those who cont
 1   Zainab Ali
 1   bohdansolovie
 1   chrisrock1124
+1   corevibe555
 1   dev-miro26
 1   dive2tech
 1   fireXtract
@@ -225,11 +187,6 @@ Scala Center is a non-profit center at EPFL to support education and open source
   [@azdrojowa123]: https://github.com/azdrojowa123
   [@bitloi]: https://github.com/bitloi
   [@eureka928]: https://github.com/eureka928
-  [@MkDev11]: https://github.com/MkDev11
-  [@speedcoder430]: https://github.com/speedcoder430
-  [@aviu16]: https://github.com/aviu16
-  [@dev-miro26]: https://github.com/dev-miro26
-  [@spider-yamet]: https://github.com/spider-yamet
-  [@bittoby]: https://github.com/bittoby
-  [@idanbenzvi]: https://github.com/idanbenzvi
-  [@BrianHotopp]: https://github.com/BrianHotopp
+  [@kitbellew]: https://github.com/kitbellew
+  [@corevibe555]: https://github.com/corevibe555
+
