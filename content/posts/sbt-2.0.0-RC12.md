@@ -6,7 +6,7 @@ url: /sbt-2.0.0-RC12
 tags: [ "sbt" ]
 ---
 
-### Key changes since 2.0.0-RC10
+### Key changes since 2.0.0-RC11
 
 - Fixes `.previous` expansion
 - Adds `addDependencyTreePlugin` shim
@@ -15,9 +15,9 @@ See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC12>
 
 <!--more-->
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC11, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC12, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
 
-Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC11 will keep binary compatibility with 2.0.0 and 2.x.
+Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC12 will keep binary compatibility with 2.0.0 and 2.x.
 
 ### Headline features of sbt 2.0
 
@@ -70,7 +70,7 @@ Most pages are localized, for example [why sbt exists](https://www.scala-sbt.org
 
 I work on sbt in my own time with collaboration with Scala Center, Anatolii Kmetiuk (new maintainer), Adrien Piquerez (alumni), and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy Autrey to name a few.
 
-sbt 2.0.0-RC11 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC11 --not 1.12.x`:
+sbt 2.0.0-RC12 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC11 --not 1.12.x`:
 
 ```
 479 Eugene Yokota (eed3si9n)
