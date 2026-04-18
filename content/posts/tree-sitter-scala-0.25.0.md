@@ -28,7 +28,7 @@ Full release notes are at <https://github.com/tree-sitter/tree-sitter-scala/rele
 
 ### Participation
 
-tree-sitter-scala 0.25.0 was brought to you by 5 contributors and two bots:
+tree-sitter-scala 0.25.0 was brought to you by 3 contributors and a bot:
 
 ```
 $ git shortlog -sn --no-merges v0.24.0...
