@@ -6,7 +6,9 @@ url:   shutting-down-the-goldmine
 tags: [ "sbt" ]
 ---
 
-This is a follow-up of [sbt and the miners of the wild west](/sbt-and-the-miners-of-the-wild-west), in which I described the story of sbt/sbt getting listed on a crypo-based, open source bounty program called [Gittensor][gittensor], and subsequently getting a high volume of contributions from dozens of users, many using AI tools. Well, I'm shutting it down.
+This is a follow-up of [sbt and the miners of the wild west](/sbt-and-the-miners-of-the-wild-west), in which I described the story of sbt/sbt getting listed on a crypo-based, open source bounty program called [Gittensor][gittensor], and subsequently getting a high volume of contributions from dozens of users, many of whom using AI tools. Well, I'm shutting it all down.
+
+<!--more-->
 
 ### general pace
 
@@ -110,11 +112,11 @@ I didn't know this functionality existed until Gittensor miners came, but GitHub
 
 There are limitations to this approach. For one, some of the miners get frustrated that they were blocked from sbt. Some start negotiating or apologizing on Discord channel.
 
-It's a stressful situation for me and other maintainers as well. Open source is supposed to be a nurturing, fun activity, based on high trust. With anonymous miners, I have to implicitly take adversarial stance against the potential contributors and contributions. If this continues, maintainers would burn out, make a bunch of folks angry about sbt, and/or a nation state would inject some weird code into a simple build tool. So I sent in a pull request [remove sbt/sbt from Gittensor](https://github.com/entrius/gittensor/pull/590) effective immediately.
+It's a stressful situation for me and other maintainers as well. Open source is supposed to be a nurturing, fun activity, based on high trust. With anonymous miners, I have to implicitly take adversarial stance against the potential contributors and contributions. On one side sbt is a build tool, which is recognized as a critical toolchain that other people rely on to build their software. On the other hand, from the handle names and profile info many of the miners are from the Global South or otherwise under-represented background, and may not have had the formal development training. The bounty may make a real difference to some, so different miners show up each week. And I don't enjoy being rude to people. If this continues, maintainers would burn out, make a bunch of folks angry about sbt, and/or a nation state would inject some weird code into a simple build tool. So today, I sent in a pull request to [remove sbt/sbt from Gittensor](https://github.com/entrius/gittensor/pull/590) effective immediately.
 
 ### Gittensor mining as an agentic future
 
-Despite our departure, overall experience of interacting with many miners was a new experience for me, and I'm grateful to their contributions. In both positive and negative ways, I was able to peak into a slice of agentic future. With LLM/AI tools, the miners went through the entire list of GitHub issues that were long neglected, and opportunistically fixed or closed hundreds of them. It also showed that many of the technical-looking changes can be false or unsafe vector of attack.
+Despite our departure, interacting with many miners has been a fresh experience for me, and I'm grateful to many of their contributions. In both positive and negative ways, I was able to peak into a slice of agentic future. With LLM/AI tools, the miners went through the entire list of GitHub issues that were long neglected, and opportunistically fixed or closed hundreds of them. It also showed that many of the technical-looking changes can be false or unsafe vector of attack.
 
 I currently do not use LLM/AI tools on sbt, except for translating documentations, but I'll keep an open mind about them going forward. However, more than anything, I'll be looking forward to normal pull requests sent in from the sbt users.
 
