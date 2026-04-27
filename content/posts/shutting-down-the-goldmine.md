@@ -43,7 +43,7 @@ I'm not sure if it's just ignored, some portions of pull requests were garbage p
 
 ### sifting sand for falsehood
 
-For example, a miner with private profile with full name "Full Stack Developer" sent in a pull request [[2.x] fix: Forward WarnOnSourceChanges warning to sbt client #9092](https://github.com/sbt/sbt/pull/9092). This pull request claims to fix an issue [#6831](https://github.com/sbt/sbt/issues/6831), an issue on sbtn which doesn't display reloading warning.
+For example, a miner with a private GitHub profile with full name "Full Stack Developer" sent in a pull request [[2.x] fix: Forward WarnOnSourceChanges warning to sbt client #9092](https://github.com/sbt/sbt/pull/9092). This pull request claims to fix an issue [#6831](https://github.com/sbt/sbt/issues/6831), an issue on sbtn which doesn't display reloading warning.
 
 The pull request has well-written summary section, problem, and solution outlined with bullet points. The AI Disclosure is "N/A", so the person has written the code by hand. The diff is concise:
 
@@ -102,7 +102,7 @@ It gets tiring, especially because I'm maintaining sbt as a volunteer hobby proj
 
 ### maintainability concerns
 
-Related to the misaligned incentives, Gittensor miners gets paid based on the size of the pull request, so the bigger the better. As long as the tests pass, they could use hardcoded variables and `return` statements (idiomatic Scala selcome uses `null` or `return`), but they won't have to maintain the code base in the long term.
+Related to the misaligned incentives, Gittensor miners gets paid based on the size of the pull request, so the bigger the better. As long as the tests pass, they could use hardcoded variables and `return` statements (idiomatic Scala seldom uses `null` or `return`), but they won't have to maintain the code base in the long term.
 
 This maintainability concern exists for any drive-by pull requests, but with AI tools and crypto payout, there's little incentive to make the smallest amount of change necessary to fix the issue and/or send cleanup pull requests.
 
