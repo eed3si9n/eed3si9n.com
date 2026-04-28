@@ -8,7 +8,7 @@ tags: [ "sbt" ]
 
 The headline feature of sbt 1.12.10 is:
 
-- Update to log4j 2.25.4, fixing CVE-2026-34477, CVE-2026-34478, CVE-2026-34479, and CVE-2026-34480
+- Update to log4j 2.25.4, fixing [CVE-2026-34477](https://github.com/advisories/GHSA-6hg6-v5c8-fphq), [CVE-2026-34478](https://github.com/advisories/GHSA-445c-vh5m-36rj), [CVE-2026-34479](https://github.com/advisories/GHSA-h383-gmxw-35v2), and [CVE-2026-34480](https://github.com/advisories/GHSA-3pxv-7cmr-fjr4)
 - Backport of eviction error in `Test` configuration
 
 See also [1.12.0 release note](/sbt-1.12.0) for the details on 1.12.x features.
@@ -29,12 +29,45 @@ This mechanism allows that sbt 1.12.10 is used only for the builds that you want
 
 Download **the official sbt runner** from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.12.10> to upgrade the `sbt` shell script and the launcher.
 
+### Eviction error in `Test` configuration
+
+In sbt 1.12.10, eviction error extends to the `Test` configuration.
+
+This means that `update` that previously worked might start to fail, especially for Scala Native project:
+
+```bash
+sbt:jawn-root> update
+[error] stack trace is suppressed; run last parserNative / update for the full output
+[error] (parserNative / update) found version conflict(s) in library dependencies; some are suspected to be binary incompatible:
+[error]
+[error]   * org.scala-native:test-interface_native0.5_2.12:0.5.11 (strict) is selected over 0.5.8 for test
+[error]       +- org.typelevel:jawn-parser_native0.5_2.12:1.6.0-237-b6b4456-20260428T023336Z-SNAPSHOT (depends on 0.5.11)
+[error]       +- org.scalacheck:scalacheck_native0.5_2.12:1.19.0    (depends on 0.5.8)
+[error]
+[error]
+[error] this can be overridden using libraryDependencySchemes or evictionErrorLevel
+```
+
+To workaround the Scala Native issue, relax the constraint of `org.scala-native:test-interface` as follows:
+
+```scala
+ThisBuild / libraryDependencySchemes += "org.scala-native" %%% "test-interface_native0.5" % "early-semver"
+```
+
+Alternatively, you can opt out of checking the `Test` configuration:
+
+```scala
+ThisBuild / evictionWarningOptions := (ThisBuild / evictionWarningOptions).value
+  .withConfigurations(List(Compile))
+```
+
+This feature was contributed by [@calm329] and [@zainab-ali] in [#8451](https://github.com/sbt/sbt/pull/8451) + [#9102](https://github.com/sbt/sbt/pull/9102)
+
 ### Updates
 
-* deps: Update log4j to 2.25.4, fixing CVE-2026-34477, CVE-2026-34478, CVE-2026-34479, and CVE-2026-34480 by [@dancewithheart] in [#9086](https://github.com/sbt/sbt/pull/9086)
+* deps: Update log4j to 2.25.4, fixing [CVE-2026-34477](https://github.com/advisories/GHSA-6hg6-v5c8-fphq), [CVE-2026-34478](https://github.com/advisories/GHSA-445c-vh5m-36rj), [CVE-2026-34479](https://github.com/advisories/GHSA-h383-gmxw-35v2), and [CVE-2026-34480](https://github.com/advisories/GHSA-3pxv-7cmr-fjr4) by [@dancewithheart] in [#9086](https://github.com/sbt/sbt/pull/9086)
 * deps: Update Gigahorse to 0.9.4, which pulls in httpclient5 5.6.1 by [@eed3si9n] in [#9125](https://github.com/sbt/sbt/pull/9125)
 * deps: Update sbtn to 2.0.0-RC13 by [@eed3si9n] in [#9139](https://github.com/sbt/sbt/pull/9139)
-* Backport of eviction error in `Test` configuration by [@zainab-ali] in [#9102](https://github.com/sbt/sbt/pull/9102)
 
 ### 🐛 Bug fixes
 
@@ -65,3 +98,4 @@ Scala Center is a non-profit center at EPFL to support education and open source
   [@azdrojowa123]: https://github.com/azdrojowa123
   [@dancewithheart]: https://github.com/dancewithheart
   [@zainab-ali]: https://github.com/zainab-ali
+  [@calm329]: https://github.com/calm329
