@@ -51,7 +51,7 @@ sbt:jawn-root> update
 To workaround the Scala Native issue, relax the constraint of `org.scala-native:test-interface` as follows:
 
 ```scala
-ThisBuild / libraryDependencySchemes += "org.scala-native" %%% "test-interface_native0.5" % "early-semver"
+ThisBuild / libraryDependencySchemes += "org.scala-native" %% "test-interface_native0.5" % VersionScheme.EarlySemVer
 ```
 
 Alternatively, you can opt out of checking the `Test` configuration:
