@@ -72,7 +72,7 @@ This mechanism allows that sbt 2.0.0-RC13 is used only for the builds that you w
 
 ### Execution log
 
-sbt 2.0.0 adds experimental execution log feature to debug caching issues. The execution log can be enabled with `sbt.experimental_execution_log` system property has either `true` or a file path:
+sbt 2.0.0 adds experimental execution log feature to debug caching issues. The execution log can be enabled with `sbt.experimental_execution_log` system property set to either `true` or a file path:
 
 ```bash
 $ sbt --server -Dsbt.experimental_execution_log=true compile
@@ -102,7 +102,6 @@ This was contributed by [@eed3si9n][@eed3si9n] in [#9203](https://github.com/sbt
 * dep: Update Scala to 3.8.3 by [@xuwei-k][@xuwei-k] in [#8997](https://github.com/sbt/sbt/pull/8997)
 * dep: Update Coursier to 2.1.25-M25 by [@eed3si9n][@eed3si9n] in [#9232](https://github.com/sbt/sbt/pull/9232)
 * feat: Adds `ClassLoaderStrategy.Raw` for forked test by [@eed3si9n][@eed3si9n] in [#9161](https://github.com/sbt/sbt/pull/9161)
-* feat: Support passing JVM arguments in `run` via `--` delimeter by [@RenzoMXD][@RenzoMXD] in [#8868](https://github.com/sbt/sbt/pull/8868)
 * feat: Adds `scripted / excludeFilter` and `scripted / includeFilter` setting for scripted test filtering by [@arashi01][@arashi01] in [#9131](https://github.com/sbt/sbt/pull/9131)
 * feat: Adds `Test` configuration to `evictionWarningOptions` by [@zainab-ali][@zainab-ali] in [#9102](https://github.com/sbt/sbt/pull/9102)
 * feat: Adds `cacheVersion` setting for global cache invalidation by [@eureka0928][@eureka0928] in [#8993](https://github.com/sbt/sbt/pull/8993)
