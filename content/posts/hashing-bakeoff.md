@@ -43,20 +43,25 @@ I've added Kcrypt Lab's Blake3 implementation into the benchmark. The original C
 
 Blake3 can output a range of digest length, 64-bit or 256-bit. It's also a cryptographic hash that's recognized by Bazel cache system.
 
+### FarmHash reimplementation
+
+**2026-06-01 Update**: I've ported FarmHash to Scala 3 using VarHandles in [#9278](https://github.com/sbt/sbt/pull/9278).
+
 ### benchmarking hashing fuctions
 
 Here's JMH benchmark result of hashing 2048 bytes on [GitHub Actions](https://github.com/sbt/sbt/actions/runs/26678487225/job/78634585318):
 
 ```
-[info] Benchmark                                Mode  Cnt     Score    Error  Units
-[info] FarmHashHashBenchmark.hashByteArray      avgt    5     0.255 ±  0.001  us/op
-[info] XXHash64HashBenchmark.hashByteArray      avgt    5     0.216 ±  0.001  us/op
-[info] WyHash64HashBenchmark.hashByteArray      avgt    5     0.377 ±  0.002  us/op
-[info] MurmurHash32HashBenchmark.hashByteArray  avgt    5     1.340 ±  0.007  us/op
-[info] MurmurHash64HashBenchmark.hashByteArray  avgt    5     2.368 ±  0.020  us/op
-[info] Blake3HashBenchmark.hashByteArray        avgt    5     6.639 ±  0.067  us/op
-[info] Md5HashBenchmark.hashByteArray           avgt    5     7.936 ±  0.059  us/op
-[info] Sha256HashBenchmark.hashByteArray        avgt    5     9.299 ±  0.103  us/op
+[info] Benchmark                                 Mode  Cnt     Score    Error  Units
+[info] FarmHashHashBenchmark.hashByteArray       avgt    5     0.255 ±  0.001  us/op
+[info] FarmHash64HashSbtBenchmark.hashByteArray  avgt    5     0.330 ±  0.002  us/op
+[info] XXHash64HashBenchmark.hashByteArray       avgt    5     0.216 ±  0.001  us/op
+[info] WyHash64HashBenchmark.hashByteArray       avgt    5     0.377 ±  0.002  us/op
+[info] MurmurHash32HashBenchmark.hashByteArray   avgt    5     1.340 ±  0.007  us/op
+[info] MurmurHash64HashBenchmark.hashByteArray   avgt    5     2.368 ±  0.020  us/op
+[info] Blake3HashBenchmark.hashByteArray         avgt    5     6.639 ±  0.067  us/op
+[info] Md5HashBenchmark.hashByteArray            avgt    5     7.936 ±  0.059  us/op
+[info] Sha256HashBenchmark.hashByteArray         avgt    5     9.299 ±  0.103  us/op
 ```
 
 I've included the current ZAHa FarmHash as the baseline, as well as `scala.util.MurmurHash` from the Scala standard library, MD5, and SHA256. I sometimes wonder if MD5 can be a "non-cryptographic" hash. The result shows that FarmHash took `255 ns` to hash 2048 bytes. To normalize the score, we can convert it to GB/s:
@@ -64,6 +69,7 @@ I've included the current ZAHa FarmHash as the baseline, as well as `scala.util.
 |     Hash |  Score<br>(lower is better) |   GB/s |      Speedup |
 |---------:|--------:|-------:|-------------:|
 | FarmHash (ZAHa) | `0.255` | `7.48` |            `1` |
+| FarmHash (sbt) | `0.330` | `5.78` |            `1.29x` slower |
 | XXHash64 | `0.216` | `8.83` | `1.18x` faster |
 | WyHash64 | `0.377` | `5.06` | `1.5x` slower  |
 | MurmurHash32 (Scala.util) | `1.340` | `1.42` | `5.3x` slower  |
@@ -73,6 +79,8 @@ I've included the current ZAHa FarmHash as the baseline, as well as `scala.util.
 | Sha256 | `9.299` | `0.205` | `36x` slower  |
 
 This doesn't necessarily mean that we'd be able to hash 7 GB in 1s, but it gives us a rough idea. This also shows that XXHash64 is faster than ZAHa FarmHash on GitHub Actions, and that non-crypograph hash functions are order of magnitude faster than MD5, Blake3, or SHA256.
+
+I've reimplemented FarmHash64Na for situation where we need the same hashing result as before. Interestingly, the VarHandle implementation is at 5.78 GB/s, which is 1.29x slower than ZAHa.
 
 ### benchmarking the file hashes
 
