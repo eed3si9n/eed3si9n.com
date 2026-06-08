@@ -1,26 +1,24 @@
 ---
-title: "sbt 2.0.0-RC14"
+title: "sbt 2.0.0-RC15"
 type: story
-date: 2026-06-01
-url: /sbt-2.0.0-RC14
+date: 2026-06-08
+url: /sbt-2.0.0-RC15
 tags: [ "sbt" ]
 ---
 
-### Key changes since 2.0.0-RC13
+### Key changes since 2.0.0-RC14
 
-Various bug fixes including
+- Scala 3.8.4
+- ByteStream chunked upload/download
+- Fixes publishing platform-specific artifacts
 
-- Backtick-quoted project handling
-- jrt URL handling in console
-- Removal of Zero Allocation Hashing deps
-
-See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC14>
+See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC15>
 
 <!--more-->
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC13, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC15, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
 
-Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC13 will keep binary compatibility with 2.0.0 and 2.x.
+Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC15 will keep binary compatibility with 2.0.0 and 2.x.
 
 ### Headline features of sbt 2.0
 
@@ -42,25 +40,20 @@ Download **the official sbt runner** for sbt 1.12.11 or later from SDKMAN, or do
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=2.0.0-RC14
+sbt.version=2.0.0-RC15
 ```
 
-This mechanism allows that sbt 2.0.0-RC14 is used only for the builds that you want.
+This mechanism allows that sbt 2.0.0-RC15 is used only for the builds that you want.
 
 ### 🐛 Bug fixes
 
-* fix: Fixes Scala Native artifact publishing by [@anatoliykmetyuk][@anatoliykmetyuk] in [#9118](https://github.com/sbt/sbt/pull/9118)
-* fix: Fix duplicate autoplugins packageBin mappings by [@anatoliykmetyuk][@anatoliykmetyuk] in [#9255](https://github.com/sbt/sbt/pull/9255)
-* perf: Parallelize dependency resolution when no progress bar is rendered by [@BrianHotopp][@BrianHotopp] in [#9270](https://github.com/sbt/sbt/pull/9270)
-* fix: Report a missing input file clearly by [@BrianHotopp][@BrianHotopp] in [#9271](https://github.com/sbt/sbt/pull/9271)
-* fix: Reimplement FarmHash without using `sun.misc.Unsafe` by [@eed3si9n][@eed3si9n] in [#9267](https://github.com/sbt/sbt/pull/9267) + [#9278](https://github.com/sbt/sbt/pull/9278)
-* fix: Fixes backtick-quoted project handling by [@xuwei-k][@xuwei-k] in [#9277](https://github.com/sbt/sbt/pull/9277)
-* perf: Improve incremental test stamper, take 2 by [@eed3si9n][@eed3si9n] in [#9257](https://github.com/sbt/sbt/pull/9257)
-* fix: Opt bspBuildTargetOutputPathsItem out of caching by [@anatoliykmetyuk][@anatoliykmetyuk] in [#9272](https://github.com/sbt/sbt/pull/9272)
-* fix: Add warning about transient key by [@eed3si9n][@eed3si9n] in [#9288](https://github.com/sbt/sbt/pull/9288)
-* fix: Apply dependencyMode filtering to internal projects by [@BrianHotopp][@BrianHotopp] in [#9250](https://github.com/sbt/sbt/pull/9250)
-* fix: Avoid unnecessary updateFull by [@eed3si9n][@eed3si9n] in [#9290](https://github.com/sbt/sbt/pull/9290)
-* fix: Fixes jrt URL handling in console by [@BrianHotopp][@BrianHotopp] in [#1706](https://github.com/sbt/zinc/pull/1706)
+* fix: ByteStream chunked upload/download to workaround gRPC 4MB limits by [@eed3si9n][@eed3si9n] in [#9298](https://github.com/sbt/sbt/pull/9298)
+* fix: Fixes publishing platform-specific artifacts (like Scala Native) by [@arashi01][@arashi01] in [#9293](https://github.com/sbt/sbt/pull/9293)
+* fix: Fixes cross build caching by [@eed3si9n][@eed3si9n] in [#9305](https://github.com/sbt/sbt/pull/9305)
+
+### Updates
+
+* deps: Update to Scala 3.8.4 by [@xuwei-k][@xuwei-k] + [@eed3si9n][@eed3si9n] in [#9302](https://github.com/sbt/sbt/pull/9302) / [io#522](https://github.com/sbt/io/pull/522)
 
 ### Documentation localization
 
@@ -76,10 +69,10 @@ Most pages are localized, for example [why sbt exists](https://www.scala-sbt.org
 
 I work on sbt in my own time with collaboration with Scala Center, Anatolii Kmetiuk (new maintainer), Adrien Piquerez (alumni), and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy Autrey to name a few.
 
-sbt 2.0.0-RC13 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC13 --not 1.12.x`:
+sbt 2.0.0-RC15 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC15 --not 1.12.x`:
 
 ```
-533 Eugene Yokota (eed3si9n)
+537 Eugene Yokota (eed3si9n)
 209 Kenji Yoshida (xuwei-k)
 146 Adrien Piquerez
 51  Jerry Tan (friendseeker)
@@ -106,6 +99,7 @@ sbt 2.0.0-RC13 was brought to you by many contributors, including those who cont
 3   Brice Jaglin
 3   Li Haoyi
 3   gayanMatch
+2   Ali Rashid
 2   Billy Autrey
 2   BitToby
 2   Brian Hotopp
