@@ -1,26 +1,25 @@
 ---
-title: "sbt 2.0.0-RC15"
+title: "sbt 2.0.0-RC16"
 type: story
-date: 2026-06-08
-url: /sbt-2.0.0-RC15
+date: 2026-06-11
+url: /sbt-2.0.0-RC16
 tags: [ "sbt" ]
 build:
   list: never
 ---
 
-### Key changes since 2.0.0-RC14
+### Key changes since 2.0.0-RC15
 
-- Scala 3.8.4
-- ByteStream chunked upload/download
-- Fixes publishing platform-specific artifacts
+- ByteStream chunked upload/download fix
+- Forked console by default
 
 See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC15>
 
 <!--more-->
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC15, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC16, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
 
-Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC15 will keep binary compatibility with 2.0.0 and 2.x.
+Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC16 will keep binary compatibility with 2.0.0 and 2.x.
 
 ### Headline features of sbt 2.0
 
@@ -42,20 +41,20 @@ Download **the official sbt runner** for sbt 1.12.11 or later from SDKMAN, or do
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=2.0.0-RC15
+sbt.version=2.0.0-RC16
 ```
 
-This mechanism allows that sbt 2.0.0-RC15 is used only for the builds that you want.
+This mechanism allows that sbt 2.0.0-RC16 is used only for the builds that you want.
 
 ### 🐛 Bug fixes
 
-* fix: ByteStream chunked upload/download to workaround gRPC 4MB limits by [@eed3si9n][@eed3si9n] in [#9298](https://github.com/sbt/sbt/pull/9298)
-* fix: Fixes publishing platform-specific artifacts (like Scala Native) by [@arashi01][@arashi01] in [#9293](https://github.com/sbt/sbt/pull/9293)
-* fix: Fixes cross build caching by [@eed3si9n][@eed3si9n] in [#9305](https://github.com/sbt/sbt/pull/9305)
+* fix: Fixes packageDirectory zip publication race by [@bitloi][@bitloi] in [#9047](https://github.com/sbt/sbt/pull/9047)
+* fix: Fixes chunked upload/download by [@eed3si9n][@eed3si9n] in [#9318](https://github.com/sbt/sbt/pull/9318)
+* fix: Fixes `console / javaOptions` by [@eed3si9n][@eed3si9n] in [#9322](https://github.com/sbt/sbt/pull/9322)
 
 ### Updates
 
-* deps: Update to Scala 3.8.4 by [@xuwei-k][@xuwei-k] + [@eed3si9n][@eed3si9n] in [#9302](https://github.com/sbt/sbt/pull/9302) / [io#522](https://github.com/sbt/io/pull/522)
+* sbt 2.0 already forks `console` task from sbtn. It will also fork in `sbt --server` mode as well by setting `console / forked` to `true` by default in [#9322](https://github.com/sbt/sbt/pull/9322)
 
 ### Documentation localization
 
@@ -71,7 +70,7 @@ Most pages are localized, for example [why sbt exists](https://www.scala-sbt.org
 
 I work on sbt in my own time with collaboration with Scala Center, Anatolii Kmetiuk (new maintainer), Adrien Piquerez (alumni), and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy Autrey to name a few.
 
-sbt 2.0.0-RC15 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC15 --not 1.12.x`:
+sbt 2.0.0-RC16 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC15 --not 1.12.x`:
 
 ```
 537 Eugene Yokota (eed3si9n)

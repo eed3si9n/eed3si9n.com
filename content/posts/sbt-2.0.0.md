@@ -1,61 +1,43 @@
 ---
-title: "sbt 2.0.0-RC15"
+title: "sbt 2.0.0"
 type: story
-date: 2026-06-08
-url: /sbt-2.0.0-RC15
+date: 2026-06-14
+url: /sbt-2.0.0
 tags: [ "sbt" ]
-build:
-  list: never
 ---
 
-### Key changes since 2.0.0-RC14
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0. sbt 2.0 is a new major series of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
 
-- Scala 3.8.4
-- ByteStream chunked upload/download
-- Fixes publishing platform-specific artifacts
-
-See <https://github.com/sbt/sbt/releases/tag/v2.0.0-RC15>
+sbt 2.x is released under Semantic Versioning, and the plugins are expected to work throughout the 2.x series. Please try it out, and report any issues you might come across.
 
 <!--more-->
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.0-RC15, a beta version of sbt 2.x. sbt 2.0 is a new version of sbt, based on Scala 3 constructs and Bazel-compatible cache system.
-
-Please try it out, and report any issues you might come across. **Note**: sbt 2.0.0-RC15 will keep binary compatibility with 2.0.0 and 2.x.
-
 ### Headline features of sbt 2.0
 
-- sbt 2.x uses Scala 3.x for build definitions and plugins (Both sbt 1.x and 2.x are capable of building Scala 2.x and 3.x)
+- sbt 2.x uses Scala 3.8.4 for build definitions and plugins (Both sbt 1.x and 2.x are capable of building Scala 2.x and 3.x), which requires minimum **JDK 17**
+- Uses sbtn (native-image client) for faster startup.
 - Common settings. Bare settings are added to all subprojects, as opposed to just the root subproject, and thus replacing the role that ThisBuild has played.
 - `test` changed to incremental test.
 - Local/remote cache system that is Bazel-compatible. `compile` and `test` are both rewritten to be cachable tasks.
 - Project matrix, which was available via plugin in sbt 1.x, is in-sourced in sbt 2.x.
 - Extension of the unified slash syntax to support query of subprojects.
-- Build Server Protocol improvements. In sbt 2.x the `run` task is non-blocking.
+- Client-side run.
+- Client-side console.
 - New documentation
 
 See also [sbt 2.0 change summary](https://www.scala-sbt.org/2.x/docs/en/changes/sbt-2.0-change-summary.html) for the details.
 
 ### How to upgrade
 
-Download **the official sbt runner** for sbt 1.12.11 or later from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v1.12.11> to upgrade the `sbt` shell script, the launcher, and sbtn. Runner can launch any version of sbt.
+Download **the official sbt runner** for sbt 2.0.0 or later from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v2.0.0> to upgrade the `sbt` shell script, the launcher, and sbtn. Runner can launch any version of sbt.
 
 The sbt version used for your build is upgraded by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=2.0.0-RC15
+sbt.version=2.0.0
 ```
 
-This mechanism allows that sbt 2.0.0-RC15 is used only for the builds that you want.
-
-### 🐛 Bug fixes
-
-* fix: ByteStream chunked upload/download to workaround gRPC 4MB limits by [@eed3si9n][@eed3si9n] in [#9298](https://github.com/sbt/sbt/pull/9298)
-* fix: Fixes publishing platform-specific artifacts (like Scala Native) by [@arashi01][@arashi01] in [#9293](https://github.com/sbt/sbt/pull/9293)
-* fix: Fixes cross build caching by [@eed3si9n][@eed3si9n] in [#9305](https://github.com/sbt/sbt/pull/9305)
-
-### Updates
-
-* deps: Update to Scala 3.8.4 by [@xuwei-k][@xuwei-k] + [@eed3si9n][@eed3si9n] in [#9302](https://github.com/sbt/sbt/pull/9302) / [io#522](https://github.com/sbt/io/pull/522)
+This mechanism allows that sbt 2.0.0 is used only for the builds that you want.
 
 ### Documentation localization
 
@@ -71,11 +53,11 @@ Most pages are localized, for example [why sbt exists](https://www.scala-sbt.org
 
 I work on sbt in my own time with collaboration with Scala Center, Anatolii Kmetiuk (new maintainer), Adrien Piquerez (alumni), and other volunteers, like Kenji Yoshida, Jerry Tan, Matthias Kurz (Play maintainer), and recently Billy Autrey to name a few.
 
-sbt 2.0.0-RC15 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0-RC15 --not 1.12.x`:
+sbt 2.0.0 was brought to you by many contributors, including those who contributed to sbt 1.x series, migrating plugins, but according to `git shortlog -sn --no-merges 00eba85d98c854527125ae1655b5332c19b5afd8...733bcfb23997930915b563e7d27b1a1f6c0490da --not 1.11.x` and `git shortlog -sn --group=author --group=trailer:co-authored-by --no-merges 242bd18d30c418620024d089b587f6d263d34247...v2.0.0 --not 1.12.x`:
 
 ```
-537 Eugene Yokota (eed3si9n)
-209 Kenji Yoshida (xuwei-k)
+545 Eugene Yokota (eed3si9n)
+217 Kenji Yoshida (xuwei-k)
 146 Adrien Piquerez
 51  Jerry Tan (friendseeker)
 37  MkDev11
@@ -89,6 +71,7 @@ sbt 2.0.0-RC15 was brought to you by many contributors, including those who cont
 11  Pandaman
 10  João Ferreira
 9   Anton Sviridov
+9   Brian Hotopp
 8   Aleksandra Zdrojowa
 7   Dream
 7   GlobalStar117
@@ -97,14 +80,12 @@ sbt 2.0.0-RC15 was brought to you by many contributors, including those who cont
 4   Martin Duhem
 4   john0030710
 3   Angel98518
-3   BrianHotopp
 3   Brice Jaglin
 3   Li Haoyi
 3   gayanMatch
 2   Ali Rashid
 2   Billy Autrey
 2   BitToby
-2   Brian Hotopp
 2   Damian Reeves
 2   Daniil Sivak
 2   Dmitrii Naumenko

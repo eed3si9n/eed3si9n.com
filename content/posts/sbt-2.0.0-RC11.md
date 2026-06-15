@@ -4,6 +4,8 @@ type: story
 date: 2026-04-07
 url: /sbt-2.0.0-RC11
 tags: [ "sbt" ]
+build:
+  list: never
 ---
 
 ### Key changes since 2.0.0-RC10
