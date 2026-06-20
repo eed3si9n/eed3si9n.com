@@ -10,7 +10,7 @@ A few days ago, Maven Central Repository has introduced [Maven Central Publishin
 
 > A maintainer publishing normal releases for an open source project is one thing. A large commercial entity using Maven Central as the last-mile distribution channel for SDKs, agents, generated clients, integrations, or other commercial software components is another.
 
-He recommends that higher-volume commercial organizations move to Maven Central Publisher Pro. As of this writing, the monthly soft limit for the file size is 80 MB.
+He recommends that higher-volume commercial organizations move to Maven Central Publisher Pro. Letigimate open source projects must either reduce the release size or request an exemption for review. As of this writing, the monthly soft limit for the file size is 80 MB.
 
 This event has triggered many of the Scala library maintainers to realize that on Scala 3, Scaladoc file is often the largest file per module. Looking at the `unzip -l` shows that the Scaladoc JAR includes fonts and `scripts/inkuire.js` ([VirtusLab/Inkuire](https://github.com/VirtusLab/Inkuire) seems to be a search library), totalling over 2.5 MB:
 
