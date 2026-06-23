@@ -29,7 +29,7 @@ This event has triggered many of the Scala library maintainers to realize that o
 As a quick workaround, I've created an sbt plugin that removes all fonts and `scripts/inkuire.js` for both sbt 1.x and 2.x:
 
 ```scala
-addSbtPlugin("com.eed3si9n" % "sbt-salad-days" % "0.1.0")
+addSbtPlugin("com.eed3si9n" % "sbt-salad-days" % "0.2.0")
 ```
 
 This reduces the near-empty Scaladoc to 420 KB.
@@ -41,6 +41,10 @@ $ ls -lh /private/tmp/aaa/target/scala-3.3.8/aaa_3-0.1.0-SNAPSHOT-javadoc.jar
 
 The Scaladoc for <https://repo1.maven.org/maven2/com/eed3si9n/sbt-salad-days_sbt2_3/0.1.0/> is also 420 KB.
 
+
+### Update: 2026-06-23
+
+I've updated sbt-salad-days to 0.2.0 to remove font files from scaladoc on Scala 2.x as well.
 
 ### Reference
 

@@ -31,7 +31,7 @@ tags: [ "sbt" ]
 当座のしのぎとして、全部のフォントと `scripts/inkuire.js` を削除するプラグインを sbt 1.x と 2.x系の両方で作った:
 
 ```scala
-addSbtPlugin("com.eed3si9n" % "sbt-salad-days" % "0.1.0")
+addSbtPlugin("com.eed3si9n" % "sbt-salad-days" % "0.2.0")
 ```
 
 これで、小さい Scaladoc なら 420 KB まで削減した:
@@ -42,6 +42,11 @@ $ ls -lh /private/tmp/aaa/target/scala-3.3.8/aaa_3-0.1.0-SNAPSHOT-javadoc.jar
 ```
 
 <https://repo1.maven.org/maven2/com/eed3si9n/sbt-salad-days_sbt2_3/0.1.0/> 自身の Scaladoc も 420 KB だ。
+
+
+### 更新: 2026-06-23
+
+sbt-salad-days を 0.2.0 に更新して、Scala 2.x の scaladoc からもフォントファイルを削除するようにした。
 
 ### 訳註
 
