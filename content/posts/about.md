@@ -1,7 +1,7 @@
 ---
 title:       "about me"
 type:        page
-date:        2022-11-23
+date:        2026-08-03
 draft:       false
 promote:     true
 sticky:      false
