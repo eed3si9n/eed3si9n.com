@@ -9,15 +9,20 @@ url:         /about
 aliases:     [ /node/330 ]
 ---
 
-I am Eugene Yokota (@eed3si9n on [Mastodon](https://mastodon.social/@eed3si9n) and [GitHub](https://github.com/eed3si9n)), a software engineer with years of experience working on Scala tooling. Most recently, I've been an L6 (equivalent to Staff Engineer) at Netflix's _Productivity, Tooling, and Reliability team_ in the _AIMS_ org that is responsible for recommendation algorithms. Previously I was a Staff Engineer at Twitter's _EE Build/Bazel Migration_ team migrating the largest Scala monorepo into Bazel (See [2 years at Twitter](/2years-at-twitter/) for details).
+I am Eugene Yokota (@eed3si9n on [Mastodon](https://mastodon.social/@eed3si9n) and [GitHub](https://github.com/eed3si9n)), a software engineer with years of experience working on Scala tooling. Most recently, I was an L6 (equivalent to Staff Engineer) at Netflix's _Productivity, Tooling, and Reliability team_ that maintained Algo monorepo for recommendation algorithms (See [3 years at Netflix](/3years-at-netflix)). Previously I was a Staff Engineer at Twitter's _EE Build/Bazel Migration_ team migrating the largest Scala monorepo into Bazel (See [2 years at Twitter](/2years-at-twitter/) for details).
 
 My specialties are researching and documenting complex landscapes of problems through reading, and talking to people, and bringing them into concrete implementations. I'm great at taking existing tools, and making them more performant and developer-friendly.
 
 I've been lead sbt maintainer since 2014 (as a side project since 2020), former [Tech Lead of the Lightbend _Tooling Team_](/6years-at-lightbend), and later a member of the _Scala (Compiler) Team_. I'm passionate about improving developer experience on and off the work, and like to tinker with ideas both through coding and this blog <https://eed3si9n.com/> as my personal platform. Here is a select list of my writing/works:
 
-- [Cached compilation for sbt (2020)](/cached-compilation-for-sbt)
+- [Reducing scaladoc file size with sbt-salad-days (2026)](/reducing-scaladoc-file-size-with-sbt-salad-days)
+- [sudori part 8: no-op compilation performance (2025)](/sudori-part8-noop-compilation-performance)
+- [Incremental compilation of Scala 3 (2025)](/incremental-compilation-of-scala3)
+- [sbt 2.x remote cache with Bazel compatibility (2024)](/sbt-remote-cache-with-bazel-compat)
+- [ifdef in Scala via pre-typer processing (2023)](/ifdef-in-scala-via-pre-typer-processing)
+- [Automate refactoring with Bazel + Scalafix (2023)](/automate-refactoring-with-bazel-and-scalafix)
+- [Cross build anything with Bazel (2023)](/cross-build-anything-with-bazel)
 - [Selective functor in sbt (2020)](/selective-functor-in-sbt)
-- [Equal protection under Eq law (2020)](/equal-protection-under-eq-law)
 - [Making conference a safer space for women (2018)](/making-conference-a-safer-space)
 - [Super shell for sbt (2018)](/super-shell-for-sbt/)
 - [Unification of sbt shell notation and build.sbt DSL (2017)](https://contributors.scala-lang.org/t/unification-of-sbt-shell-notation-and-build-sbt-dsl/913)
@@ -30,34 +35,32 @@ See also ['herding cats'](/herding-cats/) series, a tutorial for Typelevel Cats 
 
 I also have twelve years of experience on various open source projects on GitHub, and eleven years of experience working remotely. Most people would describe me as a friendly person to work with.
 
-<!--
 ### I'm looking for a new team
 
-I'm looking for a new team to solve the next big problem. Beyond my current field of Scala and developer tooling, I'm keen on continuing to be a student of the art. Some of the potential area of interest might be large-scale data processing and bioinformatics.
+I'm looking for a new team to solve the next big problem. Beyond my current field of Bazel, Scala, and developer tooling, I'm keen on continuing to be a student of the art.
 
 Location: Remote (my timezone is US East)<br>
 Employment type: Full-time employee
 
 Some topics I'll want to discuss with you:
 
-- How robust is the company's business model in a potentially slower economy?
 - What is this team most proud of?
 - What is the mission of this team? How would it quantify success?
 - Where do you think I can do the most good?
 - What problems will this team be tackling over the next 6 months?
-- Who in this team has given talks at tech conferences like Scala Days?
+- Who in this team has given talks at tech conferences like Bazelcon and Scala Days?
 - Are there any women/Asian/Black/Latinx/LGBTQ person along the management ladder I would report to?
 - What's the company's philophy on work/life balance?
 - Does this team direclty talk to developers in the community?
 - Is it okay if I continued contributing to open source projects in my own time?
 
 I'm looking for the right fit and eager to explore opportunities. Here's my [cv](/cv.pdf). If you think we're a match, please email me at eed3si9n at gmail.com.
--->
 
 ### talks / workshops
 
 I've given talks in meetup groups, conferences, and facilitated workshops.
 
+- *sbt 2.0: go big*. [Scala Days, Aug 2025 in Lausanne][scaladays2025]. [video][scaladays2025-video] | [slides][scaladays2025-slide]
 - *Intro to Bazel*. [ScalaMatsuri, Mar 2022][scalamatsuri2022]. [slides][bazel101]
 - *Resolving Twitter's 3rdparty/jvm with bazel-multiversion*. [Bazelcon, Nov 2021][bazelcon]. [video][bazelcon-video] | [slides][bazelcon-slides]
 - *Coding with Friends and sbt*. [Tooling Talks Podcast S1E4, Sep 2021][toolingtalks2021].
@@ -80,6 +83,9 @@ I've given talks in meetup groups, conferences, and facilitated workshops.
 - *Intro to scalaxb*. [Scalathon, Jul 2011 in Philadelphia][scalathon]. [video][scalathon-video]
 - *Beginning sbt 0.10*. [ny-scala, Jul 2011][nyscala2011]
 
+  [scaladays2025-video]: https://www.youtube.com/watch?v=GM2ywMb4z7A
+  [scaladays2025-slide]: https://www.slideshare.net/slideshow/sbt-2-0-go-big-scala-days-2025-edition/282592302
+  [scaladays2025]: https://archives.scaladays.org/2025/editions/2025/talks/sbt-2-0-go-big
   [bazel101]: /bazel101
   [scalamatsuri2022]: https://2022.scalamatsuri.org/en/program
   [bazelcon]: https://opensourcelive.withgoogle.com/events/bazelcon2021?talk=resolving-twitters-3rdparty-jvm-with-bazel-multiversion
