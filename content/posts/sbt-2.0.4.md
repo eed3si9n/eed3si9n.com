@@ -32,7 +32,7 @@ Download **the official sbt runner** from SDKMAN, or download from <https://gith
 
 ### Changes with compatibility implications
 
-### Forked run working directory
+#### Forked run working directory
 
 Starting sbt 2.0.4, the working directory for forked run will be changed to the build's working directory instead of the subproject's `baseDirectory`.
 
