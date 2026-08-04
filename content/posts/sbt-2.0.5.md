@@ -16,7 +16,7 @@ See also [sbt 2.0 change summary](https://www.scala-sbt.org/2.x/docs/en/changes/
 
 <!--more-->
 
-Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.4. sbt 2.0 is a new major series of sbt, based on Scala 3 constructs and Bazel-compatible cache system. sbt 2.x is released under Semantic Versioning, and the plugins are expected to work throughout the 2.x series. Please try it out, and report any issues you might come across.
+Hi everyone. On behalf of the sbt project, I am happy to announce sbt 2.0.5. sbt 2.0 is a new major series of sbt, based on Scala 3 constructs and Bazel-compatible cache system. sbt 2.x is released under Semantic Versioning, and the plugins are expected to work throughout the 2.x series. Please try it out, and report any issues you might come across.
 
 ### How to upgrade
 
@@ -62,7 +62,7 @@ This was contributed by [@eed3si9n][@eed3si9n] in [#9538](https://github.com/sbt
 ### Participation
 
 
-sbt 2.0.4 is brought to you by 5 contributors. Eugene Yokota (eed3si9n), Mai Huy Hoàng, Brian Hotopp, Fabrizio Colonna, KilianSwissborg. Thanks!
+sbt 2.0.5 is brought to you by 5 contributors. Eugene Yokota (eed3si9n), Mai Huy Hoàng, Brian Hotopp, Fabrizio Colonna, KilianSwissborg. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
