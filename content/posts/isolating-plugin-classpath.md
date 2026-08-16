@@ -7,7 +7,7 @@ url:         /sbt-plugin-classpath-isolation
 
   [1]: https://www.scala-sbt.org/2.x/docs/en/recipes/plugin-isolation.html
 
-A build performs assortment of tasks, often reusing existing libraries and tools. The plugin mechanism in sbt enables reuse, by adding libraries to the metabuild. It works well for lightweight tasks or integration with CLI such as `gpg` etc. However, adding more libraries to the metabuild may not be desirable or possible. For example, tools like Scalafix or Coursier are written in some Scala version, which may not be compatible with the Scala version used by sbt 2.x or 1.x. For this reason, the idea of plugin classpath isolation comes up occasionally, which we will look into in this post. See [Isolate plugin classpath recipe][1] for the full source.
+A build performs an assortment of tasks, often reusing existing libraries and tools. The plugin mechanism in sbt enables reuse, by adding libraries to the metabuild. This works well for lightweight tasks, or for integrating with CLI tools like `gpg`. However, adding more libraries to the metabuild may not be desirable or possible. For example, tools like Scalafix or Coursier are written in some Scala version, which may not be compatible with the Scala version used by sbt 2.x or 1.x. For this reason, the idea of plugin classpath isolation comes up occasionally, and we'll look into it in this post. See [Isolate plugin classpath recipe][1] for the full source.
 
 <!--more-->
 
@@ -18,7 +18,7 @@ The gist of the idea is:
 1. Define a command-line app.
 2. Execute the command-line app from your plugin via `run`.
 
-Because sbt implements the `run` task using a sandbox classloader, rather than shelling out, this is effectively same as having classpath isolation. Additional feature needed for classpath isolation has been around since sbt 0.13.13. In fact, I've written a similar post [downloading and running app on the side](/sbt-sidedish) in 2017. This is an improved version without needing sbt-sidedish.
+Because sbt's `run` task uses a sandbox classloader instead of shelling out, it is effectively the same as having classpath isolation. The additional feature needed for classpath isolation has been around since sbt 0.13.13. In fact, I wrote about a similar approach in [downloading and running app on the side](/sbt-sidedish) in 2017. This is an improved version that doesn't need sbt-sidedish.
 
 ### synthetic subproject
 
@@ -48,7 +48,7 @@ object BootstrapPlugin extends AutoPlugin:
 end BootstrapPlugin
 ```
 
-In this example, we will add Coursier CLI that was built using Scala 2.12. Because it will be injected to the build, be sure to prefix the name with your plugin name, like `bootstrapCs`.
+In this example, we add the Coursier CLI, which was built with Scala 2.12. Since it's injected into the build, prefix the name with your plugin name, like `bootstrapCs`.
 
 ### calling the command-line
 
@@ -98,7 +98,7 @@ The actual implementation looks as follows:
 
 In the above, `packageBootstrapOutput` and `packageBootstrapArgs` are settings to construct the command-line arguments that will be passed in to Coursier CLI. The `packageBootstrap` task uses `Def.taskDyn`, or a dynamic task, which lets us compose tasks sequentially (our encoding of `flatMap`).
 
-The input into Coursier CLI is string arguments, and the expected outputs are files. Any console output it makes would automatically display to the terminal:
+The input into Coursier CLI is string arguments, and produces files as output. Its console output is automatically displayed to the terminal:
 
 ```bash
 sbt:isolation-root> app/publishLocal
@@ -111,17 +111,17 @@ Wrote /.../isolation/target/out/jvm/scala-3.8.4/hello/bootstrap/hello.jar.bat
 [success] elapsed time: 3 s, cache 100%, 17 disk cache hits
 ```
 
-This shows that `app/packageBootstrap` in sbt 2.x called Coursier CLI to build a bootstrap JAR.
+This shows that `app/packageBootstrap` in sbt 2.x called Coursier CLI to build the bootstrap JAR.
 
 ### a note on forking
 
-While defining the `bootstrapCs` subproject, we intentionally set the `clientSide` to `false`:
+When defining the `bootstrapCs` subproject, we intentionally set `clientSide` to `false`:
 
 ```scala
 clientSide := false,
 ```
 
-This overrides the default client-side run, so Coursier CLI will execute inside of the same JVM as the sbt server. One caveat is that CLI programs will often call `sys.exit(1)` and it will shutdown the sbt server:
+This overrides the default client-side run, so Coursier CLI will execute inside the same JVM as the sbt server. One caveat is that CLI programs often call `sys.exit(1)`, which will shut down the sbt server:
 
 ```bash
 sbt:isolation-root> bootstrapCs/run --help
@@ -143,7 +143,7 @@ clientSide := true,
 Compile / run / fork := true,
 ```
 
-The tradeoff is that forking would potentially run slower compared to the in-process `run` due to JVM warmup, so it might depend on how many times the task would be called.
+The tradeoff is that forking runs slower than the in-process `run`, due to JVM warmup, so it might depend on how many times the task gets called.
 
 ### summary
 
