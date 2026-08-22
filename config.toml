@@ -1,5 +1,8 @@
 baseURL = 'https://eed3si9n.com/'
-languageCode = 'en-us'
+locale = 'en-us'
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = false
+disableDefaultLanguageRedirect = false
 title = 'eed3si9n'
 
 theme = "hyde"
@@ -10,11 +13,11 @@ googleAnalytics = "UA-40469856-1"
 [languages]
   [languages.en]
     weight = 1
-    languageName = 'English'
+    label = 'English'
 
   [languages.ja]
     weight = 2
-    languageName = '日本語'
+    label = '日本語'
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]
