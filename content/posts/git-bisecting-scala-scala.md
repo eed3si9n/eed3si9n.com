@@ -7,8 +7,7 @@ promote:     true
 sticky:      false
 url:         /git-bisecting-scala-scala
 aliases:     [ /node/379 ]
-tags:        [ "scala" ]
-tags:        [ "git" ]
+tags:        [ "scala", "git" ]
 Summary:
   git bisecting is a useful technique to locate the source of a bug. For scala/scala in particular, `bisect.sh` can save a lot of time by using the pre-build compiler artifacts on the Scala CI Artifactory.
 ---
