@@ -30,9 +30,9 @@ Download **the official sbt runner** from SDKMAN, or download from <https://gith
 
 ### Remote code execution via server
 
-sbt team received a security report [GHSA-m2pw-22cj-jq4v](https://github.com/sbt/sbt/security/advisories/GHSA-m2pw-22cj-jq4v) from [Arpit Jain](https://github.com/arpitjain099) that when the `serverConnectionType` is set to `Tcp`, an attacker is able to execute arbitrary code remotely via the sbt server. sbt 1.12.15 and 2.0.6 fix this bug.
+sbt team received a security report [GHSA-m2pw-22cj-jq4v](https://github.com/sbt/sbt/security/advisories/GHSA-m2pw-22cj-jq4v) from [Arpit Jain](https://github.com/arpitjain099) that when the `serverConnectionType` is set to `Tcp`, an attacker is able to execute arbitrary code remotely via the sbt server. sbt 1.12.15 and 2.0.6 fix this bug. Builds with the default serverConnectionType are not affected.
 
-We recommend removing the `serverConnectionType` setting, or upgrading to a patched version or later:
+We recommend removing the `serverConnectionType` setting, or upgrading to a patched version or later. In an affected build, the setting might look like this:
 
 ```scala
 Global / serverConnectionType := ConnectionType.Tcp
