@@ -6,7 +6,7 @@ url: /ja/reducing-scaladoc-file-size-with-sbt-salad-days
 tags: [ "sbt" ]
 ---
 
-数日前に Maven Central Repository が [Maven Central 公開制限](https://central.sonatype.org/publish/maven-central-publishing-limits/)を導入した。この背景は Brian Fox さんの [Open Publishing, Commercial Scale](https://www.sonatype.com/blog/open-publishing-commercial-scale) にまとめられている:
+数日前に Maven Central Repository が [Maven Central 公開制限](https://central.sonatype.org/publish/maven-central-publishing-limits/)を仮導入した。この背景は Brian Fox さんの [Open Publishing, Commercial Scale](https://www.sonatype.com/blog/open-publishing-commercial-scale) にまとめられている:
 
 > オープンソースなプロジェクトのメンテナが普通にリリースをしているのは問題無い。しかし、大規模な商用団体が Maven Central を SDK、エージェント、自動生成クライアント、統合モジュール、その他の商用ソフトのコンポーネントの末端分配チャンネルとして使っているのは別問題だ。
 
