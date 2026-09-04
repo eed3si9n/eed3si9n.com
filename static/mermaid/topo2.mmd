@@ -1,0 +1,46 @@
+---
+config:
+  look: handDrawn
+  theme: neutral
+---
+flowchart LR
+  subgraph Server
+    subgraph Thread1
+      m1t1[Module1 test class 1]
+      m3t1[Module3 test class 1]
+    end
+
+    subgraph Thread2
+      m1t2[Module1 test class 2]
+    end
+
+    subgraph Thread3
+      m2t1[Module2 test class 1]
+      m3t2[Module3 test class 2]
+    end
+
+    subgraph Thread4
+      m2t2[Module2 test class 2]
+    end
+  end
+
+  subgraph Fork1
+    m4[Module4 tests]
+  end
+  subgraph Fork2
+    m5[Module5 tests]
+  end
+  subgraph Fork3
+    m6[Module6 tests]
+  end
+
+  start --> m1t1
+  start --> m2t1
+  start --> m4
+  start --> m5
+  m1t1 --> m3t1 --> done
+  m1t2 --> done
+  m2t1 --> m3t2 --> done
+  m2t2 --> done
+  m4 --> done
+  m5 --> m6 --> done

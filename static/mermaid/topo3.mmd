@@ -1,0 +1,33 @@
+---
+config:
+  look: handDrawn
+  theme: neutral
+---
+flowchart LR
+  subgraph Server
+    subgraph Thread1
+    end
+  end
+
+  subgraph Worker1
+    m4g1[Module4 test group 1]
+  end
+  subgraph Worker2
+    m4g2[Module4 test group 2]
+  end
+  subgraph Worker3
+    m5[Module5 tests]
+    m6g2[Module6 test group 2]
+  end
+  subgraph Worker4
+    m6g1[Module6 test group 1]
+  end
+
+  start --> m4g1
+  start --> m4g2
+  start --> m5
+  start --> m6g1
+  m4g1 --> done
+  m4g2 --> done
+  m6g1 --> done
+  m5 --> m6g2 --> done
