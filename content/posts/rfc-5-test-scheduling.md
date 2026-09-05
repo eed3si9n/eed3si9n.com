@@ -128,6 +128,10 @@ Making the worker persistent itself is a trivial change, but there are a few sec
 
 We can start with a minimial, opt-in implementation and benchmark some of the assumptions.
 
+### Feedback
+
+GitHub Discussion: <https://github.com/sbt/sbt/discussions/9714>
+
 <div class="admonition note">
 
 ### Appendix: Related ideas
