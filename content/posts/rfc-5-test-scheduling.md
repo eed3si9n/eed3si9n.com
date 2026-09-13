@@ -12,6 +12,10 @@ tags:        [ "sbt" ]
 
 ## Background
 
+### Target version
+
+This proposal targets the current develop line of sbt, which is sbt 2.1.0.
+
 ### Test terminology
 
 In this example, we'll use:
