@@ -1,7 +1,7 @@
 ---
-title: "sbt 2.1.0 beta (2.1.0-M1)"
+title: "sbt 2.1.0 beta (2.1.0-M3)"
 type: story
-date: 2026-09-13
+date: 2026-09-28
 url: /sbt-2.1.0-beta
 tags: ["sbt"]
 ---
@@ -16,26 +16,37 @@ The headline features of sbt 2.1.0 are:
 - Testing UX improvements
 - Various performance improvements
 
-The full release note is at <https://github.com/sbt/sbt/releases/tag/v2.1.0-M1>. See also [sbt 2.0 change summary](https://www.scala-sbt.org/2.x/docs/en/changes/sbt-2.0-change-summary.html).
+The full release note is at <https://github.com/sbt/sbt/releases/tag/v2.1.0-M1> and <https://github.com/sbt/sbt/releases/tag/v2.1.0-M3>. See also [sbt 2.0 change summary](https://www.scala-sbt.org/2.x/docs/en/changes/sbt-2.0-change-summary.html).
 
 <!--more-->
 
 ### How to upgrade
 
-You can upgrade to sbt 2.1.0-M1 by putting the following in `project/build.properties`:
+You can upgrade to sbt 2.1.0-M3 by putting the following in `project/build.properties`:
 
 ```bash
-sbt.version=2.1.0-M1
+sbt.version=2.1.0-M3
 ```
 
-This mechanism allows that sbt 2.1.0-M1 is used only for the builds that you want.
+This mechanism allows that sbt 2.1.0-M3 is used only for the builds that you want.
 
-Download **the official sbt runner** from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v2.1.0-M1> to upgrade the `sbt` shell script, sbtn, and the launcher.
+Download **the official sbt runner** from SDKMAN, or download from <https://github.com/sbt/sbt/releases/tag/v2.1.0-M3> to upgrade the `sbt` shell script, sbtn, and the launcher.
+
+### Changes since 2.1.0-M1
+
+- Updates to Coursier 2.1.25, which enables custom HTTP user agent.
+- Updates to Gigahorse 0.9.6 to work around Apache HttpClient issue with HTTP/2.
+- Updates to scala-xml 2.5.0, scala-parser-combinators 2.5.0, and Caffeine 3.2.4 for sun.misc.Unsafe migration.
+- Identity map optimization.
+- `remoteCacheRequestTimeout` setting.
+- `sbt` runner script honors `JAVA_HOME`.
+- Many other bug fixes.
 
 ### Changes with compatibility implications
 
 - Metabuild is updated to Scala 3.9.
 - Apache Ivy is removed from the dependency.
+- `sbt` runner script honors `JAVA_HOME`.
 
 #### Scala 3.9 on metabuild
 
@@ -140,6 +151,13 @@ sbt 2.1.0 provides better control to handle source dependencies.
 
 This was contributed by [@seroperson][@seroperson] in [#8880](https://github.com/sbt/sbt/pull/8880).
 
+### Identity map optimization
+
+In sbt 2.1.0, a key assignment (`:=`) whose right-hand side is `expr.value` short-circuits to `x.set(expr)`.
+This is helpful in avoiding `JsonFormat[A]` when `expr` is an uncached task.
+
+This was contributed by [@eed3si9n][@eed3si9n] in [#9831](https://github.com/sbt/sbt/pull/9831)
+
 ### ⚡ Performance improvements
 
 - perf: lightweight `UpdateReport` cache persistence by [@bitloi][@bitloi] in [#8815](https://github.com/sbt/sbt/pull/8815)
@@ -173,11 +191,13 @@ This was contributed by [@seroperson][@seroperson] in [#8880](https://github.com
 - feat: Adds `Seq[Initialize[Task[T]]]#join` extension method by [@jozanek][@jozanek] in [#9347](https://github.com/sbt/sbt/pull/9347)
 - feat: Adds `LoggerContext.removeAppender` for single appender removal by [@stasimus][@stasimus] in [#9740](https://github.com/sbt/sbt/pull/9740)
 - feat: Improve Zinc invalidation debug logs by [@jozanek][@jozanek] in [zinc#1765](https://github.com/sbt/zinc/pull/1765)
-
+- feat: Adds `ProjectMatrix#configureRows` and `configurePlatforms` methods by [@kitbellew][@kitbellew] in [#9765](https://github.com/sbt/sbt/pull/9765)
+- feat: Persistent worker for tests by [@eed3si9n][@eed3si9n] in [#9678](https://github.com/sbt/sbt/pull/9678)
+- `remoteCacheRequestTimeout` setting by [@eed3si9n][@eed3si9n] in [#9829](https://github.com/sbt/sbt/pull/9829)
 
 ### 🐛 Bug fixes
 
-70 bug fixes. See <https://github.com/sbt/sbt/releases/tag/v2.1.0-M1>.
+80+ bug fixes. See <https://github.com/sbt/sbt/releases/tag/v2.1.0-M1> and <https://github.com/sbt/sbt/releases/tag/v2.1.0-M3>.
 
 ### Participation
 
@@ -190,21 +210,22 @@ For anyone interested in helping sbt, there are many avenues for you to help, de
   [@eed3si9n]: https://github.com/eed3si9n
   [@anatoliykmetyuk]: https://github.com/anatoliykmetyuk
   [@xuwei-k]: https://github.com/xuwei-k
-  [@BrianHotopp]: https://github.com/BrianHotopp
-  [@tanishiking]: https://github.com/tanishiking
-  [@jozanek]: https://github.com/jozanek
-  [@raboof]: https://github.com/raboof
-  [@mrdziuban]: https://github.com/mrdziuban
-  [@unkarjedy]: https://github.com/unkarjedy
-  [@azdrojowa123]: https://github.com/azdrojowa123
-  [@stasimus]: https://github.com/stasimus
-  [@fury0928]: https://github.com/fury0928
-  [@bitloi]: https://github.com/bitloi
-  [@seroperson]: https://github.com/seroperson
-  [@volcano303]: https://github.com/volcano303
-  [@hoangmaihuy]: https://github.com/hoangmaihuy
   [@Achieve3318]: https://github.com/Achieve3318
-  [@oolokioo7]: https://github.com/oolokioo7
-  [@jonathanchang31]: https://github.com/jonathanchang31
-  [@jsdevninja]: https://github.com/jsdevninja
+  [@azdrojowa123]: https://github.com/azdrojowa123
+  [@bitloi]: https://github.com/bitloi
+  [@BrianHotopp]: https://github.com/BrianHotopp
   [@claytonlin1110]: https://github.com/claytonlin1110
+  [@fury0928]: https://github.com/fury0928
+  [@hoangmaihuy]: https://github.com/hoangmaihuy
+  [@jonathanchang31]: https://github.com/jonathanchang31
+  [@jozanek]: https://github.com/jozanek
+  [@jsdevninja]: https://github.com/jsdevninja
+  [@kitbellew]: https://github.com/kitbellew
+  [@mrdziuban]: https://github.com/mrdziuban
+  [@oolokioo7]: https://github.com/oolokioo7
+  [@raboof]: https://github.com/raboof
+  [@seroperson]: https://github.com/seroperson
+  [@stasimus]: https://github.com/stasimus
+  [@tanishiking]: https://github.com/tanishiking
+  [@unkarjedy]: https://github.com/unkarjedy
+  [@volcano303]: https://github.com/volcano303
