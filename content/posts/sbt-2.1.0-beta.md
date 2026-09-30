@@ -40,6 +40,7 @@ Download **the official sbt runner** from SDKMAN, or download from <https://gith
 - Identity map optimization.
 - `remoteCacheRequestTimeout` setting.
 - `sbt` runner script honors `JAVA_HOME`.
+- Bug fixes around ivyless publishing.
 - Many other bug fixes.
 
 ### Changes with compatibility implications
@@ -201,7 +202,7 @@ This was contributed by [@eed3si9n][@eed3si9n] in [#9831](https://github.com/sbt
 
 ### Participation
 
-sbt 2.1.0-M1 is brought to you by 36 contributors. Eugene Yokota (eed3si9n), Kenji Yoshida (xuwei-k), BrianHotopp, Anatolii Kmetiuk, Jozef Koval, Dream, Mai Huy Hoàng, Stas Shevchenko, bitloi, Albert Meltzer, BitToby, Daniil Sivak, Dmitrii Naumenko, corevibe555, it-education-md, oolokioo7, Arnout Engelen, Christian Harrington, Li Haoyi, Matt Dziuban, Matthias Kurz, Merlin Hughes, Pandaman, Angel98518, BinaryWorldTl, BitCompass, Clayton, Jonathan Chang, Philippus Baalman, Tu Nguyen, Viktor Rudebeck, atoz96, ckstck, jimcody1995, since-2017-hub, volcano303. Thanks!
+sbt 2.1.0-M3 is brought to you by 36 contributors. Eugene Yokota (eed3si9n), Kenji Yoshida (xuwei-k), BrianHotopp, Anatolii Kmetiuk, Jozef Koval, Albert Meltzer, Dream, Mai Huy Hoàng, Stas Shevchenko, bitloi, BitToby, Daniil Sivak, Dmitrii Naumenko, corevibe555, it-education-md, oolokioo7, Arnout Engelen, Christian Harrington, Li Haoyi, Matt Dziuban, Matthias Kurz, Merlin Hughes, Pandaman, Angel98518, BinaryWorldTl, BitCompass, Clayton, Jonathan Chang, Philippus Baalman, Tu Nguyen, Viktor Rudebeck, atoz96, ckstck, jimcody1995, since-2017-hub, volcano303. Thanks!
 
 Thanks to everyone who's helped improve sbt and Zinc by using them, reporting bugs, improving our documentation, porting builds, porting plugins, and submitting and reviewing pull requests.
 
