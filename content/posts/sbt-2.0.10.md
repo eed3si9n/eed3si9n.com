@@ -10,7 +10,7 @@ The headline features of sbt 2.0.10 are:
 
 - Updates to Coursier 2.1.26
 - `sbt` runner script honors `JAVA_HOME` environment variable
-- Read-only CAS
+- Read-only CAS, to prevent CAS corruption
 - Other backported fixes
 
 See also [sbt 2.0 change summary](https://www.scala-sbt.org/2.x/docs/en/changes/sbt-2.0-change-summary.html) for the sbt 2.0 changes in general.
