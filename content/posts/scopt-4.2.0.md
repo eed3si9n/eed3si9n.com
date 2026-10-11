@@ -20,6 +20,8 @@ scopt 4.2.0 is cross published to the following build matrix:
 | 2.13.x        | ✅  |   ✅     |      ✅         |
 | 2.12.x        | ✅  |   ✅     |      ✅         |
 
+scopt 4.2 and later require JDK 17 for Scala 3.x.
+
 scopt is a little command line options parsing library. See https://eed3si9n.com/scopt4 or [readme](https://github.com/scopt/scopt) for the details on how to use scopt.
 
 <!--more-->
