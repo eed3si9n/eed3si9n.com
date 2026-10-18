@@ -44,7 +44,7 @@ Download **the official sbt runner** from SDKMAN, or download from <https://gith
 - fix: Removes write permission from the CAS to prevent cache corruption by [@eed3si9n][@eed3si9n] in [#9847](https://github.com/sbt/sbt/pull/9847)
 - fix: Implements copy-on-write for symlinks by [@eed3si9n][@eed3si9n] in [#io#568)](https://github.com/sbt/io/pull/568)
 - fix: Restores the pipelining early output on an action-cache hit by [@PhoenixmitX][@PhoenixmitX] in [#9793](https://github.com/sbt/sbt/pull/9793)
-- fix: Reads scripted `pause` from standard input by @anatoliykmetyuk in [#9824](https://github.com/sbt/sbt/pull/9824)
+- fix: Reads scripted `pause` from standard input by [@anatoliykmetyuk][@anatoliykmetyuk] in [#9824](https://github.com/sbt/sbt/pull/9824)
 - fix: Keeps the interrupt flag when writing to the thin client by [@pierscin][@pierscin] and [@eed3si9n][@eed3si9n] in [#9848](https://github.com/sbt/sbt/pull/9848) / [#9855](https://github.com/sbt/sbt/pull/9855)
 
 ### Participation
