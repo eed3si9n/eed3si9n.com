@@ -10,7 +10,7 @@ eMudhra/emSign 中間CA証明書のインシデントに関する概要や一次
 
 > eMudhra中間CA証明書の秘密鍵が8件侵害されました。これらの証明書は，Mozilla，Microsoft，Apple，Chromeのルートプログラムで採用され，多くのトラストストアにも取り込まれたルート証明書につながっています。侵害された中間CAのいずれかの秘密鍵を持つ攻撃者は，任意のウェブサイトやサービスになりすますことができます。
 
-HTTPS や mTLS は、エンドツーエンドで暗号化を行うことで、本来信頼性が低いインターネットのような環境でも安全な通信を行うことができているわけだが、そもそも送り先の末端が正規のサーバーなのかを確認するために、公開鍵暗号を予め信頼された認証局 (CA) によって署名しているという背景がある。「予め信頼された認証局」のリストは、ブラウザ、OS、プログラミング言語などのよって異なる。2026年10月17日に Firefox と Chrome が、危殆化した証明書を削除して、その後 Microsoft社、Apple社など各社の対応が進んでいる。JVM の場合は JVM そのものにリストが組み込まれている場合と、Linux のリストに委譲する 2パターンがある。Java では、この脆弱性は [CVE-2026-91403](https://www.oracle.com/security-alerts/alert-cve-2026-91403.html) という番号が与えられている。影響のある JDK は 8、11、17、21、25 と公表されているが、comodoaaaca を信用している JDK 7 なども危殆化した。
+HTTPS や mTLS は、エンドツーエンドで暗号化を行うことで、本来信頼性が低いインターネットのような環境でも安全な通信を行うことができているわけだが、そもそも送り先の末端が正規のサーバーなのかを確認するために、公開鍵暗号を予め信頼された認証局 (CA) によって署名しているという背景がある。「予め信頼された認証局」のリストは、ブラウザ、OS、プログラミング言語などによって異なる。2026年10月17日に Firefox と Chrome が、危殆化した証明書を削除して、その後 Microsoft社、Apple社など各社の対応が進んでいる。JVM の場合は JVM そのものにリストが組み込まれている場合と、Linux のリストに委譲する 2パターンがある。Java では、この脆弱性は [CVE-2026-91403](https://www.oracle.com/security-alerts/alert-cve-2026-91403.html) という番号が与えられている。影響のある JDK は 8、11、17、21、25 と公表されているが、comodoaaaca を信用している JDK 7 なども危殆化した。
 
 認証が危殆化しても、攻撃者が「なりすまし」をするには、ネットワークの乗っ取りも必要じゃないかと思われる人もいるかもしれないが、HTTPS が普及したことで野良 wifi に接続する心理的ハードルも下がったため、この状況で空港やカフェなどで wifi 機器を設置すれば乗っ取りが可能であるかもしれない。そこで Maven Central のみ詐称してもブラウザで開かなければ気付かないだろう。
 
@@ -132,6 +132,8 @@ OK https://dv-g3c-emudhra.we-have-a-problem.com/
   SSLHandshakeException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
 ....
 ```
+
+**補足**: JDK には `blocked.certs` という仕組みがあるので、それで危殆化した証明書をブロックすることを当初 Oracle などは推奨していたが、数日前に Sonatype のリサーチチームが証明書は亜種を再エンコードすることができるので単純に証明書の SHA256 のフィンガープリントをブロックしても簡単に回避することができるという内容の [The Limits of Fingerprint Blocklists: A Reproducible Java Certificate Bypass](https://www.sonatype.com/blog/the-limits-of-fingerprint-blocklists-a-reproducible-java-certificate-bypass) を公開したため、本稿では証明書を手動で不信任とする方法を取っている。この辺りの回避策は今後もどんどん情報が変わっていく可能性がある。
 
 ### 修正済みの JDK への更新
 
