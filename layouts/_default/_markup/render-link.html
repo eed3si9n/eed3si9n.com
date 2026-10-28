@@ -1,0 +1,12 @@
+{{- /* Shorten bare GitHub URLs under github.com/sbt:
+       sbt/sbt -> #123, sbt/abc -> abc#123.
+       Only applies when the link text is the URL itself (autolinks). */ -}}
+{{- $text := string .Text -}}
+{{- $m := findRESubmatch `^https://github\.com/sbt/([A-Za-z0-9._-]+)/(?:pull|issues|discussions)/(\d+)/?$` .Destination 1 -}}
+{{- if and $m (eq $text .Destination) -}}
+  {{- $repo := index (index $m 0) 1 -}}
+  {{- $num := index (index $m 0) 2 -}}
+  {{- $text = cond (eq $repo "sbt") (printf "#%s" $num) (printf "%s#%s" $repo $num) -}}
+{{- end -}}
+<a href="{{ .Destination | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}>{{ $text | safeHTML }}</a>
+{{- /* trim trailing newline */ -}}
